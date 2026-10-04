@@ -1,0 +1,1 @@
+ALTER TABLE `saved_characters` ADD `catalog_revision` text;

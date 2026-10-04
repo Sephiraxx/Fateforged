@@ -1,0 +1,2245 @@
+{
+  "anchorId": "02194b71-4f7a-47ac-b0d5-5bb4c0780142",
+  "originalIds": [
+    "02194b71-4f7a-47ac-b0d5-5bb4c0780142",
+    "35b9e67f-c195-47bd-a61c-de10f9a9b734",
+    "3700ea7e-0be3-4030-9c70-6b87471f8945",
+    "4f489601-2960-4293-b800-6da8711f4085",
+    "5992c6cd-6ad1-45ee-9fb0-a790f2fe40c6",
+    "5b503ba7-1f3a-426a-973a-3e7d1e56351b",
+    "8f081bf2-7c27-4f05-ad4e-7e2e0c5ecac0",
+    "99143869-912e-4bbe-a287-fdc84e67afb7",
+    "9a4205e6-bdd9-485e-b912-033724d59c56",
+    "b3a0991a-a859-4b28-87a8-27f4db89ba78",
+    "bbe08165-c88a-4935-ae79-acfe9e6c48a2",
+    "d21727c5-de29-4b28-94be-6d877f226101",
+    "d7c67351-cc96-4742-adbd-264e482dd55b",
+    "d7de43f7-b2ed-48b0-8ab4-0087dc04e024",
+    "df7bfa04-11a3-4e21-8613-ccab8d4a764c",
+    "ed84d275-c1d0-44b6-8301-6a560c7f002f",
+    "ee166078-703d-4b05-bcf5-13a893d7c409"
+  ],
+  "characters": [
+    {
+      "id": "4495b61f-b7f8-45d0-807b-812b75d9d151",
+      "name": "Fenash Clawwatch",
+      "traits": {
+        "race": "Basilisk",
+        "subrace": "Desert",
+        "class": "Hunter",
+        "subclass": "Monster hunter",
+        "strength": "Built different",
+        "speed": "Ordinary",
+        "durability": "Steel body",
+        "iq": "Quick thinker",
+        "magic": "Novice",
+        "weapon": "Greataxe",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Cold iron"
+      }
+    },
+    {
+      "id": "3abde2b8-c06a-4591-b3bd-0b6889ecd6dc",
+      "name": "Itharis Stormseer",
+      "traits": {
+        "race": "Elf",
+        "subrace": "High",
+        "class": "Runemaster",
+        "subclass": "Ward maker",
+        "strength": "Wet noodle",
+        "speed": "Swift",
+        "durability": "Paper thin",
+        "iq": "Slow thinker",
+        "magic": "Expert",
+        "weapon": "Scythe",
+        "mastery": "Expert",
+        "power": "Storm calling",
+        "power2": "No second power",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "222c293f-1a88-4b6b-897a-debe0c116535",
+      "name": "Serin Ashguard",
+      "traits": {
+        "race": "Goblin",
+        "subrace": "City",
+        "class": "Void Walker",
+        "subclass": "Abyss traveler",
+        "strength": "String bean",
+        "speed": "Athletic",
+        "durability": "Iron skin",
+        "iq": "Supercomputer",
+        "magic": "Novice",
+        "weapon": "Greatsword",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Holy magic"
+      }
+    },
+    {
+      "id": "621fec9c-b87c-4733-9ad7-5b4332a267a3",
+      "name": "Edric Froststep",
+      "traits": {
+        "race": "Halfling",
+        "subrace": "Stout",
+        "class": "Shadow",
+        "subclass": "Dark stalker",
+        "strength": "Juiced",
+        "speed": "Ordinary",
+        "durability": "Adamantine",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Battleaxe",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "Ice control",
+        "weakness": "Short power duration"
+      }
+    },
+    {
+      "id": "fc942d0e-d0c2-4697-86d2-c6cf94687a45",
+      "name": "Bronum Ironsong",
+      "traits": {
+        "race": "Golem",
+        "subrace": "Iron",
+        "class": "Bard",
+        "subclass": "Battle singer",
+        "strength": "Solid build",
+        "speed": "Swift",
+        "durability": "Hardened",
+        "iq": "Average",
+        "magic": "Dormant spark",
+        "weapon": "Rune blade",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silenced casting"
+      }
+    },
+    {
+      "id": "f986374b-204e-4fd0-88cc-f1a68539e6bb",
+      "name": "Soliel Bloodseer",
+      "traits": {
+        "race": "Demigod",
+        "subrace": "Death",
+        "class": "Blood Mage",
+        "subclass": "Crimson blade",
+        "strength": "Solid build",
+        "speed": "Hypersonic",
+        "durability": "Indestructible",
+        "iq": "Average",
+        "magic": "No magic",
+        "weapon": "Shield",
+        "mastery": "Legendary",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Overconfidence"
+      }
+    },
+    {
+      "id": "2ff035b2-afd0-47dd-bb6f-79c47a79ae43",
+      "name": "Duska Palefist",
+      "traits": {
+        "race": "Vampire",
+        "subrace": "Noble",
+        "class": "Monk",
+        "subclass": "Open hand",
+        "strength": "Solid build",
+        "speed": "Ordinary",
+        "durability": "Paper thin",
+        "iq": "Quick thinker",
+        "magic": "Master",
+        "weapon": "Arcane gauntlets",
+        "mastery": "Trained",
+        "power": "Crystal shaping",
+        "power2": "No second power",
+        "weakness": "Short power duration"
+      }
+    },
+    {
+      "id": "02a14af3-25aa-423c-a0fe-94e0038d17da",
+      "name": "Sylriel Sunward",
+      "traits": {
+        "race": "Elf",
+        "subrace": "Sun",
+        "class": "Healer",
+        "subclass": "Spirit healer",
+        "strength": "String bean",
+        "speed": "Stationary",
+        "durability": "Iron skin",
+        "iq": "Quick thinker",
+        "magic": "Master",
+        "weapon": "Claws",
+        "mastery": "Expert",
+        "power": "Portal creation",
+        "power2": "No second power",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "d66e5e0f-7ed0-484d-9012-3c835f59a161",
+      "name": "Kaelin Frostwright",
+      "traits": {
+        "race": "Orc",
+        "subrace": "Ash",
+        "class": "Alchemist",
+        "subclass": "Transmuter",
+        "strength": "No gains",
+        "speed": "Swift",
+        "durability": "Iron skin",
+        "iq": "Quick thinker",
+        "magic": "Apprentice",
+        "weapon": "Staff",
+        "mastery": "Expert",
+        "power": "Ice control",
+        "power2": "No second power",
+        "weakness": "Anti-magic"
+      }
+    },
+    {
+      "id": "f8d0b20f-3721-44b3-9a99-cbdfaa0a9cef",
+      "name": "Ulun Emberweaver",
+      "traits": {
+        "race": "Goliath",
+        "subrace": "Stone",
+        "class": "Runemaster",
+        "subclass": "Rune knight",
+        "strength": "Solid build",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Quick thinker",
+        "magic": "Legendary",
+        "weapon": "Staff",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "Fire control",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "36a3d821-a658-4c92-9c7f-cdaca12d3ce0",
+      "name": "Malzareth Stonecaller",
+      "traits": {
+        "race": "Anubite",
+        "subrace": "Guardian",
+        "class": "Psion",
+        "subclass": "Telekinetic",
+        "strength": "Juiced",
+        "speed": "Stationary",
+        "durability": "Ordinary",
+        "iq": "Slow thinker",
+        "magic": "Expert",
+        "weapon": "Staff",
+        "mastery": "Beginner",
+        "power": "Earth shaping",
+        "power2": "Water control",
+        "weakness": "Anti-magic"
+      }
+    },
+    {
+      "id": "43c8d196-d5c3-4a4b-843b-143faa5a0833",
+      "name": "Nimra Sunblade",
+      "traits": {
+        "race": "Tabaxi",
+        "subrace": "Shadow",
+        "class": "Paladin",
+        "subclass": "Lightbringer",
+        "strength": "Wet noodle",
+        "speed": "Sluggish",
+        "durability": "Ordinary",
+        "iq": "Quick thinker",
+        "magic": "No magic",
+        "weapon": "Greataxe",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "A cursed relic"
+      }
+    },
+    {
+      "id": "38d9e929-6039-4b48-99cc-8c440dfbc21d",
+      "name": "Iskra Gravecaller",
+      "traits": {
+        "race": "Lich",
+        "subrace": "Bone",
+        "class": "Blood Mage",
+        "subclass": "Bloodbinder",
+        "strength": "Solid build",
+        "speed": "Stationary",
+        "durability": "Ordinary",
+        "iq": "Slow thinker",
+        "magic": "Limitless magic",
+        "weapon": "Battleaxe",
+        "mastery": "Trained",
+        "power": "Teleportation",
+        "power2": "Ember spark",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "e7b2ac9c-0c60-4dd2-8993-ede2b47958cc",
+      "name": "Varekis Hourblade",
+      "traits": {
+        "race": "Vampire",
+        "subrace": "Daywalker",
+        "class": "Corsair",
+        "subclass": "Sea raider",
+        "strength": "Solid build",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Average",
+        "magic": "Limitless magic",
+        "weapon": "Spear",
+        "mastery": "Trained",
+        "power": "Sound control",
+        "power2": "Time slowing",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "f23a4a70-9385-4fb1-8c7c-ad4a28d4cce3",
+      "name": "Syla Thornward",
+      "traits": {
+        "race": "Sprite",
+        "subrace": "Air",
+        "class": "Gambler",
+        "subclass": "High roller",
+        "strength": "Juggernaut",
+        "speed": "Sluggish",
+        "durability": "Fortress",
+        "iq": "Average",
+        "magic": "Dormant spark",
+        "weapon": "Tower shield",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Uncontrollable rage"
+      }
+    },
+    {
+      "id": "8ac28bdf-49c8-4014-8595-7a0dddbc72de",
+      "name": "Shaan Stormblade",
+      "traits": {
+        "race": "Satyr",
+        "subrace": "Wild",
+        "class": "Corsair",
+        "subclass": "Storm sailor",
+        "strength": "Juiced",
+        "speed": "Ordinary",
+        "durability": "Fortress",
+        "iq": "Average",
+        "magic": "Novice",
+        "weapon": "Claws",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "3fc86a9f-88dd-4f4e-b115-dd2b15fdd2f1",
+      "name": "Pipwyn Shadowward",
+      "traits": {
+        "race": "Fairy",
+        "subrace": "Winter",
+        "class": "Death Knight",
+        "subclass": "Unholy knight",
+        "strength": "Solid build",
+        "speed": "Ordinary",
+        "durability": "Ordinary",
+        "iq": "Brilliant",
+        "magic": "Adept",
+        "weapon": "Silver revolver",
+        "mastery": "Expert",
+        "power": "Ember spark",
+        "power2": "Lava shaping",
+        "weakness": "Poison"
+      }
+    },
+    {
+      "id": "7617ceb3-93c5-4211-bdd5-1bbee1c05643",
+      "name": "Eirla Sunstride",
+      "traits": {
+        "race": "Sprite",
+        "subrace": "Shadow",
+        "class": "Sniper",
+        "subclass": "Ghost shooter",
+        "strength": "No gains",
+        "speed": "Supersonic",
+        "durability": "Ordinary",
+        "iq": "Instinct only",
+        "magic": "Adept",
+        "weapon": "Silver longsword",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "Light manipulation",
+        "weakness": "Cannot harm the innocent"
+      }
+    },
+    {
+      "id": "1ad7e044-e4b6-46d2-b44c-b67bfdc3f07b",
+      "name": "Auren Stormweaver",
+      "traits": {
+        "race": "Spirit",
+        "subrace": "Storm",
+        "class": "Blood Mage",
+        "subclass": "Sanguine healer",
+        "strength": "Juiced",
+        "speed": "Ordinary",
+        "durability": "Iron skin",
+        "iq": "Mastermind",
+        "magic": "Adept",
+        "weapon": "Longsword",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "1e2d7dff-9ef5-42e2-87b5-fadd38af3e05",
+      "name": "Gruma Emberward",
+      "traits": {
+        "race": "Ogre",
+        "subrace": "Marsh",
+        "class": "Gambler",
+        "subclass": "Dice master",
+        "strength": "Solid build",
+        "speed": "Ordinary",
+        "durability": "Fragile",
+        "iq": "Instinct only",
+        "magic": "Expert",
+        "weapon": "Longsword",
+        "mastery": "Expert",
+        "power": "Lava shaping",
+        "power2": "Life creation",
+        "weakness": "Water"
+      }
+    },
+    {
+      "id": "82747d7e-1f7a-4180-a179-b008a02dc444",
+      "name": "Seran Emberseer",
+      "traits": {
+        "race": "Halfling",
+        "subrace": "Stout",
+        "class": "Psion",
+        "subclass": "Seer",
+        "strength": "Solid build",
+        "speed": "Sluggish",
+        "durability": "Fragile",
+        "iq": "Mastermind",
+        "magic": "Legendary",
+        "weapon": "Bare hands",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "Ember spark",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "fd0684ec-d257-4f97-b30c-38979d2dece1",
+      "name": "Skala Boulderguard",
+      "traits": {
+        "race": "Titan",
+        "subrace": "Heaven",
+        "class": "Warrior",
+        "subclass": "Guardian",
+        "strength": "Cosmic strength",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Quick thinker",
+        "magic": "Apprentice",
+        "weapon": "Longsword",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loud sounds"
+      }
+    },
+    {
+      "id": "3c080a2e-169e-4221-ac71-6f6797926c59",
+      "name": "Rukka Moonkeeper",
+      "traits": {
+        "race": "Siren",
+        "subrace": "Storm",
+        "class": "Priest",
+        "subclass": "Moon priest",
+        "strength": "Built different",
+        "speed": "Stationary",
+        "durability": "Fragile",
+        "iq": "Average",
+        "magic": "Apprentice",
+        "weapon": "Warhammer",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Poison"
+      }
+    },
+    {
+      "id": "addd7cfc-cb89-4460-bba7-4a77f6a052a9",
+      "name": "Kiraash Emberward",
+      "traits": {
+        "race": "Insectoid",
+        "subrace": "Beetle",
+        "class": "Spellblade",
+        "subclass": "Flame duelist",
+        "strength": "Juiced",
+        "speed": "Sluggish",
+        "durability": "Fragile",
+        "iq": "Quick thinker",
+        "magic": "Novice",
+        "weapon": "Crossbow",
+        "mastery": "Expert",
+        "power": "Beast command",
+        "power2": "Teleportation",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "f1b2ec51-5257-47b6-9917-666ca07938bc",
+      "name": "Drakion Emberblade",
+      "traits": {
+        "race": "Phoenix",
+        "subrace": "Ember",
+        "class": "Juggernaut",
+        "subclass": "Iron wall",
+        "strength": "Juggernaut",
+        "speed": "Sluggish",
+        "durability": "Fragile",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Halberd",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Cannot harm the innocent"
+      }
+    },
+    {
+      "id": "4a48dace-3b16-4704-8c2e-8cfbcd179444",
+      "name": "Aeleth Gravecaller",
+      "traits": {
+        "race": "Elf",
+        "subrace": "High",
+        "class": "Hexer",
+        "subclass": "Soul hexer",
+        "strength": "String bean",
+        "speed": "Sluggish",
+        "durability": "Ordinary",
+        "iq": "Instinct only",
+        "magic": "No magic",
+        "weapon": "Silver revolver",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "53e0c54e-4e6c-4ca7-bafe-054856cd482d",
+      "name": "Thaion Gravemender",
+      "traits": {
+        "race": "Nymph",
+        "subrace": "Ocean",
+        "class": "Shaman",
+        "subclass": "Bone shaman",
+        "strength": "Solid build",
+        "speed": "Blinding",
+        "durability": "Ordinary",
+        "iq": "Quick thinker",
+        "magic": "Dormant spark",
+        "weapon": "Spellbook",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Poison"
+      }
+    },
+    {
+      "id": "18df6584-0b25-441a-b1a3-466018acc190",
+      "name": "Rukuk Fangblade",
+      "traits": {
+        "race": "Insectoid",
+        "subrace": "Mantis",
+        "class": "Summoner",
+        "subclass": "Demon binder",
+        "strength": "Juiced",
+        "speed": "Athletic",
+        "durability": "Steel body",
+        "iq": "Instinct only",
+        "magic": "No magic",
+        "weapon": "Mace",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "de68b98e-213f-476c-870e-f4672da37559",
+      "name": "Fena Graveward",
+      "traits": {
+        "race": "Troll",
+        "subrace": "Ice",
+        "class": "Oracle",
+        "subclass": "Bone reader",
+        "strength": "No gains",
+        "speed": "Ordinary",
+        "durability": "Ordinary",
+        "iq": "Clever",
+        "magic": "Novice",
+        "weapon": "Battleaxe",
+        "mastery": "Trained",
+        "power": "Soul binding",
+        "power2": "No second power",
+        "weakness": "Overconfidence"
+      }
+    },
+    {
+      "id": "d40dc68d-6213-4afc-9e65-dadb8f7e4db7",
+      "name": "Nyriel Dawncaller",
+      "traits": {
+        "race": "Elf",
+        "subrace": "High",
+        "class": "Hexer",
+        "subclass": "Curse binder",
+        "strength": "Solid build",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Crossbow",
+        "mastery": "Master",
+        "power": "Regeneration",
+        "power2": "No second power",
+        "weakness": "Short power duration"
+      }
+    },
+    {
+      "id": "b3d94df6-adc9-43c3-9912-44fef3671d6a",
+      "name": "Coran Leafsong",
+      "traits": {
+        "race": "Goblin",
+        "subrace": "Forest",
+        "class": "Bard",
+        "subclass": "Glamourist",
+        "strength": "Solid build",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Instinct only",
+        "magic": "Dormant spark",
+        "weapon": "Halberd",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "763a80af-c54d-4657-94b8-4df4fa7bafd0",
+      "name": "Aderan Emberstride",
+      "traits": {
+        "race": "Halfling",
+        "subrace": "Stout",
+        "class": "Beast Master",
+        "subclass": "Spirit tamer",
+        "strength": "Solid build",
+        "speed": "Blinding",
+        "durability": "Fortress",
+        "iq": "Genius",
+        "magic": "Expert",
+        "weapon": "Chain blade",
+        "mastery": "Trained",
+        "power": "Fire control",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "bb749d1b-a7d8-4356-8f90-e2aba89a6fd9",
+      "name": "Rukka Swiftstride",
+      "traits": {
+        "race": "Insectoid",
+        "subrace": "Ant",
+        "class": "Sniper",
+        "subclass": "Longshot",
+        "strength": "String bean",
+        "speed": "Stationary",
+        "durability": "Ordinary",
+        "iq": "Average",
+        "magic": "Expert",
+        "weapon": "Bare hands",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "Telekinesis",
+        "weakness": "Cold iron"
+      }
+    },
+    {
+      "id": "1c7dbd18-903e-4cb0-a1e9-20877e5cccaa",
+      "name": "Axiomal Voidguard",
+      "traits": {
+        "race": "Gargoyle",
+        "subrace": "Iron",
+        "class": "Void Walker",
+        "subclass": "Void blade",
+        "strength": "Juiced",
+        "speed": "Blinding",
+        "durability": "Paper thin",
+        "iq": "Average",
+        "magic": "Dormant spark",
+        "weapon": "Spirit bow",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "e3405d57-2812-4bb0-81b0-d6154052d4b0",
+      "name": "Kirauk Embermender",
+      "traits": {
+        "race": "Lizardfolk",
+        "subrace": "Jungle",
+        "class": "Healer",
+        "subclass": "Herbalist",
+        "strength": "String bean",
+        "speed": "Athletic",
+        "durability": "Steel body",
+        "iq": "Average",
+        "magic": "Novice",
+        "weapon": "Warhammer",
+        "mastery": "Beginner",
+        "power": "Ember spark",
+        "power2": "Spirit armor",
+        "weakness": "Loses power in daylight"
+      }
+    },
+    {
+      "id": "ae058e86-12f9-4e90-bdfa-5371ca610b55",
+      "name": "Wispelle Mistkeeper",
+      "traits": {
+        "race": "Changeling",
+        "subrace": "Silver",
+        "class": "Druid",
+        "subclass": "Wildkeeper",
+        "strength": "Juiced",
+        "speed": "Athletic",
+        "durability": "Steel body",
+        "iq": "Average",
+        "magic": "Apprentice",
+        "weapon": "Battleaxe",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loses power at night"
+      }
+    },
+    {
+      "id": "81d56a59-d634-438f-ac13-459bc9f1fc05",
+      "name": "Bala Moonkeeper",
+      "traits": {
+        "race": "Dwarf",
+        "subrace": "Forge",
+        "class": "Druid",
+        "subclass": "Moonshifter",
+        "strength": "Built different",
+        "speed": "Sluggish",
+        "durability": "Hardened",
+        "iq": "Average",
+        "magic": "Master",
+        "weapon": "Chakram",
+        "mastery": "Veteran",
+        "power": "Energy absorption",
+        "power2": "Memory control",
+        "weakness": "Limited stamina"
+      }
+    },
+    {
+      "id": "74c55a1a-2e39-4126-aca8-1580037316d0",
+      "name": "Zarka Dreamkeeper",
+      "traits": {
+        "race": "Minotaur",
+        "subrace": "Wild",
+        "class": "Oracle",
+        "subclass": "Dream oracle",
+        "strength": "Cosmic strength",
+        "speed": "Athletic",
+        "durability": "Indestructible",
+        "iq": "Brilliant",
+        "magic": "Apprentice",
+        "weapon": "Katana",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Cold iron"
+      }
+    },
+    {
+      "id": "be17b954-d6e4-458b-bde1-e3685a439e02",
+      "name": "Thalara Stormcaller",
+      "traits": {
+        "race": "Wyvern",
+        "subrace": "Desert",
+        "class": "Elementalist",
+        "subclass": "Cryomancer",
+        "strength": "Solid build",
+        "speed": "Stationary",
+        "durability": "Ordinary",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Chakram",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "Spirit armor",
+        "weakness": "Fire"
+      }
+    },
+    {
+      "id": "08ae3106-5f08-4519-a448-b07aaf29637e",
+      "name": "Ashari Fangseer",
+      "traits": {
+        "race": "Arachne",
+        "subrace": "Widow",
+        "class": "Conjurer",
+        "subclass": "Force sculptor",
+        "strength": "Colossus",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Instinct only",
+        "magic": "No magic",
+        "weapon": "Silver revolver",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Extreme cold"
+      }
+    },
+    {
+      "id": "b99026f2-4899-4631-95e8-7ef53c697fdf",
+      "name": "Grumgar Frostmender",
+      "traits": {
+        "race": "Troll",
+        "subrace": "Ice",
+        "class": "Cleric",
+        "subclass": "Oracle",
+        "strength": "Juggernaut",
+        "speed": "Athletic",
+        "durability": "Fortress",
+        "iq": "Quick thinker",
+        "magic": "Novice",
+        "weapon": "Claws",
+        "mastery": "Beginner",
+        "power": "Kinetic pulse",
+        "power2": "No second power",
+        "weakness": "Extreme cold"
+      }
+    },
+    {
+      "id": "937c1aad-fdec-4927-aac5-3687015491d5",
+      "name": "Fenri Shadowtale",
+      "traits": {
+        "race": "Tabaxi",
+        "subrace": "Shadow",
+        "class": "Jester",
+        "subclass": "Dark clown",
+        "strength": "Juiced",
+        "speed": "Sluggish",
+        "durability": "Ordinary",
+        "iq": "Mastermind",
+        "magic": "Apprentice",
+        "weapon": "Scythe",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Short power duration"
+      }
+    },
+    {
+      "id": "ec2eb0ba-deb0-4dbd-91ef-bb3c3f128d85",
+      "name": "Wispen Mistguard",
+      "traits": {
+        "race": "Sprite",
+        "subrace": "Air",
+        "class": "Soul Reaper",
+        "subclass": "Spirit blade",
+        "strength": "Solid build",
+        "speed": "Athletic",
+        "durability": "Paper thin",
+        "iq": "Mastermind",
+        "magic": "No magic",
+        "weapon": "Throwing knives",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Extreme cold"
+      }
+    },
+    {
+      "id": "1ff4bb38-976c-45c8-8b20-3386756adf65",
+      "name": "Rowan Stormwhisper",
+      "traits": {
+        "race": "Goblin",
+        "subrace": "Cave",
+        "class": "Corsair",
+        "subclass": "Storm sailor",
+        "strength": "Solid build",
+        "speed": "Ordinary",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "Novice",
+        "weapon": "Chakram",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Slow recovery"
+      }
+    },
+    {
+      "id": "6c38a9f0-a7f6-4dd7-bf1b-787c0d56beb3",
+      "name": "Aderis Starsong",
+      "traits": {
+        "race": "Human",
+        "subrace": "Star-touched",
+        "class": "Bard",
+        "subclass": "Battle singer",
+        "strength": "String bean",
+        "speed": "Stationary",
+        "durability": "Iron skin",
+        "iq": "Quick thinker",
+        "magic": "Novice",
+        "weapon": "Spear",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "Crystal shaping",
+        "weakness": "Cannot harm the innocent"
+      }
+    },
+    {
+      "id": "77e35f70-ce87-4c77-a160-786b9b20b381",
+      "name": "Sylen Dreamward",
+      "traits": {
+        "race": "Fairy",
+        "subrace": "Thorn",
+        "class": "Paladin",
+        "subclass": "Avenger",
+        "strength": "String bean",
+        "speed": "Stationary",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "Dormant spark",
+        "weapon": "Greatsword",
+        "mastery": "Veteran",
+        "power": "Kinetic pulse",
+        "power2": "Illusion weaving",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "54cf3fa0-73d9-4d41-86b0-d6483672f6e1",
+      "name": "Lilwyn Shadowseer",
+      "traits": {
+        "race": "Sprite",
+        "subrace": "Shadow",
+        "class": "Warlock",
+        "subclass": "Star pact",
+        "strength": "Cosmic strength",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Instinct only",
+        "magic": "Dormant spark",
+        "weapon": "Staff",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "a1ecb848-ee3b-4d56-877b-fc3482579d56",
+      "name": "Tavash Stormblade",
+      "traits": {
+        "race": "Harpy",
+        "subrace": "Storm",
+        "class": "Corsair",
+        "subclass": "Sea raider",
+        "strength": "Wet noodle",
+        "speed": "Supersonic",
+        "durability": "Fragile",
+        "iq": "Genius",
+        "magic": "Archmage",
+        "weapon": "Magic wand",
+        "mastery": "Trained",
+        "power": "Ember spark",
+        "power2": "Illusion weaving",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "419abfc5-0879-44ca-b23f-a708c4a34ef8",
+      "name": "Hrogrik Graveblade",
+      "traits": {
+        "race": "Titan",
+        "subrace": "Heaven",
+        "class": "Soul Reaper",
+        "subclass": "Grave walker",
+        "strength": "String bean",
+        "speed": "Hypersonic",
+        "durability": "Ordinary",
+        "iq": "Clever",
+        "magic": "Master",
+        "weapon": "Silver longsword",
+        "mastery": "Beginner",
+        "power": "Frost touch",
+        "power2": "Sound control",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "e8d183f1-7430-4513-b711-24f1441cb552",
+      "name": "Tavan Stoneheart",
+      "traits": {
+        "race": "Gorgon",
+        "subrace": "Stone",
+        "class": "Brawler",
+        "subclass": "Street fighter",
+        "strength": "Wet noodle",
+        "speed": "Stationary",
+        "durability": "Paper thin",
+        "iq": "Slow thinker",
+        "magic": "Archmage",
+        "weapon": "Trident",
+        "mastery": "Veteran",
+        "power": "Void manipulation",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "119e2bee-08a6-4b2d-a793-fcb14fd85cc5",
+      "name": "Fenash Stormward",
+      "traits": {
+        "race": "Siren",
+        "subrace": "Storm",
+        "class": "Shifter",
+        "subclass": "Elemental shifter",
+        "strength": "Colossus",
+        "speed": "Ordinary",
+        "durability": "Iron skin",
+        "iq": "Brilliant",
+        "magic": "Adept",
+        "weapon": "Warhammer",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "Frost touch",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "e16b8f6d-cdd9-46c2-b310-01026d89db37",
+      "name": "Niman Swiftweaver",
+      "traits": {
+        "race": "Minotaur",
+        "subrace": "Wild",
+        "class": "Sorcerer",
+        "subclass": "Wild magic",
+        "strength": "Built different",
+        "speed": "Sluggish",
+        "durability": "Hardened",
+        "iq": "Genius",
+        "magic": "Adept",
+        "weapon": "Crystal orb",
+        "mastery": "Master",
+        "power": "Crystal shaping",
+        "power2": "No second power",
+        "weakness": "Water"
+      }
+    },
+    {
+      "id": "850c1deb-e7e3-435d-892c-212e7c38215b",
+      "name": "Toror Gravecaller",
+      "traits": {
+        "race": "Treant",
+        "subrace": "Ancient",
+        "class": "Necromancer",
+        "subclass": "Death speaker",
+        "strength": "Built different",
+        "speed": "Hypersonic",
+        "durability": "Ordinary",
+        "iq": "Genius",
+        "magic": "Apprentice",
+        "weapon": "Shortsword",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "Kinetic pulse",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "344ba085-76a6-46d4-bbc3-99f3a54f6d6c",
+      "name": "Miraic Stormseer",
+      "traits": {
+        "race": "Orc",
+        "subrace": "Storm",
+        "class": "Hexer",
+        "subclass": "Misfortune maker",
+        "strength": "No gains",
+        "speed": "Sluggish",
+        "durability": "Fragile",
+        "iq": "Average",
+        "magic": "Adept",
+        "weapon": "Magic wand",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "Crystal shaping",
+        "weakness": "Holy magic"
+      }
+    },
+    {
+      "id": "d165091d-6eb1-4414-b5a6-abc9d866a811",
+      "name": "Seran Dreamblade",
+      "traits": {
+        "race": "Human",
+        "subrace": "Desertborn",
+        "class": "Gambler",
+        "subclass": "Luck thief",
+        "strength": "No gains",
+        "speed": "Ordinary",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "Adept",
+        "weapon": "Rapier",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "Dream walking",
+        "weakness": "Slow recovery"
+      }
+    },
+    {
+      "id": "68e8287b-3f84-4f03-ab22-7243a50572d5",
+      "name": "Varekoth Froststep",
+      "traits": {
+        "race": "Dullahan",
+        "subrace": "Grave rider",
+        "class": "Corsair",
+        "subclass": "Storm sailor",
+        "strength": "Wet noodle",
+        "speed": "Swift",
+        "durability": "Ordinary",
+        "iq": "Instinct only",
+        "magic": "Archmage",
+        "weapon": "Twin daggers",
+        "mastery": "Perfect technique",
+        "power": "Venom craft",
+        "power2": "Frost touch",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "e69a7011-904d-4a60-bcdc-e6afc1d44813",
+      "name": "Niman Wildchime",
+      "traits": {
+        "race": "Werewolf",
+        "subrace": "Dire",
+        "class": "Dancer",
+        "subclass": "War dancer",
+        "strength": "Juiced",
+        "speed": "Sluggish",
+        "durability": "Steel body",
+        "iq": "Brilliant",
+        "magic": "Apprentice",
+        "weapon": "Cold-iron spear",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "b1e4b5ee-1ed9-4953-8914-89cc306abf6c",
+      "name": "Crystal Stonewhisper",
+      "traits": {
+        "race": "Android",
+        "subrace": "Arcane",
+        "class": "Shadow",
+        "subclass": "Nightblade",
+        "strength": "Solid build",
+        "speed": "Stationary",
+        "durability": "Adamantine",
+        "iq": "Clever",
+        "magic": "Limitless magic",
+        "weapon": "Rune blade",
+        "mastery": "Expert",
+        "power": "Arcane silence",
+        "power2": "Earth shaping",
+        "weakness": "Loses power in daylight"
+      }
+    },
+    {
+      "id": "0f8b4a4d-a986-4771-8a1a-522329a22521",
+      "name": "Iluun Ironforge",
+      "traits": {
+        "race": "Slime",
+        "subrace": "Mimic",
+        "class": "Artificer",
+        "subclass": "Golem maker",
+        "strength": "String bean",
+        "speed": "Athletic",
+        "durability": "Steel body",
+        "iq": "Genius",
+        "magic": "Apprentice",
+        "weapon": "Shortsword",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "Metal bending",
+        "weakness": "Limited stamina"
+      }
+    },
+    {
+      "id": "d5c6198b-964e-48c7-8b5b-66ecd4933f36",
+      "name": "Cogral Ironguard",
+      "traits": {
+        "race": "Homunculus",
+        "subrace": "Perfected",
+        "class": "Summoner",
+        "subclass": "Beast caller",
+        "strength": "Colossus",
+        "speed": "Sluggish",
+        "durability": "Fortress",
+        "iq": "Clever",
+        "magic": "Novice",
+        "weapon": "Staff",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "Invisibility",
+        "weakness": "Cannot harm the innocent"
+      }
+    },
+    {
+      "id": "58c310d3-f664-4350-be4b-31e20b3cc925",
+      "name": "Thalion Dreamkeeper",
+      "traits": {
+        "race": "Dragonkin",
+        "subrace": "Venomborn",
+        "class": "Healer",
+        "subclass": "Spirit healer",
+        "strength": "Built different",
+        "speed": "Swift",
+        "durability": "Ordinary",
+        "iq": "Clever",
+        "magic": "Archmage",
+        "weapon": "Scythe",
+        "mastery": "Beginner",
+        "power": "Dream walking",
+        "power2": "Fire control",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "1a93357d-bc24-4d86-9653-be3325eae943",
+      "name": "Zarra Emberchime",
+      "traits": {
+        "race": "Minotaur",
+        "subrace": "Labyrinth",
+        "class": "Dancer",
+        "subclass": "Flame dancer",
+        "strength": "No gains",
+        "speed": "Lightning-fast",
+        "durability": "Iron skin",
+        "iq": "Average",
+        "magic": "Adept",
+        "weapon": "Claws",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Limited stamina"
+      }
+    },
+    {
+      "id": "b7acedaf-a952-4be3-800a-98ac6dec36d6",
+      "name": "Aderin Frostwhisper",
+      "traits": {
+        "race": "Orc",
+        "subrace": "Frost",
+        "class": "Trickster",
+        "subclass": "Mirror rogue",
+        "strength": "String bean",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Quick thinker",
+        "magic": "Dormant spark",
+        "weapon": "Crossbow",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fire"
+      }
+    },
+    {
+      "id": "093f3ab3-5057-45bb-baaa-0728f9582905",
+      "name": "Ithara Stormward",
+      "traits": {
+        "race": "Dryad",
+        "subrace": "Ash",
+        "class": "Cleric",
+        "subclass": "Storm herald",
+        "strength": "No gains",
+        "speed": "Ordinary",
+        "durability": "Iron skin",
+        "iq": "Genius",
+        "magic": "No magic",
+        "weapon": "Flail",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "ac71326e-cebf-4854-9ef6-d458e92a5721",
+      "name": "Zephor Scaleseer",
+      "traits": {
+        "race": "Wyvern",
+        "subrace": "Venom",
+        "class": "Runemaster",
+        "subclass": "Ward maker",
+        "strength": "Built different",
+        "speed": "Blinding",
+        "durability": "Ordinary",
+        "iq": "Quick thinker",
+        "magic": "Apprentice",
+        "weapon": "Cold-iron spear",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "Summon spirits",
+        "weakness": "Holy magic"
+      }
+    },
+    {
+      "id": "df26a613-ecd7-47a1-baf8-08ecacde0606",
+      "name": "Fengar Stormguard",
+      "traits": {
+        "race": "Goliath",
+        "subrace": "Storm",
+        "class": "Berserker",
+        "subclass": "Totem warrior",
+        "strength": "String bean",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Instinct only",
+        "magic": "Adept",
+        "weapon": "Silver longsword",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Sunlight"
+      }
+    },
+    {
+      "id": "9ee14942-8609-422f-9aae-7678ddf2dfd8",
+      "name": "Wispi Glimmerward",
+      "traits": {
+        "race": "Changeling",
+        "subrace": "Wild",
+        "class": "Summoner",
+        "subclass": "Spirit caller",
+        "strength": "Solid build",
+        "speed": "Ordinary",
+        "durability": "Paper thin",
+        "iq": "Slow thinker",
+        "magic": "Apprentice",
+        "weapon": "Rune blade",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Limited stamina"
+      }
+    },
+    {
+      "id": "1f0537c8-68a5-48df-9b82-9e0e50c40d95",
+      "name": "Edran Frostblade",
+      "traits": {
+        "race": "Orc",
+        "subrace": "Frost",
+        "class": "Rogue",
+        "subclass": "Swashbuckler",
+        "strength": "Wet noodle",
+        "speed": "Light-speed",
+        "durability": "Steel body",
+        "iq": "Quick thinker",
+        "magic": "Expert",
+        "weapon": "Crystal orb",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "Flight",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "5f175910-06ef-46cc-99e6-9316fd594d58",
+      "name": "Nimash Runestalker",
+      "traits": {
+        "race": "Merfolk",
+        "subrace": "Reef",
+        "class": "Sniper",
+        "subclass": "Arcane marksman",
+        "strength": "String bean",
+        "speed": "Stationary",
+        "durability": "Iron skin",
+        "iq": "Genius",
+        "magic": "No magic",
+        "weapon": "Silver revolver",
+        "mastery": "Master",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Uncontrollable rage"
+      }
+    },
+    {
+      "id": "a047b26b-85f0-45fa-a9c6-de0655e585da",
+      "name": "Faela Tidesong",
+      "traits": {
+        "race": "Sprite",
+        "subrace": "Water",
+        "class": "Dancer",
+        "subclass": "Spirit dancer",
+        "strength": "No gains",
+        "speed": "Athletic",
+        "durability": "Fortress",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Flail",
+        "mastery": "Combat omniscience",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Power has a cooldown"
+      }
+    },
+    {
+      "id": "8056b03c-a734-4d94-a1ca-0a3ec2d23675",
+      "name": "Kiraan Bloodguard",
+      "traits": {
+        "race": "Gorgon",
+        "subrace": "Blind",
+        "class": "Death Knight",
+        "subclass": "Blood knight",
+        "strength": "String bean",
+        "speed": "Sluggish",
+        "durability": "Ordinary",
+        "iq": "Genius",
+        "magic": "Apprentice",
+        "weapon": "Silver revolver",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fire"
+      }
+    },
+    {
+      "id": "aa14bfb9-4d68-4829-90a7-a526cbe33f79",
+      "name": "Ashaka Dreamtale",
+      "traits": {
+        "race": "Harpy",
+        "subrace": "Cliff",
+        "class": "Jester",
+        "subclass": "Illusion fool",
+        "strength": "String bean",
+        "speed": "Ordinary",
+        "durability": "Iron skin",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Mace",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "8361f5f1-0b92-4fb2-9068-bdb2a3654207",
+      "name": "Crystum Gearblade",
+      "traits": {
+        "race": "Android",
+        "subrace": "Combat",
+        "class": "Rogue",
+        "subclass": "Swashbuckler",
+        "strength": "Wet noodle",
+        "speed": "Athletic",
+        "durability": "Ordinary",
+        "iq": "Quick thinker",
+        "magic": "Dormant spark",
+        "weapon": "Crystal orb",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loud sounds"
+      }
+    },
+    {
+      "id": "cd21fcb9-59f5-4626-8586-cee4079fc2db",
+      "name": "Skalath Frostblade",
+      "traits": {
+        "race": "Troll",
+        "subrace": "Ice",
+        "class": "Gambler",
+        "subclass": "High roller",
+        "strength": "Wet noodle",
+        "speed": "Athletic",
+        "durability": "Iron skin",
+        "iq": "Mastermind",
+        "magic": "No magic",
+        "weapon": "Chain blade",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "78a70336-5380-4b9b-ba94-cd3c8a89dfc2",
+      "name": "Rhazara Voidchime",
+      "traits": {
+        "race": "Dragonkin",
+        "subrace": "Voidborn",
+        "class": "Bard",
+        "subclass": "Glamourist",
+        "strength": "Built different",
+        "speed": "Swift",
+        "durability": "Iron skin",
+        "iq": "Slow thinker",
+        "magic": "Dormant spark",
+        "weapon": "Silver longsword",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "bc4a0c33-ee9e-420e-a5f3-c7eead63c9a5",
+      "name": "Eiren Voidseer",
+      "traits": {
+        "race": "Fairy",
+        "subrace": "Flower",
+        "class": "Warlock",
+        "subclass": "Void pact",
+        "strength": "String bean",
+        "speed": "Ordinary",
+        "durability": "Hardened",
+        "iq": "Genius",
+        "magic": "Dormant spark",
+        "weapon": "Chakram",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fire"
+      }
+    },
+    {
+      "id": "d569e5af-1843-4889-a4b0-2eae00d460b7",
+      "name": "Kharor Ashcaller",
+      "traits": {
+        "race": "Demon",
+        "subrace": "Abyss",
+        "class": "Elementalist",
+        "subclass": "Cryomancer",
+        "strength": "Wet noodle",
+        "speed": "Athletic",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "Expert",
+        "weapon": "Throwing knives",
+        "mastery": "Trained",
+        "power": "Kinetic pulse",
+        "power2": "Mirror barrier",
+        "weakness": "Loses power in daylight"
+      }
+    },
+    {
+      "id": "6482dca1-941b-41ca-9bb0-4e849f763971",
+      "name": "Fenun Shadowcaller",
+      "traits": {
+        "race": "Ogre",
+        "subrace": "Hill",
+        "class": "Runemaster",
+        "subclass": "Rune knight",
+        "strength": "No gains",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Quick thinker",
+        "magic": "Novice",
+        "weapon": "Silver longsword",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "86d44529-1530-4c66-8923-35971638cb7d",
+      "name": "Tavan Runewatch",
+      "traits": {
+        "race": "Chimera",
+        "subrace": "Dragon",
+        "class": "Ranger",
+        "subclass": "Arcane archer",
+        "strength": "Built different",
+        "speed": "Supersonic",
+        "durability": "Adamantine",
+        "iq": "Average",
+        "magic": "Novice",
+        "weapon": "Spear",
+        "mastery": "Beginner",
+        "power": "Mirror barrier",
+        "power2": "Lava shaping",
+        "weakness": "Extreme cold"
+      }
+    },
+    {
+      "id": "5f35fb05-8389-45cd-8942-63d1f6c8c6da",
+      "name": "Torun Froststep",
+      "traits": {
+        "race": "Ogre",
+        "subrace": "War",
+        "class": "Trickster",
+        "subclass": "Disguise master",
+        "strength": "Built different",
+        "speed": "Stationary",
+        "durability": "Paper thin",
+        "iq": "Brilliant",
+        "magic": "Legendary",
+        "weapon": "Katana",
+        "mastery": "Beginner",
+        "power": "Kinetic pulse",
+        "power2": "Frost touch",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "94c82bb0-2286-4829-b4bd-7d95ee87e45f",
+      "name": "Thariel Sunblade",
+      "traits": {
+        "race": "Dryad",
+        "subrace": "Blight",
+        "class": "Paladin",
+        "subclass": "Avenger",
+        "strength": "World breaker",
+        "speed": "Stationary",
+        "durability": "Iron skin",
+        "iq": "Slow thinker",
+        "magic": "Apprentice",
+        "weapon": "Chakram",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "6ae6ecd4-a8fa-4092-a242-482112cadc3c",
+      "name": "Zaran Dreamward",
+      "traits": {
+        "race": "Minotaur",
+        "subrace": "Ironhorn",
+        "class": "Guardian",
+        "subclass": "Living fortress",
+        "strength": "String bean",
+        "speed": "Ordinary",
+        "durability": "Steel body",
+        "iq": "Brilliant",
+        "magic": "Apprentice",
+        "weapon": "Blessed mace",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "Mind reading",
+        "weakness": "Loses power at night"
+      }
+    },
+    {
+      "id": "8384e8a7-c474-49f0-ab00-3df535386be6",
+      "name": "Pipen Frostblade",
+      "traits": {
+        "race": "Fairy",
+        "subrace": "Winter",
+        "class": "Soul Reaper",
+        "subclass": "Spirit blade",
+        "strength": "Cosmic strength",
+        "speed": "Stationary",
+        "durability": "Hardened",
+        "iq": "Oracle mind",
+        "magic": "Dormant spark",
+        "weapon": "Crossbow",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Slow recovery"
+      }
+    },
+    {
+      "id": "dfa4837f-9dd1-40cd-b36d-a8a226759633",
+      "name": "Nimash Stormblade",
+      "traits": {
+        "race": "Chimera",
+        "subrace": "Lion",
+        "class": "Samurai",
+        "subclass": "Mounted warrior",
+        "strength": "String bean",
+        "speed": "Ordinary",
+        "durability": "Hardened",
+        "iq": "Instinct only",
+        "magic": "Expert",
+        "weapon": "Flail",
+        "mastery": "Beginner",
+        "power": "Energy absorption",
+        "power2": "Chain lightning",
+        "weakness": "Slow recovery"
+      }
+    },
+    {
+      "id": "bbf0fd94-d673-42b6-8edd-05a0abc1bfc2",
+      "name": "Ogrrik Bloodward",
+      "traits": {
+        "race": "Dwarf",
+        "subrace": "Forge",
+        "class": "Berserker",
+        "subclass": "Bloodrager",
+        "strength": "String bean",
+        "speed": "Sluggish",
+        "durability": "Immortal body",
+        "iq": "Average",
+        "magic": "Apprentice",
+        "weapon": "Chain blade",
+        "mastery": "Trained",
+        "power": "Sound control",
+        "power2": "No second power",
+        "weakness": "Needs constant food"
+      }
+    },
+    {
+      "id": "ff03f39c-8919-4cd9-88b0-d54b46d1f9ce",
+      "name": "Rukuk Dreamguard",
+      "traits": {
+        "race": "Werewolf",
+        "subrace": "Dire",
+        "class": "Illusionist",
+        "subclass": "Dreamweaver",
+        "strength": "Solid build",
+        "speed": "Swift",
+        "durability": "Ordinary",
+        "iq": "Average",
+        "magic": "Apprentice",
+        "weapon": "Silver longsword",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Sunlight"
+      }
+    },
+    {
+      "id": "0e7ab479-7404-43ac-b1ba-a3025ade47e2",
+      "name": "Edrin Voidguard",
+      "traits": {
+        "race": "Goblin",
+        "subrace": "Cave",
+        "class": "Void Walker",
+        "subclass": "Void blade",
+        "strength": "String bean",
+        "speed": "Swift",
+        "durability": "Paper thin",
+        "iq": "Average",
+        "magic": "Apprentice",
+        "weapon": "Magic wand",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "ccd7adb0-fb28-4320-b3e4-08b759620eb3",
+      "name": "Axiomix Shadowblade",
+      "traits": {
+        "race": "Android",
+        "subrace": "Analyst",
+        "class": "Assassin",
+        "subclass": "Shadow killer",
+        "strength": "Cosmic strength",
+        "speed": "Blinding",
+        "durability": "Iron skin",
+        "iq": "Slow thinker",
+        "magic": "No magic",
+        "weapon": "Rifle",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "6c8f3419-17cd-44b1-867c-32b26e73b918",
+      "name": "Torath Emberwhisper",
+      "traits": {
+        "race": "Goliath",
+        "subrace": "Fire",
+        "class": "Rogue",
+        "subclass": "Swashbuckler",
+        "strength": "Wet noodle",
+        "speed": "Ordinary",
+        "durability": "Steel body",
+        "iq": "Clever",
+        "magic": "Dormant spark",
+        "weapon": "Bare hands",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "4e1d8b78-a6af-4277-9928-ced672f303d5",
+      "name": "Morex Bloodseer",
+      "traits": {
+        "race": "Lich",
+        "subrace": "Archlich",
+        "class": "Witch",
+        "subclass": "Hexweaver",
+        "strength": "String bean",
+        "speed": "Ordinary",
+        "durability": "Ordinary",
+        "iq": "Oracle mind",
+        "magic": "Expert",
+        "weapon": "Rapier",
+        "mastery": "Trained",
+        "power": "Blood control",
+        "power2": "No second power",
+        "weakness": "Silenced casting"
+      }
+    },
+    {
+      "id": "cef7a531-4fbb-4dd5-a783-edf76895110f",
+      "name": "Ashaan Stormseer",
+      "traits": {
+        "race": "Arachne",
+        "subrace": "Widow",
+        "class": "Blood Mage",
+        "subclass": "Bloodbinder",
+        "strength": "Wet noodle",
+        "speed": "Swift",
+        "durability": "Paper thin",
+        "iq": "Slow thinker",
+        "magic": "Adept",
+        "weapon": "Halberd",
+        "mastery": "Perfect technique",
+        "power": "Storm calling",
+        "power2": "Spirit armor",
+        "weakness": "Fire"
+      }
+    },
+    {
+      "id": "b5cf1c09-e8ff-4e3a-9875-5880ba406613",
+      "name": "Rowen Ashward",
+      "traits": {
+        "race": "Human",
+        "subrace": "Cityborn",
+        "class": "Summoner",
+        "subclass": "Demon binder",
+        "strength": "Built different",
+        "speed": "Athletic",
+        "durability": "Fragile",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Shield",
+        "mastery": "Trained",
+        "power": "Memory control",
+        "power2": "No second power",
+        "weakness": "Uncontrollable rage"
+      }
+    },
+    {
+      "id": "4d70dcd6-9e8f-4c03-b9eb-67ef2b2f54b5",
+      "name": "Lyraan Leaftale",
+      "traits": {
+        "race": "Goblin",
+        "subrace": "Forest",
+        "class": "Bard",
+        "subclass": "Battle singer",
+        "strength": "No gains",
+        "speed": "Ordinary",
+        "durability": "Ordinary",
+        "iq": "Brilliant",
+        "magic": "No magic",
+        "weapon": "Longsword",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Fragile body"
+      }
+    },
+    {
+      "id": "0b8e4a02-f945-4860-9244-c1487fe49173",
+      "name": "Nexusus Stonekeeper",
+      "traits": {
+        "race": "Gargoyle",
+        "subrace": "Stone",
+        "class": "Oracle",
+        "subclass": "Bone reader",
+        "strength": "String bean",
+        "speed": "Sluggish",
+        "durability": "Fortress",
+        "iq": "Average",
+        "magic": "Adept",
+        "weapon": "Revolver",
+        "mastery": "Trained",
+        "power": "Storm calling",
+        "power2": "Summon spirits",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "87cd90b8-393d-42dd-a3a5-60c47c83fdf2",
+      "name": "Nyxoth Sunweaver",
+      "traits": {
+        "race": "Oni",
+        "subrace": "White",
+        "class": "Psion",
+        "subclass": "Telepath",
+        "strength": "Juiced",
+        "speed": "Swift",
+        "durability": "Steel body",
+        "iq": "Quick thinker",
+        "magic": "Apprentice",
+        "weapon": "Claws",
+        "mastery": "Untrained",
+        "power": "Flight",
+        "power2": "No second power",
+        "weakness": "Water"
+      }
+    },
+    {
+      "id": "541ae676-5be3-4855-8131-d18b3ec049fc",
+      "name": "Nimash Ironguard",
+      "traits": {
+        "race": "Insectoid",
+        "subrace": "Mantis",
+        "class": "Shifter",
+        "subclass": "Elemental shifter",
+        "strength": "Wet noodle",
+        "speed": "Beyond time",
+        "durability": "Immortal body",
+        "iq": "Quick thinker",
+        "magic": "Master",
+        "weapon": "Scythe",
+        "mastery": "Master",
+        "power": "Metal bending",
+        "power2": "Summon spirits",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "30e3de3f-6184-43eb-b673-5fb5d6815c4f",
+      "name": "Nyaris Dawnward",
+      "traits": {
+        "race": "Dryad",
+        "subrace": "Oak",
+        "class": "Juggernaut",
+        "subclass": "Siege breaker",
+        "strength": "String bean",
+        "speed": "Swift",
+        "durability": "Fragile",
+        "iq": "Quick thinker",
+        "magic": "Adept",
+        "weapon": "Warhammer",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silenced casting"
+      }
+    },
+    {
+      "id": "d04dd910-332a-43ca-9683-0a4a255dd653",
+      "name": "Tora Shadowstride",
+      "traits": {
+        "race": "Goliath",
+        "subrace": "Stone",
+        "class": "Ranger",
+        "subclass": "Nightstalker",
+        "strength": "String bean",
+        "speed": "Supersonic",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "Apprentice",
+        "weapon": "Blessed mace",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Limited stamina"
+      }
+    },
+    {
+      "id": "52e05138-eb51-4e81-9381-c903dbc3b0e0",
+      "name": "Lyraa Valestride",
+      "traits": {
+        "race": "Halfling",
+        "subrace": "Wild",
+        "class": "Sniper",
+        "subclass": "Ghost shooter",
+        "strength": "Hulk",
+        "speed": "Ordinary",
+        "durability": "Hardened",
+        "iq": "Slow thinker",
+        "magic": "No magic",
+        "weapon": "Blowgun",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Silver"
+      }
+    },
+    {
+      "id": "e592f17e-8d0c-4f7e-a989-ade109354b49",
+      "name": "Varekex Stormward",
+      "traits": {
+        "race": "Vampire",
+        "subrace": "Blood",
+        "class": "Shaman",
+        "subclass": "Storm shaman",
+        "strength": "Built different",
+        "speed": "Stationary",
+        "durability": "Fortress",
+        "iq": "Average",
+        "magic": "Dormant spark",
+        "weapon": "Shield",
+        "mastery": "Legendary",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Poison"
+      }
+    },
+    {
+      "id": "7bd1a889-b435-4a65-8899-55a73ef4cfe6",
+      "name": "Ashara Clawguard",
+      "traits": {
+        "race": "Tabaxi",
+        "subrace": "Golden",
+        "class": "Illusionist",
+        "subclass": "Phantasmist",
+        "strength": "String bean",
+        "speed": "Sluggish",
+        "durability": "Fragile",
+        "iq": "Average",
+        "magic": "No magic",
+        "weapon": "Longbow",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loses power at night"
+      }
+    },
+    {
+      "id": "671124b4-0bf7-4330-83dd-9ad9fe7fe276",
+      "name": "Nimka Stormsong",
+      "traits": {
+        "race": "Harpy",
+        "subrace": "Storm",
+        "class": "Jester",
+        "subclass": "Knife juggler",
+        "strength": "Wet noodle",
+        "speed": "Ordinary",
+        "durability": "Steel body",
+        "iq": "Instinct only",
+        "magic": "No magic",
+        "weapon": "Silver longsword",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "53fdcc52-c309-4398-a6b9-99971f88b643",
+      "name": "Nimuk Wildwatch",
+      "traits": {
+        "race": "Basilisk",
+        "subrace": "Desert",
+        "class": "Beast Master",
+        "subclass": "Pack leader",
+        "strength": "Built different",
+        "speed": "Stationary",
+        "durability": "Fragile",
+        "iq": "Clever",
+        "magic": "Apprentice",
+        "weapon": "Rune blade",
+        "mastery": "Untrained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loses power at night"
+      }
+    },
+    {
+      "id": "04a6dcf5-5c27-4559-9a32-5becd398ead5",
+      "name": "Ulrik Peakwatch",
+      "traits": {
+        "race": "Cyclops",
+        "subrace": "Forge",
+        "class": "Hunter",
+        "subclass": "Trap master",
+        "strength": "Built different",
+        "speed": "Sluggish",
+        "durability": "Paper thin",
+        "iq": "Average",
+        "magic": "Novice",
+        "weapon": "Crossbow",
+        "mastery": "Trained",
+        "power": "Power copying",
+        "power2": "No second power",
+        "weakness": "Exhaustion"
+      }
+    },
+    {
+      "id": "c14da131-5065-4434-9702-fcb37c0be030",
+      "name": "Coran Ironcaller",
+      "traits": {
+        "race": "Orc",
+        "subrace": "Ironblood",
+        "class": "Conjurer",
+        "subclass": "Force sculptor",
+        "strength": "No gains",
+        "speed": "Swift",
+        "durability": "Titan body",
+        "iq": "Oracle mind",
+        "magic": "Expert",
+        "weapon": "Longbow",
+        "mastery": "Veteran",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Water"
+      }
+    },
+    {
+      "id": "4ee2572e-bc08-4be9-9f4b-1ed184266fc8",
+      "name": "Skala Stoneguard",
+      "traits": {
+        "race": "Cyclops",
+        "subrace": "Mountain",
+        "class": "Gladiator",
+        "subclass": "Shield fighter",
+        "strength": "Juiced",
+        "speed": "Athletic",
+        "durability": "Paper thin",
+        "iq": "Average",
+        "magic": "Novice",
+        "weapon": "Poisoned daggers",
+        "mastery": "Trained",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Loud sounds"
+      }
+    },
+    {
+      "id": "8fd2c3ff-1a3a-44a0-9195-8d7d0d5c388d",
+      "name": "Thaion Hourweaver",
+      "traits": {
+        "race": "Elf",
+        "subrace": "High",
+        "class": "Chronomancer",
+        "subclass": "Future seer",
+        "strength": "Juiced",
+        "speed": "Blinding",
+        "durability": "Paper thin",
+        "iq": "Slow thinker",
+        "magic": "Novice",
+        "weapon": "Crystal orb",
+        "mastery": "Untrained",
+        "power": "Kinetic pulse",
+        "power2": "No second power",
+        "weakness": "Memory loss"
+      }
+    },
+    {
+      "id": "efcfefb5-8f4a-4d9c-ba2e-1a010b56d8cc",
+      "name": "Cora Valeforge",
+      "traits": {
+        "race": "Halfling",
+        "subrace": "Stout",
+        "class": "Inventor",
+        "subclass": "Automaton maker",
+        "strength": "Wet noodle",
+        "speed": "Ordinary",
+        "durability": "Ordinary",
+        "iq": "Slow thinker",
+        "magic": "Dormant spark",
+        "weapon": "Staff",
+        "mastery": "Combat omniscience",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "A cursed relic"
+      }
+    },
+    {
+      "id": "4ec8aff9-0d44-4885-9859-1db6a677e5ce",
+      "name": "Oriel Sunblade",
+      "traits": {
+        "race": "Spirit",
+        "subrace": "Nature",
+        "class": "Paladin",
+        "subclass": "Lightbringer",
+        "strength": "No gains",
+        "speed": "Stationary",
+        "durability": "Hardened",
+        "iq": "Clever",
+        "magic": "Dormant spark",
+        "weapon": "Longbow",
+        "mastery": "Expert",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "Power needs a sacrifice"
+      }
+    },
+    {
+      "id": "1a419711-85ef-481f-a2c2-abb49612e3f4",
+      "name": "Thaaris Stonewatch",
+      "traits": {
+        "race": "Nymph",
+        "subrace": "Mountain",
+        "class": "Hunter",
+        "subclass": "Trap master",
+        "strength": "Colossus",
+        "speed": "Athletic",
+        "durability": "Iron skin",
+        "iq": "Instinct only",
+        "magic": "No magic",
+        "weapon": "Magic wand",
+        "mastery": "Beginner",
+        "power": "No power",
+        "power2": "No second power",
+        "weakness": "A cursed relic"
+      }
+    },
+    {
+      "id": "fb45b34a-b3e4-4bef-ae1b-bbc3e88a7822",
+      "name": "Thaeth Voidguard",
+      "traits": {
+        "race": "Nymph",
+        "subrace": "Ocean",
+        "class": "Void Walker",
+        "subclass": "Rift walker",
+        "strength": "String bean",
+        "speed": "Blinding",
+        "durability": "Hardened",
+        "iq": "Mastermind",
+        "magic": "Adept",
+        "weapon": "Throwing knives",
+        "mastery": "Expert",
+        "power": "Size shifting",
+        "power2": "No second power",
+        "weakness": "Anti-magic"
+      }
+    }
+  ],
+  "createdAt": 1791011580481
+}

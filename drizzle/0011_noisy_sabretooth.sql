@@ -1,0 +1,1 @@
+ALTER TABLE `tournament_name_claims` ADD `display_name` text;
