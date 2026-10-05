@@ -32,12 +32,12 @@ League scoring is win 3, draw 1, loss 0. Timed-out league games are draws. A dra
 
 ## Cups and qualification
 
-The cycle is league season → seven division cups → Champions qualification and cup → Europa qualification and cup → explicit season rollover.
+The cycle is league season → seven division cups → Crownfire Convergence qualification and cup → Emberveil Challenge qualification and cup → explicit season rollover.
 
-Division cups include all members with proper preliminary rounds and byes. Cup grand finals are always Bo5. Champions and Europa have separate titles, crowns and streaks.
+Division cups include all members with proper preliminary rounds and byes. Cup grand finals are always Bo5. Crownfire Convergence and Emberveil Challenge have separate titles, crowns and streaks.
 
-- **Champions:** first and second in each league qualify automatically (14). Third and fourth in each league enter a Bo3 single-elimination qualifier, played down to two remaining fighters. Those two complete the 16-player field.
-- **Europa:** the 12 eliminated Champions qualifier entrants qualify automatically. Fifth and sixth in each league enter another Bo3 single-elimination qualifier, played down to four remaining fighters. Those four complete a separate 16-player field. No fighter appears in both main cups.
+- **Crownfire Convergence:** first and second in each league qualify automatically (14). Third and fourth in each league enter a Bo3 single-elimination qualifier, played down to two remaining fighters. Those two complete the 16-player field.
+- **Emberveil Challenge:** the 12 eliminated Crownfire Convergence qualifier entrants qualify automatically. Fifth and sixth in each league enter another Bo3 single-elimination qualifier, played down to four remaining fighters. Those four complete a separate 16-player field. No fighter appears in both main cups.
 
 Both qualifying stages retain entrants, byes, qualifying fighters and eliminated fighters in history. Qualifiers use Bo3 throughout; main-cup grand finals use Bo5. Neither qualifying stage awards a championship.
 
