@@ -3,7 +3,8 @@ const root=fileURLToPath(new URL('../',import.meta.url));const worker=(await imp
 let context={};vm.createContext(context);vm.runInContext(fs.readFileSync(root+'public/data.js','utf8')+';this.data=WHEEL_DATA',context);env.DB.batch=async statements=>{db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}};const request=(path,method='GET',body)=>worker.fetch(new Request('https://fateforge.test/api/'+path,{method,headers:{'oai-authenticated-user-id':'ui-owner','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);for(let i=1;i<=3;i++){const id='00000000-0000-4000-8000-'+String(i).padStart(12,'0');assert.equal((await request('characters/'+id,'PUT',{name:'Fighter '+i,state:{version:1,pools:context.data,traits:{race:'Human',weapon:i===1?'Longbow':'Warhammer'}}})).status,200);}
 class Element{constructor(tag){this.tagName=tag;this.children=[];this.value='';this.textContent='';this.style={};this.classList={toggle(){}};this.listeners={};this.hidden=false;this.disabled=false;}append(...v){this.children.push(...v);}replaceChildren(...v){this.children=[...v];}addEventListener(name,fn){this.listeners[name]=fn;}setAttribute(k,v){this[k]=v;}showModal(){this.open=true;}close(){this.open=false;}querySelectorAll(selector){const all=[];function visit(e){if(e.tagName==='input'&&(selector!=='input:checked'||e.checked))all.push(e);e.children.forEach(visit);}this.children.forEach(visit);return all;}}
 const elements=new Map();for(const m of fs.readFileSync(root+'public/arena.html','utf8').matchAll(/id="([^"]+)"/g))elements.set(m[1],new Element('div'));const canvasContext=new Proxy({},{get(){return()=>{}}});elements.get('arena').getContext=()=>canvasContext;globalThis.matchMedia=()=>({matches:true});globalThis.document={body:Object.assign(new Element('body'),{dataset:{}}),getElementById:id=>{assert(elements.has(id),'Unknown element '+id);return elements.get(id);},createElement:tag=>new Element(tag),createElementNS:(ns,tag)=>new Element(tag)};globalThis.Image=class{constructor(){this.complete=true;this.naturalWidth=1254;this.naturalHeight=1254;}};globalThis.requestAnimationFrame=()=>{};globalThis.confirm=()=>true;globalThis.fetch=async(path,options={})=>request(path.replace('/api/',''),options.method||'GET',options.body?JSON.parse(options.body):undefined);elements.get('duel-best-of').value='3';elements.get('duel-night').value='day';elements.get('play-speed').value='8';elements.get('tourney-name').value='UI Cup';elements.get('tourney-order').value='roster';elements.get('tourney-night').value='day';
-let code=fs.readFileSync(root+'public/arena.js','utf8');for(const name of ['league-ui','trait-detail-ui','trait-details','combat','combat-v1','combat-v2','combat-v3','combat-v4','combat-v5','combat-v6','combat-v7','combat-v8','tournaments','brackets','divisions','abilities','conditions','tournament-names','stage-recommendations','roster-view','bulk-characters','series'])code=code.replace(JSON.stringify('./'+name+'.js'),JSON.stringify(pathToFileURL(root+'public/'+name+'.js').href)).replace("'./"+name+".js'",JSON.stringify(pathToFileURL(root+'public/'+name+'.js').href));code+='\nexport {refreshRoster,startDuel,create,watchNext,resolve,frame,renderStages,saveTournament,refreshTournaments,replayMatch,refreshChampions,renderTournament,renderStageResults,loadReplayEngine};export const testReplayEngines=()=>replayEngines;export const testState=()=>({roster,tournament,tournamentId,activeFight,series,config,saveChain});';const ui=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));await new Promise(r=>setTimeout(r,20));await ui.refreshRoster();assert.equal(ui.testState().roster.length,3);
+const {simulateLeagueSeries}=await import(pathToFileURL(root+'public/league-sim-worker.js').href);globalThis.Worker=class{postMessage(data){queueMicrotask(()=>{try{this.onmessage({data:{id:data.dispatchId,results:simulateLeagueSeries(data)}});}catch(error){this.onerror(error);}});}terminate(){}};
+let code=fs.readFileSync(root+'public/arena.js','utf8');for(const name of ['simulation-client','league-ui','trait-detail-ui','trait-details','combat','combat-v1','combat-v2','combat-v3','combat-v4','combat-v5','combat-v6','combat-v7','combat-v8','tournaments','brackets','divisions','abilities','conditions','tournament-names','stage-recommendations','roster-view','bulk-characters','series'])code=code.replace(JSON.stringify('./'+name+'.js'),JSON.stringify(pathToFileURL(root+'public/'+name+'.js').href)).replace("'./"+name+".js'",JSON.stringify(pathToFileURL(root+'public/'+name+'.js').href));code+='\nexport {refreshRoster,startDuel,create,watchNext,resolve,frame,renderStages,saveTournament,refreshTournaments,replayMatch,refreshChampions,renderTournament,renderStageResults,loadReplayEngine};export const testReplayEngines=()=>replayEngines;export const testState=()=>({roster,tournament,tournamentId,activeFight,series,config,saveChain});';const ui=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));await new Promise(r=>setTimeout(r,20));await ui.refreshRoster();assert.equal(ui.testState().roster.length,3);
 // Profile inspection fetches contribution metadata only on demand and opens the
 // shared dialog without starting a fight or changing the selected character.
 const statsButtons=elements.get('profile-a').children.find(e=>e.className==='detail-stat-buttons');
@@ -22,23 +23,23 @@ ui.testState().config[0].groups=64;ui.testState().config[0].advance=64;
 for(const box of elements.get('entrants').querySelectorAll('input'))box.checked=true;
 for(let i=3;i<128;i++){const box=new Element('input');box.value='preview-'+i;box.checked=true;elements.get('entrants').append(box);}
 ui.renderStages();
-assert(elements.get('stage-path').textContent.includes('128 fighters → 64 → 4 → 1 champion'));
+assert(elements.get('stage-path').textContent.includes('128 fighters → 64 → ~32 → 1 champion'));
 assert.equal(ui.testState().config[0].groups,64,'Suggestions must not silently change settings');
 const flatten=e=>[e.textContent,...e.children.flatMap(flatten)].join(' ');
 assert(flatten(elements.get('stages')).includes('64 groups of 2'));
-assert(flatten(elements.get('stages')).includes('Suggested: 6 rounds · 16 total advancing'));
+assert(flatten(elements.get('stages')).includes('Suggested: 3 wins qualify · 3 losses eliminate · at most 5 rounds'));
 elements.get('recommend-stages').onclick();
 assert.equal(ui.testState().config[0].groups,32);
-assert.equal(ui.testState().config[1].rounds,6);
-assert.equal(ui.testState().config[1].advance,16);
-assert(elements.get('stage-path').textContent.includes('128 fighters → 64 → 16 → 1 champion'));
+assert.equal(ui.testState().config[1].rounds,5);
+assert.equal(ui.testState().config[1].advance,32);
+assert(elements.get('stage-path').textContent.includes('128 fighters → 64 → ~32 → 1 champion'));
 const advance=elements.get('stages').children[0].children[1].children[2].children[0];
 advance.value='32';advance.listeners.input();
-assert(elements.get('stage-path').textContent.includes('128 fighters → 32 → 16'));
-assert(flatten(elements.get('stages')).includes('Suggested: 5 rounds'));
+assert(elements.get('stage-path').textContent.includes('128 fighters → 32 → ~16'));
+assert(flatten(elements.get('stages')).includes('Suggested: 3 wins qualify'));
 const down=elements.get('stages').children[0].children[0].children[1].children[1];down.listeners.click();
 assert.equal(ui.testState().config[0].type,'swiss');
-assert(flatten(elements.get('stages')).includes('Suggested: 7 rounds'));
+assert(flatten(elements.get('stages')).includes('Suggested: 3 wins qualify'));
 ui.testState().config.splice(0,3,defaultStage('single'));
 for(const box of elements.get('entrants').querySelectorAll('input'))box.checked=false;
 await ui.refreshRoster();ui.renderStages();
@@ -49,7 +50,7 @@ elements.get('tourney-night').value='random';elements.get('tourney-weather').val
 
 // The real UI resolver must finish only the requested stage and persist the
 // untouched next stage, even when called midway through a group round robin.
-ui.testState().config.splice(0,1,{...defaultStage('groups'),groups:1,advance:2},{...defaultStage('swiss'),rounds:2,advance:2},defaultStage('double'));
+ui.testState().config.splice(0,1,{...defaultStage('groups'),groups:1,advance:3},{...defaultStage('swiss'),rounds:5},defaultStage('double'));
 for(const box of elements.get('entrants').querySelectorAll('input'))box.checked=true;
 await ui.create();
 const stageId=ui.testState().tournamentId;
@@ -60,16 +61,16 @@ assert.equal(ui.testState().tournament.history.filter(m=>!m.bye).length,1);
 await elements.get('resolve-stage').onclick();
 assert.equal(ui.testState().tournament.stageIndex,1);
 assert.equal(ui.testState().tournament.stageResults.length,1);
-assert(ui.testState().tournament.history.every(m=>m.stage===0));
+assert(ui.testState().tournament.history.filter(m=>!m.bye).every(m=>m.stage===0));
 assert.equal(ui.testState().tournament.history.filter(m=>!m.bye).length,3);
 let stageSaved=(await(await request('tournaments/'+stageId)).json()).tournament.state;
 assert.equal(stageSaved.stageIndex,1);
-assert(stageSaved.history.every(m=>m.stage===0));
+assert(stageSaved.history.filter(m=>!m.bye).every(m=>m.stage===0));
 assert.equal(stageSaved.runtime.pending.length,1);
 await ui.resolve('stage');
 assert.equal(ui.testState().tournament.stageIndex,2);
 assert.equal(ui.testState().tournament.stageResults.length,2);
-assert.equal(ui.testState().tournament.history.filter(m=>m.stage===1).length,2);
+assert(ui.testState().tournament.history.filter(m=>m.stage===1).every(m=>m.round<=5));assert.equal(ui.testState().tournament.stageResults[1].qualified.length,2);
 assert(ui.testState().tournament.history.every(m=>m.stage<2));
 stageSaved=(await(await request('tournaments/'+stageId)).json()).tournament.state;
 assert.equal(stageSaved.stageIndex,2);
@@ -111,7 +112,7 @@ while(ui.testState().tournament.stageIndex===0){const t=ui.testState().tournamen
 ui.renderTournament();assert.equal(elements.get('overall-standings').hidden,false);assert.equal(elements.get('standings').children.length,64);
 elements.get('results-stage').value='0';elements.get('results-stage').onchange();
 assert.equal(elements.get('group-standings').children.length,32);
-assert.equal(elements.get('match-history').children.length,192);
+assert.equal(elements.get('match-history').children.length,81);
 const firstCompletedGroup=flatten(elements.get('group-standings').children[0]);
 const t=ui.testState().tournament,m=nextMatch(t);recordMatch(t,m,[{winner:m.a,seconds:1}]);ui.renderTournament();
 assert.equal(elements.get('results-stage').value,'0');assert.equal(flatten(elements.get('group-standings').children[0]),firstCompletedGroup);

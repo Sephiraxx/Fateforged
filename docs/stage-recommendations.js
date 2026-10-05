@@ -1,5 +1,5 @@
-// Suggestions favor groups of four, enough Swiss rounds to sort the field,
-// and a final bracket of at most sixteen. These are editable starting points.
+// Swiss advances everyone reaching three wins; forecasts for later stages
+// use an estimated half-field until qualification results are known.
 const powerOfTwo=n=>2**Math.floor(Math.log2(Math.max(2,n)));
 const valid=(n,min,max)=>Number.isInteger(n)&&n>=min&&n<=max;
 const bracket=type=>type==='single'||type==='double';
@@ -8,7 +8,7 @@ export function suggestedStage(count,stage,next){
   const result={...stage};
   if(count<2)return result;
   if(stage.type==='groups')result.groups=Math.min(Math.floor(count/2),Math.ceil(count/4));
-  if(stage.type==='swiss')result.rounds=Math.min(count-1,Math.ceil(Math.log2(count)));
+  if(stage.type==='swiss'){result.rounds=5;result.swissMode='threshold';result.advance=Math.max(2,Math.ceil(count/2));}
   if(next){
     let target=powerOfTwo(Math.floor(count/2));
     if(bracket(next.type))target=Math.min(16,target);
@@ -16,7 +16,7 @@ export function suggestedStage(count,stage,next){
       const groups=result.groups;
       target=Math.max(groups,groups*Math.floor(target/groups));
     }
-    result.advance=Math.min(count,Math.max(2,target));
+    if(stage.type!=='swiss')result.advance=Math.min(count,Math.max(2,target));
   }
   return result;
 }
@@ -25,7 +25,7 @@ export function recommendedStages(count,stages){
   let incoming=count;
   return stages.map((s,i)=>{
     const suggestion=suggestedStage(incoming,s,stages[i+1]);
-    if(i<stages.length-1)incoming=Math.min(incoming,suggestion.advance);
+    if(i<stages.length-1)incoming=s.type==='swiss'?Math.max(1,Math.ceil(incoming/2)):Math.min(incoming,suggestion.advance);
     return suggestion;
   });
 }
@@ -36,9 +36,9 @@ export function stagePlan(count,stages){
     const final=i===stages.length-1,active=incoming>=2;
     const suggestion=suggestedStage(incoming,s,stages[i+1]);
     const warnings=[],details=[];
-    const settingsValid=(s.bestOf!==undefined?[1,3,5].includes(s.bestOf):valid(s.legs,1,101))&&(final||valid(s.advance,2,Number.MAX_SAFE_INTEGER))&&
-      (s.type!=='groups'||valid(s.groups,1,Number.MAX_SAFE_INTEGER))&&(s.type!=='swiss'||valid(s.rounds,1,100));
-    let outgoing=active?(final?1:Math.min(incoming,s.advance)):0;
+    const settingsValid=(s.bestOf!==undefined?[1,3,5].includes(s.bestOf):valid(s.legs,1,101))&&(final||s.type==='swiss'||valid(s.advance,2,Number.MAX_SAFE_INTEGER))&&
+      (s.type!=='groups'||valid(s.groups,1,Number.MAX_SAFE_INTEGER));
+    let outgoing=active?(final?1:s.type==='swiss'?Math.ceil(incoming/2):Math.min(incoming,s.advance)):0;
     let matches=null;
     if(active&&settingsValid){
       if(s.type==='groups'){
@@ -54,14 +54,14 @@ export function stagePlan(count,stages){
         if(final&&groups>1)details.push('Champion chosen by cross-group ranking');
         if(large===2)warnings.push('Groups of two give each fighter only one match. Groups of four give three matches each.');
       }else if(s.type==='swiss'){
-        matches=Math.floor(incoming/2)*s.rounds;
-        details.push(`${s.rounds} rounds · ${Math.floor(incoming/2)} matches per round${incoming%2?' + one rotating bye':''}`);
-        if(s.rounds<suggestion.rounds)warnings.push(`A short Swiss stage may leave many fighters tied. Suggested: ${suggestion.rounds} rounds.`);
-        if(s.rounds>incoming-1)warnings.push('There are more rounds than distinct opponents, so repeat matchups are unavoidable.');
+        matches=`up to ${Math.floor(incoming/2)*5}`;
+        details.push('3 wins qualify · 3 losses eliminate · maximum 5 rounds · byes count as wins');
+        if(final)details.push('A final championship bracket is added after Swiss');
+        else details.push('All three-win fighters advance; later-stage counts are estimates');
       }else if(s.type==='single')matches=incoming-1;
       else if(s.type==='double')matches=`${incoming*2-2}–${incoming*2-1}`;
-      if(!final&&s.advance>incoming)warnings.push(`Only ${incoming} fighters are available; all will advance.`);
-      if(!final&&outgoing===incoming)warnings.push('This stage eliminates nobody. Lower the total advancing to narrow the field.');
+      if(!final&&s.type!=='swiss'&&s.advance>incoming)warnings.push(`Only ${incoming} fighters are available; all will advance.`);
+      if(!final&&s.type!=='swiss'&&outgoing===incoming)warnings.push('This stage eliminates nobody. Lower the total advancing to narrow the field.');
     }else if(count>=2&&!settingsValid)warnings.push('Enter whole numbers within the limits to preview this stage.');
     const row={incoming,outgoing,suggestion,details,warnings,matches,active,settingsValid};
     incoming=settingsValid?outgoing:0;
