@@ -81,6 +81,6 @@ BULK_CHARACTERS.mount($('collection-bulk'),{
   if(roster){savedCharacters=roster;collectionLoadedAt=Date.now();}
   if(characters){const incoming=new Set(characters.map(c=>c.id));savedCharacters=[...characters,...savedCharacters.filter(c=>!incoming.has(c.id))];}
   if(deletedIds){const removed=new Set(deletedIds);savedCharacters=savedCharacters.filter(c=>!removed.has(c.id));if(removed.has(savedId)){savedId=null;savedLocked=true;dirty=false;saveMessage='Saved copy deleted. Start a new character to roll again.';saveError=false;}}
-  $('saved-count').textContent=String(savedCharacters.length);if(roster){render();renderSavedCharacters();}
+  $('saved-count').textContent=String(savedCharacters.length);if(!$('collection-status').classList.contains('error'))$('collection-status').textContent=savedCharacters.length?`${savedCharacters.length} saved character${savedCharacters.length===1?'':'s'}`:'No saved characters yet. Roll a character and save it here.';if(roster){render();renderSavedCharacters();}
  }
 });
