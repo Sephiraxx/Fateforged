@@ -65,7 +65,7 @@ async function startDuel(){if(series||resolving)return;const a=$('choose-a').val
 async function saveDuelRecords(){try{for(const [id,result]of pendingDuelRecords){await api('match-records/'+id,{method:'PUT',body:JSON.stringify(result)});pendingDuelRecords.delete(id);}$('retry-duel-record').hidden=true;}catch(e){$('retry-duel-record').hidden=false;status('Match finished, but its record could not be saved: '+e.message,true);}}
 $('retry-duel-record').onclick=()=>{saveChain=saveChain.catch(()=>{}).then(saveDuelRecords);return saveChain;};
 
-function numberField(label,value,min,max,change){const l=node('label',label),input=node('input');input.type='number';input.value=value;input.min=min;input.max=max;input.addEventListener('input',()=>change(input.value===''?NaN:Number(input.value)));l.append(input);return l;}
+function numberField(label,value,min,max,change){const l=node('label',label),input=node('input');input.type='number';input.value=value;input.min=min;if(max!==null)input.max=max;input.addEventListener('input',()=>change(input.value===''?NaN:Number(input.value)));l.append(input);return l;}
 function selectedEntrants(){return $('entrants').querySelectorAll('input:checked').length;}
 function suggestionText(s,i){const parts=[];if(s.type==='groups')parts.push(`${s.groups} groups`);if(s.type==='swiss')parts.push(`${s.rounds} rounds`);if(i<config.length-1)parts.push(`${s.advance} total advancing`);return parts.length?'Suggested: '+parts.join(' · '):'This bracket plays down to one champion.';}
 function updateStageAdvice(){
@@ -93,8 +93,8 @@ function renderStages(){
   const fields=node('div','','field-row'),change=key=>v=>{s[key]=v;updateStageAdvice();};
   const format=node('label','Match format'),bestOf=node('select');for(const n of [1,3,5])bestOf.append(option(String(n),'Bo'+n));bestOf.value=String(s.bestOf||1);bestOf.addEventListener('change',()=>{s.bestOf=Number(bestOf.value);delete s.legs;updateStageAdvice();});format.append(bestOf);fields.append(format);
   if(s.type==='swiss')fields.append(numberField('Rounds',s.rounds,1,100,change('rounds')));
-  if(s.type==='groups')fields.append(numberField('Number of groups',s.groups,1,64,change('groups')));
-  if(i<config.length-1)fields.append(numberField('Total advancing',s.advance,2,128,change('advance')));
+  if(s.type==='groups')fields.append(numberField('Number of groups',s.groups,1,null,change('groups')));
+  if(i<config.length-1)fields.append(numberField('Total advancing',s.advance,2,null,change('advance')));
   card.append(fields);
   const root=node('div','','stage-advice'),flow=node('strong','','stage-flow'),details=node('p','','stage-detail'),suggestion=node('p','','stage-suggestion'),apply=node('button','Use suggestion','quiet'),warnings=node('div');
   apply.type='button';apply.setAttribute('aria-label',`Use suggestion for stage ${i+1}`);

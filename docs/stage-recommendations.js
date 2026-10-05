@@ -7,7 +7,7 @@ const bracket=type=>type==='single'||type==='double';
 export function suggestedStage(count,stage,next){
   const result={...stage};
   if(count<2)return result;
-  if(stage.type==='groups')result.groups=Math.min(64,Math.floor(count/2),Math.ceil(count/4));
+  if(stage.type==='groups')result.groups=Math.min(Math.floor(count/2),Math.ceil(count/4));
   if(stage.type==='swiss')result.rounds=Math.min(count-1,Math.ceil(Math.log2(count)));
   if(next){
     let target=powerOfTwo(Math.floor(count/2));
@@ -36,8 +36,8 @@ export function stagePlan(count,stages){
     const final=i===stages.length-1,active=incoming>=2;
     const suggestion=suggestedStage(incoming,s,stages[i+1]);
     const warnings=[],details=[];
-    const settingsValid=(s.bestOf!==undefined?[1,3,5].includes(s.bestOf):valid(s.legs,1,101))&&(final||valid(s.advance,2,128))&&
-      (s.type!=='groups'||valid(s.groups,1,64))&&(s.type!=='swiss'||valid(s.rounds,1,100));
+    const settingsValid=(s.bestOf!==undefined?[1,3,5].includes(s.bestOf):valid(s.legs,1,101))&&(final||valid(s.advance,2,Number.MAX_SAFE_INTEGER))&&
+      (s.type!=='groups'||valid(s.groups,1,Number.MAX_SAFE_INTEGER))&&(s.type!=='swiss'||valid(s.rounds,1,100));
     let outgoing=active?(final?1:Math.min(incoming,s.advance)):0;
     let matches=null;
     if(active&&settingsValid){

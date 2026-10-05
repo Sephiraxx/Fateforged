@@ -73,4 +73,13 @@ for(const file of files.filter(f=>/\.(html|css|js)$/.test(f)&&!['local-api.js','
  for(const match of content.matchAll(/(?:src|href)=["'](?:\.\/)?([\w-]+\.(?:js|css|html))["']/g))assert(files.includes(match[1]),file+' missing '+match[1]);
 }
 assert(!(await readFile('_site/local-api.js','utf8')).includes('NAME_REPAIR_OWNER'));
+// The roster and stage validators accept more than the former 128-entry ceiling.
+const large=[];
+while(large.length<260){const r=await call('characters/bulk-generate','POST',{ids:Array.from({length:Math.min(10,260-large.length)},()=>crypto.randomUUID())});ok(r);large.push(...r.characters);}
+const largeCup=createTournament('Large Cup',large,[{...defaultStage('groups'),groups:65,advance:130},defaultStage('single')],73,{shuffle:false});
+const largeId=crypto.randomUUID();ok(await call('tournaments/'+largeId,'PUT',{name:largeCup.name,state:largeCup}));
+assert.equal((await call('tournaments/'+largeId)).tournament.state.roster.length,260);
+assert.equal(largeCup.runtime.groups.length,65);
+assert.equal((await call('tournaments/'+largeId)).tournament.state.stages[0].advance,130);
+console.log('Large-field checks passed: 260 entrants, 65 groups, 130 advancing, and a saved/reloaded tournament.');
 console.log('Pages checks passed: 39 fighters, all obtainable tiers, simultaneous tabs, immutable rolls, groups → Swiss → double elimination, duplicate names, champions, W/L, promotions, reload, backup restore, rejected bad backups, bulk removal, rollback, combat and subpath assets.');
