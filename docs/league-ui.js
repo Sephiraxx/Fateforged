@@ -77,17 +77,20 @@ export function mountLeagues(host,hooks){
  function addResults(records){for(const record of records){LEAGUES.record(world,record.matchId,record.results);unsaved.push(record);}}
  async function run(mode){
   if(!world||busy||hooks.blocked()||archived)return;if(pending)await flush();
-  const first=LEAGUES.next(world);if(!first)return;const initialPhase=world.phase,week=first.week;stop=false;simulating=true;lock(true);let painted=performance.now();
+  const first=LEAGUES.next(world);if(!first)return;const initialPhase=world.phase;
+  // Cup rounds are scoped to their competition, since each division starts at round 1.
+  const sameRound=match=>!!match&&match.phase===first.phase&&(first.phase==='league'?match.week===first.week:match.division===first.division&&match.round===first.round);
+  stop=false;simulating=true;lock(true);let painted=performance.now();
   try{
    do{
     const phase=world.phase;let matches=LEAGUES.upcoming(world,mode==='one'?1:12);
-    if(mode==='week')matches=matches.filter(m=>m.phase===initialPhase&&m.week===week);if(!matches.length)break;
-    const m=matches[0];say(`Simulating season ${world.season} · ${m.phase==='league'?'week '+m.week:m.phase==='cups'?LEAGUES.names[m.division]+' cup':LEAGUES.phaseNames[m.phase]}…`);
+    if(mode==='week')matches=matches.filter(sameRound);if(!matches.length)break;
+    const m=matches[0];say(`Simulating season ${world.season} · ${m.phase==='league'?'week '+m.week:(m.phase==='cups'?LEAGUES.names[m.division]+' cup':LEAGUES.phaseNames[m.phase])+' · round '+m.round}…`);
     const results=await Promise.all(matches.map(simulate));addResults(matches.map((match,i)=>({matchId:match.id,results:results[i]})));
     if(world.phase!==phase){say('Phase complete. Saving results…');await checkpoint();}
     if(stop){await checkpoint();break;}
     if(mode==='one'||world.phase==='complete'||mode==='phase'&&world.phase!==initialPhase)break;
-    const next=LEAGUES.next(world);if(mode==='week'&&(world.phase!==initialPhase||next?.week!==week))break;
+    const next=LEAGUES.next(world);if(mode==='week'&&!sameRound(next))break;
     if(performance.now()-painted>750){render();painted=performance.now();}
    }while(true);
    say(stop?'Paused and saved.':world.phase==='complete'?'All cups complete and saved. Review the season before rollover.':unsaved.length?'Progress stays in this tab. It will save when this phase finishes.':'Phase complete and saved.');
@@ -136,7 +139,7 @@ export function mountLeagues(host,hooks){
   for(const {b,mode}of actions){b.hidden=mode==='rollover'?world?.phase!=='complete':mode==='retry'?!pending:false;b.disabled=busy||!!hooks.blocked()||!!archived||!world;
    if(['watch','one','week','phase','season','rollover'].includes(mode)&&pending)b.disabled=true;
    if(['watch','one','week','phase','season'].includes(mode)&&world?.phase==='complete')b.disabled=true;
-   if(mode==='week'&&world?.phase!=='league')b.disabled=true;
+   if(mode==='week')b.textContent=world?.phase==='league'?'Simulate matchweek':'Simulate cup round';
    if(mode==='save')b.disabled||=(!unsaved.length||!!pending);
    if(mode==='retry')b.disabled||=!pending;
    if(mode==='refresh'){b.disabled||=!!(unsaved.length||pending)&&!conflicted;b.textContent=conflicted?'Discard local results & load saved season':'Refresh saved progress';}
