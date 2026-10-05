@@ -2,25 +2,25 @@
 async function leagueApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save league progress.',401);storage(env);
  const get=()=>env.DB.prepare('SELECT * FROM league_worlds WHERE owner_id = ?').bind(owner).first();
- const response=async(compactOperation=null)=>{const row=await get();return json({...(compactOperation&&row?.last_operation===compactOperation?{}:{world:row?await decodeTournament(row.state_json):null}),revision:row?.revision??0});};
+ const response=async(compactOperation=null)=>{const row=await get();return json({...(compactOperation&&row?.last_operation===compactOperation?{}:{world:row?LEAGUES.prepare(await decodeTournament(row.state_json)):null}),revision:row?.revision??0});};
  if(request.method==='GET'){
   if(url.pathname==='/api/leagues')return response();
-  if(url.pathname==='/api/leagues/history'){const rows=await env.DB.prepare('SELECT world_id,season,completed_at FROM league_seasons WHERE owner_id = ? ORDER BY season DESC').bind(owner).all();return json({seasons:rows.results.map(r=>({worldId:r.world_id,season:r.season,completedAt:r.completed_at}))});}
-  const n=Number(url.pathname.slice('/api/leagues/history/'.length));if(!Number.isSafeInteger(n)||n<1)fail('Season not found.',404);const row=await env.DB.prepare('SELECT state_json FROM league_seasons WHERE owner_id = ? AND season = ?').bind(owner,n).first();if(!row)fail('Season not found.',404);return json({archive:await decodeTournament(row.state_json)});
+  if(url.pathname==='/api/leagues/history'){const rows=await env.DB.prepare('SELECT world_id,season,completed_at FROM league_seasons WHERE owner_id = ? ORDER BY completed_at DESC, world_id DESC, season DESC').bind(owner).all();return json({seasons:rows.results.map(r=>({worldId:r.world_id,season:r.season,completedAt:r.completed_at}))});}
+  const n=Number(url.pathname.slice('/api/leagues/history/'.length));if(!Number.isSafeInteger(n)||n<1)fail('Season not found.',404);const worldId=url.searchParams.get('worldId');if(worldId&&!UUID.test(worldId))fail('Invalid world ID.');const row=worldId?await env.DB.prepare('SELECT state_json FROM league_seasons WHERE owner_id = ? AND world_id = ? AND season = ?').bind(owner,worldId,n).first():await env.DB.prepare('SELECT state_json FROM league_seasons WHERE owner_id = ? AND season = ? ORDER BY completed_at DESC LIMIT 1').bind(owner,n).first();if(!row)fail('Season not found.',404);return json({archive:await decodeTournament(row.state_json)});
  }
  if(request.method!=='POST'||url.pathname!=='/api/leagues')fail('Method not allowed.',405);
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a league command as JSON.',415);
  const text=await request.text();if(text.length>12000000)fail('League command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','record','recordBatch','rollover'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','freshStart','record','recordBatch','rollover'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid league command.');
  const requestJson=JSON.stringify(input),previous=await env.DB.prepare('SELECT request_json FROM league_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
  // Full phases contain thousands of games. Keep their retry receipt compact.
  const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
  const row=await get();if((row?.revision??0)!==input.revision)fail('League progress changed in another tab. Refresh before continuing.',409);
- let world=row?await decodeTournament(row.state_json):null,newFighters=[],archive=null,played=[];
- if(input.action==='start'){
-  if(world)fail('Your league system already exists. Refresh to continue it.',409);if(!UUID.test(input.worldId))fail('Invalid league ID.');
+ let world=row?LEAGUES.prepare(await decodeTournament(row.state_json)):null,newFighters=[],archive=null,played=[];
+ if(input.action==='start'||input.action==='freshStart'){
+  if(world&&input.action==='start')fail('Your league system already exists. Refresh to continue it.',409);if(input.action==='freshStart'){if(!world)fail('Start the league system first.');if(world.phase!=='complete'&&(world.history.length>0))fail('Finish the current season before starting a fresh world.');archive={...structuredClone(world),standings:world.divisions.map((_,d)=>LEAGUES.standings(world,d)),movement:[],retired:[],replacements:[],closedWorld:true};}if(!UUID.test(input.worldId))fail('Invalid league ID.');
   let settings;try{settings=LEAGUES.settings(input.settings);}catch(e){fail(e.message);}
   for(let i=0;i<LEAGUES.totalFighters;i++)newFighters.push(makeLeagueFighter());world=LEAGUES.create(input.worldId,newFighters.map(f=>f.character),crypto.getRandomValues(new Uint32Array(1))[0],settings);
  }else if(!world)fail('Start the league system first.',409);
@@ -31,7 +31,7 @@ async function leagueApi(request,env,url){
   try{for(const record of records){if(world.phase!==phase)throw Error('Save each completed phase before the next phase.');played.push(LEAGUES.record(world,record.matchId,record.results));}}catch(e){fail(e.message);}
  }else{
   if(world.phase!=='complete')fail('Finish the season before rollover.');
-  newFighters=['legendary','legendary','unique','unique','mythic'].map(rarity=>makeLeagueFighter(rarity));
+  newFighters=LEAGUES.intake(world.seed^Math.imul(world.season,7919)).map(rarity=>makeLeagueFighter(rarity));
   const replacements=newFighters.map(f=>f.character),expansion=[];
   for(let i=0;i<LEAGUES.expansionCount(world);i++){const f=makeLeagueFighter();newFighters.push(f);expansion.push(f.character);}
   const result=LEAGUES.rollover(world,replacements,expansion);archive=result.archive;world=result.world;
@@ -39,7 +39,7 @@ async function leagueApi(request,env,url){
  const revision=input.revision+1,now=Date.now(),state=await encodeTournament(world),op=input.operationId;
  const gate='EXISTS (SELECT 1 FROM league_worlds WHERE owner_id = ? AND last_operation = ?)';
  const statements=[row?
-  env.DB.prepare('UPDATE league_worlds SET revision = ?, last_operation = ?, state_json = ?, updated_at = ? WHERE owner_id = ? AND revision = ?').bind(revision,op,state,now,owner,input.revision):
+  env.DB.prepare('UPDATE league_worlds SET revision = ?, last_operation = ?, state_json = ?, updated_at = ?, id = ? WHERE owner_id = ? AND revision = ?').bind(revision,op,state,now,world.id,owner,input.revision):
   env.DB.prepare('INSERT INTO league_worlds(owner_id,id,revision,last_operation,state_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(owner_id) DO NOTHING').bind(owner,world.id,revision,op,state,now)];
  // A revision claim and all its effects commit together, including on D1.
  statements.push(env.DB.prepare(`INSERT INTO league_operations(owner_id,operation_id,request_json) SELECT ?,?,? WHERE ${gate}`).bind(owner,op,encodedRequest,owner,op));
@@ -61,7 +61,7 @@ async function leagueApi(request,env,url){
   statements.push(env.DB.prepare(`INSERT INTO current_champions(owner_id,division_key,label,character_id,character_name,tournament_id,tournament_name,completed_at) SELECT h.owner_id,h.division_key,h.label,h.character_id,h.character_name,h.tournament_id,h.tournament_name,h.completed_at FROM champion_history h WHERE h.owner_id = ? AND h.tournament_id = ? AND ${gate} ON CONFLICT(owner_id,division_key) DO UPDATE SET character_id=excluded.character_id,character_name=excluded.character_name,tournament_id=excluded.tournament_id,tournament_name=excluded.tournament_name,completed_at=excluded.completed_at WHERE excluded.completed_at>current_champions.completed_at OR (excluded.completed_at=current_champions.completed_at AND excluded.tournament_id>current_champions.tournament_id)`).bind(owner,event,owner,op));
  }
  if(archive){
-  statements.push(env.DB.prepare(`INSERT INTO league_seasons(owner_id,world_id,season,state_json,completed_at) SELECT ?,?,?,?,? WHERE ${gate}`).bind(owner,world.id,archive.season,await encodeTournament(archive),now,owner,op));
+  statements.push(env.DB.prepare(`INSERT INTO league_seasons(owner_id,world_id,season,state_json,completed_at) SELECT ?,?,?,?,? WHERE ${gate}`).bind(owner,archive.id,archive.season,await encodeTournament(archive),now,owner,op));
   for(const c of archive.retired)statements.push(env.DB.prepare(`DELETE FROM saved_characters WHERE owner_id = ? AND id = ? AND ${gate}`).bind(owner,c.id,owner,op));
  }
  const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('League progress changed in another tab. Refresh before continuing.',409);
