@@ -6,7 +6,7 @@ files['/combat-v4.js']='combat-v4.js';
 files['/combat-v5.js']='combat-v5.js';files['/combat-v6.js']='combat-v6.js';files['/combat-v7.js']='combat-v7.js';files['/combat-v8.js']='combat-v8.js';files['/combat-base-v6.js']='combat-base-v6.js';
 files['/roster-view.js']='roster-view.js';files['/bulk-characters.js']='bulk-characters.js';files['/series.js']='series.js';files['/promotion-rules.js']='promotion-rules.js';
 for(const file of ['trait-details.js','trait-detail-ui.js','trait-details.css'])files['/'+file]=file;
-for(const file of ['leagues.js','league-ui.js','league-sim-worker.js','leagues.css'])files['/'+file]=file;
+for(const file of ['leagues.js','league-fixtures.js','league-ui.js','league-sim-worker.js','simulation-client.js','leagues.css'])files['/'+file]=file;
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 await rm('dist',{recursive:true,force:true});await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});
 const binary={};for(const name of ['weapons','effects'])binary['/assets/'+name+'.webp']=(await readFile('public/'+name+'.webp')).toString('base64');

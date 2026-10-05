@@ -68,9 +68,10 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
     const {world}=await league.json();
     if(world){
      const ids=world.divisions?.flat()||[],rosterIds=world.roster?.map(c=>c.id)||[];
-     if(world.divisions.length!==7||world.divisions.some(d=>d.length!==20)||new Set(ids).size!==140||rosterIds.length!==140||new Set(rosterIds).size!==140||ids.some(id=>!rosterIds.includes(id)))throw Error('The backup has an invalid league roster.');
+     const sizes=world.version===1?[20,20,20,20,20,20,20]:[20,24,24,24,24,24,24],total=sizes.reduce((a,b)=>a+b,0);
+     if(![1,2].includes(world.version)||world.divisions.length!==7||world.divisions.some((d,i)=>d.length!==sizes[i])||new Set(ids).size!==total||rosterIds.length!==total||new Set(rosterIds).size!==total||ids.some(id=>!rosterIds.includes(id)))throw Error('The backup has an invalid league roster.');
      const members=(await env.DB.prepare('SELECT character_id,division FROM league_members WHERE owner_id = ?').bind('local').all()).results;
-     if(members.length!==140||members.some(m=>!world.divisions[m.division]?.includes(m.character_id)))throw Error('The backup has inconsistent league membership.');
+     if(members.length!==total||members.some(m=>!world.divisions[m.division]?.includes(m.character_id)))throw Error('The backup has inconsistent league membership.');
      for(const id of ids)if(!await env.DB.prepare('SELECT id FROM saved_characters WHERE owner_id = ? AND id = ?').bind('local',id).first())throw Error('The backup is missing an active league fighter.');
     }
     for(const path of ['/api/characters','/api/tournaments','/api/champions','/api/leagues']){

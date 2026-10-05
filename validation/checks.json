@@ -101,5 +101,8 @@
       "passed": true,
       "seconds": 0.3
     }
-  ]
+  ],
+  "validatedCommit": "8cc5277",
+  "scope": "Previous seven-by-twenty implementation only; October 5 roster/cup/scoring/performance update has not been tested.",
+  "currentChangesTested": false
 }

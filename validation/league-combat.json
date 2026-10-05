@@ -4,5 +4,7 @@
   "games": 2826,
   "environmentCombinations": 32,
   "seconds": 24,
-  "checks": "Full double round-robin season, seven 20-entrant cups, interleague cup, Bo5 finals and deterministic saved-condition replays through unchanged v9 combat."
+  "checks": "Full double round-robin season, seven 20-entrant cups, interleague cup, Bo5 finals and deterministic saved-condition replays through unchanged v9 combat.",
+  "validatedCommit": "8cc5277",
+  "scope": "Historical combat run before the 164-fighter and two-cup update; current update is untested."
 }
