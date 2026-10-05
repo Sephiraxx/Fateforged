@@ -1,0 +1,13 @@
+{
+  "combatVersion": 10,
+  "normalizedSHA256": {
+    "combat-v10.js": "efaadb36b636bce58aa0e050374dac4b46e84048d089bb1fb986071eb9d2bf6e",
+    "combat-v10-profile.js": "32f284df0819d8b616c24fa2a0adb44410a2cd8eb5fca1fe822fdc5c7ebe9224",
+    "combat-v10-contact.js": "addc2757fa45e2be4b0cb978bfd4d3c012cbfd7d7c6898e5cf4756313080da81",
+    "combat-v10-environment.js": "5ee24dd26a518637889b3545687d82d0ee7fa3859cf2552dba70b093ad69e201",
+    "combat-v10-powers.js": "7a60a655908ab91ebeecea773abdce1bf48c7664f84d329d588caebf3fdba4a4",
+    "combat-v1.js": "26a700d2a606d58eb0228373673951ba64f1e447ce6fbed5dfa174d626552154",
+    "abilities.js": "d19f69b0c3fcdf658a1795d792ffefc1a4d7e7d306617929cdf9d060d55ec1bf",
+    "conditions.js": "12c0c677433a8a2710f08f02e9a470fe01cbf5e34318f3e3987e8935ca61c77d"
+  }
+}

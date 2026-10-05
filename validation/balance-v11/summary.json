@@ -1,0 +1,871 @@
+{
+  "combatVersion": 11,
+  "generationVersion": 2,
+  "careerRulesVersion": 2,
+  "engineFingerprint": "1d3d4021d1317ba44399029e20b20eb269cebcde00b4f7429e11961fd4f5b859",
+  "approvedItems": 24,
+  "checks": {
+    "node": "v24.19.0",
+    "passed": 23,
+    "total": 23
+  },
+  "evidence": {
+    "exactV10Replays": 3000,
+    "baselineIdentityChecks": 2208,
+    "isolatedAndCombinedFights": 46368,
+    "matchedFieldFights": 9000,
+    "broadPairFights": 19872,
+    "generationRolls": 28000
+  },
+  "freshWorlds": {
+    "worlds": 10,
+    "seasonsEach": 40,
+    "series": 822000,
+    "games": 840831,
+    "population": [
+      {
+        "season": 1,
+        "Aplus": {
+          "mean": 0.062195121951219526,
+          "range": [
+            0.04878048780487805,
+            0.07926829268292683
+          ]
+        },
+        "Splus": {
+          "mean": 0.020121951219512192,
+          "range": [
+            0.012195121951219513,
+            0.036585365853658534
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "mean": {
+          "mean": 663.7945121951219,
+          "range": [
+            630.920731707317,
+            700.030487804878
+          ]
+        },
+        "arcane": {
+          "mean": 0.09268292682926829,
+          "range": [
+            0.04878048780487805,
+            0.14634146341463414
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.23719512195121947,
+          "range": [
+            0.18902439024390244,
+            0.2682926829268293
+          ]
+        }
+      },
+      {
+        "season": 10,
+        "Aplus": {
+          "mean": 0.06951219512195124,
+          "range": [
+            0.04878048780487805,
+            0.08536585365853659
+          ]
+        },
+        "Splus": {
+          "mean": 0.02195121951219512,
+          "range": [
+            0.012195121951219513,
+            0.042682926829268296
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "mean": {
+          "mean": 732.414024390244,
+          "range": [
+            682.8658536585366,
+            763.8963414634146
+          ]
+        },
+        "arcane": {
+          "mean": 0.10243902439024391,
+          "range": [
+            0.06097560975609756,
+            0.1524390243902439
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.27682926829268295,
+          "range": [
+            0.23780487804878048,
+            0.32926829268292684
+          ]
+        }
+      },
+      {
+        "season": 20,
+        "Aplus": {
+          "mean": 0.07926829268292683,
+          "range": [
+            0.054878048780487805,
+            0.10975609756097561
+          ]
+        },
+        "Splus": {
+          "mean": 0.026219512195121954,
+          "range": [
+            0.012195121951219513,
+            0.06707317073170732
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "mean": {
+          "mean": 798.9414634146341,
+          "range": [
+            755.2987804878048,
+            844.4756097560976
+          ]
+        },
+        "arcane": {
+          "mean": 0.10426829268292684,
+          "range": [
+            0.054878048780487805,
+            0.14634146341463414
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.3170731707317073,
+          "range": [
+            0.2682926829268293,
+            0.36585365853658536
+          ]
+        }
+      },
+      {
+        "season": 30,
+        "Aplus": {
+          "mean": 0.09024390243902439,
+          "range": [
+            0.054878048780487805,
+            0.11585365853658537
+          ]
+        },
+        "Splus": {
+          "mean": 0.02865853658536586,
+          "range": [
+            0.018292682926829267,
+            0.06707317073170732
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "mean": {
+          "mean": 855.8054878048781,
+          "range": [
+            821.6768292682926,
+            898.5
+          ]
+        },
+        "arcane": {
+          "mean": 0.1079268292682927,
+          "range": [
+            0.06707317073170732,
+            0.16463414634146342
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.33780487804878045,
+          "range": [
+            0.2926829268292683,
+            0.38414634146341464
+          ]
+        }
+      },
+      {
+        "season": 40,
+        "Aplus": {
+          "mean": 0.199390243902439,
+          "range": [
+            0.1524390243902439,
+            0.23170731707317074
+          ]
+        },
+        "Splus": {
+          "mean": 0.07134146341463414,
+          "range": [
+            0.036585365853658534,
+            0.11585365853658537
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "mean": {
+          "mean": 1053.3975609756096,
+          "range": [
+            993.939024390244,
+            1109.2682926829268
+          ]
+        },
+        "arcane": {
+          "mean": 0.10487804878048779,
+          "range": [
+            0.07317073170731707,
+            0.14634146341463414
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.4000000000000001,
+          "range": [
+            0.3170731707317073,
+            0.4451219512195122
+          ]
+        }
+      }
+    ],
+    "departureCounts": {
+      "3": 290,
+      "10": 110
+    },
+    "meanDepartures": 4.925,
+    "totalDawnriseExits": 1200,
+    "additionalCareerExits": 770,
+    "overlaps": 35,
+    "peakDeferred": 47,
+    "maxWait": 4,
+    "finalDeferred": [
+      28,
+      34,
+      29,
+      28,
+      26,
+      26,
+      26,
+      33,
+      23,
+      28
+    ],
+    "leagueDraws": 0.01661700975081257,
+    "startingSide": 0.5003164057951552,
+    "cupChampionConcentration": [
+      {
+        "index": 0,
+        "uniqueCupChampions": 101,
+        "maxCupTitles": 31,
+        "cupTitles": 360
+      },
+      {
+        "index": 1,
+        "uniqueCupChampions": 103,
+        "maxCupTitles": 28,
+        "cupTitles": 360
+      },
+      {
+        "index": 2,
+        "uniqueCupChampions": 102,
+        "maxCupTitles": 41,
+        "cupTitles": 360
+      },
+      {
+        "index": 3,
+        "uniqueCupChampions": 107,
+        "maxCupTitles": 55,
+        "cupTitles": 360
+      },
+      {
+        "index": 4,
+        "uniqueCupChampions": 106,
+        "maxCupTitles": 56,
+        "cupTitles": 360
+      },
+      {
+        "index": 5,
+        "uniqueCupChampions": 112,
+        "maxCupTitles": 44,
+        "cupTitles": 360
+      },
+      {
+        "index": 6,
+        "uniqueCupChampions": 95,
+        "maxCupTitles": 32,
+        "cupTitles": 360
+      },
+      {
+        "index": 7,
+        "uniqueCupChampions": 104,
+        "maxCupTitles": 45,
+        "cupTitles": 360
+      },
+      {
+        "index": 8,
+        "uniqueCupChampions": 102,
+        "maxCupTitles": 57,
+        "cupTitles": 360
+      },
+      {
+        "index": 9,
+        "uniqueCupChampions": 108,
+        "maxCupTitles": 56,
+        "cupTitles": 360
+      }
+    ],
+    "recruitSurvival": {
+      "observedRecruits": 1870,
+      "retired": 540,
+      "stillActive": 1330,
+      "firstSeasonCuts": 279,
+      "firstSeasonCutShare": 0.14919786096256685,
+      "neverPromotedDawnriseCuts": 427,
+      "medianSeasonsToCutAmongNeverPromoted": 1,
+      "note": "Exit ages are observed lifetimes, not an unconditional survival estimate. Still-active careers are right-censored; season-41 arrivals have not played and are excluded. Highest division is tracked at completed-season checkpoints."
+    }
+  },
+  "styles": {
+    "arcane vs melee": {
+      "games": 29940,
+      "wins": 17863,
+      "draws": 25,
+      "score": 0.5970440881763527,
+      "decisiveWinRate": 0.5971251880327595,
+      "drawRate": 0.0008350033400133601
+    },
+    "ranged vs melee": {
+      "games": 75425,
+      "wins": 43968,
+      "draws": 101,
+      "score": 0.5836062313556513,
+      "decisiveWinRate": 0.5837183367850884,
+      "drawRate": 0.001339078554855817
+    },
+    "arcane vs ranged": {
+      "games": 15871,
+      "wins": 6412,
+      "draws": 2382,
+      "score": 0.4790498393295949,
+      "decisiveWinRate": 0.4753502854177478,
+      "drawRate": 0.15008506080272194
+    }
+  },
+  "matchedStyles": {
+    "arcane vs melee": {
+      "v10": {
+        "score": 0.7113333333333334,
+        "drawRate": 0,
+        "games": 1500
+      },
+      "v11": {
+        "score": 0.6073333333333333,
+        "drawRate": 0,
+        "games": 1500
+      }
+    },
+    "ranged vs melee": {
+      "v10": {
+        "score": 0.5933333333333334,
+        "drawRate": 0,
+        "games": 1500
+      },
+      "v11": {
+        "score": 0.5873333333333334,
+        "drawRate": 0,
+        "games": 1500
+      }
+    },
+    "arcane vs ranged": {
+      "v10": {
+        "score": 0.52,
+        "drawRate": 0.05733333333333333,
+        "games": 1500
+      },
+      "v11": {
+        "score": 0.469,
+        "drawRate": 0.086,
+        "games": 1500
+      }
+    }
+  },
+  "isolated": [
+    {
+      "variant": "W1",
+      "filter": "Staff",
+      "games": 736,
+      "v10": 0.5400815217391305,
+      "changed": 0.4796195652173913,
+      "delta": -0.06046195652173919
+    },
+    {
+      "variant": "W2",
+      "filter": "Staff",
+      "games": 736,
+      "v10": 0.5400815217391305,
+      "changed": 0.5081521739130435,
+      "delta": -0.03192934782608703
+    },
+    {
+      "variant": "W3",
+      "filter": "Staff",
+      "games": 736,
+      "v10": 0.5400815217391305,
+      "changed": 0.5869565217391305,
+      "delta": 0.046875
+    },
+    {
+      "variant": "W4",
+      "filter": "Staff",
+      "games": 736,
+      "v10": 0.5400815217391305,
+      "changed": 0.5373641304347826,
+      "delta": -0.0027173913043478937
+    },
+    {
+      "variant": "N1",
+      "filter": "Phoenix rebirth",
+      "games": 96,
+      "v10": 0.453125,
+      "changed": 0.4010416666666667,
+      "delta": -0.052083333333333315
+    },
+    {
+      "variant": "N2",
+      "filter": "Dream walking",
+      "games": 96,
+      "v10": 0.5208333333333334,
+      "changed": 0.375,
+      "delta": -0.14583333333333337
+    },
+    {
+      "variant": "N3",
+      "filter": "Memory control",
+      "games": 96,
+      "v10": 0.71875,
+      "changed": 0.4895833333333333,
+      "delta": -0.22916666666666669
+    },
+    {
+      "variant": "N3+N4",
+      "filter": "Memory control",
+      "games": 96,
+      "v10": 0.71875,
+      "changed": 0.21875,
+      "delta": -0.5
+    },
+    {
+      "variant": "N5",
+      "filter": "Metal bending",
+      "games": 96,
+      "v10": 0.4270833333333333,
+      "changed": 0.3854166666666667,
+      "delta": -0.04166666666666663
+    },
+    {
+      "variant": "N6",
+      "filter": "Beast command",
+      "games": 96,
+      "v10": 0.5625,
+      "changed": 0.5260416666666666,
+      "delta": -0.03645833333333337
+    },
+    {
+      "variant": "U1",
+      "filter": " / Fire control / ",
+      "games": 1104,
+      "v10": 0.47780797101449274,
+      "changed": 0.4633152173913043,
+      "delta": -0.014492753623188415
+    },
+    {
+      "variant": "U2",
+      "filter": "Teleportation",
+      "games": 96,
+      "v10": 0.3125,
+      "changed": 0.40625,
+      "delta": 0.09375
+    },
+    {
+      "variant": "U3",
+      "filter": "Size shifting",
+      "games": 96,
+      "v10": 0.19270833333333334,
+      "changed": 0.3125,
+      "delta": 0.11979166666666666
+    },
+    {
+      "variant": "U4",
+      "filter": "Mind reading",
+      "games": 96,
+      "v10": 0.2604166666666667,
+      "changed": 0.34375,
+      "delta": 0.08333333333333331
+    },
+    {
+      "variant": "U5",
+      "filter": "Energy absorption",
+      "games": 96,
+      "v10": 0.3541666666666667,
+      "changed": 0.3489583333333333,
+      "delta": -0.00520833333333337
+    },
+    {
+      "variant": "U6",
+      "filter": "Spirit armor",
+      "games": 96,
+      "v10": 0.2708333333333333,
+      "changed": 0.2916666666666667,
+      "delta": 0.02083333333333337
+    },
+    {
+      "variant": "U7",
+      "filter": "Portal creation",
+      "games": 96,
+      "v10": 0.265625,
+      "changed": 0.2864583333333333,
+      "delta": 0.020833333333333315
+    },
+    {
+      "variant": "U8",
+      "filter": "Power copying",
+      "games": 96,
+      "v10": 0.4895833333333333,
+      "changed": 0.5208333333333334,
+      "delta": 0.031250000000000056
+    }
+  ],
+  "twoPowerPairs": {
+    "distinctPairs": 276,
+    "buildsWithWeapon": 828,
+    "meanU1Delta": -0.03260869565217391,
+    "meanCombinedDelta": -0.08355978260869565,
+    "U1Improved": 237,
+    "U1Unchanged": 242,
+    "U1Reduced": 349,
+    "largestU1Gains": [
+      {
+        "build": "Fire control / Energy absorption / Sword",
+        "v10": 0.125,
+        "U1": 0.625,
+        "v11": 0.375,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.25
+      },
+      {
+        "build": "Fire control / Spirit armor / Sword",
+        "v10": 0.125,
+        "U1": 0.625,
+        "v11": 0.25,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.125
+      },
+      {
+        "build": "Dream walking / Energy absorption / Sword",
+        "v10": 0.25,
+        "U1": 0.75,
+        "v11": 0.375,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.125
+      },
+      {
+        "build": "Dream walking / Spirit armor / Sword",
+        "v10": 0.25,
+        "U1": 0.75,
+        "v11": 0.25,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0
+      },
+      {
+        "build": "Teleportation / Summon spirits / Sword",
+        "v10": 0,
+        "U1": 0.5,
+        "v11": 0.75,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.75
+      },
+      {
+        "build": "Energy absorption / Singularity / Sword",
+        "v10": 0.125,
+        "U1": 0.625,
+        "v11": 0.5,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.375
+      },
+      {
+        "build": "Portal creation / Power copying / Staff",
+        "v10": 0.5,
+        "U1": 1,
+        "v11": 0.375,
+        "alternationDelta": 0.5,
+        "combinedDelta": -0.125
+      },
+      {
+        "build": "Power copying / Chain lightning / Sword",
+        "v10": 0.125,
+        "U1": 0.625,
+        "v11": 0.625,
+        "alternationDelta": 0.5,
+        "combinedDelta": 0.5
+      }
+    ],
+    "largestU1Losses": [
+      {
+        "build": "Energy absorption / Portal creation / Staff",
+        "v10": 0.875,
+        "U1": 0.125,
+        "v11": 0.5,
+        "alternationDelta": -0.75,
+        "combinedDelta": -0.375
+      },
+      {
+        "build": "Mind reading / Portal creation / Staff",
+        "v10": 0.75,
+        "U1": 0.125,
+        "v11": 0.5,
+        "alternationDelta": -0.625,
+        "combinedDelta": -0.25
+      },
+      {
+        "build": "Memory control / Portal creation / Longbow",
+        "v10": 0.9375,
+        "U1": 0.375,
+        "v11": 0,
+        "alternationDelta": -0.5625,
+        "combinedDelta": -0.9375
+      },
+      {
+        "build": "Fire control / Teleportation / Longbow",
+        "v10": 0.75,
+        "U1": 0.25,
+        "v11": 0.5,
+        "alternationDelta": -0.5,
+        "combinedDelta": -0.25
+      },
+      {
+        "build": "Storm calling / Teleportation / Longbow",
+        "v10": 0.875,
+        "U1": 0.375,
+        "v11": 0.75,
+        "alternationDelta": -0.5,
+        "combinedDelta": -0.125
+      },
+      {
+        "build": "Phoenix rebirth / Size shifting / Longbow",
+        "v10": 0.75,
+        "U1": 0.25,
+        "v11": 0.375,
+        "alternationDelta": -0.5,
+        "combinedDelta": -0.375
+      },
+      {
+        "build": "Dream walking / Teleportation / Longbow",
+        "v10": 0.875,
+        "U1": 0.375,
+        "v11": 0.75,
+        "alternationDelta": -0.5,
+        "combinedDelta": -0.125
+      },
+      {
+        "build": "Dream walking / Spirit armor / Longbow",
+        "v10": 0.875,
+        "U1": 0.375,
+        "v11": 0.625,
+        "alternationDelta": -0.5,
+        "combinedDelta": -0.25
+      }
+    ]
+  },
+  "generation": {
+    "ordinary": {
+      "fighters": 10000,
+      "Aplus": 0.056,
+      "Splus": 0.0177,
+      "SS": 0.0001,
+      "mean": 646.9309,
+      "twoPowers": 0.2309,
+      "arcane": 0.0953,
+      "tiers": {
+        "C": 1993,
+        "E": 2457,
+        "D": 4008,
+        "S": 176,
+        "B": 982,
+        "A": 383,
+        "SS": 1
+      }
+    },
+    "common": {
+      "fighters": 3000,
+      "Aplus": 0,
+      "Splus": 0,
+      "SS": 0,
+      "mean": 425.6293333333333,
+      "twoPowers": 0.137,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "D": 1430,
+        "E": 1224,
+        "C": 314,
+        "B": 32
+      }
+    },
+    "uncommon": {
+      "fighters": 3000,
+      "Aplus": 0.0033333333333333335,
+      "Splus": 0,
+      "SS": 0,
+      "mean": 608.4093333333333,
+      "twoPowers": 0.217,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "C": 889,
+        "E": 417,
+        "D": 1448,
+        "B": 236,
+        "A": 10
+      }
+    },
+    "rare": {
+      "fighters": 3000,
+      "Aplus": 0.04566666666666667,
+      "Splus": 0.0003333333333333333,
+      "SS": 0,
+      "mean": 879.086,
+      "twoPowers": 0.331,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "B": 885,
+        "D": 750,
+        "C": 1155,
+        "E": 73,
+        "A": 136,
+        "S": 1
+      }
+    },
+    "unique": {
+      "fighters": 3000,
+      "Aplus": 0.2693333333333333,
+      "Splus": 0.02266666666666667,
+      "SS": 0,
+      "mean": 1262.7323333333334,
+      "twoPowers": 0.47,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "A": 740,
+        "B": 1392,
+        "D": 169,
+        "C": 626,
+        "S": 68,
+        "E": 5
+      }
+    },
+    "legendary": {
+      "fighters": 3000,
+      "Aplus": 0.8583333333333333,
+      "Splus": 0.3416666666666667,
+      "SS": 0.0003333333333333333,
+      "mean": 1931.587,
+      "twoPowers": 0.669,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "S": 1024,
+        "B": 405,
+        "A": 1550,
+        "C": 19,
+        "SS": 1,
+        "D": 1
+      }
+    },
+    "mythic": {
+      "fighters": 3000,
+      "Aplus": 0.9846666666666667,
+      "Splus": 0.7163333333333334,
+      "SS": 0.011333333333333334,
+      "mean": 2287.3323333333333,
+      "twoPowers": 0.7353333333333333,
+      "arcane": 0.10366666666666667,
+      "tiers": {
+        "S": 2115,
+        "A": 805,
+        "B": 45,
+        "SS": 34,
+        "C": 1
+      }
+    }
+  },
+  "saveTransition": {
+    "sourceSHA256": "f911ed4450be74ddb2707e07b3d450e7235e89517e333a32cdd1a5d90935bd0c",
+    "fromEngine": 10,
+    "toEngine": 11,
+    "season": 41,
+    "originalCompletedSeasons": 40,
+    "originalTitles": 640,
+    "games": 3944,
+    "checkpoints": 6,
+    "departures": 10,
+    "careerRulesVersion": 2,
+    "deferred": 21,
+    "preservedArchives": true,
+    "preservedTitles": true,
+    "preservedStatsAndCareers": true,
+    "retrySafe": true,
+    "sourceUnchanged": true
+  },
+  "flags": [
+    {
+      "comparison": "arcane vs melee",
+      "score": 0.5970440881763527,
+      "band": [
+        0.45,
+        0.6
+      ],
+      "withinBand": true
+    },
+    {
+      "comparison": "ranged vs melee",
+      "score": 0.5836062313556513,
+      "band": [
+        0.45,
+        0.6
+      ],
+      "withinBand": true
+    },
+    {
+      "comparison": "arcane vs ranged",
+      "score": 0.4790498393295949,
+      "band": [
+        0.45,
+        0.6
+      ],
+      "withinBand": true
+    },
+    {
+      "comparison": "Matched saved-field arcane vs ranged maintained",
+      "before": 0.52,
+      "after": 0.469,
+      "maintained": false
+    }
+  ]
+}

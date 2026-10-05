@@ -8,6 +8,7 @@ files['/roster-view.js']='roster-view.js';files['/bulk-characters.js']='bulk-cha
 for(const file of ['trait-details.js','trait-detail-ui.js','trait-details.css'])files['/'+file]=file;
 for(const file of ['leagues.js','league-fixtures.js','league-ui.js','league-sim-worker.js','simulation-client.js','leagues.css'])files['/'+file]=file;
 for(const file of ['combat-v9.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','combat-engines.js'])files['/'+file]=file;
+for(const file of ['abilities-v11.js','combat-v10.js','combat-v11.js','combat-v11-profile.js','combat-v11-contact.js','combat-v11-environment.js','combat-v11-powers.js'])files['/'+file]=file;
 files['/polish.css']='polish.css';
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 await rm('dist',{recursive:true,force:true});await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});

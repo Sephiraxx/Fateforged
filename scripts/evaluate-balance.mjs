@@ -4,13 +4,13 @@ import vm from 'node:vm';
 import {availableParallelism} from 'node:os';
 import {createHash} from 'node:crypto';
 import {Worker,isMainThread,parentPort,workerData} from 'node:worker_threads';
-import {simulate,combatStyle,tierFor} from '../public/combat.js';
+import {simulate,combatStyle,tierFor} from '../public/combat-v10.js';
 import {simulate as simulate9} from '../public/combat-v9.js';
 import {LEAGUES} from '../public/leagues.js';
 import {simulateLeagueSeries} from '../public/league-sim-worker.js';
 import {drawAtTimeLimit} from '../public/series.js';
 const mode=workerData?.mode??process.argv[2]??'weapons';
-const engineFiles=['combat.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','abilities.js','conditions.js'];
+const engineFiles=['combat-v10.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','abilities.js','conditions.js'];
 const engineFingerprint=createHash('sha256').update(engineFiles.map(file=>fs.readFileSync(new URL('../public/'+file,import.meta.url),'utf8').replaceAll('\r\n','\n')).join('\n')).digest('hex');
 const environments=[];for(const time of ['dawn','day','dusk','night'])for(const weather of ['clear','rain','frost','storm'])for(const ground of ['stone','water'])environments.push({time,weather,ground});
 const fighter=(id,stats,weapon,power='No power')=>({id,name:id,summary:{stats,total:stats.reduce((a,b)=>a+b,0)},traits:{weapon,power,power2:'No second power',weakness:'None'}});
@@ -20,12 +20,12 @@ function aggregate(rows,keys){const groups=new Map();for(const r of rows){const 
 function output(data){fs.mkdirSync('validation/balance-v10',{recursive:true});fs.writeFileSync('validation/balance-v10/'+mode+'.json',JSON.stringify({combatVersion:10,engineFingerprint,generationVersion:2,seed:20264005,...data},null,2)+'\n');}
 if(!isMainThread){
  if(mode==='worlds'){
-  for(const index of workerData.indices){const seed=20264005+index*7919,generate=generator(seed);let w=LEAGUES.create('review-world-'+index,Array.from({length:164},()=>generate()),seed,{roundRobin:1,bestOf:1});const seasons=[],allTimes=[],styleTitles={melee:0,arcane:0,ranged:0},styleEntrants={melee:0,arcane:0,ranged:0};let draws=0,leagueGames=0,firstWins=0,decisive=0;
+  for(const index of workerData.indices){const seed=20264005+index*7919,generate=generator(seed);let w=LEAGUES.create('review-world-'+index,Array.from({length:164},()=>generate()),seed,{roundRobin:1,bestOf:1});w.engineVersion=10;w.careerRulesVersion=1;const seasons=[],allTimes=[],styleTitles={melee:0,arcane:0,ranged:0},styleEntrants={melee:0,arcane:0,ranged:0};let draws=0,leagueGames=0,firstWins=0,decisive=0;
    for(let season=1;season<=30;season++){
     const characters=new Map(w.roster.map(c=>[c.id,c]));while(LEAGUES.next(w)){const m=LEAGUES.next(w),results=simulateLeagueSeries({match:m,a:characters.get(m.a),b:characters.get(m.b)});for(const r of results){allTimes.push(r.seconds);if(r.winner){decisive++;firstWins+=r.winner===m.a?1:0;}if(m.phase==='league'){leagueGames++;draws+=r.winner===null?1:0;}}LEAGUES.record(w,m.id,results);}
     const main=w.cupResults.find(c=>c.competition==='champions');styleTitles[combatStyle(characters.get(main.champion))]++;for(const q of w.qualifiers)styleEntrants[combatStyle(characters.get(q.id))]++;
     const retired=LEAGUES.movement(w);seasons.push({season,...describe(w.roster),careerExits:retired.retired.filter(id=>retired.retirementReasons[id]==='Career completed').length,deferred:retired.deferredCareers.length,oldestDeferred:retired.deferredCareers.length?Math.max(...retired.deferredCareers.map(id=>season-w.careers[id].eligibleSeason)):0});
-    const intake=LEAGUES.intake(w.seed^Math.imul(w.season,7919)).map(generate);w=LEAGUES.rollover(w,intake).world;LEAGUES.sizes(w);
+    const intake=LEAGUES.intake(w.seed^Math.imul(w.season,7919)).map(generate);w=LEAGUES.rollover(w,intake).world;w.engineVersion=10;w.careerRulesVersion=1;LEAGUES.sizes(w);
     if(season%5===0)parentPort.postMessage({progress:`World ${index+1}: season ${season}/30`});
    }
    allTimes.sort((a,b)=>a-b);parentPort.postMessage({world:{index,seasons,styleTitles,styleEntrants,leagueDraws:draws/leagueGames,startingSide:firstWins/decisive,medianSeconds:allTimes[Math.floor(allTimes.length*.5)],p90Seconds:allTimes[Math.floor(allTimes.length*.9)],games:allTimes.length}});

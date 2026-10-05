@@ -32,7 +32,7 @@ async function leagueApi(request,env,url){
   try{for(const record of records){if(world.phase!==phase)throw Error('Save each completed phase before the next phase.');played.push(LEAGUES.record(world,record.matchId,record.results));}}catch(e){fail(e.message);}
  }else{
   if(world.phase!=='complete')fail('Finish the season before rollover.');
-  newFighters=LEAGUES.intake(world.seed^Math.imul(world.season,7919)).map(rarity=>makeLeagueFighter(rarity));
+  newFighters=LEAGUES.recruitIntake(world).map(rarity=>makeLeagueFighter(rarity));
   const replacements=newFighters.map(f=>f.character),expansion=[];
   for(let i=0;i<LEAGUES.expansionCount(world);i++){const f=makeLeagueFighter();newFighters.push(f);expansion.push(f.character);}
   const result=LEAGUES.rollover(world,replacements,expansion);archive=result.archive;world=result.world;

@@ -9,7 +9,12 @@
     {
       "file": "check-balance-v10.mjs",
       "passed": true,
-      "seconds": 6
+      "seconds": 6.9
+    },
+    {
+      "file": "check-balance-v11.mjs",
+      "passed": true,
+      "seconds": 0.2
     },
     {
       "file": "check-bulk-characters.mjs",
@@ -29,27 +34,27 @@
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 25.5
+      "seconds": 29.4
     },
     {
       "file": "check-league-fixtures.mjs",
       "passed": true,
-      "seconds": 1.6
+      "seconds": 1.7
     },
     {
       "file": "check-league-pages.mjs",
       "passed": true,
-      "seconds": 0.7
+      "seconds": 0.8
     },
     {
       "file": "check-leagues.mjs",
       "passed": true,
-      "seconds": 3
+      "seconds": 3.2
     },
     {
       "file": "check-luck.mjs",
       "passed": true,
-      "seconds": 3.2
+      "seconds": 3.4
     },
     {
       "file": "check-match-records.mjs",
@@ -84,7 +89,7 @@
     {
       "file": "check-series.mjs",
       "passed": true,
-      "seconds": 2
+      "seconds": 2.1
     },
     {
       "file": "check-singularity.mjs",

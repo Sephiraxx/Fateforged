@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const folder='validation/balance-v10/';
 const read=name=>JSON.parse(fs.readFileSync(folder+name+'.json','utf8'));
 const datasets=Object.fromEntries(['generation','powers','weapons','styles','history','worlds','careers'].map(name=>[name,read(name)]));
-const engineFiles=['combat.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','abilities.js','conditions.js'];
+const engineFiles=['combat-v10.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','abilities.js','conditions.js'];
 const fingerprint=createHash('sha256').update(engineFiles.map(file=>fs.readFileSync('public/'+file,'utf8').replaceAll('\r\n','\n')).join('\n')).digest('hex');
 for(const name of ['generation','powers','weapons','styles','history','worlds'])assert.equal(datasets[name].engineFingerprint,fingerprint,'Stale comparison: '+name);
 const checks=JSON.parse(fs.readFileSync('validation/checks.json','utf8'));
