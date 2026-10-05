@@ -1,1 +1,19 @@
-{"name":"fateforge-character-wheel","private":true,"type":"module","scripts":{"build":"node scripts/build.mjs","db:generate":"drizzle-kit generate"},"dependencies":{"drizzle-orm":"0.45.2"},"devDependencies":{"drizzle-kit":"0.31.10"}}
+{
+  "name": "fateforge-character-wheel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "db:generate": "drizzle-kit generate",
+    "build:pages": "node scripts/build-pages.mjs",
+    "check:pages": "node scripts/check-pages.mjs"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "sql.js": "1.14.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "fake-indexeddb": "6.2.4"
+  }
+}
