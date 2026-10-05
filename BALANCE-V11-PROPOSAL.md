@@ -1,6 +1,6 @@
 # Fateforged v11: merged patch proposal and changelog
 
-October 5, 2026. **This is a proposal. Nothing is implemented and the repo is unchanged.**
+October 5, 2026. Original proposal approved for implementation. See `BALANCE-V11.md` for the implemented patch and its validation. The numerical tables below describe the proposal author's earlier experiments; the new release evidence is separate in `validation/balance-v11/`.
 
 This is one patch that merges two sources:
 

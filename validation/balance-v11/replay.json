@@ -1,0 +1,20 @@
+{
+  "combatVersion": 11,
+  "engineFingerprint": "1d3d4021d1317ba44399029e20b20eb269cebcde00b4f7429e11961fd4f5b859",
+  "generationVersion": 2,
+  "careerRulesVersion": 2,
+  "seed": 20264005,
+  "seconds": 14.4983595,
+  "fights": 3000,
+  "replayMatches": 3000,
+  "baselineChecks": 0,
+  "groups": [
+    {
+      "variant": "replay",
+      "games": 3000,
+      "score": 0.5095,
+      "draws": 0.015666666666666666,
+      "seconds": 22.29670000000001
+    }
+  ]
+}

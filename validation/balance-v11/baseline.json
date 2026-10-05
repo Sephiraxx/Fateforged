@@ -1,0 +1,1117 @@
+{
+  "combatVersion": 11,
+  "engineFingerprint": "1d3d4021d1317ba44399029e20b20eb269cebcde00b4f7429e11961fd4f5b859",
+  "generationVersion": 2,
+  "careerRulesVersion": 2,
+  "seed": 20264005,
+  "seconds": 9.2188921,
+  "fights": 2208,
+  "replayMatches": 0,
+  "baselineChecks": 2208,
+  "groups": [
+    {
+      "build": "No power / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0,
+      "draws": 0,
+      "seconds": 11.91875
+    },
+    {
+      "build": "No power / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 24.53125
+    },
+    {
+      "build": "No power / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 35.243750000000006
+    },
+    {
+      "build": "No power / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 12.181249999999997
+    },
+    {
+      "build": "No power / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 21.48125
+    },
+    {
+      "build": "No power / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 31.937499999999993
+    },
+    {
+      "build": "Phoenix rebirth / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 17.73125
+    },
+    {
+      "build": "Phoenix rebirth / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 33.10625
+    },
+    {
+      "build": "Phoenix rebirth / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.34375,
+      "draws": 0.0625,
+      "seconds": 44.893750000000004
+    },
+    {
+      "build": "Phoenix rebirth / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 16.956249999999997
+    },
+    {
+      "build": "Phoenix rebirth / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 33.90625
+    },
+    {
+      "build": "Phoenix rebirth / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 32.5
+    },
+    {
+      "build": "Dream walking / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 12.13125
+    },
+    {
+      "build": "Dream walking / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 22.66875
+    },
+    {
+      "build": "Dream walking / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 34.8625
+    },
+    {
+      "build": "Dream walking / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 12.13125
+    },
+    {
+      "build": "Dream walking / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 22.66875
+    },
+    {
+      "build": "Dream walking / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 34.8625
+    },
+    {
+      "build": "Memory control / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 28.818749999999998
+    },
+    {
+      "build": "Memory control / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.84375,
+      "draws": 0.3125,
+      "seconds": 55.36874999999999
+    },
+    {
+      "build": "Memory control / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0.375,
+      "seconds": 60.056250000000006
+    },
+    {
+      "build": "Memory control / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 28.818749999999998
+    },
+    {
+      "build": "Memory control / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.84375,
+      "draws": 0.3125,
+      "seconds": 55.36874999999999
+    },
+    {
+      "build": "Memory control / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0.375,
+      "seconds": 60.056250000000006
+    },
+    {
+      "build": "Metal bending / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 14.518749999999997
+    },
+    {
+      "build": "Metal bending / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 23.737499999999997
+    },
+    {
+      "build": "Metal bending / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.53125,
+      "draws": 0.0625,
+      "seconds": 35.943749999999994
+    },
+    {
+      "build": "Metal bending / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 14.518749999999997
+    },
+    {
+      "build": "Metal bending / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 23.737499999999997
+    },
+    {
+      "build": "Metal bending / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.53125,
+      "draws": 0.0625,
+      "seconds": 35.943749999999994
+    },
+    {
+      "build": "Beast command / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 12.125
+    },
+    {
+      "build": "Beast command / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 22.337500000000002
+    },
+    {
+      "build": "Beast command / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 27.406249999999996
+    },
+    {
+      "build": "Beast command / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 12.00625
+    },
+    {
+      "build": "Beast command / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 21.618749999999995
+    },
+    {
+      "build": "Beast command / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 27.149999999999995
+    },
+    {
+      "build": "Teleportation / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 13.78125
+    },
+    {
+      "build": "Teleportation / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 30.08125
+    },
+    {
+      "build": "Teleportation / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0.125,
+      "seconds": 45.018750000000004
+    },
+    {
+      "build": "Teleportation / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 13.78125
+    },
+    {
+      "build": "Teleportation / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 30.08125
+    },
+    {
+      "build": "Teleportation / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0.125,
+      "seconds": 45.018750000000004
+    },
+    {
+      "build": "Size shifting / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0,
+      "draws": 0,
+      "seconds": 12.900000000000002
+    },
+    {
+      "build": "Size shifting / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 29.1375
+    },
+    {
+      "build": "Size shifting / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.125,
+      "draws": 0.125,
+      "seconds": 38.7
+    },
+    {
+      "build": "Size shifting / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 14.325
+    },
+    {
+      "build": "Size shifting / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 27.3625
+    },
+    {
+      "build": "Size shifting / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.40625,
+      "draws": 0.0625,
+      "seconds": 37.143750000000004
+    },
+    {
+      "build": "Mind reading / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0,
+      "draws": 0,
+      "seconds": 11.91875
+    },
+    {
+      "build": "Mind reading / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 24.631249999999998
+    },
+    {
+      "build": "Mind reading / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0.125,
+      "seconds": 33.493750000000006
+    },
+    {
+      "build": "Mind reading / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 11.6625
+    },
+    {
+      "build": "Mind reading / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 22.05625
+    },
+    {
+      "build": "Mind reading / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 33.125
+    },
+    {
+      "build": "Energy absorption / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0,
+      "draws": 0,
+      "seconds": 22.45
+    },
+    {
+      "build": "Energy absorption / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 40.87499999999999
+    },
+    {
+      "build": "Energy absorption / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.34375,
+      "draws": 0.1875,
+      "seconds": 49.15625
+    },
+    {
+      "build": "Energy absorption / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 16.1125
+    },
+    {
+      "build": "Energy absorption / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 34.1125
+    },
+    {
+      "build": "Energy absorption / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.53125,
+      "draws": 0.0625,
+      "seconds": 41.225
+    },
+    {
+      "build": "Spirit armor / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.125,
+      "draws": 0,
+      "seconds": 13.99375
+    },
+    {
+      "build": "Spirit armor / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 25.775000000000002
+    },
+    {
+      "build": "Spirit armor / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 36.9
+    },
+    {
+      "build": "Spirit armor / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.431250000000002
+    },
+    {
+      "build": "Spirit armor / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 23.875
+    },
+    {
+      "build": "Spirit armor / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0.125,
+      "seconds": 36.125
+    },
+    {
+      "build": "Portal creation / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0,
+      "draws": 0,
+      "seconds": 11.73125
+    },
+    {
+      "build": "Portal creation / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 28.112500000000004
+    },
+    {
+      "build": "Portal creation / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.09375,
+      "draws": 0.0625,
+      "seconds": 36.58125
+    },
+    {
+      "build": "Portal creation / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 12.181249999999997
+    },
+    {
+      "build": "Portal creation / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 21.48125
+    },
+    {
+      "build": "Portal creation / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 31.937499999999993
+    },
+    {
+      "build": "Power copying / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 16.8875
+    },
+    {
+      "build": "Power copying / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.0625,
+      "seconds": 31.15625
+    },
+    {
+      "build": "Power copying / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.625,
+      "draws": 0.25,
+      "seconds": 41.356249999999996
+    },
+    {
+      "build": "Power copying / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 16.8875
+    },
+    {
+      "build": "Power copying / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.0625,
+      "seconds": 31.15625
+    },
+    {
+      "build": "Power copying / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.625,
+      "draws": 0.25,
+      "seconds": 41.356249999999996
+    },
+    {
+      "build": "Healing touch / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 23.937500000000004
+    },
+    {
+      "build": "Healing touch / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.84375,
+      "draws": 0.3125,
+      "seconds": 54.08749999999999
+    },
+    {
+      "build": "Healing touch / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0.375,
+      "seconds": 59.45
+    },
+    {
+      "build": "Healing touch / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 22
+    },
+    {
+      "build": "Healing touch / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.875,
+      "draws": 0.25,
+      "seconds": 45.59375
+    },
+    {
+      "build": "Healing touch / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.9375,
+      "draws": 0.125,
+      "seconds": 45.95625
+    },
+    {
+      "build": "Force fields / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 23.931249999999995
+    },
+    {
+      "build": "Force fields / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.8125,
+      "draws": 0.375,
+      "seconds": 54.42499999999999
+    },
+    {
+      "build": "Force fields / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.875,
+      "draws": 0.25,
+      "seconds": 56.050000000000004
+    },
+    {
+      "build": "Force fields / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 24.056249999999995
+    },
+    {
+      "build": "Force fields / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0.125,
+      "seconds": 42.918749999999996
+    },
+    {
+      "build": "Force fields / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0.125,
+      "seconds": 41.9875
+    },
+    {
+      "build": "Summon spirits / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 12.18125
+    },
+    {
+      "build": "Summon spirits / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.0625,
+      "seconds": 27.012499999999996
+    },
+    {
+      "build": "Summon spirits / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 34.825
+    },
+    {
+      "build": "Summon spirits / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 11.55625
+    },
+    {
+      "build": "Summon spirits / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 23.700000000000003
+    },
+    {
+      "build": "Summon spirits / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 31.25625
+    },
+    {
+      "build": "Blood control / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.125,
+      "draws": 0,
+      "seconds": 12.924999999999999
+    },
+    {
+      "build": "Blood control / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.0625,
+      "seconds": 23.631249999999998
+    },
+    {
+      "build": "Blood control / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 33.00625
+    },
+    {
+      "build": "Blood control / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.125,
+      "draws": 0,
+      "seconds": 12.924999999999999
+    },
+    {
+      "build": "Blood control / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.0625,
+      "seconds": 23.631249999999998
+    },
+    {
+      "build": "Blood control / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 33.00625
+    },
+    {
+      "build": "Temporal rewind / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 14.6125
+    },
+    {
+      "build": "Temporal rewind / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 33
+    },
+    {
+      "build": "Temporal rewind / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.34375,
+      "draws": 0.0625,
+      "seconds": 40.28125000000001
+    },
+    {
+      "build": "Temporal rewind / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 12.181249999999997
+    },
+    {
+      "build": "Temporal rewind / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 21.48125
+    },
+    {
+      "build": "Temporal rewind / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 31.937499999999993
+    },
+    {
+      "build": "Future sight / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.125,
+      "draws": 0,
+      "seconds": 20.725
+    },
+    {
+      "build": "Future sight / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.28125,
+      "draws": 0.0625,
+      "seconds": 44.14375
+    },
+    {
+      "build": "Future sight / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.40625,
+      "draws": 0.1875,
+      "seconds": 47.20625
+    },
+    {
+      "build": "Future sight / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 17.4
+    },
+    {
+      "build": "Future sight / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 29.450000000000006
+    },
+    {
+      "build": "Future sight / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 34.44375
+    },
+    {
+      "build": "Light manipulation / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.73125
+    },
+    {
+      "build": "Light manipulation / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 26.71875
+    },
+    {
+      "build": "Light manipulation / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0.125,
+      "seconds": 33.7375
+    },
+    {
+      "build": "Light manipulation / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.73125
+    },
+    {
+      "build": "Light manipulation / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 27.793750000000003
+    },
+    {
+      "build": "Light manipulation / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.53125,
+      "draws": 0.0625,
+      "seconds": 33.26875
+    },
+    {
+      "build": "Chain lightning / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.8
+    },
+    {
+      "build": "Chain lightning / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.65625,
+      "draws": 0.0625,
+      "seconds": 28.762500000000003
+    },
+    {
+      "build": "Chain lightning / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.59375,
+      "draws": 0.1875,
+      "seconds": 35.837500000000006
+    },
+    {
+      "build": "Chain lightning / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.8
+    },
+    {
+      "build": "Chain lightning / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 26.86875
+    },
+    {
+      "build": "Chain lightning / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.53125,
+      "draws": 0.0625,
+      "seconds": 35
+    },
+    {
+      "build": "Singularity / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 11.362500000000002
+    },
+    {
+      "build": "Singularity / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 24.10625
+    },
+    {
+      "build": "Singularity / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.5625,
+      "draws": 0.125,
+      "seconds": 38.118750000000006
+    },
+    {
+      "build": "Singularity / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 11.362500000000002
+    },
+    {
+      "build": "Singularity / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.65625,
+      "draws": 0.0625,
+      "seconds": 27.525000000000002
+    },
+    {
+      "build": "Singularity / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.65625,
+      "draws": 0.0625,
+      "seconds": 37.162499999999994
+    },
+    {
+      "build": "Regeneration / No second power / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.0625,
+      "draws": 0,
+      "seconds": 18.012500000000003
+    },
+    {
+      "build": "Regeneration / No second power / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.46875,
+      "draws": 0.0625,
+      "seconds": 45.681249999999984
+    },
+    {
+      "build": "Regeneration / No second power / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.65625,
+      "draws": 0.3125,
+      "seconds": 55.587500000000006
+    },
+    {
+      "build": "Regeneration / Fire control / Sword",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.51875
+    },
+    {
+      "build": "Regeneration / Fire control / Staff",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.71875,
+      "draws": 0.0625,
+      "seconds": 39.05625
+    },
+    {
+      "build": "Regeneration / Fire control / Longbow",
+      "variant": "baseline",
+      "games": 16,
+      "score": 0.6875,
+      "draws": 0.125,
+      "seconds": 41.831250000000004
+    }
+  ]
+}
