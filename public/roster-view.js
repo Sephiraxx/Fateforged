@@ -13,13 +13,7 @@
   const labels=[...new Set(champions.filter(t=>t.divisionKey!=='latest'&&t.characterId===character.id).map(t=>t.label))];
   return labels.length?'👑 Current champion · '+labels.join(' · '):'';
  };
- const growthText=character=>{
-  const summary=character.summary||{},g=summary.growth,p=summary.promotion||g?.progress,parts=[];
-  if(g)parts.push(`${g.wins} upset wins`, `+${g.bonus.reduce((a,b)=>a+b,0)} earned points`);
-  if(p)parts.push(`${p.wins}/${p.required} higher-tier wins toward next stat upgrade`);
-  if(g?.last)parts.push(`${g.last.axis}: ${g.last.from} → ${g.last.to}`);
-  return parts.join(' · ');
- };
+ const growthText=character=>{const g=character.summary?.growth;return g?`+${(g.bonus||[]).reduce((a,b)=>a+b,0)} previously earned points (retained)`:'';};
  root.ROSTER_VIEW={winRate,titles,select,currentChampionText,growthText};
 })(globalThis);
 

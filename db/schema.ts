@@ -2,7 +2,7 @@ import { sqliteTable, text, integer, index, uniqueIndex, primaryKey } from 'driz
 export const characters=sqliteTable('saved_characters',{
  id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),name:text('name').notNull(),
  stateJson:text('state_json').notNull(),summaryJson:text('summary_json').notNull(),
- createdAt:integer('created_at').notNull(),updatedAt:integer('updated_at').notNull(),catalogRevision:text('catalog_revision')
+ createdAt:integer('created_at').notNull(),updatedAt:integer('updated_at').notNull(),catalogRevision:text('catalog_revision'),poolId:text('pool_id')
 },table=>[index('idx_characters_owner_updated').on(table.ownerId,table.updatedAt)]);
 export const tournaments=sqliteTable('saved_tournaments',{
  id:text('id').primaryKey(),ownerId:text('owner_id').notNull(),name:text('name').notNull(),
@@ -52,3 +52,9 @@ export const fighterGrowth=sqliteTable('fighter_growth',{
 },table=>[primaryKey({columns:[table.ownerId,table.eventId]}),index('idx_growth_owner_character').on(table.ownerId,table.characterId)]);
 
 export const fighterGrowthSync=sqliteTable('fighter_growth_sync',{ownerId:text('owner_id').notNull(),tournamentId:text('tournament_id').notNull(),matches:integer('matches').notNull()},table=>[primaryKey({columns:[table.ownerId,table.tournamentId]})]);
+
+export const characterPools=sqliteTable('character_pools',{id:text('id').primaryKey(),poolsJson:text('pools_json').notNull()});
+export const leagueWorlds=sqliteTable('league_worlds',{ownerId:text('owner_id').primaryKey(),id:text('id').notNull().unique(),revision:integer('revision').notNull(),lastOperation:text('last_operation').notNull(),stateJson:text('state_json').notNull(),updatedAt:integer('updated_at').notNull()});
+export const leagueMembers=sqliteTable('league_members',{ownerId:text('owner_id').notNull(),characterId:text('character_id').notNull(),division:integer('division').notNull()},t=>[primaryKey({columns:[t.ownerId,t.characterId]})]);
+export const leagueSeasons=sqliteTable('league_seasons',{ownerId:text('owner_id').notNull(),worldId:text('world_id').notNull(),season:integer('season').notNull(),stateJson:text('state_json').notNull(),completedAt:integer('completed_at').notNull()},t=>[primaryKey({columns:[t.ownerId,t.worldId,t.season]})]);
+export const leagueOperations=sqliteTable('league_operations',{ownerId:text('owner_id').notNull(),operationId:text('operation_id').notNull(),requestJson:text('request_json').notNull()},t=>[primaryKey({columns:[t.ownerId,t.operationId]})]);

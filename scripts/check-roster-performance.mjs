@@ -5,8 +5,8 @@ const call=(path,method='GET',body)=>worker.fetch(new Request('https://fateforge
 const ctx={};vm.createContext(ctx);vm.runInContext(fs.readFileSync('public/data.js','utf8')+';this.pools=WHEEL_DATA',ctx);
 const first='00000000-0000-4000-8000-000000000001';assert.equal((await call('/api/characters/'+first,'PUT',{name:'Fighter 1',state:{version:1,traits:{race:'Human',weapon:'Longbow'},pools:ctx.pools}})).status,200);
 const template=db.prepare('SELECT * FROM saved_characters WHERE id = ?').get(first);
-for(let i=2;i<=128;i++)db.prepare('INSERT INTO saved_characters (id,owner_id,name,state_json,summary_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?)').run('00000000-0000-4000-8000-'+String(i).padStart(12,'0'),'perf-owner','Fighter '+i,template.state_json,template.summary_json,i,i);
-assert.equal((await call('/api/characters')).status,200);assert.equal(writes,128);
+for(let i=2;i<=128;i++)db.prepare('INSERT INTO saved_characters (id,owner_id,name,state_json,summary_json,created_at,updated_at,pool_id) VALUES (?,?,?,?,?,?,?,?)').run('00000000-0000-4000-8000-'+String(i).padStart(12,'0'),'perf-owner','Fighter '+i,template.state_json,template.summary_json,i,i,template.pool_id);
+assert.equal((await call('/api/characters')).status,200);assert.equal(writes,127);
 assert.equal(db.prepare('SELECT COUNT(*) AS n FROM saved_characters WHERE catalog_revision IS NOT NULL').get().n,128);
 fullRows=0;writes=0;const started=performance.now(),response=await call('/api/characters'),text=await response.text(),roster=JSON.parse(text).characters;
 assert.equal(roster.length,128);assert.equal(fullRows,0);assert.equal(writes,0);

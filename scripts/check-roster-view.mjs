@@ -27,4 +27,4 @@ console.log('Roster filters passed: win rate including draws, unplayed fighters 
 assert.equal(currentChampionText(rows[0],[{characterId:'a',divisionKey:'latest',label:'Latest tournament winner'}]),'');
 assert.equal(currentChampionText(rows[0],[{characterId:'a',divisionKey:'any|C|any',label:'Tier C'}]),'👑 Current champion · Tier C');
 
-const pending={summary:{growth:{wins:1,bonus:[0,0,0,0,0]},promotion:{tier:'C',wins:1,required:2}}};assert(globalThis.ROSTER_VIEW.growthText(pending).includes('1/2 higher-tier wins'));assert(!globalThis.ROSTER_VIEW.growthText(pending).includes('undefined'));assert(globalThis.ROSTER_VIEW.growthText({summary:{promotion:{tier:'S',wins:0,required:16}}}).includes('0/16 higher-tier wins'));
+const pending={summary:{growth:{wins:1,bonus:[0,0,0,0,0]},promotion:{tier:'C',wins:1,required:2}}};assert(globalThis.ROSTER_VIEW.growthText(pending).includes('previously earned points'));assert(!globalThis.ROSTER_VIEW.growthText(pending).includes('undefined'));assert.equal(globalThis.ROSTER_VIEW.growthText({summary:{promotion:{tier:'S',wins:0,required:16}}}), '');

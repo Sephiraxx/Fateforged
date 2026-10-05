@@ -28,12 +28,12 @@ assert(db.prepare('SELECT result_json FROM roster_refreshes WHERE owner_id=? AND
 seed(owner,'new');await applyRequestedReset(env);
 for(const table of RESET_TABLES)assert.equal(db.prepare(`SELECT count(*) AS n FROM ${table} WHERE owner_id=?`).get(owner).n,table==='roster_refreshes'?2:1,table+' new data survives');
 console.log('Clean slate checks passed: all 11 tables, atomic rollback, concurrent once-only guard, owner isolation, fresh data preserved and no repeated purge.');
-// Verify the built Worker executes the requested reset on the actual Site entry
-// route, and that a later entry request cannot remove new testing data.
+// Historical maintenance helpers are never triggered by ordinary entry anymore.
 db.prepare('DELETE FROM roster_refreshes WHERE owner_id=? AND batch_key=?').run(owner,key);
 const worker=(await import('../dist/server/index.js')).default;
+const counts=()=>RESET_TABLES.map(table=>db.prepare('SELECT count(*) AS n FROM '+table+' WHERE owner_id=?').get(owner).n),before=counts();
 assert.equal((await worker.fetch(new Request('https://fateforge.test/'),env)).status,200);
-for(const table of RESET_TABLES)assert.equal(db.prepare(`SELECT count(*) AS n FROM ${table} WHERE owner_id=?`).get(owner).n,table==='roster_refreshes'?2:0,table+' Worker reset');
-seed(owner,'after-worker');assert.equal((await worker.fetch(new Request('https://fateforge.test/arena'),env)).status,200);
-assert.equal(db.prepare('SELECT count(*) AS n FROM saved_characters WHERE owner_id=?').get(owner).n,1);
-console.log('Built Worker reset trigger passed: first load clears requested data; subsequent loads keep new fighters.');
+assert.deepEqual(counts(),before);
+assert.equal((await worker.fetch(new Request('https://fateforge.test/arena'),env)).status,200);
+assert.deepEqual(counts(),before);
+console.log('Entry preservation passed: no historical reset or rename runs on site entry, even without the old reset marker.');

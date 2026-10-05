@@ -42,11 +42,11 @@ assert((await call('characters')).characters.some(c=>c.matchRecord.wins>0&&c.cha
 const second=createTournament('Pages Cup',roster.slice(0,2),[defaultStage('single')],9,{shuffle:false});
 ok(await call('tournaments/'+crypto.randomUUID(),'PUT',{name:second.name,state:second}));
 assert((await call('tournaments')).tournaments.some(t=>t.name==='Pages Cup 2'));
-// Upset growth uses the same tier requirements and preserves immutable rolls.
+// New upset rewards are retired; immutable rolls remain.
 const low=roster.find(c=>c.summary.tier==='C'),high=roster.find(c=>c.summary.tier==='B');
 const growth=createTournament('Growth Cup',[low,high],[{...defaultStage('swiss'),rounds:3,advance:1}],41,{shuffle:false}),growthId=crypto.randomUUID();
 for(let i=0;i<2;i++){const m=nextMatch(growth);recordMatch(growth,m,[{winner:low.id,seconds:1,combatVersion:9}]);ok(await call('tournaments/'+growthId,'PUT',{name:growth.name,state:growth}));}
-assert.equal((await call('characters/'+low.id)).character.summary.growth.upgrades,1);
+assert.equal((await call('characters/'+low.id)).character.summary.growth,undefined);
 // Reopen, export, import into a different browser, and reject corrupt/foreign backups.
 const before=await call('characters');storage=createStorage(config);
 assert.deepEqual((await call('characters')).characters,before.characters);
@@ -82,4 +82,4 @@ assert.equal((await call('tournaments/'+largeId)).tournament.state.roster.length
 assert.equal(largeCup.runtime.groups.length,65);
 assert.equal((await call('tournaments/'+largeId)).tournament.state.stages[0].advance,130);
 console.log('Large-field checks passed: 260 entrants, 65 groups, 130 advancing, and a saved/reloaded tournament.');
-console.log('Pages checks passed: 39 fighters, all obtainable tiers, simultaneous tabs, immutable rolls, groups → Swiss → double elimination, duplicate names, champions, W/L, promotions, reload, backup restore, rejected bad backups, bulk removal, rollback, combat and subpath assets.');
+console.log('Pages checks passed: 39 fighters, all obtainable tiers, simultaneous tabs, immutable rolls, groups → Swiss → double elimination, duplicate names, champions, W/L, retired stat rewards, reload, backup restore, rejected bad backups, bulk removal, rollback, combat and subpath assets.');
