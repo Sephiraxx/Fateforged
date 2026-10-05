@@ -1,0 +1,1183 @@
+{
+  "date": "2026-10-05",
+  "sourceFilename": "fateforge-backup-2026-10-05 (1).sqlite",
+  "sourceSHA256": "f911ed4450be74ddb2707e07b3d450e7235e89517e333a32cdd1a5d90935bd0c",
+  "engineFingerprint": "17f6e5eddf615f53b2b3bd9e23f830c57a17530cc315f57bc37ff2b1d2d3c3bf",
+  "scope": {
+    "completedSeasons": 40,
+    "series": 156040,
+    "games": 157889,
+    "leagueSeries": 147680,
+    "uniqueStudiedFighters": 359,
+    "titles": 640,
+    "combatVersions": {
+      "10": 157889
+    },
+    "phaseCounts": {
+      "league": 147680,
+      "cups": 6280,
+      "champions": 600,
+      "europa": 600,
+      "champions-qualifier": 480,
+      "europa-qualifier": 400
+    },
+    "reasonCounts": {
+      "Knockout": 155409,
+      "Time limit: draw": 2322,
+      "Time limit: health %, then damage, then seeded coin toss": 158
+    },
+    "leagueDraws": 2322,
+    "gameMedianSeconds": 16.8,
+    "gameMeanSeconds": 22.207367201008303,
+    "game90thPercentileSeconds": 42.6,
+    "decisiveLeagueSideAWin": 0.5024904030049946
+  },
+  "checks": {
+    "integrity": "ok",
+    "matchMismatches": 0,
+    "titleMismatches": 0,
+    "standingMismatches": 0,
+    "scheduleMismatches": 0,
+    "changingFighterSnapshots": 0,
+    "duplicateRetirements": 0,
+    "activeMembership": "164 exact",
+    "uniqueGeneratedIdentities": 364,
+    "currentChampions": "16 exact Season 40 identities and names"
+  },
+  "rollovers": {
+    "completedRolloversVerified": 40,
+    "allRosterSizes": "20/24/24/24/24/24/24",
+    "generationVersion": 2,
+    "combatVersion": 10,
+    "checks": "Exact next-season roster, division order, career metadata, seed/settings, five replacements, seeded rarity composition, retirement priority/deferred queue and vacancy cascade."
+  },
+  "population": {
+    "initial": {
+      "fighters": 164,
+      "meanTotal": 644.25,
+      "Aplus": 0.0975609756097561,
+      "Splus": 0.012195121951219513,
+      "SS": 0.0,
+      "tiers": {
+        "E": 48,
+        "A": 14,
+        "C": 31,
+        "S": 2,
+        "D": 59,
+        "B": 10
+      },
+      "rarities": {
+        "common": 86,
+        "legendary": 6,
+        "uncommon": 42,
+        "mythic": 3,
+        "rare": 19,
+        "unique": 8
+      },
+      "styles": {
+        "arcane": 14,
+        "melee": 114,
+        "ranged": 36
+      },
+      "twoPowers": 0.21951219512195122
+    },
+    "replacements": {
+      "fighters": 200,
+      "meanTotal": 1089.745,
+      "Aplus": 0.25,
+      "Splus": 0.08,
+      "SS": 0.0,
+      "tiers": {
+        "D": 42,
+        "B": 52,
+        "C": 38,
+        "A": 34,
+        "E": 18,
+        "S": 16
+      },
+      "rarities": {
+        "uncommon": 21,
+        "rare": 52,
+        "unique": 48,
+        "legendary": 36,
+        "common": 37,
+        "mythic": 6
+      },
+      "styles": {
+        "arcane": 22,
+        "melee": 124,
+        "ranged": 54
+      },
+      "twoPowers": 0.345
+    },
+    "season40": {
+      "fighters": 164,
+      "meanTotal": 1216.3597560975609,
+      "Aplus": 0.3048780487804878,
+      "Splus": 0.09146341463414634,
+      "SS": 0.0,
+      "tiers": {
+        "C": 31,
+        "A": 35,
+        "B": 49,
+        "D": 25,
+        "E": 9,
+        "S": 15
+      },
+      "rarities": {
+        "uncommon": 17,
+        "unique": 44,
+        "rare": 40,
+        "common": 23,
+        "legendary": 34,
+        "mythic": 6
+      },
+      "styles": {
+        "arcane": 21,
+        "ranged": 49,
+        "melee": 94
+      },
+      "twoPowers": 0.4268292682926829
+    },
+    "active41": {
+      "fighters": 164,
+      "meanTotal": 1211.6707317073171,
+      "Aplus": 0.3048780487804878,
+      "Splus": 0.09146341463414634,
+      "SS": 0.0,
+      "tiers": {
+        "C": 30,
+        "A": 35,
+        "B": 49,
+        "D": 26,
+        "E": 9,
+        "S": 15
+      },
+      "rarities": {
+        "uncommon": 16,
+        "unique": 44,
+        "rare": 41,
+        "common": 23,
+        "legendary": 34,
+        "mythic": 6
+      },
+      "styles": {
+        "arcane": 22,
+        "ranged": 50,
+        "melee": 92
+      },
+      "twoPowers": 0.4268292682926829
+    }
+  },
+  "careers": {
+    "retired": 200,
+    "byReason": {
+      "Dawnrise league finish": 145,
+      "Career completed": 55
+    },
+    "peakDeferred": 29,
+    "oldestDeferred": 3,
+    "finalDeferred": 25,
+    "retiredMaxOverdue": 4,
+    "originalSurvivors": 14,
+    "vacancyPromotions": 171,
+    "timeline": [
+      {
+        "season": 28,
+        "careerEligible": 0,
+        "careerRetirements": 0,
+        "deferred": 0,
+        "oldestDeferred": 0
+      },
+      {
+        "season": 29,
+        "careerEligible": 0,
+        "careerRetirements": 0,
+        "deferred": 0,
+        "oldestDeferred": 0
+      },
+      {
+        "season": 30,
+        "careerEligible": 7,
+        "careerRetirements": 5,
+        "deferred": 2,
+        "oldestDeferred": 0
+      },
+      {
+        "season": 31,
+        "careerEligible": 11,
+        "careerRetirements": 5,
+        "deferred": 6,
+        "oldestDeferred": 0
+      },
+      {
+        "season": 32,
+        "careerEligible": 14,
+        "careerRetirements": 5,
+        "deferred": 9,
+        "oldestDeferred": 1
+      },
+      {
+        "season": 33,
+        "careerEligible": 14,
+        "careerRetirements": 5,
+        "deferred": 9,
+        "oldestDeferred": 1
+      },
+      {
+        "season": 34,
+        "careerEligible": 18,
+        "careerRetirements": 5,
+        "deferred": 13,
+        "oldestDeferred": 1
+      },
+      {
+        "season": 35,
+        "careerEligible": 23,
+        "careerRetirements": 5,
+        "deferred": 18,
+        "oldestDeferred": 1
+      },
+      {
+        "season": 36,
+        "careerEligible": 24,
+        "careerRetirements": 5,
+        "deferred": 19,
+        "oldestDeferred": 2
+      },
+      {
+        "season": 37,
+        "careerEligible": 30,
+        "careerRetirements": 5,
+        "deferred": 25,
+        "oldestDeferred": 2
+      },
+      {
+        "season": 38,
+        "careerEligible": 34,
+        "careerRetirements": 5,
+        "deferred": 29,
+        "oldestDeferred": 3
+      },
+      {
+        "season": 39,
+        "careerEligible": 32,
+        "careerRetirements": 5,
+        "deferred": 27,
+        "oldestDeferred": 3
+      },
+      {
+        "season": 40,
+        "careerEligible": 30,
+        "careerRetirements": 5,
+        "deferred": 25,
+        "oldestDeferred": 3
+      }
+    ]
+  },
+  "styleContrasts": [
+    {
+      "styles": "arcane vs melee",
+      "start": 1,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 20676,
+      "win": 0.58633197910621,
+      "statResidual": 0.1509277669466585
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 1,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 6580,
+      "win": 0.701063829787234,
+      "statResidual": 0.2011852947197606
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 1,
+      "end": 10,
+      "scope": "all",
+      "decisiveGames": 4452,
+      "win": 0.6442048517520216,
+      "statResidual": 0.17705365466538558
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 1,
+      "end": 10,
+      "scope": "similar_total",
+      "decisiveGames": 1244,
+      "win": 0.8127009646302251,
+      "statResidual": 0.3048348062208508
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 11,
+      "end": 20,
+      "scope": "all",
+      "decisiveGames": 5340,
+      "win": 0.6404494382022472,
+      "statResidual": 0.16503759108954774
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 11,
+      "end": 20,
+      "scope": "similar_total",
+      "decisiveGames": 1578,
+      "win": 0.7420785804816223,
+      "statResidual": 0.228279626623613
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 21,
+      "end": 30,
+      "scope": "all",
+      "decisiveGames": 5524,
+      "win": 0.5559377262853005,
+      "statResidual": 0.13466591029788058
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 21,
+      "end": 30,
+      "scope": "similar_total",
+      "decisiveGames": 1858,
+      "win": 0.6517761033369214,
+      "statResidual": 0.14943529555563576
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 31,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 5360,
+      "win": 0.5156716417910447,
+      "statResidual": 0.13192992796924194
+    },
+    {
+      "styles": "arcane vs melee",
+      "start": 31,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 1900,
+      "win": 0.6421052631578947,
+      "statResidual": 0.1614256370330809
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 1,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 9246,
+      "win": 0.4848583171101017,
+      "statResidual": 0.02526608700436393
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 1,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 3364,
+      "win": 0.5172413793103449,
+      "statResidual": 0.01395815386080434
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 1,
+      "end": 10,
+      "scope": "all",
+      "decisiveGames": 1496,
+      "win": 0.5006684491978609,
+      "statResidual": 0.05399364072702745
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 1,
+      "end": 10,
+      "scope": "similar_total",
+      "decisiveGames": 298,
+      "win": 0.6711409395973155,
+      "statResidual": 0.14927266404403527
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 11,
+      "end": 20,
+      "scope": "all",
+      "decisiveGames": 2158,
+      "win": 0.5430954587581094,
+      "statResidual": 0.04645717647319774
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 11,
+      "end": 20,
+      "scope": "similar_total",
+      "decisiveGames": 616,
+      "win": 0.5941558441558441,
+      "statResidual": 0.08398845142072962
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 21,
+      "end": 30,
+      "scope": "all",
+      "decisiveGames": 2732,
+      "win": 0.4769399707174231,
+      "statResidual": 0.016463632061574286
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 21,
+      "end": 30,
+      "scope": "similar_total",
+      "decisiveGames": 1077,
+      "win": 0.49675023212627667,
+      "statResidual": -0.010096218879145353
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 31,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 2860,
+      "win": 0.44020979020979023,
+      "statResidual": 0.0026582252773895733
+    },
+    {
+      "styles": "arcane vs ranged",
+      "start": 31,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 1373,
+      "win": 0.4654042243262928,
+      "statResidual": -0.027961604253245897
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 1,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 47914,
+      "win": 0.5572484033894061,
+      "statResidual": 0.09575195928106375
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 1,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 15921,
+      "win": 0.5826267194271717,
+      "statResidual": 0.09368347207724088
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 1,
+      "end": 10,
+      "scope": "all",
+      "decisiveGames": 11728,
+      "win": 0.6116984993178718,
+      "statResidual": 0.09772981111779848
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 1,
+      "end": 10,
+      "scope": "similar_total",
+      "decisiveGames": 2792,
+      "win": 0.6457736389684814,
+      "statResidual": 0.14591352837486768
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 11,
+      "end": 20,
+      "scope": "all",
+      "decisiveGames": 12414,
+      "win": 0.5728210085387466,
+      "statResidual": 0.10756735460373341
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 11,
+      "end": 20,
+      "scope": "similar_total",
+      "decisiveGames": 3818,
+      "win": 0.605814562598219,
+      "statResidual": 0.10908942684058101
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 21,
+      "end": 30,
+      "scope": "all",
+      "decisiveGames": 12298,
+      "win": 0.5351276630346398,
+      "statResidual": 0.09365802576297441
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 21,
+      "end": 30,
+      "scope": "similar_total",
+      "decisiveGames": 4530,
+      "win": 0.5556291390728477,
+      "statResidual": 0.06969135833727626
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 31,
+      "end": 40,
+      "scope": "all",
+      "decisiveGames": 11474,
+      "win": 0.5084538957643367,
+      "statResidual": 0.08319126819936741
+    },
+    {
+      "styles": "ranged vs melee",
+      "start": 31,
+      "end": 40,
+      "scope": "similar_total",
+      "decisiveGames": 4781,
+      "win": 0.5528132189918427,
+      "statResidual": 0.07361194368833332
+    }
+  ],
+  "mainCupStyles": {
+    "melee": {
+      "titles": 31,
+      "titleShare": 0.775,
+      "entrants": 318,
+      "entryShare": 0.496875,
+      "gapPoints": 27.8125
+    },
+    "arcane": {
+      "titles": 1,
+      "titleShare": 0.025,
+      "entrants": 63,
+      "entryShare": 0.0984375,
+      "gapPoints": -7.343749999999999
+    },
+    "ranged": {
+      "titles": 8,
+      "titleShare": 0.2,
+      "entrants": 259,
+      "entryShare": 0.4046875,
+      "gapPoints": -20.468749999999996
+    }
+  },
+  "premierStyles": {
+    "melee": {
+      "titles": 29,
+      "titleShare": 0.725,
+      "entrants": 303,
+      "entryShare": 0.37875,
+      "gapPoints": 34.625
+    },
+    "arcane": {
+      "titles": 4,
+      "titleShare": 0.1,
+      "entrants": 135,
+      "entryShare": 0.16875,
+      "gapPoints": -6.875000000000001
+    },
+    "ranged": {
+      "titles": 7,
+      "titleShare": 0.175,
+      "entrants": 362,
+      "entryShare": 0.4525,
+      "gapPoints": -27.750000000000004
+    }
+  },
+  "mainCupLastTenStyles": {
+    "melee": {
+      "titles": 9,
+      "titleShare": 0.9,
+      "entrants": 99,
+      "entryShare": 0.61875,
+      "gapPoints": 28.125
+    },
+    "arcane": {
+      "titles": 0,
+      "titleShare": 0.0,
+      "entrants": 9,
+      "entryShare": 0.05625,
+      "gapPoints": -5.625
+    },
+    "ranged": {
+      "titles": 1,
+      "titleShare": 0.1,
+      "entrants": 52,
+      "entryShare": 0.325,
+      "gapPoints": -22.5
+    }
+  },
+  "titleConcentration": [
+    {
+      "competition": "league",
+      "uniqueChampions": 7,
+      "top": [
+        {
+          "id": "a4e0cb64-4dd6-4f41-b894-353f205ed429",
+          "name": "Aziel Dreamguard",
+          "titles": 25,
+          "traits": {
+            "race": "Infernal",
+            "subrace": "Ash fiend",
+            "class": "Strategist",
+            "subclass": "Mastermind",
+            "strength": "Juggernaut",
+            "speed": "Beyond time",
+            "durability": "Indestructible",
+            "iq": "All-knowing",
+            "magic": "Limitless magic",
+            "weapon": "Mace",
+            "mastery": "Combat omniscience",
+            "power": "Dream walking",
+            "power2": "Phoenix rebirth",
+            "weakness": "Short power duration"
+          },
+          "stats": [
+            337,
+            678,
+            608,
+            609,
+            616
+          ]
+        },
+        {
+          "id": "fe143c75-5bd8-44a7-b941-c85fa28813bf",
+          "name": "Vexiel Dreamblade",
+          "titles": 4,
+          "traits": {
+            "race": "Infernal",
+            "subrace": "Ash fiend",
+            "class": "Strategist",
+            "subclass": "Mastermind",
+            "strength": "Juiced",
+            "speed": "Supersonic",
+            "durability": "Titan body",
+            "iq": "Mastermind",
+            "magic": "Limitless magic",
+            "weapon": "Spellbook",
+            "mastery": "Perfect technique",
+            "power": "Chain lightning",
+            "power2": "Light manipulation",
+            "weakness": "Overconfidence"
+          },
+          "stats": [
+            221,
+            283,
+            263,
+            258,
+            601
+          ]
+        },
+        {
+          "id": "07ccdf32-3ca2-4a78-b3a7-d75845b3ca4a",
+          "name": "Cogral Graveward",
+          "titles": 3,
+          "traits": {
+            "race": "Construct",
+            "subrace": "Soulforged",
+            "class": "Summoner",
+            "subclass": "Spirit caller",
+            "strength": "Cosmic strength",
+            "speed": "Light-speed",
+            "durability": "Adamantine",
+            "iq": "Mastermind",
+            "magic": "Legendary",
+            "weapon": "Arcane gauntlets",
+            "mastery": "Combat omniscience",
+            "power": "No power",
+            "power2": "Mirror barrier",
+            "weakness": "Cannot harm the innocent"
+          },
+          "stats": [
+            638,
+            420,
+            269,
+            242,
+            248
+          ]
+        },
+        {
+          "id": "e7cd4e6c-bc09-4129-8efc-affce577deeb",
+          "name": "Rhazor Voidcaller",
+          "titles": 3,
+          "traits": {
+            "race": "Wyvern",
+            "subrace": "Frost",
+            "class": "Blood Mage",
+            "subclass": "Bloodbinder",
+            "strength": "Juiced",
+            "speed": "Beyond time",
+            "durability": "Indestructible",
+            "iq": "Genius",
+            "magic": "Limitless magic",
+            "weapon": "Rifle",
+            "mastery": "Legendary",
+            "power": "Flight",
+            "power2": "Void manipulation",
+            "weakness": "Anti-magic"
+          },
+          "stats": [
+            193,
+            569,
+            511,
+            197,
+            538
+          ]
+        },
+        {
+          "id": "69fd238e-9e52-43f5-a415-eb77fdb32fef",
+          "name": "Malor Shadowweaver",
+          "titles": 3,
+          "traits": {
+            "race": "Demon",
+            "subrace": "Shadow",
+            "class": "Hexer",
+            "subclass": "Curse binder",
+            "strength": "Cosmic strength",
+            "speed": "Beyond time",
+            "durability": "Iron skin",
+            "iq": "All-knowing",
+            "magic": "Archmage",
+            "weapon": "Throwing knives",
+            "mastery": "Combat omniscience",
+            "power": "Regeneration",
+            "power2": "Metal bending",
+            "weakness": "A cursed relic"
+          },
+          "stats": [
+            665,
+            651,
+            191,
+            562,
+            190
+          ]
+        }
+      ]
+    },
+    {
+      "competition": "champions",
+      "uniqueChampions": 7,
+      "top": [
+        {
+          "id": "a4e0cb64-4dd6-4f41-b894-353f205ed429",
+          "name": "Aziel Dreamguard",
+          "titles": 27,
+          "traits": {
+            "race": "Infernal",
+            "subrace": "Ash fiend",
+            "class": "Strategist",
+            "subclass": "Mastermind",
+            "strength": "Juggernaut",
+            "speed": "Beyond time",
+            "durability": "Indestructible",
+            "iq": "All-knowing",
+            "magic": "Limitless magic",
+            "weapon": "Mace",
+            "mastery": "Combat omniscience",
+            "power": "Dream walking",
+            "power2": "Phoenix rebirth",
+            "weakness": "Short power duration"
+          },
+          "stats": [
+            337,
+            678,
+            608,
+            609,
+            616
+          ]
+        },
+        {
+          "id": "69fd238e-9e52-43f5-a415-eb77fdb32fef",
+          "name": "Malor Shadowweaver",
+          "titles": 5,
+          "traits": {
+            "race": "Demon",
+            "subrace": "Shadow",
+            "class": "Hexer",
+            "subclass": "Curse binder",
+            "strength": "Cosmic strength",
+            "speed": "Beyond time",
+            "durability": "Iron skin",
+            "iq": "All-knowing",
+            "magic": "Archmage",
+            "weapon": "Throwing knives",
+            "mastery": "Combat omniscience",
+            "power": "Regeneration",
+            "power2": "Metal bending",
+            "weakness": "A cursed relic"
+          },
+          "stats": [
+            665,
+            651,
+            191,
+            562,
+            190
+          ]
+        },
+        {
+          "id": "e7cd4e6c-bc09-4129-8efc-affce577deeb",
+          "name": "Rhazor Voidcaller",
+          "titles": 2,
+          "traits": {
+            "race": "Wyvern",
+            "subrace": "Frost",
+            "class": "Blood Mage",
+            "subclass": "Bloodbinder",
+            "strength": "Juiced",
+            "speed": "Beyond time",
+            "durability": "Indestructible",
+            "iq": "Genius",
+            "magic": "Limitless magic",
+            "weapon": "Rifle",
+            "mastery": "Legendary",
+            "power": "Flight",
+            "power2": "Void manipulation",
+            "weakness": "Anti-magic"
+          },
+          "stats": [
+            193,
+            569,
+            511,
+            197,
+            538
+          ]
+        },
+        {
+          "id": "07ccdf32-3ca2-4a78-b3a7-d75845b3ca4a",
+          "name": "Cogral Graveward",
+          "titles": 2,
+          "traits": {
+            "race": "Construct",
+            "subrace": "Soulforged",
+            "class": "Summoner",
+            "subclass": "Spirit caller",
+            "strength": "Cosmic strength",
+            "speed": "Light-speed",
+            "durability": "Adamantine",
+            "iq": "Mastermind",
+            "magic": "Legendary",
+            "weapon": "Arcane gauntlets",
+            "mastery": "Combat omniscience",
+            "power": "No power",
+            "power2": "Mirror barrier",
+            "weakness": "Cannot harm the innocent"
+          },
+          "stats": [
+            638,
+            420,
+            269,
+            242,
+            248
+          ]
+        },
+        {
+          "id": "f4673ca5-bb2d-4769-8d04-aefdfdb39b9f",
+          "name": "Nyara Shadowseer",
+          "titles": 2,
+          "traits": {
+            "race": "Elf",
+            "subrace": "Night",
+            "class": "Conjurer",
+            "subclass": "Planar conjurer",
+            "strength": "Juggernaut",
+            "speed": "Light-speed",
+            "durability": "Indestructible",
+            "iq": "All-knowing",
+            "magic": "Limitless magic",
+            "weapon": "Arcane gauntlets",
+            "mastery": "Grandmaster",
+            "power": "Metal bending",
+            "power2": "Memory control",
+            "weakness": "Sunlight"
+          },
+          "stats": [
+            150,
+            301,
+            439,
+            513,
+            539
+          ]
+        }
+      ]
+    },
+    {
+      "competition": "europa",
+      "uniqueChampions": 17,
+      "top": [
+        {
+          "id": "192a8db7-edeb-4113-9158-8e210fd42a90",
+          "name": "Duskis Dreamseer",
+          "titles": 11,
+          "traits": {
+            "race": "Lich",
+            "subrace": "Frost",
+            "class": "Necromancer",
+            "subclass": "Bone lord",
+            "strength": "Cosmic strength",
+            "speed": "Beyond time",
+            "durability": "Indestructible",
+            "iq": "All-knowing",
+            "magic": "Limitless magic",
+            "weapon": "Rifle",
+            "mastery": "Combat omniscience",
+            "power": "Mind reading",
+            "power2": "Portal creation",
+            "weakness": "Power has a cooldown"
+          },
+          "stats": [
+            616,
+            641,
+            537,
+            610,
+            568
+          ]
+        },
+        {
+          "id": "07ccdf32-3ca2-4a78-b3a7-d75845b3ca4a",
+          "name": "Cogral Graveward",
+          "titles": 7,
+          "traits": {
+            "race": "Construct",
+            "subrace": "Soulforged",
+            "class": "Summoner",
+            "subclass": "Spirit caller",
+            "strength": "Cosmic strength",
+            "speed": "Light-speed",
+            "durability": "Adamantine",
+            "iq": "Mastermind",
+            "magic": "Legendary",
+            "weapon": "Arcane gauntlets",
+            "mastery": "Combat omniscience",
+            "power": "No power",
+            "power2": "Mirror barrier",
+            "weakness": "Cannot harm the innocent"
+          },
+          "stats": [
+            638,
+            420,
+            269,
+            242,
+            248
+          ]
+        },
+        {
+          "id": "e4f47421-03dc-444e-ab24-4e630c80d78f",
+          "name": "Gruma Stormcaller",
+          "titles": 2,
+          "traits": {
+            "race": "Cyclops",
+            "subrace": "Oracle",
+            "class": "Sorcerer",
+            "subclass": "Storm",
+            "strength": "Colossus",
+            "speed": "Beyond time",
+            "durability": "Titan body",
+            "iq": "Cosmic intellect",
+            "magic": "Limitless magic",
+            "weapon": "Longbow",
+            "mastery": "Perfect technique",
+            "power": "Life creation",
+            "power2": "Soul binding",
+            "weakness": "Loses power at night"
+          },
+          "stats": [
+            284,
+            590,
+            258,
+            445,
+            527
+          ]
+        },
+        {
+          "id": "2c4453d1-a958-4c62-89dc-7d9db82338e9",
+          "name": "Raga Stormstep",
+          "titles": 2,
+          "traits": {
+            "race": "Titan",
+            "subrace": "Storm",
+            "class": "Ninja",
+            "subclass": "Poison clan",
+            "strength": "Wet noodle",
+            "speed": "Swift",
+            "durability": "Immortal body",
+            "iq": "Supercomputer",
+            "magic": "Limitless magic",
+            "weapon": "Greatsword",
+            "mastery": "Combat omniscience",
+            "power": "Light manipulation",
+            "power2": "Regeneration",
+            "weakness": "Exhaustion"
+          },
+          "stats": [
+            306,
+            293,
+            474,
+            291,
+            485
+          ]
+        },
+        {
+          "id": "57fc36d4-128c-42e7-8d2d-15890eaac76d",
+          "name": "Kharzareth Voidsong",
+          "titles": 2,
+          "traits": {
+            "race": "Anubite",
+            "subrace": "Guardian",
+            "class": "Bard",
+            "subclass": "Blade dancer",
+            "strength": "Cosmic strength",
+            "speed": "Light-speed",
+            "durability": "Indestructible",
+            "iq": "Brilliant",
+            "magic": "Reality warper",
+            "weapon": "Rune blade",
+            "mastery": "Trained",
+            "power": "Force fields",
+            "power2": "Space folding",
+            "weakness": "Short power duration"
+          },
+          "stats": [
+            479,
+            260,
+            490,
+            108,
+            400
+          ]
+        }
+      ]
+    }
+  ],
+  "pairedMethod": {
+    "fights": 20960,
+    "originalReplaysChecked": 8560,
+    "originalReplaysMatched": 8560,
+    "powers": 50,
+    "score": "win=1,draw=0.5,loss=0; not table points",
+    "sampling": "Up to 24 chronologically stratified regular league games per carrier, opponent without the same ability; four champions, 160 Premier games and eight variants each.",
+    "fixed": "Stored stats, seed, opponent, conditions and side; modify only the indicated trait.",
+    "uncertainty": "10,000 whole-carrier bootstrap resamples, percentile 95% intervals; one-carrier intervals null; small carrier counts limited."
+  },
+  "leadingFighterCareers": [
+    {
+      "id": "a4e0cb64-4dd6-4f41-b894-353f205ed429",
+      "name": "Aziel Dreamguard",
+      "active41": true,
+      "career": {
+        "joinedSeason": 10,
+        "eligibleSeason": 41,
+        "length": 32,
+        "transition": false
+      }
+    },
+    {
+      "id": "fe143c75-5bd8-44a7-b941-c85fa28813bf",
+      "name": "Vexiel Dreamblade",
+      "active41": false,
+      "career": null
+    },
+    {
+      "id": "69fd238e-9e52-43f5-a415-eb77fdb32fef",
+      "name": "Malor Shadowweaver",
+      "active41": true,
+      "career": {
+        "joinedSeason": 7,
+        "eligibleSeason": 41,
+        "length": 35,
+        "transition": false
+      }
+    },
+    {
+      "id": "07ccdf32-3ca2-4a78-b3a7-d75845b3ca4a",
+      "name": "Cogral Graveward",
+      "active41": false,
+      "career": null
+    },
+    {
+      "id": "e7cd4e6c-bc09-4129-8efc-affce577deeb",
+      "name": "Rhazor Voidcaller",
+      "active41": false,
+      "career": null
+    },
+    {
+      "id": "192a8db7-edeb-4113-9158-8e210fd42a90",
+      "name": "Duskis Dreamseer",
+      "active41": true,
+      "career": {
+        "joinedSeason": 6,
+        "eligibleSeason": 39,
+        "length": 34,
+        "transition": false
+      }
+    },
+    {
+      "id": "2c4453d1-a958-4c62-89dc-7d9db82338e9",
+      "name": "Raga Stormstep",
+      "active41": true,
+      "career": {
+        "joinedSeason": 1,
+        "eligibleSeason": 37,
+        "length": 37,
+        "transition": false
+      }
+    },
+    {
+      "id": "f4673ca5-bb2d-4769-8d04-aefdfdb39b9f",
+      "name": "Nyara Shadowseer",
+      "active41": true,
+      "career": {
+        "joinedSeason": 32,
+        "eligibleSeason": 68,
+        "length": 37,
+        "transition": false
+      }
+    },
+    {
+      "id": "2873a328-3d7f-43be-b815-d419a3627d2c",
+      "name": "Rukri Fangwright",
+      "active41": false,
+      "career": null
+    },
+    {
+      "id": "f62c0af4-a493-4435-8de2-7513fcef4b27",
+      "name": "Seren Voidward",
+      "active41": true,
+      "career": {
+        "joinedSeason": 24,
+        "eligibleSeason": 58,
+        "length": 35,
+        "transition": false
+      }
+    },
+    {
+      "id": "daec066a-45fd-4460-bdb3-4d3c17d19d4d",
+      "name": "Vektal Sunmender",
+      "active41": true,
+      "career": {
+        "joinedSeason": 4,
+        "eligibleSeason": 37,
+        "length": 34,
+        "transition": false
+      }
+    },
+    {
+      "id": "35ddddba-84e9-40cd-acdb-843398dd6706",
+      "name": "Elyiel Runewright",
+      "active41": true,
+      "career": {
+        "joinedSeason": 8,
+        "eligibleSeason": 45,
+        "length": 38,
+        "transition": false
+      }
+    }
+  ]
+}

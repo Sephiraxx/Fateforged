@@ -149,8 +149,6 @@ export function mountLeagues(host,hooks){
   if(!view){heading.textContent='Seven leagues';drawHistory(null);return;}
   heading.textContent=`Season ${view.season}${archived?' · archive':''}`;const match=LEAGUES.next(view);
   content.append(el('p',view.phase==='league'?`League season · week ${match.week} / ${LEAGUES.weekCount(view)} · Bo${view.settings.bestOf}`:view.phase==='cups'?`Division cups · ${LEAGUES.names[view.cupIndex]}`:LEAGUES.phaseNames[view.phase]||view.phase,'league-phase'));
-  content.append(el('p',`Combat v${LEAGUES.engineVersion(view)} · recruit generation v${view.generationVersion??1} · ${view.careerEnabled?'career retirement enabled · 5 exits per season':'legacy retirement until rollover'}`,'muted'));
-  if(view.careerEnabled){const eligible=view.roster.filter(c=>view.careers[c.id].eligibleSeason<=view.season).length;content.append(el('p',`${eligible} career${eligible===1?'':'s'} eligible after this season · five total retirements at rollover; excess careers wait in order.`,'muted'));}
   if(match)content.append(el('p',`Next: ${name(view,match.a)} vs ${name(view,match.b)} · Bo${match.bestOf}`,'muted'));
   if(view.version===1)content.append(el('p','This saved season keeps its original format until rollover; the next season adds 24 fighters and both interleague cups.','muted'));
   if(archived?.closedWorld)content.append(el('p','World closed and preserved before a fresh start.','muted'));
