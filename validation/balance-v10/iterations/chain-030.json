@@ -1,0 +1,972 @@
+{
+  "combatVersion": 10,
+  "generationVersion": 2,
+  "seed": 20264005,
+  "fights": 6144,
+  "seconds": 9.772345799999998,
+  "replayMatches": 0,
+  "medianSeconds": 14.7,
+  "p90Seconds": 28.4,
+  "groups": [
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.9375,
+      "draws": 0,
+      "seconds": 12.079687499999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 12.635937499999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 11.550000000000006
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 11.284374999999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 13.6578125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.9375,
+      "draws": 0,
+      "seconds": 12.079687499999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 12.264062500000001
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 10.548437500000007
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.875,
+      "draws": 0,
+      "seconds": 14.365625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.796875,
+      "draws": 0,
+      "seconds": 12.5265625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 16.654687499999998
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.9375,
+      "draws": 0,
+      "seconds": 12.079687499999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.859375,
+      "draws": 0,
+      "seconds": 11.892187500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 11.545312500000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.765625,
+      "draws": 0,
+      "seconds": 15.634375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Sword",
+      "total": 500,
+      "fights": 64,
+      "score": 0.734375,
+      "draws": 0,
+      "seconds": 15.518749999999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 21.0484375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 22.420312499999994
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 18.889062499999998
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 18.615624999999998
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 36.009375000000006
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.515625,
+      "draws": 0,
+      "seconds": 35.628125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 18.651562499999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 21.0484375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.875,
+      "draws": 0,
+      "seconds": 31.170312499999994
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 23.626562500000006
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.734375,
+      "draws": 0,
+      "seconds": 33.7171875
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 19.898437499999996
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 21.564062500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 19.221874999999994
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 31.71093749999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Staff",
+      "total": 500,
+      "fights": 64,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 41.121874999999974
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 10.693750000000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 11.546874999999995
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.640625,
+      "draws": 0,
+      "seconds": 10.232812500000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 9.828124999999998
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 11.128125000000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 10.693750000000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 11.337500000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.515625,
+      "draws": 0,
+      "seconds": 9.6234375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 13.415624999999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 10.453125000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 14.4640625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 10.693750000000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.78125,
+      "draws": 0,
+      "seconds": 10.9078125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 10.4328125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 13.345312500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Sword",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 13.3
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.573437500000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.78125,
+      "draws": 0,
+      "seconds": 21.165625000000013
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 17.3390625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 17.053125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 35.43125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.484375,
+      "draws": 0,
+      "seconds": 27.246875000000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 17.9625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.573437500000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 24.765625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 18.551562500000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 26.275
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 18.49531250000001
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.59375,
+      "draws": 0,
+      "seconds": 18.178124999999998
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 16.434374999999996
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 26.476562500000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Staff",
+      "total": 1500,
+      "fights": 64,
+      "score": 0.7734375,
+      "draws": 0.015625,
+      "seconds": 33.378125000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 10.470312500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 10.693750000000001
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 9.4
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 10.0125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.875,
+      "draws": 0,
+      "seconds": 10.703124999999996
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 10.470312500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 10.406250000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.640625,
+      "draws": 0,
+      "seconds": 9.376562499999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.828125,
+      "draws": 0,
+      "seconds": 13.4375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.796875,
+      "draws": 0,
+      "seconds": 10.375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 14.273437500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 10.470312500000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 10.314062500000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 10.003125000000002
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.78125,
+      "draws": 0,
+      "seconds": 12.712500000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Sword",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.796875,
+      "draws": 0,
+      "seconds": 13.087499999999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "No power",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 16.7109375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Light manipulation",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 19.074999999999996
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Storm calling",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 16.2046875
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Chain lightning",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 15.899999999999997
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Arcane silence",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0,
+      "seconds": 26.73437499999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mirror barrier",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.671875,
+      "draws": 0,
+      "seconds": 25.78906249999999
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Portal creation",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 17.059375000000003
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Shapeshifting",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 16.7109375
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Temporal rewind",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 24.2953125
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Singularity",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 17.864062499999996
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Phoenix rebirth",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 24.80625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Mind reading",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.100000000000005
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Reality bending",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 17.656250000000004
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Death command",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.78125,
+      "draws": 0,
+      "seconds": 16.690625
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Future sight",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 25.014062500000005
+    },
+    {
+      "ability": "Chain lightning",
+      "opponentAbility": "Regeneration",
+      "weapon": "Staff",
+      "total": 2500,
+      "fights": 64,
+      "score": 0.8203125,
+      "draws": 0.046875,
+      "seconds": 34.05625
+    }
+  ]
+}

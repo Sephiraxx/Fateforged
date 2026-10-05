@@ -1,4 +1,4 @@
-import {simulate} from './combat.js';
+import {simulationEngine,loadCombatEngine} from './combat-engines.js';
 import {seriesComplete,drawAtTimeLimit} from './series.js';
-export function simulateLeagueSeries({match,a,b,conditions=match.conditions,knockout=!match.allowDraw}){const results=[],score=[0,0];do{const r=drawAtTimeLimit(simulate(a,b,(match.seed+results.length*65537)>>>0,{conditions}),match.allowDraw&&!knockout);results.push(r);if(r.winner!==null)score[r.winner===a.id?0:1]++;}while(!seriesComplete(match,score,results.length,knockout));return results;}
-if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=({data})=>{try{self.postMessage({id:data.dispatchId,results:simulateLeagueSeries(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};
+export function simulateLeagueSeries({match,a,b,conditions=match.conditions,knockout=!match.allowDraw}){const {simulate}=simulationEngine(match.engineVersion??10),results=[],score=[0,0];do{const r=drawAtTimeLimit(simulate(a,b,(match.seed+results.length*65537)>>>0,{conditions,headless:true}),match.allowDraw&&!knockout);results.push(r);if(r.winner!==null)score[r.winner===a.id?0:1]++;}while(!seriesComplete(match,score,results.length,knockout));return results;}
+if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=async({data})=>{try{await loadCombatEngine(data.match.engineVersion??10);self.postMessage({id:data.dispatchId,results:simulateLeagueSeries(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};

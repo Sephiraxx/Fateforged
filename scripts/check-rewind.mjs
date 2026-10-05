@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {Battle,simulate,REWIND_HEALTH_RECOVERY,REWIND_MANA_RECOVERY} from '../public/combat.js';
+import {Battle,simulate,REWIND_HEALTH_RECOVERY,REWIND_MANA_RECOVERY} from '../public/combat-v9.js';
 import {Battle as LegacyBattle,simulate as legacySimulate} from '../public/combat-v8.js';
 import {powerFor,POWERS} from '../public/abilities.js';
 import {buildTraitDetails} from '../public/trait-details.js';

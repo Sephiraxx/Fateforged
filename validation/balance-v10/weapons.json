@@ -1,0 +1,3901 @@
+{
+  "combatVersion": 10,
+  "engineFingerprint": "17f6e5eddf615f53b2b3bd9e23f830c57a17530cc315f57bc37ff2b1d2d3c3bf",
+  "generationVersion": 2,
+  "seed": 20264005,
+  "fights": 27648,
+  "seconds": 120.28235550000001,
+  "replayMatches": 0,
+  "medianSeconds": 20.7,
+  "p90Seconds": 60.7,
+  "groups": [
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.748437500000005
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.5640625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.553124999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 15.023437500000007
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 13.804687500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Staff",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.748437500000005
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.5640625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.553124999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 15.023437500000007
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 13.804687500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.748437500000005
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.5640625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.553124999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 15.023437500000007
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 13.804687500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.02187500000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 35.021875000000016
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.748437500000005
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 14.5640625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 15.553124999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 15.023437500000007
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 13.804687500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.1328125,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.748437500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.7484375
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.748437500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.748437500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 14.0625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.171875,
+      "draws": 0,
+      "seconds": 20.871875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 13.7765625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 16.739062499999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 17.623437499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 15.285937499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.640625,
+      "draws": 0,
+      "seconds": 15.226562499999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Sword",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.171875,
+      "draws": 0,
+      "seconds": 20.871875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.467187499999994
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.828125,
+      "draws": 0,
+      "seconds": 20.871875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.03125,
+      "seconds": 60.72187499999999
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 20.832812499999992
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.890625,
+      "draws": 0,
+      "seconds": 24.426562500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 26.673437500000006
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 20.621875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 20.54218750000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Longbow",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.03125,
+      "seconds": 60.72187499999999
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.564062499999997
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.564062500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.564062499999999
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 14.564062499999997
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0,
+      "seconds": 13.776562499999997
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.28125,
+      "draws": 0,
+      "seconds": 20.832812499999992
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 14.153124999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 16.3953125
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 17.081250000000004
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.421875,
+      "draws": 0,
+      "seconds": 15.215625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.75,
+      "draws": 0,
+      "seconds": 13.9609375
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Mace",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.28125,
+      "draws": 0,
+      "seconds": 20.832812499999992
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.318750000000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.318750000000005
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.318750000000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.421875,
+      "draws": 0,
+      "seconds": 16.739062499999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.109375,
+      "draws": 0,
+      "seconds": 24.426562500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 16.3953125
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 19.781249999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 20.426562500000006
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.421875,
+      "draws": 0,
+      "seconds": 18.315625000000008
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 17.946875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.109375,
+      "draws": 0,
+      "seconds": 24.426562500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.553124999999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.553124999999993
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.553125
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 15.553124999999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 17.623437499999994
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 26.673437500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 17.08125
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 20.426562500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 21.765624999999993
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 18.492187500000014
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 18.237499999999997
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 26.673437500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 15.023437500000004
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 15.023437500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 15.023437500000007
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 15.023437500000004
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 15.285937499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 20.621874999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 15.215624999999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.578125,
+      "draws": 0,
+      "seconds": 18.315625
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 18.492187500000004
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 14.365624999999993
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.734375,
+      "draws": 0,
+      "seconds": 16.5328125
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Spear",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 20.621874999999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 13.804687499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 13.804687499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 13.804687499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 13.804687499999998
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.359375,
+      "draws": 0,
+      "seconds": 15.226562499999996
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 20.542187500000008
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.25,
+      "draws": 0,
+      "seconds": 13.960937500000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 17.946875000000002
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 18.237499999999997
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.265625,
+      "draws": 0,
+      "seconds": 16.532812499999995
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 15.049999999999999
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Dagger",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 20.542187500000008
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.467187499999994
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.8671875,
+      "draws": 0.046875,
+      "seconds": 59.4671875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.828125,
+      "draws": 0,
+      "seconds": 20.871875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.03125,
+      "seconds": 60.72187499999999
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 20.832812499999992
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.890625,
+      "draws": 0,
+      "seconds": 24.426562500000003
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 26.673437500000006
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 20.621875
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 20.54218750000001
+    },
+    {
+      "profile": "balanced",
+      "weapon": "Rifle",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.03125,
+      "seconds": 60.72187499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.037500000000016
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.0375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 16.575
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Staff",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.037500000000016
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.0375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 16.575
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.037500000000016
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.0375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 16.575
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.037500000000016
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.0375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.03750000000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 16.575
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.953125,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.984375,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.2421875,
+      "draws": 0.078125,
+      "seconds": 65.1421875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 16.574999999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 16.575000000000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 16.575000000000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 16.574999999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 13.784374999999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 19.984375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.328125,
+      "draws": 0,
+      "seconds": 13.903125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.484375,
+      "draws": 0,
+      "seconds": 15.4453125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.34375,
+      "draws": 0,
+      "seconds": 16.3265625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 14.896874999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0,
+      "seconds": 14.573437499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Sword",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.1875,
+      "draws": 0,
+      "seconds": 19.984375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218750000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218749999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218749999998
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218750000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 19.984375000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.0625,
+      "seconds": 62.89062499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 19.571875000000002
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 24.039062499999986
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.890625,
+      "draws": 0,
+      "seconds": 27.12812500000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.671875,
+      "draws": 0,
+      "seconds": 20.368749999999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 19.895312500000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.0625,
+      "seconds": 62.89062499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 16.764062500000005
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 16.7640625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.671875,
+      "draws": 0,
+      "seconds": 13.903124999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 19.571875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 13.715625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 16.257812500000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.40625,
+      "draws": 0,
+      "seconds": 17.0546875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 15.695312499999998
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.765625,
+      "draws": 0,
+      "seconds": 13.410937500000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Mace",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 19.571875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.046875,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.046875,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.046875,
+      "draws": 0,
+      "seconds": 16.799999999999997
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.046875,
+      "draws": 0,
+      "seconds": 16.800000000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.515625,
+      "draws": 0,
+      "seconds": 15.4453125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 24.039062499999993
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 16.257812500000007
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 19.4125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.28125,
+      "draws": 0,
+      "seconds": 20.343750000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.515625,
+      "draws": 0,
+      "seconds": 16.8328125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 16.3625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 24.039062499999993
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 17.415624999999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 17.415625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 17.41562499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.65625,
+      "draws": 0,
+      "seconds": 16.3265625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.109375,
+      "draws": 0,
+      "seconds": 27.128124999999997
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.59375,
+      "draws": 0,
+      "seconds": 17.054687499999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 20.343749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 21.04375
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.640625,
+      "draws": 0,
+      "seconds": 18.46875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.828125,
+      "draws": 0,
+      "seconds": 16.559375000000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.109375,
+      "draws": 0,
+      "seconds": 27.128124999999997
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 16.093749999999993
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 16.093749999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 16.093749999999993
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 14.896875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.328125,
+      "draws": 0,
+      "seconds": 20.368749999999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 15.695312499999998
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.484375,
+      "draws": 0,
+      "seconds": 16.832812500000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.359375,
+      "draws": 0,
+      "seconds": 18.468750000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 14.962500000000006
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 15.2515625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Spear",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.328125,
+      "draws": 0,
+      "seconds": 20.368749999999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 16.407812500000002
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.015625,
+      "draws": 0,
+      "seconds": 16.407812499999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 14.573437499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 19.8953125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.234375,
+      "draws": 0,
+      "seconds": 13.410937500000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 16.3625
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.171875,
+      "draws": 0,
+      "seconds": 16.559374999999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 15.251562500000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 14.246875
+    },
+    {
+      "profile": "physical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.09375,
+      "draws": 0,
+      "seconds": 19.8953125
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218750000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218749999996
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218749999998
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.7578125,
+      "draws": 0.078125,
+      "seconds": 65.14218750000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.8125,
+      "draws": 0,
+      "seconds": 19.984375000000004
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.0625,
+      "seconds": 62.89062499999999
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 19.571875000000002
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 24.039062499999986
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.890625,
+      "draws": 0,
+      "seconds": 27.12812500000001
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.671875,
+      "draws": 0,
+      "seconds": 20.368749999999995
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.90625,
+      "draws": 0,
+      "seconds": 19.895312500000003
+    },
+    {
+      "profile": "physical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.0625,
+      "seconds": 62.89062499999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.406249999999986
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.528125000000006
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 17.612499999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 19.082812499999992
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Staff",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.406249999999986
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.528125000000006
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 17.612499999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 19.082812499999992
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Magic wand",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.406249999999986
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.528125000000006
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 17.612499999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 19.082812499999992
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Crystal orb",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.406249999999986
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 44.40624999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.528125000000006
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 17.612499999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 19.082812499999992
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 1,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spellbook",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.528125000000003
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.528124999999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.528125
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.528125000000003
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 21.665625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.15625,
+      "draws": 0,
+      "seconds": 32.65
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.40625,
+      "draws": 0,
+      "seconds": 20.992187499999993
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.609375,
+      "draws": 0,
+      "seconds": 25.53749999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 27.140625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 23.509375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.625,
+      "draws": 0,
+      "seconds": 23.660937499999992
+    },
+    {
+      "profile": "magical",
+      "weapon": "Sword",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.15625,
+      "draws": 0,
+      "seconds": 32.65
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.31562499999998
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 32.65
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.46875,
+      "seconds": 82.15625000000001
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 31.807812500000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 36.3625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 40.748437499999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.65625,
+      "draws": 0,
+      "seconds": 31.434375000000003
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 31.551562499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Longbow",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.46875,
+      "seconds": 82.15625000000001
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 17.612499999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 17.612499999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 17.612499999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 17.612499999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.59375,
+      "draws": 0,
+      "seconds": 20.992187499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 31.8078125
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 19.612500000000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.4375,
+      "draws": 0,
+      "seconds": 25.362499999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.453125,
+      "draws": 0,
+      "seconds": 26.039062500000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 23.259375000000013
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.875,
+      "draws": 0,
+      "seconds": 20.909375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Mace",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.3125,
+      "draws": 0,
+      "seconds": 31.8078125
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 18.092187499999998
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 18.0921875
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.390625,
+      "draws": 0,
+      "seconds": 25.53749999999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.15625,
+      "draws": 0,
+      "seconds": 36.3625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5625,
+      "draws": 0,
+      "seconds": 25.362499999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 30.593749999999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.328125,
+      "draws": 0,
+      "seconds": 31.365624999999998
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0,
+      "seconds": 27.376562499999995
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.65625,
+      "draws": 0,
+      "seconds": 27.592187499999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.15625,
+      "draws": 0,
+      "seconds": 36.3625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 19.082812499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 19.082812499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 19.0828125
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 19.082812499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 27.140624999999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 40.748437500000016
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.546875,
+      "draws": 0,
+      "seconds": 26.0390625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.671875,
+      "draws": 0,
+      "seconds": 31.365625000000005
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 32.83125
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.703125,
+      "draws": 0,
+      "seconds": 29.078125000000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.71875,
+      "draws": 0,
+      "seconds": 27.825
+    },
+    {
+      "profile": "magical",
+      "weapon": "Tower shield",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.03125,
+      "draws": 0,
+      "seconds": 40.748437500000016
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.89375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.893749999999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0,
+      "seconds": 23.50937499999999
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.34375,
+      "draws": 0,
+      "seconds": 31.434375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 23.259375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.46875,
+      "draws": 0,
+      "seconds": 27.376562499999995
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.296875,
+      "draws": 0,
+      "seconds": 29.078124999999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 22.62500000000001
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.859375,
+      "draws": 0,
+      "seconds": 23.732812500000005
+    },
+    {
+      "profile": "magical",
+      "weapon": "Spear",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.34375,
+      "draws": 0,
+      "seconds": 31.434375
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.276562499999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0,
+      "draws": 0,
+      "seconds": 17.2765625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.375,
+      "draws": 0,
+      "seconds": 23.660937499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 31.5515625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.125,
+      "draws": 0,
+      "seconds": 20.909374999999997
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.34375,
+      "draws": 0,
+      "seconds": 27.592187499999998
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.28125,
+      "draws": 0,
+      "seconds": 27.825
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.140625,
+      "draws": 0,
+      "seconds": 23.732812500000005
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0,
+      "seconds": 22.550000000000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Dagger",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.078125,
+      "draws": 0,
+      "seconds": 31.5515625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Staff",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Magic wand",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Crystal orb",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.31562499999998
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spellbook",
+      "fights": 64,
+      "score": 0.53125,
+      "draws": 0.5,
+      "seconds": 80.315625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Sword",
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 32.65
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Longbow",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.46875,
+      "seconds": 82.15625000000001
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Mace",
+      "fights": 64,
+      "score": 0.6875,
+      "draws": 0,
+      "seconds": 31.807812500000004
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Shield",
+      "fights": 64,
+      "score": 0.84375,
+      "draws": 0,
+      "seconds": 36.3625
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Tower shield",
+      "fights": 64,
+      "score": 0.96875,
+      "draws": 0,
+      "seconds": 40.748437499999994
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Spear",
+      "fights": 64,
+      "score": 0.65625,
+      "draws": 0,
+      "seconds": 31.434375000000003
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Dagger",
+      "fights": 64,
+      "score": 0.921875,
+      "draws": 0,
+      "seconds": 31.551562499999996
+    },
+    {
+      "profile": "magical",
+      "weapon": "Rifle",
+      "opponentWeapon": "Rifle",
+      "fights": 64,
+      "score": 0.5,
+      "draws": 0.46875,
+      "seconds": 82.15625000000001
+    }
+  ]
+}

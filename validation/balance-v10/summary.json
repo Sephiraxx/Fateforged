@@ -1,0 +1,405 @@
+{
+  "combatVersion": 10,
+  "generationVersion": 2,
+  "engineFingerprint": "17f6e5eddf615f53b2b3bd9e23f830c57a17530cc315f57bc37ff2b1d2d3c3bf",
+  "sourceBackupSHA256": "ad1ca42cb21feb2e72657659c8e5c1a76420929b3096c636aca4bcebccb46397",
+  "approvedProposalItems": 99,
+  "careerTurnoverEnabled": true,
+  "checks": {
+    "node": "v24.19.0",
+    "passed": 22,
+    "total": 22
+  },
+  "comparisons": {
+    "generationRolls": 110000,
+    "powerFights": 98304,
+    "weaponFights": 27648,
+    "matchedStyleFights": 9000,
+    "historicalFights": 4512,
+    "exactHistoricalReplays": 3000
+  },
+  "freshWorlds": {
+    "worlds": 10,
+    "seasonsEach": 30,
+    "series": 616500,
+    "games": 630427,
+    "population": [
+      {
+        "season": 1,
+        "Aplus": {
+          "mean": 0.062195121951219526,
+          "range": [
+            0.04878048780487805,
+            0.07926829268292683
+          ]
+        },
+        "Splus": {
+          "mean": 0.020121951219512192,
+          "range": [
+            0.012195121951219513,
+            0.036585365853658534
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "arcane": {
+          "mean": 0.09268292682926829,
+          "range": [
+            0.04878048780487805,
+            0.14634146341463414
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.23719512195121947,
+          "range": [
+            0.18902439024390244,
+            0.2682926829268293
+          ]
+        }
+      },
+      {
+        "season": 10,
+        "Aplus": {
+          "mean": 0.13353658536585367,
+          "range": [
+            0.10365853658536585,
+            0.16463414634146342
+          ]
+        },
+        "Splus": {
+          "mean": 0.03658536585365853,
+          "range": [
+            0.012195121951219513,
+            0.06097560975609756
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "arcane": {
+          "mean": 0.11219512195121953,
+          "range": [
+            0.06707317073170732,
+            0.16463414634146342
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.3335365853658537,
+          "range": [
+            0.2865853658536585,
+            0.3597560975609756
+          ]
+        }
+      },
+      {
+        "season": 20,
+        "Aplus": {
+          "mean": 0.21646341463414628,
+          "range": [
+            0.20121951219512196,
+            0.25
+          ]
+        },
+        "Splus": {
+          "mean": 0.061585365853658536,
+          "range": [
+            0.03048780487804878,
+            0.0975609756097561
+          ]
+        },
+        "SS": {
+          "mean": 0,
+          "range": [
+            0,
+            0
+          ]
+        },
+        "arcane": {
+          "mean": 0.11341463414634148,
+          "range": [
+            0.07317073170731707,
+            0.17073170731707318
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.41341463414634144,
+          "range": [
+            0.34146341463414637,
+            0.4634146341463415
+          ]
+        }
+      },
+      {
+        "season": 30,
+        "Aplus": {
+          "mean": 0.29999999999999993,
+          "range": [
+            0.2804878048780488,
+            0.32926829268292684
+          ]
+        },
+        "Splus": {
+          "mean": 0.09207317073170732,
+          "range": [
+            0.06097560975609756,
+            0.12804878048780488
+          ]
+        },
+        "SS": {
+          "mean": 0.0006097560975609756,
+          "range": [
+            0,
+            0.006097560975609756
+          ]
+        },
+        "arcane": {
+          "mean": 0.11646341463414636,
+          "range": [
+            0.07926829268292683,
+            0.16463414634146342
+          ]
+        },
+        "twoPowers": {
+          "mean": 0.48353658536585364,
+          "range": [
+            0.4268292682926829,
+            0.5304878048780488
+          ]
+        }
+      }
+    ],
+    "titles": {
+      "melee": {
+        "titles": 125,
+        "titleShare": 0.4166666666666667,
+        "entrants": 2796,
+        "entrantShare": 0.5825,
+        "gapPoints": -16.583333333333332
+      },
+      "arcane": {
+        "titles": 91,
+        "titleShare": 0.30333333333333334,
+        "entrants": 789,
+        "entrantShare": 0.164375,
+        "gapPoints": 13.895833333333336
+      },
+      "ranged": {
+        "titles": 84,
+        "titleShare": 0.28,
+        "entrants": 1215,
+        "entrantShare": 0.253125,
+        "gapPoints": 2.6875000000000036
+      }
+    },
+    "leagueDraws": {
+      "mean": 0.014781509570241966,
+      "range": [
+        0.010184182015167931,
+        0.019266883351390394
+      ]
+    },
+    "startingSide": {
+      "meanOfWorldShares": 0.5016905353330565,
+      "range": [
+        0.496893510172547,
+        0.5062492998543697
+      ]
+    },
+    "medianSeconds": [
+      15,
+      16.6
+    ],
+    "p90Seconds": [
+      34.8,
+      43.7
+    ],
+    "careerExits": 50,
+    "peakDeferred": 7,
+    "maxOverdueSeasons": 0
+  },
+  "syntheticCareers": {
+    "runs": 20,
+    "seasonsEach": 100,
+    "peakDeferred": 77,
+    "maxWait": 15
+  },
+  "styles": {
+    "arcane vs melee": {
+      "v10": 0.686,
+      "v9": 0.8373333333333334
+    },
+    "ranged vs melee": {
+      "v10": 0.5906666666666667,
+      "v9": 0.6533333333333333
+    },
+    "arcane vs ranged": {
+      "v10": 0.3923333333333333,
+      "v9": 0.522
+    }
+  },
+  "powerScores": [
+    {
+      "ability": "Chain lightning",
+      "fights": 6144,
+      "score": 0.6767578125
+    },
+    {
+      "ability": "Storm calling",
+      "fights": 6144,
+      "score": 0.6720377604166666
+    },
+    {
+      "ability": "Death command",
+      "fights": 6144,
+      "score": 0.65576171875
+    },
+    {
+      "ability": "Regeneration",
+      "fights": 6144,
+      "score": 0.623779296875
+    },
+    {
+      "ability": "Light manipulation",
+      "fights": 6144,
+      "score": 0.6229654947916666
+    },
+    {
+      "ability": "Future sight",
+      "fights": 6144,
+      "score": 0.5939127604166666
+    },
+    {
+      "ability": "Arcane silence",
+      "fights": 6144,
+      "score": 0.5694986979166666
+    },
+    {
+      "ability": "Singularity",
+      "fights": 6144,
+      "score": 0.5664876302083334
+    },
+    {
+      "ability": "Reality bending",
+      "fights": 6144,
+      "score": 0.546875
+    },
+    {
+      "ability": "Phoenix rebirth",
+      "fights": 6144,
+      "score": 0.4650065104166667
+    },
+    {
+      "ability": "Mirror barrier",
+      "fights": 6144,
+      "score": 0.4488118489583333
+    },
+    {
+      "ability": "Shapeshifting",
+      "fights": 6144,
+      "score": 0.4346516927083333
+    },
+    {
+      "ability": "Portal creation",
+      "fights": 6144,
+      "score": 0.3749186197916667
+    },
+    {
+      "ability": "Temporal rewind",
+      "fights": 6144,
+      "score": 0.3748372395833333
+    },
+    {
+      "ability": "Mind reading",
+      "fights": 6144,
+      "score": 0.220947265625
+    },
+    {
+      "ability": "No power",
+      "fights": 6144,
+      "score": 0.15275065104166666
+    }
+  ],
+  "flags": [
+    {
+      "metric": "Comparable-total arcane vs melee",
+      "value": 0.686,
+      "band": [
+        0.45,
+        0.6
+      ],
+      "withinBand": false
+    },
+    {
+      "metric": "Comparable-total ranged vs melee",
+      "value": 0.5906666666666667,
+      "band": [
+        0.45,
+        0.6
+      ],
+      "withinBand": true
+    },
+    {
+      "metric": "Arcane main-cup title/entrant gap in points",
+      "value": 13.895833333333336,
+      "band": [
+        -15,
+        15
+      ],
+      "withinBand": true
+    },
+    {
+      "metric": "Season-30 mean A+",
+      "value": 0.29999999999999993,
+      "band": [
+        0.25,
+        0.45
+      ],
+      "withinBand": true
+    },
+    {
+      "metric": "Season-30 mean S+",
+      "value": 0.09207317073170732,
+      "band": [
+        0.1,
+        0.25
+      ],
+      "withinBand": false
+    },
+    {
+      "metric": "Mythic SS rolls",
+      "value": 0.0105,
+      "band": [
+        0.02,
+        0.08
+      ],
+      "withinBand": false
+    },
+    {
+      "metric": "Mythic exact top primary-trait probability",
+      "value": 0.5243019648397105,
+      "band": [
+        0.35,
+        0.5
+      ],
+      "withinBand": false
+    },
+    {
+      "metric": "Highest selected power score",
+      "value": 0.6767578125,
+      "band": [
+        0,
+        0.7
+      ],
+      "withinBand": true
+    }
+  ]
+}

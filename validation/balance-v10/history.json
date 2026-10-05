@@ -1,0 +1,52 @@
+{
+  "combatVersion": 10,
+  "engineFingerprint": "17f6e5eddf615f53b2b3bd9e23f830c57a17530cc315f57bc37ff2b1d2d3c3bf",
+  "generationVersion": 2,
+  "seed": 20264005,
+  "fights": 4512,
+  "seconds": 32.4123315,
+  "replayMatches": 3000,
+  "medianSeconds": 15.2,
+  "p90Seconds": 33.6,
+  "groups": [
+    {
+      "variant": "v9-replay",
+      "fights": 3000,
+      "score": 0.48583333333333334,
+      "draws": 0.0016666666666666668,
+      "seconds": 19.592800000000025
+    },
+    {
+      "ability": "Light manipulation",
+      "variant": "with",
+      "fights": 432,
+      "score": 0.5509259259259259,
+      "draws": 0,
+      "seconds": 17.258333333333326
+    },
+    {
+      "ability": "Portal creation",
+      "variant": "with",
+      "fights": 324,
+      "score": 0.5524691358024691,
+      "draws": 0,
+      "seconds": 15.776234567901232
+    },
+    {
+      "ability": "Light manipulation",
+      "variant": "without",
+      "fights": 432,
+      "score": 0.4837962962962963,
+      "draws": 0,
+      "seconds": 17.514120370370367
+    },
+    {
+      "ability": "Portal creation",
+      "variant": "without",
+      "fights": 324,
+      "score": 0.5555555555555556,
+      "draws": 0,
+      "seconds": 15.498765432098766
+    }
+  ]
+}
