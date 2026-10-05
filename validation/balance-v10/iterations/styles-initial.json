@@ -1,0 +1,61 @@
+{
+  "combatVersion": 10,
+  "engineFingerprint": "54bfd3b3194dc1dcc57c6ba3d1b93a17c4d7cf86590a1b01b7668d231a05703e",
+  "generationVersion": 2,
+  "seed": 20264005,
+  "fights": 9000,
+  "seconds": 29.1005148,
+  "replayMatches": 0,
+  "medianSeconds": 20,
+  "p90Seconds": 43.7,
+  "groups": [
+    {
+      "comparison": "ranged vs melee",
+      "variant": "v9",
+      "fights": 1500,
+      "score": 0.6533333333333333,
+      "draws": 0,
+      "seconds": 23.4802666666667
+    },
+    {
+      "comparison": "arcane vs melee",
+      "variant": "v9",
+      "fights": 1500,
+      "score": 0.8373333333333334,
+      "draws": 0.0013333333333333333,
+      "seconds": 14.015000000000013
+    },
+    {
+      "comparison": "arcane vs ranged",
+      "variant": "v9",
+      "fights": 1500,
+      "score": 0.522,
+      "draws": 0.008,
+      "seconds": 33.256133333333324
+    },
+    {
+      "comparison": "ranged vs melee",
+      "variant": "v10",
+      "fights": 1500,
+      "score": 0.6193333333333333,
+      "draws": 0,
+      "seconds": 21.124799999999997
+    },
+    {
+      "comparison": "arcane vs melee",
+      "variant": "v10",
+      "fights": 1500,
+      "score": 0.704,
+      "draws": 0,
+      "seconds": 15.047666666666679
+    },
+    {
+      "comparison": "arcane vs ranged",
+      "variant": "v10",
+      "fights": 1500,
+      "score": 0.394,
+      "draws": 0.014666666666666666,
+      "seconds": 37.3343333333333
+    }
+  ]
+}

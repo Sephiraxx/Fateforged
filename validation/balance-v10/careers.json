@@ -1,0 +1,147 @@
+{
+  "runs": 20,
+  "seasonsPerRun": 100,
+  "syntheticStandings": true,
+  "careerRuns": [
+    {
+      "transition": false,
+      "trial": 0,
+      "peakDeferred": 72,
+      "maxWait": 14,
+      "finalDeferred": 7
+    },
+    {
+      "transition": false,
+      "trial": 1,
+      "peakDeferred": 77,
+      "maxWait": 15,
+      "finalDeferred": 4
+    },
+    {
+      "transition": false,
+      "trial": 2,
+      "peakDeferred": 70,
+      "maxWait": 13,
+      "finalDeferred": 0
+    },
+    {
+      "transition": false,
+      "trial": 3,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 0
+    },
+    {
+      "transition": false,
+      "trial": 4,
+      "peakDeferred": 74,
+      "maxWait": 14,
+      "finalDeferred": 6
+    },
+    {
+      "transition": false,
+      "trial": 5,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 1
+    },
+    {
+      "transition": false,
+      "trial": 6,
+      "peakDeferred": 73,
+      "maxWait": 14,
+      "finalDeferred": 0
+    },
+    {
+      "transition": false,
+      "trial": 7,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 1
+    },
+    {
+      "transition": false,
+      "trial": 8,
+      "peakDeferred": 73,
+      "maxWait": 14,
+      "finalDeferred": 4
+    },
+    {
+      "transition": false,
+      "trial": 9,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 4
+    },
+    {
+      "transition": true,
+      "trial": 0,
+      "peakDeferred": 73,
+      "maxWait": 14,
+      "finalDeferred": 0
+    },
+    {
+      "transition": true,
+      "trial": 1,
+      "peakDeferred": 70,
+      "maxWait": 13,
+      "finalDeferred": 0
+    },
+    {
+      "transition": true,
+      "trial": 2,
+      "peakDeferred": 71,
+      "maxWait": 14,
+      "finalDeferred": 2
+    },
+    {
+      "transition": true,
+      "trial": 3,
+      "peakDeferred": 72,
+      "maxWait": 14,
+      "finalDeferred": 8
+    },
+    {
+      "transition": true,
+      "trial": 4,
+      "peakDeferred": 72,
+      "maxWait": 14,
+      "finalDeferred": 1
+    },
+    {
+      "transition": true,
+      "trial": 5,
+      "peakDeferred": 72,
+      "maxWait": 14,
+      "finalDeferred": 0
+    },
+    {
+      "transition": true,
+      "trial": 6,
+      "peakDeferred": 76,
+      "maxWait": 15,
+      "finalDeferred": 6
+    },
+    {
+      "transition": true,
+      "trial": 7,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 6
+    },
+    {
+      "transition": true,
+      "trial": 8,
+      "peakDeferred": 75,
+      "maxWait": 14,
+      "finalDeferred": 1
+    },
+    {
+      "transition": true,
+      "trial": 9,
+      "peakDeferred": 72,
+      "maxWait": 14,
+      "finalDeferred": 3
+    }
+  ]
+}

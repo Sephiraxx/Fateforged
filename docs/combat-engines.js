@@ -1,7 +1,7 @@
 import {Battle,simulate} from './combat.js';
 import {Battle as V9,simulate as simulate9} from './combat-v9.js';
 export const CURRENT_COMBAT_VERSION=10;
-export const tournamentEngine=s=>s.engineVersion??s.history.find(m=>m.results?.length)?.results[0].combatVersion??10;
+export const tournamentEngine=s=>{const first=s.history.find(m=>m.results?.length);return s.engineVersion??(first?first.results[0].combatVersion??1:10);};
 const engines=new Map([[10,{Battle,simulate}],[9,{Battle:V9,simulate:simulate9}]]);
 export async function loadCombatEngine(version){
  if(!engines.has(version)){

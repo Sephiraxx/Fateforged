@@ -4,7 +4,7 @@ export function random(seed){let n=seed>>>0;return()=>{n+=0x6D2B79F5;let t=n;t=M
 export const weaponFor=name=>{
  const n=(name||'Bare hands').toLowerCase();let sprite=15,range=29,damage=1,interval=1,type='melee';
  if(/bow|gun|rifle|revolver|throwing|chakram/.test(n)){type='ranged';range=230;sprite=/crossbow/.test(n)?6:/gun|rifle|revolver/.test(n)?9:5;damage=.86;interval=1.15;}
- else if(/wand|orb|spellbook|^staff$/.test(n)){type='arcane';range=185;sprite=/wand|orb/.test(n)?8:7;damage=.9;}
+ else if(/wand|orb|spellbook|^staff$/.test(n)){type='arcane';range=185;sprite=/wand|orb/.test(n)?8:7;damage=.9;interval=1.10;}
  else if(/shield/.test(n)){sprite=10;damage=.85;range=34;}
  else if(/trident/.test(n)){sprite=14;range=52;}
  else if(/spear|halberd|quarterstaff/.test(n)){sprite=/staff/.test(n)?7:3;range=50;interval=1.08;}
@@ -34,7 +34,7 @@ export function powerFor(name){const n=(name||'').toLowerCase();if(!n||/^no (sec
  if(/spirit|soul|beast/.test(n))return {name,type:'spirit',sprite:4};
  return {name,type:'void',sprite:4};
 }
-export function fighterProfile(character){const s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||character.state?.traits||{},w=weaponFor(traits.weapon),powers=[traits.power,traits.power2].map(powerFor).filter(Boolean),weak=(traits.weakness||'').toLowerCase();return {id:character.id,name:character.name,traits,stats:character.summary?.stats||[0,0,0,0,0],weapon:w,powers,maxHp:110+s[2]*13,armor:Math.min(.65,s[2]/(s[2]+70)),damage:(9+s[0]*1.7)*w.damage,move:48+s[1]*3.3,interval:Math.max(.26,1.15/(1+s[1]/36))*w.interval,accuracy:.76+Math.min(.2,s[3]/130),dodge:Math.min(.25,s[1]/190+s[3]/300),crit:Math.min(.3,s[3]/160),tactics:Math.min(1,s[3]/28),spell:12+s[4]*2.3,maxMana:20+s[4]*5,magic:s[4],weakness:weak};}
+export function fighterProfile(character){const s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||character.state?.traits||{},w=weaponFor(traits.weapon),powers=[traits.power,traits.power2].map(powerFor).filter(Boolean),weak=(traits.weakness||'').toLowerCase();return {id:character.id,name:character.name,traits,stats:character.summary?.stats||[0,0,0,0,0],weapon:w,powers,maxHp:110+s[2]*13,armor:Math.min(.65,s[2]/(s[2]+70)),damage:(9+s[0]*1.7)*w.damage,move:(48+s[1]*3.3)*(/tower shield/i.test(w.name)?.92:1),interval:Math.max(.26,1.15/(1+s[1]/36))*w.interval,accuracy:.76+Math.min(.2,s[3]/130),dodge:Math.min(.25,s[1]/190+s[3]/300),crit:Math.min(.3,s[3]/160),tactics:Math.min(1,s[3]/28),spell:12+s[4]*2.3,maxMana:20+s[4]*5,magic:s[4],weakness:weak};}
 export class Battle{
  constructor(a,b,seed=1,{night=false}={}){this.seed=seed;this.rng=random(seed);this.time=0;this.done=false;this.winner=null;this.events=[];this.effects=[];this.projectiles=[];this.night=night;this.fighters=[a,b].map((c,i)=>{const p=fighterProfile(c);return {...p,side:i,x:i?440:160,y:300+(i?20:-20),radius:9,hp:p.maxHp,mana:p.maxMana,cooldown:.2+i*.12,cast:1+i*.5,powerIndex:0,slow:0,burn:0,shield:0,evade:0,angle:0,swing:0,damageDone:0};});}
  effect(sprite,x,y,size=32){this.effects.push({sprite,x,y,size,life:.5,max:.5});}

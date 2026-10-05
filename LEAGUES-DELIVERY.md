@@ -1,5 +1,7 @@
 # Fateforged leagues, fixtures and phase saves — October 5
 
+**Historical delivery note:** the values and deferred testing below describe the earlier league/cup update. The current generation, intake, career and combat changes and their validation are documented in [BALANCE-V10.md](BALANCE-V10.md).
+
 The cup-round follow-up starts from current main `56c5a5e`, which includes the merged league, fixture and themed-cup changes from PR #2. No additional schema migration is needed.
 
 The current updates are committed for testing at the user's request, including the fixture-view and phase-checkpoint follow-up. **No tests, browser checks, or performance benchmarks were run for this update.** Earlier passing results in `validation/checks.json` and `validation/league-combat.json` belong to commit `8cc5277`; they do not validate these changes. Both reports are marked accordingly. The combat engine's mechanics, stat balance and replay versions remain unchanged.

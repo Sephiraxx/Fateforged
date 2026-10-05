@@ -1,0 +1,452 @@
+{
+  "combatVersion": 10,
+  "engineFingerprint": "17f6e5eddf615f53b2b3bd9e23f830c57a17530cc315f57bc37ff2b1d2d3c3bf",
+  "generationVersion": 2,
+  "seed": 20264005,
+  "sampleSeed": 314159265,
+  "samples": {
+    "ordinary": {
+      "fighters": 50000,
+      "Aplus": 0.05778,
+      "Splus": 0.01838,
+      "SS": 0.00014,
+      "mean": 645.4136,
+      "twoPowers": 0.2302,
+      "arcane": 0.0956,
+      "weaknesses": {
+        "Loses power at night": 1913,
+        "Fragile body": 1970,
+        "Loses power in daylight": 1947,
+        "Silenced casting": 1853,
+        "Fire": 1912,
+        "Overconfidence": 1891,
+        "Poison": 1982,
+        "Holy magic": 1944,
+        "Water": 1922,
+        "Slow recovery": 1973,
+        "Power has a cooldown": 1919,
+        "Needs constant food": 1918,
+        "Uncontrollable rage": 1969,
+        "Extreme cold": 1880,
+        "Silver": 1842,
+        "Memory loss": 1965,
+        "A cursed relic": 1856,
+        "Exhaustion": 2009,
+        "Cold iron": 1897,
+        "Limited stamina": 1959,
+        "Power needs a sacrifice": 1887,
+        "Sunlight": 1957,
+        "Short power duration": 1849,
+        "Loud sounds": 1905,
+        "Anti-magic": 1932,
+        "Cannot harm the innocent": 1949
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.0503
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.05154
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.04988
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.05088
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.04992
+        }
+      }
+    },
+    "common": {
+      "fighters": 10000,
+      "Aplus": 0.0003,
+      "Splus": 0,
+      "SS": 0,
+      "mean": 420.3756,
+      "twoPowers": 0.1375,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.0093,
+          "exactShare": 0.010101010101010102
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.0104,
+          "exactShare": 0.010101010101010102
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.0111,
+          "exactShare": 0.010101010101010102
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.0093,
+          "exactShare": 0.010101010101010102
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.009,
+          "exactShare": 0.010101010101010102
+        }
+      }
+    },
+    "uncommon": {
+      "fighters": 10000,
+      "Aplus": 0.0031,
+      "Splus": 0.0002,
+      "SS": 0,
+      "mean": 600.972,
+      "twoPowers": 0.2213,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.0315,
+          "exactShare": 0.031746031746031744
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.0297,
+          "exactShare": 0.031746031746031744
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.0333,
+          "exactShare": 0.031746031746031744
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.0332,
+          "exactShare": 0.031746031746031744
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.0287,
+          "exactShare": 0.031746031746031744
+        }
+      }
+    },
+    "rare": {
+      "fighters": 10000,
+      "Aplus": 0.0424,
+      "Splus": 0.001,
+      "SS": 0,
+      "mean": 866.6662,
+      "twoPowers": 0.3314,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.081,
+          "exactShare": 0.077663772691397
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.0737,
+          "exactShare": 0.077663772691397
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.0787,
+          "exactShare": 0.077663772691397
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.0826,
+          "exactShare": 0.077663772691397
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.0738,
+          "exactShare": 0.077663772691397
+        }
+      }
+    },
+    "unique": {
+      "fighters": 10000,
+      "Aplus": 0.259,
+      "Splus": 0.0221,
+      "SS": 0,
+      "mean": 1250.9399,
+      "twoPowers": 0.4686,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.1672,
+          "exactShare": 0.1676797627872498
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.1616,
+          "exactShare": 0.1676797627872498
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.1681,
+          "exactShare": 0.1676797627872498
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.1714,
+          "exactShare": 0.1676797627872498
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.1689,
+          "exactShare": 0.1676797627872498
+        }
+      }
+    },
+    "legendary": {
+      "fighters": 10000,
+      "Aplus": 0.853,
+      "Splus": 0.3353,
+      "SS": 0.0013,
+      "mean": 1921.62,
+      "twoPowers": 0.659,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.3795,
+          "exactShare": 0.3813192861073984
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.3658,
+          "exactShare": 0.3813192861073984
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.3838,
+          "exactShare": 0.3813192861073984
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.3809,
+          "exactShare": 0.3813192861073984
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.385,
+          "exactShare": 0.3813192861073984
+        }
+      }
+    },
+    "mythic": {
+      "fighters": 10000,
+      "Aplus": 0.9849,
+      "Splus": 0.7051,
+      "SS": 0.0105,
+      "mean": 2279.4579,
+      "twoPowers": 0.7269,
+      "arcane": 0.0977,
+      "weaknesses": {
+        "Memory loss": 344,
+        "Slow recovery": 426,
+        "A cursed relic": 373,
+        "Fire": 383,
+        "Extreme cold": 397,
+        "Poison": 422,
+        "Fragile body": 405,
+        "Water": 353,
+        "Cannot harm the innocent": 449,
+        "Sunlight": 368,
+        "Power has a cooldown": 384,
+        "Limited stamina": 393,
+        "Loses power in daylight": 357,
+        "Uncontrollable rage": 411,
+        "Holy magic": 380,
+        "Cold iron": 379,
+        "Loses power at night": 366,
+        "Silenced casting": 364,
+        "Anti-magic": 378,
+        "Needs constant food": 371,
+        "Short power duration": 431,
+        "Power needs a sacrifice": 395,
+        "Exhaustion": 374,
+        "Silver": 377,
+        "Overconfidence": 354,
+        "Loud sounds": 366
+      },
+      "topPrimary": {
+        "strength": {
+          "name": "Cosmic strength",
+          "sampledShare": 0.519,
+          "exactShare": 0.5243019648397105
+        },
+        "speed": {
+          "name": "Beyond time",
+          "sampledShare": 0.5092,
+          "exactShare": 0.5243019648397105
+        },
+        "durability": {
+          "name": "Indestructible",
+          "sampledShare": 0.5298,
+          "exactShare": 0.5243019648397105
+        },
+        "iq": {
+          "name": "All-knowing",
+          "sampledShare": 0.5207,
+          "exactShare": 0.5243019648397105
+        },
+        "magic": {
+          "name": "Limitless magic",
+          "sampledShare": 0.5271,
+          "exactShare": 0.5243019648397105
+        }
+      }
+    }
+  }
+}

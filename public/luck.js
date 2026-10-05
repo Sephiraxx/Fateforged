@@ -5,8 +5,8 @@ const WHEEL_LUCK=(()=>{
   {id:'uncommon',label:'Uncommon',chance:25,boost:1.2},
   {id:'rare',label:'Rare',chance:15,boost:2.3},
   {id:'unique',label:'Unique',chance:6,boost:3.5},
-  {id:'legendary',label:'Legendary',chance:3,boost:5},
-  {id:'mythic',label:'Mythic',chance:1,boost:6.5}
+  {id:'legendary',label:'Legendary',chance:3,boost:5.6},
+  {id:'mythic',label:'Mythic',chance:1,boost:7.2}
  ].map(Object.freeze));
  const info=id=>tiers.find(t=>t.id===id)||tiers[0];
  const isNoPower=name=>/^no (second )?power$/i.test(String(name).trim());

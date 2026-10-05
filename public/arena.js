@@ -19,7 +19,7 @@ const profileContributions=new Map();
 const pendingDuelRecords=new Map();
 const cupSimulation=createSimulationPool();
 const replayEngines=new Map([[10,Battle]]);
-async function loadReplayEngine(version){if(!replayEngines.has(version)){const {Battle:Engine}=await import(version===1?'./combat-v1.js':version===2?'./combat-v2.js':version===4?'./combat-v4.js':version===5?'./combat-v5.js':version===6?'./combat-v6.js':version===7?'./combat-v7.js':version===8?'./combat-v8.js':version===9?'./combat-v9.js':'./combat-v3.js');replayEngines.set(version,Engine);}}
+async function loadReplayEngine(version){if(!Number.isInteger(version)||version<1||version>10)throw Error('Unsupported saved combat engine.');if(!replayEngines.has(version)){const {Battle:Engine}=await import(version===1?'./combat-v1.js':version===2?'./combat-v2.js':version===4?'./combat-v4.js':version===5?'./combat-v5.js':version===6?'./combat-v6.js':version===7?'./combat-v7.js':version===8?'./combat-v8.js':version===9?'./combat-v9.js':'./combat-v3.js');replayEngines.set(version,Engine);}}
 let arenaVisibleLimit=80,arenaFilterKey='',tournamentDirty=false;
 let needsDraw=true,bulkBusy=false,leagueBusy=false;
 let tournamentNames=[],suggestedName='',nameEdited=false,stageTips=[];
@@ -142,7 +142,7 @@ function renderStageResults(){
  }
 }
 
-async function watchNext(){if(series||resolving||leagueBusy||!tournament||tournament.done)return;const m={...nextMatch(tournament),engineVersion:tournamentEngine(tournament)},a=tournament.roster.find(c=>c.id===m.a),b=tournament.roster.find(c=>c.id===m.b),ko=['single','double'].includes(tournament.stages[tournament.stageIndex].type)||thresholdSwiss(tournament),stage=tournament.stageIndex;await loadReplayEngine(m.engineVersion);beginSeries(a,b,m,m.seed,conditionsFor(tournament),ko,m.label,results=>{recordMatch(tournament,m,results);tournamentDirty=true;renderTournament();if(tournament.done||tournament.stageIndex!==stage)queueSave();else $('tourney-save-status').textContent='Progress stays in this tab until the stage ends. Use Save progress for an earlier checkpoint.';});renderTournament();}
+async function watchNext(){if(series||resolving||leagueBusy||!tournament||tournament.done)return;const m={...nextMatch(tournament),engineVersion:tournamentEngine(tournament)},a=tournament.roster.find(c=>c.id===m.a),b=tournament.roster.find(c=>c.id===m.b),ko=['single','double'].includes(tournament.stages[tournament.stageIndex].type)||thresholdSwiss(tournament),stage=tournament.stageIndex;await loadReplayEngine(m.engineVersion);if(series||resolving||leagueBusy)return;beginSeries(a,b,m,m.seed,conditionsFor(tournament),ko,m.label,results=>{recordMatch(tournament,m,results);tournamentDirty=true;renderTournament();if(tournament.done||tournament.stageIndex!==stage)queueSave();else $('tourney-save-status').textContent='Progress stays in this tab until the stage ends. Use Save progress for an earlier checkpoint.';});renderTournament();}
 async function replayMatch(m){if(series||resolving)return;await loadReplayEngine(m.results[0]?.combatVersion||1);if(series||resolving)return;const a=tournament.roster.find(c=>c.id===m.a),b=tournament.roster.find(c=>c.id===m.b);beginSeries(a,b,{legs:m.results.length,allowDraw:m.allowDraw},m.seed,conditionsFor(tournament),false,'Replay: '+m.label,()=>renderTournament(),m.results[0]?.combatVersion||1,m.results.map(r=>r.environment));}
 async function resolve(mode){
  if(series||resolving||leagueBusy||!tournament||tournament.done)return;

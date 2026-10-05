@@ -21,6 +21,7 @@ async function leagueApi(request,env,url){
  let world=row?LEAGUES.prepare(await decodeTournament(row.state_json)):null,newFighters=[],archive=null,played=[];
  if(input.action==='start'||input.action==='freshStart'){
   if(world&&input.action==='start')fail('Your league system already exists. Refresh to continue it.',409);if(input.action==='freshStart'){if(!world)fail('Start the league system first.');if(world.phase!=='complete'&&(world.history.length>0))fail('Finish the current season before starting a fresh world.');archive={...structuredClone(world),standings:world.divisions.map((_,d)=>LEAGUES.standings(world,d)),movement:[],retired:[],replacements:[],closedWorld:true};}if(!UUID.test(input.worldId))fail('Invalid league ID.');
+  if(input.action==='freshStart'&&(input.worldId===world.id||await env.DB.prepare('SELECT world_id FROM league_seasons WHERE owner_id = ? AND world_id = ? LIMIT 1').bind(owner,input.worldId).first()))fail('Use a new world ID so previous seasons remain distinct.');
   let settings;try{settings=LEAGUES.settings(input.settings);}catch(e){fail(e.message);}
   for(let i=0;i<LEAGUES.totalFighters;i++)newFighters.push(makeLeagueFighter());world=LEAGUES.create(input.worldId,newFighters.map(f=>f.character),crypto.getRandomValues(new Uint32Array(1))[0],settings);
  }else if(!world)fail('Start the league system first.',409);

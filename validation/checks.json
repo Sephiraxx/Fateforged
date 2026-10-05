@@ -4,7 +4,12 @@
     {
       "file": "check-arena-ui.mjs",
       "passed": true,
-      "seconds": 0.8
+      "seconds": 0.7
+    },
+    {
+      "file": "check-balance-v10.mjs",
+      "passed": true,
+      "seconds": 6
     },
     {
       "file": "check-bulk-characters.mjs",
@@ -14,7 +19,7 @@
     {
       "file": "check-fighter-growth.mjs",
       "passed": true,
-      "seconds": 0.5
+      "seconds": 0.4
     },
     {
       "file": "check-group-scheduling.mjs",
@@ -24,7 +29,12 @@
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 23.7
+      "seconds": 25.5
+    },
+    {
+      "file": "check-league-fixtures.mjs",
+      "passed": true,
+      "seconds": 1.6
     },
     {
       "file": "check-league-pages.mjs",
@@ -34,37 +44,37 @@
     {
       "file": "check-leagues.mjs",
       "passed": true,
-      "seconds": 68.3
+      "seconds": 3
     },
     {
       "file": "check-luck.mjs",
       "passed": true,
-      "seconds": 4.1
+      "seconds": 3.2
     },
     {
       "file": "check-match-records.mjs",
       "passed": true,
-      "seconds": 0.4
+      "seconds": 0.2
     },
     {
       "file": "check-pages.mjs",
       "passed": true,
-      "seconds": 2.5
+      "seconds": 1.2
     },
     {
       "file": "check-requested-reset.mjs",
       "passed": true,
-      "seconds": 0.2
+      "seconds": 0.1
     },
     {
       "file": "check-rewind.mjs",
       "passed": true,
-      "seconds": 5.3
+      "seconds": 4.1
     },
     {
       "file": "check-roster-performance.mjs",
       "passed": true,
-      "seconds": 0.9
+      "seconds": 0.8
     },
     {
       "file": "check-roster-view.mjs",
@@ -74,12 +84,12 @@
     {
       "file": "check-series.mjs",
       "passed": true,
-      "seconds": 0.8
+      "seconds": 2
     },
     {
       "file": "check-singularity.mjs",
       "passed": true,
-      "seconds": 6.5
+      "seconds": 5.2
     },
     {
       "file": "check-stage-recommendations.mjs",
@@ -101,8 +111,5 @@
       "passed": true,
       "seconds": 0.3
     }
-  ],
-  "validatedCommit": "8cc5277",
-  "scope": "Previous seven-by-twenty implementation only; October 5 roster/cup/scoring/performance update has not been tested.",
-  "currentChangesTested": false
+  ]
 }

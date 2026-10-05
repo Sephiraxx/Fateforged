@@ -14,7 +14,7 @@ export class Battle extends PreviousBattle{
  threatened(f,t){return Math.hypot(t.x-f.x,t.y-f.y)<t.weapon.range+35||this.projectiles.some(p=>p.owner!==f.side&&Math.hypot(p.x-f.x,p.y-f.y)<130);}
  usefulPortal(f,t){const desired=this.preferredRange(f),exit=f.gates[1],current=Math.hypot(t.x-f.x,t.y-f.y),next=Math.hypot(t.x-exit.x,t.y-exit.y);return Math.abs(current-desired)-Math.abs(next-desired)>=25||this.threatened(f,t)&&next>current+25;}
  periodicHit(f,t,amount,type){this.hitContext={periodic:true};const hit=this.hurt(t,f,amount,type,false);this.hitContext=null;return hit;}
- powerCost(p){return ['light','future'].includes(p.id)?12:p.rarity==='Legendary'?25:p.rarity==='Rare'?15:9;}
+ powerCost(p){return ['light','future'].includes(p.id)?12:['ember','frostTouch','kinetic','venom','silence','mirror','chainLightning','phoenix','rewind','singularity'].includes(p.id)?p.rarity==='Legendary'?25:p.rarity==='Rare'?15:9:9;}
  powerPriority(f,t,p){
   const distance=Math.hypot(t.x-f.x,t.y-f.y),threat=this.threatened(f,t),weak=f.weakness;
   if(f.mana<this.powerCost(p)||weak==='silenced casting'&&p.voice||this.night&&weak==='loses power at night'||!this.night&&weak==='loses power in daylight'||weak==='power needs a sacrifice'&&f.hp<=f.maxHp*.03)return -1;
@@ -28,6 +28,9 @@ export class Battle extends PreviousBattle{
   if(p.id==='mind')return f.insight<=.5&&(t.invisible>0||t.illusionTime>0||this.projectiles.some(x=>x.owner!==f.side))?65:-1;
   if(p.id==='shapeshift')return f.shape<=.5&&(f.weapon.type==='melee'?distance<=90:distance<=60&&(f.rollCooldown>0||f.energy<18))?60:-1;
   if(p.id==='portal')return f.portalTime<=.5?40:-1;
+  if(p.id==='life')return (f.hp<=f.maxHp*.85||f.nutrition<60)&&!this.zones.some(z=>z.owner===f.side&&z.type==='life'&&z.life>.5)?70:-1;
+  if(p.id==='gravity'&&this.zones.some(z=>z.owner===f.side&&z.type==='gravity'&&z.life>.5&&Math.hypot(t.x-z.x,t.y-z.y)<z.radius))return -1;
+  if(['beast','spirits'].includes(p.id)&&this.summons.some(s=>s.owner===f.side&&s.type===(p.id==='beast'?'beast':'spirit')&&s.life>.5))return -1;
   if(p.id==='rewind'&&f.anchor){const a=f.anchor;return Math.max(0,a.hp-f.hp)*REWIND_HEALTH_RECOVERY>=f.maxHp*.08||Math.max(0,a.mana-f.mana)*REWIND_MANA_RECOVERY>=f.maxMana*.20||harmful.some(k=>f[k]>.5)||threat&&Math.hypot(t.x-a.x,t.y-a.y)>distance+50?95:-1;}
   const control={time:'chrono',memory:'amnesia',soul:'soul',shadow:'invisible'};if(control[p.id]&&(p.id==='shadow'?f:t)[control[p.id]]>.5)return -1;
   return p.id==='rewind'?45:50;
@@ -38,9 +41,9 @@ export class Battle extends PreviousBattle{
   const p=f.selectedPower;if(!p||this.powerPriority(f,t,p)<0)return;
   f.selectedPower=null;f.castCount++;f.powerIndex++;
   if(f.weakness==='memory loss'&&f.castCount%3===0){f.mana-=4;f.cast=1.5;this.log(`${f.name} forgets the attempted power.`);return;}
-  f.mana-=this.powerCost(p);f.cast=(f.weakness==='power has a cooldown'?7:4.2)/(1+f.magic/70);f.powerUsed[p.id]=this.time;
+  const cost=this.powerCost(p);f.mana-=9;f.cast=(f.weakness==='power has a cooldown'?7:4.2)/(1+f.magic/70);f.powerUsed[p.id]=this.time;
   if(f.weakness==='power needs a sacrifice')f.hp-=f.maxHp*.03;
-  this.log(`${f.name} used ${p.name}.`);this.effect(p.sprite,f.x,f.y,36);this.usePower(f,t,p);
+  this.log(`${f.name} used ${p.name}.`);this.effect(p.sprite,f.x,f.y,36);this.usePower(f,t,p);f.mana=Math.max(0,f.mana-(cost-9));
  }
  moveFighter(f,t,dt){super.moveFighter(f,t,dt);if(f.action?.type==='cast')f.actionLabel='Casting '+f.action.power.name;}
  updateAttack(f,t,dt){

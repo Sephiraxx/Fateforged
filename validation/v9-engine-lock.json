@@ -1,0 +1,13 @@
+{
+  "source": "origin/main at f9d5d58",
+  "normalizedSHA256": {
+    "combat-v9.js": "88dc77eb92e0b1611bbd68c4c1a09a97e0997db857bc1c359e57a8a1e23eaeb9",
+    "combat-v8.js": "1615d1e96d6a3bad030bdc374876cccc704530d43ede99d972fd2f2ed6b04529",
+    "combat-base-v6.js": "5fcd4074f5b0d064b2ba3fb1ccef93708d77c4581e79f66b93d56199424a456a",
+    "combat-v2.js": "f116f2fe9242a4227da68cd936273a1ad5c4bdc76b51de66908c715cfe32e7f8",
+    "combat-v1.js": "26a700d2a606d58eb0228373673951ba64f1e447ce6fbed5dfa174d626552154",
+    "abilities.js": "d19f69b0c3fcdf658a1795d792ffefc1a4d7e7d306617929cdf9d060d55ec1bf",
+    "conditions.js": "12c0c677433a8a2710f08f02e9a470fe01cbf5e34318f3e3987e8935ca61c77d",
+    "series.js": "4ddc34f41929363df3a00eb29890bb6b3737f1bf02c8f4844580f32f718e1ccc"
+  }
+}

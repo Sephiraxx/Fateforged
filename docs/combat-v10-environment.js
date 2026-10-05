@@ -10,7 +10,7 @@ const segmentDistance=(px,py,ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,t=clamp(((px
 const TIMERS=['wet','root','sleep','poison','bleed','regeneration','absorption','flight','invisible','insight','blind','amnesia','suppressed','disarmed','spiritArmor','shape','sizeTime','soul','chrono','deathMark','winded','illusionTime','portalTime','wardTime','futureTime'];
 export class Battle extends PreviousBattle{
  constructor(a,b,seed=1,options={}){const conditions=resolveConditions(seed,options.conditions??(options.time?options:{time:options.night?'night':'day'}));super(a,b,seed,{...options,night:conditions.time==='night'});this.environment=conditions;this.zones=[];this.obstacles=[];this.summons=[];this.portals=[];this.wisps=[{x:125,y:460,hp:24,phase:0},{x:475,y:140,hp:24,phase:Math.PI}];this.food=[{x:110,y:110,ready:0},{x:490,y:490,ready:0}];this.relic={x:300,y:300,radius:70,active:['dusk','night'].includes(conditions.time)};this.nextThunder=5;this.hitContext=null;
- for(const f of this.fighters){f.powers=[f.traits.power,f.traits.power2].map(powerFor).filter(Boolean);f.original={move:f.move*(/tower shield/i.test(f.weapon.name)?.92:1),damage:f.damage,interval:f.interval,accuracy:f.accuracy,dodge:f.dodge,armor:f.armor,weapon:{...f.weapon}};Object.assign(f,{energy:f.weakness==='limited stamina'?55:100,maxEnergy:f.weakness==='limited stamina'?55:100,nutrition:100,wardHits:0,foreseen:0,castCount:0,sizeSmall:false,periodic:0,warnings:{},portalUsed:false,burnDamage:0,poisonDamage:0,bleedDamage:0});for(const key of TIMERS)f[key]=0;}
+ for(const f of this.fighters){f.powers=[f.traits.power,f.traits.power2].map(powerFor).filter(Boolean);f.original={move:f.move,damage:f.damage,interval:f.interval,accuracy:f.accuracy,dodge:f.dodge,armor:f.armor,weapon:{...f.weapon}};Object.assign(f,{energy:f.weakness==='limited stamina'?55:100,maxEnergy:f.weakness==='limited stamina'?55:100,nutrition:100,wardHits:0,foreseen:0,castCount:0,sizeSmall:false,periodic:0,warnings:{},portalUsed:false,burnDamage:0,poisonDamage:0,bleedDamage:0});for(const key of TIMERS)f[key]=0;}
  }
  warn(f,key,text){if((f.warnings[key]??-10)+4<=this.time){f.warnings[key]=this.time;this.log(text);}}
  duration(f,t,seconds){return seconds*(f.weakness==='short power duration'?.45:1)*(t?.weakness==='slow recovery'?1.5:1);}
@@ -29,7 +29,7 @@ export class Battle extends PreviousBattle{
  }
  emitSound(source,x,y,range){for(const f of this.fighters){if(f===source||f.weakness!=='loud sounds'||Math.hypot(f.x-x,f.y-y)>range)continue;f.stagger=Math.max(f.stagger,.65);f.cast=Math.max(f.cast,1.2);f.action=null;this.warn(f,'sound',`${f.name} is disrupted by the loud sound.`);}}
  hurt(t,f,amount,type='physical',canDodge=true){if(t.isDecoy){t.parent.illusionTime=0;t.parent.decoy.hp=0;this.log(`${f.name} strikes an illusion.`);return;}if(t.hp<=0)return;
- const projectile=this.projectiles.find(p=>p.owner===f.side&&p.type===type&&Math.hypot(p.x-t.x,p.y-t.y)<t.radius+p.radius+16),context=this.hitContext||projectile||{},tags=context.tags||((type==='physical')?weaponProperties(f.weapon.name):{}),magical=type!=='physical'||tags.holy;
+ const context=this.hitContext||{},tags=context.tags||((type==='physical')?weaponProperties(f.weapon.name):{}),magical=type!=='physical'||tags.holy;
  if(t.foreseen>0){t.foreseen--;this.log(`${t.name} avoids the hit with Future sight.`);return;}if(t.wardHits>0){t.wardHits--;if(!t.wardHits)t.shield=0;this.effect(14,t.x,t.y,35);this.log(`${t.name}'s ward blocks the hit.`);return;}
  if(canDodge&&this.rng()>Math.max(.35,f.accuracy-t.dodge-(t.evade>0?.2:0))){this.log(`${t.name} dodged.`);return;}
  let factor=1-t.armor*(magical?(context.ordinaryArcane?.65:.4):1);if(t.shield>0)factor*=.5;const weak=t.weakness;
@@ -37,8 +37,8 @@ export class Battle extends PreviousBattle{
  if(weak==='fragile body'&&(tags.blunt||tags.heavy&&type==='physical'))factor*=1.25;
  if(t.wet>0&&['lightning','ice'].includes(type))factor*=1.25;if(t.wet>0&&['fire','lava'].includes(type))factor*=.7;
  if(t.flight>0&&type==='physical'&&f.weapon.type==='melee'&&f.weapon.range<45)factor*=.4;if(t.spiritArmor>0&&type==='physical')factor*=.65;
- if(/shield/i.test(t.weapon.name)&&f!==t)factor*=1-(/tower shield/i.test(t.weapon.name)?(magical?.08:.22):(magical?.05:.15));
  const crit=this.rng()<f.crit?1.5:1,damage=Math.max(1,amount*factor*crit);let dealt=damage;if(magical&&t.absorption>0){const absorbed=damage*.55;dealt-=absorbed;t.mana=Math.min(t.maxMana,t.mana+absorbed*.6);this.heal(t,absorbed*.2);this.log(`${t.name} absorbs magical energy.`);}
+ if(/shield/i.test(t.weapon.name)&&f!==t)dealt*=1-(/tower shield/i.test(t.weapon.name)?(magical?.08:.22):(magical?.05:.15));
  t.hp=Math.max(0,t.hp-dealt);if(f.side!==t.side)f.damageDone+=dealt;t.sleep=0;t.hitFlash=.15;t.stagger=Math.max(t.stagger,weak==='fragile body'?.2:.07);this.effect(type==='physical'?13:context.sprite??4,t.x,t.y,26);this.log(`${f.name}: ${Math.round(dealt)} ${type} damage${crit>1?' (critical)':''}.`);
  if(type==='physical'){const angle=Math.atan2(t.y-f.y,t.x-f.x),push=Math.min(14,3+f.damage/12);t.x=clamp(t.x+Math.cos(angle)*push,18,582);t.y=clamp(t.y+Math.sin(angle)*push,18,582);if(tags.poison){t.poison=this.duration(f,t,3)*(weak==='poison'?1.5:1);t.poisonDamage=f.damage*.12;}if(tags.coldIron&&weak==='cold iron'){t.suppressed=2;t.action=null;}}
  if(context.payload)this.applyImpact(context.payload,f,t,dealt,context.duration||this.duration(f,t,2.8));

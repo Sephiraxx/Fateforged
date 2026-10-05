@@ -16,7 +16,7 @@ for(const name of Object.keys(POWERS)){
  assert(model.notes.length>0);
  const battle=new Battle(c,enemy,123);battle.usePower(battle.fighters[0],battle.fighters[1],powerFor(name));
  if(name==='Singularity'){close(number(model,'Well duration'),battle.zones[0].life);close(number(model,'Damage per pulse'),battle.zones[0].damage*.5);close(number(model,'Pull strength'),battle.zones[0].pull);}
- if(name==='Chain lightning'){assert.equal(number(model,'Pulses'),battle.lightningPulses.length);close(number(model,'Damage per pulse'),battle.fighters[0].spell*.48);assert.deepEqual(battle.lightningPulses.map(p=>p.due),[0,.45,.9]);}
+ if(name==='Chain lightning'){assert.equal(number(model,'Pulses'),battle.lightningPulses.length);close(number(model,'Damage per pulse'),battle.fighters[0].spell*.26);assert.deepEqual(battle.lightningPulses.map(p=>p.due),[0,.45,.9]);}
  if(['Blood control','Fire control','Ice control','Water control','Dream walking','Void manipulation'].includes(name)){close(number(model,'Hit damage'),battle.projectiles[0].damage);const durationLabel={'Blood control':'Bleed duration','Fire control':'Burn / flame duration','Ice control':'Chill duration','Dream walking':'Sleep duration','Void manipulation':'Power suppression'}[name];if(durationLabel)close(number(model,durationLabel),battle.projectiles[0].duration);}
  if(name==='Beast command'){close(number(model,'Lifetime'),battle.summons[0].life);close(number(model,'Bite damage'),battle.fighters[0].damage*.35);}
  if(name==='Summon spirits'){close(number(model,'Lifetime'),battle.summons[0].life);assert.equal(number(model,'Summons'),battle.summons.length);}
@@ -32,7 +32,7 @@ close(number(buildTraitDetails(fighter,'DUR'),'Maximum health'),profile.maxHp);
 close(number(buildTraitDetails(fighter,'MAG'),'Maximum mana'),profile.maxMana);
 close(number(buildTraitDetails(fighter,'weapon'),'Damage per hit'),profile.damage);
 const arcane={...fighter,traits:{...fighter.traits,weapon:'Staff'}};
-close(number(buildTraitDetails(arcane,'weapon'),'Damage per hit'),fighterProfile(arcane).damage+profile.spell*.3);
+close(number(buildTraitDetails(arcane,'weapon'),'Damage per hit'),fighterProfile(arcane).damage+profile.spell*.2);
 const weakened={...fighter,traits:{...fighter.traits,weakness:'Power has a cooldown'}};
 close(number(buildTraitDetails(weakened,'MAG'),'Shared power cooldown'),7/(1+profile.magic/70));
 assert.equal(number(buildTraitDetails({...fighter,traits:{power:'No power'}},'power'),'Active effect'),NaN);
