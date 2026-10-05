@@ -1,0 +1,123 @@
+/* Fateforge polish layer. Loaded last on both pages, after style.css,
+   arena.css, leagues.css, premium.css and trait-details.css.
+   Layout and consistency fixes only; colours and type come from the
+   tokens in style.css / premium.css. */
+
+/* ---------- Arena: two-column layout (desktop) ----------
+   The arena column is sized from the viewport height so the fight, its
+   health cards and the playback controls fit on screen together, and it
+   stays pinned while a long cup or league panel scrolls beside it.
+   348px is the height of everything in the column except the arena. */
+@media (min-width:801px){
+  .arena-layout{
+    --arena-size:clamp(440px,calc(100vh - 348px),660px);
+    grid-template-columns:minmax(320px,var(--arena-size)) minmax(320px,580px);
+    gap:32px;
+  }
+  .arena-play{
+    display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+    column-gap:14px;align-items:baseline;align-content:start;
+  }
+  .arena-play>*{grid-column:1/-1;min-width:0}
+  /* Title, conditions and clock share one row. */
+  .arena-play>.arena-heading{display:contents}
+  .arena-heading h1{grid-column:1;grid-row:1;margin:0 0 12px}
+  .arena-play>.environment-label{grid-column:2;grid-row:1;margin:0 0 12px}
+  .arena-heading #fight-clock{grid-column:3;grid-row:1}
+  .arena-frame,.arena-caption{width:100%;max-width:none}
+  .arena-caption{margin-inline:0}
+}
+@media (min-width:801px) and (min-height:620px){
+  .arena-play{position:sticky;top:16px}
+}
+
+/* ---------- Arena: mode tabs on one row ---------- */
+.arena-controls .mode-tabs{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+}
+.arena-controls .mode-tabs button{padding-inline:4px;white-space:nowrap}
+@media (max-width:420px),(min-width:801px) and (max-width:900px){
+  .arena-controls .mode-tabs button{font-size:.8125rem;padding-inline:2px}
+}
+
+@media (max-width:359px){
+  .arena-controls .mode-tabs{gap:0}
+  .arena-controls .mode-tabs button{font-size:.75rem;padding-inline:0}
+  /* The three header buttons overflowed the smallest phones by a few px. */
+  .arena-body .header-actions{gap:4px}
+  .arena-body .header-actions .quiet{padding:8px 6px;font-size:.8125rem}
+}
+
+/* ---------- Arena: fight cards ----------
+   Name and current action share the first row; the action no longer
+   floats over the health bar. */
+.health-card{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  column-gap:10px;align-items:baseline;
+}
+.health-card>*{grid-column:1/-1}
+.health-card>strong{grid-column:1}
+.health-card>.fighter-action{
+  grid-column:2;float:none;display:block;
+  font-size:.8125rem;white-space:nowrap;
+}
+.health-card .health-track{margin:8px 0}
+@media (max-width:800px){
+  .health-card>strong,.health-card>.fighter-action{grid-column:1/-1}
+}
+
+/* ---------- Cups ---------- */
+.entrants{max-height:min(340px,42vh)}
+/* A finished cup only offers what still does something. */
+#tourney-active.is-complete .tournament-actions button:disabled{display:none}
+.arena-controls .bracket-visual{max-height:min(520px,60vh)}
+.bracket-round,.bracket-lane,.bracket-group,.bracket-name,.bracket-score{font-family:var(--sans)}
+@media (max-width:800px){
+  .bracket-name,.bracket-score{font-size:13px}
+}
+
+/* ---------- Tables ---------- */
+table{font-variant-numeric:tabular-nums}
+.league-table-scroll table{min-width:0}
+.league-table-scroll th{font-size:.75rem;color:var(--muted)}
+/* The name column takes the leftover width and truncates instead of
+   wrapping, so every row keeps one line. */
+.league-table-scroll td:nth-child(2),
+.league-table-scroll th:nth-child(2){
+  width:100%;min-width:0;max-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;
+}
+@media (max-width:800px){
+  .league-table-scroll table{font-size:.8125rem}
+  .league-table-scroll th,.league-table-scroll td{padding:9px 3px}
+  .league-table-scroll th:first-child,.league-table-scroll td:first-child{padding-left:8px}
+  .league-table-scroll th:last-child,.league-table-scroll td:last-child{padding-right:8px}
+}
+
+/* ---------- Roster: bulk forms ---------- */
+.bulk-panel:not([hidden]){
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
+}
+.bulk-panel>*{grid-column:1/-1;margin:0}
+.bulk-panel>label{grid-column:auto}
+.bulk-panel label{display:grid;gap:6px;font-size:.875rem;color:var(--muted);margin:0}
+.bulk-panel input[type=number],
+.bulk-panel select{
+  width:100%;min-width:0;min-height:44px;padding:9px 12px;
+  font:inherit;font-size:.9375rem;color:var(--text);
+  background:#0d1621;border:1px solid #44515f;border-radius:7px;
+}
+.bulk-panel input:disabled{opacity:.45}
+.bulk-panel button{margin:0}
+.bulk-panel>.button{justify-self:start}
+.bulk-panel>button.quiet:first-child{justify-self:end;width:auto;min-height:36px;padding:6px 12px}
+.bulk-fields{margin:0}
+@media (max-width:620px){
+  .bulk-panel>.button{justify-self:stretch}
+}
+
+/* ---------- Wheel ----------
+   .stage-heading is also the cups "Stages" header; its small-screen
+   rules stretched the wheel's Edit options button across the title row. */
+.wheel-body .stage-heading{align-items:center;flex-wrap:nowrap}
+.wheel-body .stage-heading>.quiet{flex:none}
