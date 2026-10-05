@@ -229,14 +229,21 @@ function reconcileCharacter(input,catalog,random){
 }
 
 const SHARED_POOL_ID='standard:'+GENERATION_POOL_REVISION;
-async function prepareSharedPool(env){const row=await env.DB.prepare('SELECT id FROM character_pools WHERE pools_json = ? LIMIT 1').bind(JSON.stringify(GENERATION_POOLS)).first();return row?.id||SHARED_POOL_ID;}
+function canonicalPools(pools){return JSON.stringify(pools,(key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]])):value);}
+const CANONICAL_GENERATION_POOLS=canonicalPools(GENERATION_POOLS);
+async function findCharacterPool(env,pools,canonical){const exact=await env.DB.prepare('SELECT id FROM character_pools WHERE pools_json = ? LIMIT 1').bind(pools).first();if(exact)return exact;const rows=await env.DB.prepare('SELECT id,pools_json FROM character_pools').bind().all();return rows.results.find(row=>canonicalPools(JSON.parse(row.pools_json))===canonical);}
+async function prepareSharedPool(env){const row=await findCharacterPool(env,JSON.stringify(GENERATION_POOLS),CANONICAL_GENERATION_POOLS);return row?.id||SHARED_POOL_ID;}
 const sharedPoolStatement=(env,id=SHARED_POOL_ID)=>env.DB.prepare('INSERT INTO character_pools(id,pools_json) VALUES(?,?) ON CONFLICT(id) DO NOTHING').bind(id,JSON.stringify(GENERATION_POOLS));
 function hydrateRow(row){if(!row)return row;const state=JSON.parse(row.state_json);if(!state.pools){if(!row.pools_json)fail('The saved fighter catalog is missing.',503);state.pools=JSON.parse(row.pools_json);return {...row,stored_state_json:row.state_json,state_json:JSON.stringify(state)};}return row;}
-async function saveCharacterSnapshot(env,owner,id,name,state,summary,now){
- const pools=JSON.stringify(state.pools),existing=await env.DB.prepare('SELECT id FROM character_pools WHERE pools_json = ? LIMIT 1').bind(pools).first();
- const poolId=existing?.id||'pool:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pools))),v=>v.toString(16).padStart(2,'0')).join('');
+async function packCharacterSnapshot(env,state){
+ const pools=JSON.stringify(state.pools),canonical=canonicalPools(state.pools),existing=await findCharacterPool(env,pools,canonical);
+ const poolId=existing?.id||(canonical===CANONICAL_GENERATION_POOLS?SHARED_POOL_ID:'pool:'+Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical))),v=>v.toString(16).padStart(2,'0')).join(''));
  await env.DB.prepare('INSERT INTO character_pools(id,pools_json) VALUES(?,?) ON CONFLICT(id) DO NOTHING').bind(poolId,pools).run();
- return env.DB.prepare('INSERT INTO saved_characters(id,owner_id,name,state_json,summary_json,catalog_revision,created_at,updated_at,pool_id) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING RETURNING id,name,summary_json,created_at,updated_at').bind(id,owner,name,JSON.stringify({...state,pools:undefined}),JSON.stringify(summary),CURRENT_CATALOG_REVISION,now,now,poolId).first();
+ return {poolId,stateJson:JSON.stringify({...state,pools:undefined})};
+}
+async function saveCharacterSnapshot(env,owner,id,name,state,summary,now){
+ const packed=await packCharacterSnapshot(env,state);
+ return env.DB.prepare('INSERT INTO saved_characters(id,owner_id,name,state_json,summary_json,catalog_revision,created_at,updated_at,pool_id) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING RETURNING id,name,summary_json,created_at,updated_at').bind(id,owner,name,packed.stateJson,JSON.stringify(summary),CURRENT_CATALOG_REVISION,now,now,packed.poolId).first();
 }
 
 const SITE_ORIGIN='https://fateforge.local';
@@ -278,10 +285,10 @@ async function repairSavedCharacter(env,owner,row){
  for(let attempt=0;attempt<4;attempt++){
   if(row.catalog_revision===CURRENT_CATALOG_REVISION)return row;
   const repaired=reconcileCharacter(JSON.parse(row.state_json),CURRENT_CATALOG);
-  const validated=repaired.changed?validateSnapshot(repaired.state):null,state=validated?JSON.stringify(validated.state):row.state_json,summary=validated?JSON.stringify(withGrowth(validated.summary,JSON.parse(row.summary_json).growth)):row.summary_json;
+  const validated=repaired.changed?validateSnapshot(repaired.state):null,state=validated?.state||JSON.parse(row.state_json),packed=await packCharacterSnapshot(env,state),summary=validated?JSON.stringify(withGrowth(validated.summary,JSON.parse(row.summary_json).growth)):row.summary_json;
   // Compare the original snapshot so simultaneous entry on two devices cannot reroll twice.
-  const result=await env.DB.prepare('UPDATE saved_characters SET state_json = ?, summary_json = ?, catalog_revision = ? WHERE owner_id = ? AND id = ? AND state_json = ? AND summary_json = ?').bind(state,summary,CURRENT_CATALOG_REVISION,owner,row.id,row.stored_state_json||row.state_json,row.summary_json).run();
-  if(result.meta?.changes)return {...row,state_json:state,summary_json:summary,catalog_revision:CURRENT_CATALOG_REVISION,repairs:repaired.repairs};
+  const result=await env.DB.prepare('UPDATE saved_characters SET state_json = ?, summary_json = ?, catalog_revision = ?, pool_id = ? WHERE owner_id = ? AND id = ? AND state_json = ? AND summary_json = ?').bind(packed.stateJson,summary,CURRENT_CATALOG_REVISION,packed.poolId,owner,row.id,row.stored_state_json||row.state_json,row.summary_json).run();
+  if(result.meta?.changes)return {...row,state_json:JSON.stringify(state),stored_state_json:packed.stateJson,pool_id:packed.poolId,summary_json:summary,catalog_revision:CURRENT_CATALOG_REVISION,repairs:repaired.repairs};
   row=await storage(env).get(owner,row.id);if(!row)fail('Character not found.',404);
  }
  fail('Your fighter is being updated on another device. Refresh and try again.',409);

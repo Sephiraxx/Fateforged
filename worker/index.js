@@ -37,10 +37,10 @@ async function repairSavedCharacter(env,owner,row){
  for(let attempt=0;attempt<4;attempt++){
   if(row.catalog_revision===CURRENT_CATALOG_REVISION)return row;
   const repaired=reconcileCharacter(JSON.parse(row.state_json),CURRENT_CATALOG);
-  const validated=repaired.changed?validateSnapshot(repaired.state):null,state=validated?JSON.stringify(validated.state):row.state_json,summary=validated?JSON.stringify(withGrowth(validated.summary,JSON.parse(row.summary_json).growth)):row.summary_json;
+  const validated=repaired.changed?validateSnapshot(repaired.state):null,state=validated?.state||JSON.parse(row.state_json),packed=await packCharacterSnapshot(env,state),summary=validated?JSON.stringify(withGrowth(validated.summary,JSON.parse(row.summary_json).growth)):row.summary_json;
   // Compare the original snapshot so simultaneous entry on two devices cannot reroll twice.
-  const result=await env.DB.prepare('UPDATE saved_characters SET state_json = ?, summary_json = ?, catalog_revision = ? WHERE owner_id = ? AND id = ? AND state_json = ? AND summary_json = ?').bind(state,summary,CURRENT_CATALOG_REVISION,owner,row.id,row.stored_state_json||row.state_json,row.summary_json).run();
-  if(result.meta?.changes)return {...row,state_json:state,summary_json:summary,catalog_revision:CURRENT_CATALOG_REVISION,repairs:repaired.repairs};
+  const result=await env.DB.prepare('UPDATE saved_characters SET state_json = ?, summary_json = ?, catalog_revision = ?, pool_id = ? WHERE owner_id = ? AND id = ? AND state_json = ? AND summary_json = ?').bind(packed.stateJson,summary,CURRENT_CATALOG_REVISION,packed.poolId,owner,row.id,row.stored_state_json||row.state_json,row.summary_json).run();
+  if(result.meta?.changes)return {...row,state_json:JSON.stringify(state),stored_state_json:packed.stateJson,pool_id:packed.poolId,summary_json:summary,catalog_revision:CURRENT_CATALOG_REVISION,repairs:repaired.repairs};
   row=await storage(env).get(owner,row.id);if(!row)fail('Character not found.',404);
  }
  fail('Your fighter is being updated on another device. Refresh and try again.',409);
