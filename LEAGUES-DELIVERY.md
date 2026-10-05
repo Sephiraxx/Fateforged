@@ -1,4 +1,6 @@
-# Fateforged leagues and cup update — October 5
+# Fateforged leagues, fixtures and phase saves — October 5
+
+The follow-up incorporates current main `9bccf36`, including the restored original WebP assets. No schema migration is needed beyond the league schema already merged in PR #1.
 
 The current updates are committed for testing at the user's request, including the fixture-view and phase-checkpoint follow-up. **No tests, browser checks, or performance benchmarks were run for this update.** Earlier passing results in `validation/checks.json` and `validation/league-combat.json` belong to commit `8cc5277`; they do not validate these changes. Both reports are marked accordingly. The combat engine's mechanics, stat balance and replay versions remain unchanged.
 
@@ -74,4 +76,4 @@ npm run build:pages
 node scripts/check-all.mjs
 ```
 
-The draft PR and ZIP contain changed source, migration/schema metadata, updated checks, the reports and complete rebuilt `docs/` output. Temporary files and dependencies are excluded. No merge or deployment is performed. The generation audit above is unchanged from the previously measured rebalance.
+The follow-up draft PR and ZIP contain changed source, updated checks, the reports and complete rebuilt `docs/` output relative to current main. Temporary files and dependencies are excluded. No merge or deployment is performed. The generation audit above is unchanged from the previously measured rebalance.
