@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {Battle,simulate} from '../public/combat.js';
+import {Battle,simulate} from '../public/combat-v9.js';
 import {Battle as LegacyBattle,simulate as legacySimulate} from '../public/combat-v5.js';
 import {Battle as FirstNerfBattle} from '../public/combat-v6.js';
 import {Battle as BeforeScalingBattle} from '../public/combat-v7.js';

@@ -43,7 +43,10 @@
 @media (max-width:359px){
   .arena-controls .mode-tabs{gap:0}
   .arena-controls .mode-tabs button{font-size:.75rem;padding-inline:0}
-  /* The three header buttons overflowed the smallest phones by a few px. */
+}
+/* The three header buttons overflowed small phones by a few px once the
+   saved count reached three digits. */
+@media (max-width:380px){
   .arena-body .header-actions{gap:4px}
   .arena-body .header-actions .quiet{padding:8px 6px;font-size:.8125rem}
 }
@@ -78,18 +81,30 @@
 
 /* ---------- Tables ---------- */
 table{font-variant-numeric:tabular-nums}
-.league-table-scroll table{min-width:0}
 .league-table-scroll th{font-size:.75rem;color:var(--muted)}
 /* The name column takes the leftover width and truncates instead of
-   wrapping, so every row keeps one line. */
+   wrapping, so every row keeps one line. It never shrinks below a
+   readable width, whatever other columns the table has. */
 .league-table-scroll td:nth-child(2),
 .league-table-scroll th:nth-child(2){
-  width:100%;min-width:0;max-width:0;
+  width:100%;min-width:128px;max-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;
+}
+/* When the panel is too narrow for every column the table scrolls
+   sideways; the names stay in place while the numbers move. */
+.league-table-scroll{container-type:inline-size}
+@container (max-width:440px){
+  .league-table-scroll td:nth-child(2),
+  .league-table-scroll th:nth-child(2){
+    position:sticky;left:0;z-index:1;
+    background:#141d28;box-shadow:1px 0 0 #ffffff14;
+  }
+  .league-table-scroll .promotion-zone td:nth-child(2){background:linear-gradient(#80c99c0a 0 0),#141d28}
+  .league-table-scroll .relegation-zone td:nth-child(2){background:linear-gradient(#d578690a 0 0),#141d28}
 }
 @media (max-width:800px){
   .league-table-scroll table{font-size:.8125rem}
-  .league-table-scroll th,.league-table-scroll td{padding:9px 3px}
+  .league-table-scroll th,.league-table-scroll td{padding:9px 4px}
   .league-table-scroll th:first-child,.league-table-scroll td:first-child{padding-left:8px}
   .league-table-scroll th:last-child,.league-table-scroll td:last-child{padding-right:8px}
 }

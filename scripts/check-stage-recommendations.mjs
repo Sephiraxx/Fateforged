@@ -40,7 +40,7 @@ for(let n=2;n<=128;n++)for(const types of [formats,['groups','single'],['swiss',
 const roster=Array.from({length:128},(_,i)=>({id:'fighter-'+i,name:'Fighter '+i,traits:{},summary:{total:100,stats:[10,10,10,10,10]}}));
 const tournament=createTournament('Suggested cup',roster,suggested,123,{shuffle:false});
 let matches=0;
-while(!tournament.done){const m=nextMatch(tournament);assert(m);recordMatch(tournament,m,Array.from({length:m.bestOf?Math.floor(m.bestOf/2)+1:m.legs},()=>({winner:m.a})));assert(++matches<500);}
+while(!tournament.done){const m=nextMatch(tournament);assert(m);recordMatch(tournament,m,Array.from({length:m.bestOf?Math.floor(m.bestOf/2)+1:m.legs},()=>({combatVersion:10,winner:m.a})));assert(++matches<500);}
 assert.equal(tournament.stageResults[0].ranking.length,128);assert.equal(tournament.stageResults[1].ranking.length,64);const qualified=tournament.stageResults[1].qualified;assert(qualified.length>0);assert.equal(tournament.stageResults[2].ranking.length,qualified.length);for(const [id,row]of Object.entries(tournament.stageResults[1].table))assert(qualified.includes(id)?row.wins===3:row.losses===3);assert(tournament.history.filter(m=>m.stage===1).every(m=>m.round<=5));
 assert(matches>192);
 assert(tournament.champion);

@@ -31,7 +31,7 @@ export function mountLeagues(host,hooks){
  const rules=el('details');rules.append(el('summary','Rules & saving'),
   el('p','League season → seven division cups → Crownfire Convergence qualifier & cup → Emberveil Challenge qualifier & cup → explicit rollover. Wins 3, draws 1, losses 0. Timed-out league games draw; cup series resolve a winner. Main-cup finals are Bo5. '+LEAGUES.tieRule),
   el('p','Top two from every league enter Crownfire Convergence. Third/fourth contest a Bo3 qualifier for two more places. Its 12 eliminated fighters enter Emberveil Challenge; fifth/sixth contest a Bo3 qualifier for four more places. Both cups have 16 entrants.'),
-  el('p','Top three in leagues 2–7 move up; bottom three in leagues 1–6 move down. Dawnrise’s bottom five retire; two Legendary, two Unique and one Mythic replacement enter Dawnrise. Movement waits for every cup and an explicit rollover. Active league fighters remain protected from deletion.'),
+  el('p','Top three in leagues 2–7 move up; bottom three in leagues 1–6 move down. Five retire each season: completed careers first, then Dawnrise’s lowest finishers. Extra promotions fill retirement vacancies. Dawnrise recruits two ordinary rolls, one Rare, one Unique and one exceptional fighter (85% Legendary / 15% Mythic). New careers become eligible after 30–38 completed seasons; existing rosters get a 12–24 season transition, with overflow deferred. Movement waits for every cup and an explicit rollover. Active league fighters remain protected from deletion.'),
   el('p','Simulation saves once at the end of each phase. Pause & save and Save progress now can checkpoint earlier. Partial progress stays in this tab until saved; reloading before a checkpoint loses that partial progress.'));host.append(rules);
  const say=(text,error=false)=>{message.textContent=text;message.classList.toggle('error',error);};
  const api=async(path='',body)=>{const r=await globalThis.FATEFORGE_STORAGE.fetch('/api/leagues'+path,{...(body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok){const e=Error(d.error||'Could not save league progress.');e.status=r.status;throw e;}return d;};
@@ -48,7 +48,7 @@ export function mountLeagues(host,hooks){
      if(!latest.world||latest.world.id!==world.id||latest.world.season!==world.season)throw Error('Season changed');
      const completed=new Map(latest.world.history.map(m=>[m.id,m.results])),remaining=[];
      for(const record of pending.series||[]){if(completed.has(record.matchId)){if(JSON.stringify(completed.get(record.matchId))!==JSON.stringify(record.results))throw Error('Results changed');}else remaining.push(record);}
-     const preview=structuredClone(latest.world);for(const record of remaining)LEAGUES.record(preview,record.matchId,record.results);
+     const preview=LEAGUES.prepare(structuredClone(latest.world));for(const record of remaining)LEAGUES.record(preview,record.matchId,record.results);
      world=preview;revision=latest.revision;unsaved=remaining;pendingWorld=preview;conflicted=false;
      pending=remaining.length?{action:'recordBatch',operationId:crypto.randomUUID(),revision,series:remaining,compact:true}:null;
      render();if(!remaining.length)return;
@@ -68,10 +68,11 @@ export function mountLeagues(host,hooks){
  async function load(discard=false){
   if(busy)throw Error('Pause the current operation first.');
   if(!discard&&(pending||unsaved.length))throw Error('Save progress before refreshing the saved season.');
-  const data=await api();world=data.world;revision=data.revision;pending=null;pendingWorld=null;unsaved=[];conflicted=false;loaded=true;archived=null;render();await loadHistory();
+  const data=await api();world=LEAGUES.prepare(data.world);revision=data.revision;pending=null;pendingWorld=null;unsaved=[];conflicted=false;loaded=true;archived=null;render();await loadHistory();
  }
- async function loadHistory(){const data=await api('/history');pastBody.replaceChildren();for(const season of data.seasons){const b=button('Season '+season.season);b.onclick=()=>guard(async()=>{if(busy)throw Error('Pause simulation before opening history.');const data=await api('/history/'+season.season);archived=data.archive;historyPage=0;render();});pastBody.append(b);}if(!data.seasons.length)pastBody.append(el('p','No completed seasons yet.','muted'));}
+ async function loadHistory(){const data=await api('/history');pastBody.replaceChildren();for(const season of data.seasons){const b=button('Season '+season.season+' · world '+season.worldId.slice(0,8));b.onclick=()=>guard(async()=>{if(busy)throw Error('Pause simulation before opening history.');const data=await api('/history/'+season.season+'?worldId='+encodeURIComponent(season.worldId));archived=data.archive;historyPage=0;render();});pastBody.append(b);}if(!data.seasons.length)pastBody.append(el('p','No completed seasons yet.','muted'));}
  start.onclick=()=>guard(async()=>{if(busy||hooks.blocked())throw Error('Wait for the current arena operation to finish.');lock(true);try{await command('start',{worldId:crypto.randomUUID(),settings:{roundRobin:Number(robin.value),bestOf:Number(bestOf.value),conditions:{time:time.value,weather:weather.value,ground:ground.value}}});await hooks.refresh();say('164 fighters saved. Season 1 is ready.');}finally{lock(false);}});
+ const fresh=button('Start a fresh league world','league-fresh');secondary.append(fresh);fresh.onclick=()=>guard(async()=>{if(busy||hooks.blocked())return;if(!confirm('Generate 164 new fighters and start a new Season 1? Your previous world, records, titles and fighters are preserved.'))return;lock(true);try{await checkpoint();await command('freshStart',{worldId:crypto.randomUUID(),settings:world.settings});await hooks.refresh();await loadHistory();say('Fresh roster generated with v10 combat and generation v2. Season 1 is ready.');}finally{lock(false);}});
  const fighter=(view,id)=>view.roster.find(c=>c.id===id),name=(view,id)=>fighter(view,id)?.name||id;
  const simulate=match=>simulation.simulate({match,a:fighter(world,match.a),b:fighter(world,match.b)});
  function addResults(records){for(const record of records){LEAGUES.record(world,record.matchId,record.results);unsaved.push(record);}}
@@ -105,7 +106,7 @@ export function mountLeagues(host,hooks){
   const fill=()=>{body.replaceChildren();build(body);};if(details.open)fill();
   details.addEventListener('toggle',()=>{openPanels.set(identity,details.open);if(details.open)fill();});return details;
  }
- function replayButton(view,result){const b=button('Replay');b.disabled=busy||hooks.blocked();b.onclick=()=>guard(async()=>{lock(true);try{await hooks.watch(fighter(view,result.a),fighter(view,result.b),{...result,legs:result.results.length,bestOf:undefined},result.conditions,result.results.map(r=>r.environment));}finally{lock(false);}});return b;}
+ function replayButton(view,result){const b=button('Replay');b.disabled=busy||hooks.blocked();b.onclick=()=>guard(async()=>{lock(true);try{await hooks.watch(fighter(view,result.a),fighter(view,result.b),{...result,engineVersion:result.results[0]?.combatVersion??LEAGUES.engineVersion(view),legs:result.results.length,bestOf:undefined},result.conditions,result.results.map(r=>r.environment));}finally{lock(false);}});return b;}
  function drawFixtures(body,view,cup){
   const selected=new Set(view.divisions[division]);if(cup.note)body.append(el('p',cup.note,'muted'));
   const own=cup.entrants.filter(c=>selected.has(c.id)).map(c=>name(view,c.id));if(own.length)body.append(el('p','From this league: '+own.join(', '),'league-fixture-entrants'));
@@ -126,8 +127,8 @@ export function mountLeagues(host,hooks){
  function drawStandings(body,view){
   const rows=LEAGUES.standings(view,division),leagueTitle=view.phase==='league'?null:rows[0].id,cupTitle=view.cupResults.find(c=>c.division===division)?.champion;
   const wrap=el('div','','league-table-scroll'),table=el('table'),head=el('thead'),header=el('tr'),tbody=el('tbody');table.append(el('caption',LEAGUES.names[division]+' · '+view.divisions[division].length+' fighters'));
-  for(const label of ['#','Fighter','Tier','Pts','W','D','L','GD'])header.append(el('th',label));head.append(header);
-  rows.forEach((r,i)=>{const row=el('tr');row.className=division>0&&i<3?'promotion-zone':i>=view.divisions[division].length-(division===6?5:3)?'relegation-zone':'';const crown=(r.id===leagueTitle?' 👑 League':'')+(r.id===cupTitle?' 👑 Cup':'');for(const text of [i+1,name(view,r.id)+crown,fighter(view,r.id).summary.tier,r.points,r.wins,r.draws,r.losses,r.gameWins-r.gameLosses])row.append(el('td',String(text)));tbody.append(row);});table.append(head,tbody);wrap.append(table);body.append(wrap,el('p','Tie order: points → game difference → game wins → seeded order.','muted'));
+  for(const label of ['#','Fighter','Tier','Career','Pts','W','D','L','GD'])header.append(el('th',label));head.append(header);
+  rows.forEach((r,i)=>{const row=el('tr');row.className=division>0&&i<3?'promotion-zone':i>=view.divisions[division].length-(division===6?5:3)?'relegation-zone':'';const crown=(r.id===leagueTitle?' 👑 League':'')+(r.id===cupTitle?' 👑 Cup':'');for(const text of [i+1,name(view,r.id)+crown,fighter(view,r.id).summary.tier,view.careers?.[r.id]?`${(view.careers[r.id].transition?view.season-view.careers[r.id].enabledSeason:view.season-view.careers[r.id].joinedSeason)+(view.phase==='complete'?1:0)} seasons · eligible S${view.careers[r.id].eligibleSeason}`:'Legacy career',r.points,r.wins,r.draws,r.losses,r.gameWins-r.gameLosses])row.append(el('td',String(text)));tbody.append(row);});table.append(head,tbody);wrap.append(table);body.append(wrap,el('p','Tie order: points → game difference → game wins → seeded order.','muted'));
  }
  function drawHistory(view){
   historyBody.replaceChildren();if(!view||!history.open)return;const matches=[...view.history].reverse(),pages=Math.max(1,Math.ceil(matches.length/40));historyPage=Math.min(historyPage,pages-1);historyBody.append(el('p',`${matches.length} completed series · page ${historyPage+1} / ${pages}`));
@@ -135,7 +136,7 @@ export function mountLeagues(host,hooks){
   for(const [label,delta]of [['Newer',-1],['Older',1]]){const b=button(label);b.disabled=historyPage+delta<0||historyPage+delta>=pages;b.onclick=()=>{historyPage+=delta;drawHistory(view);};historyBody.append(b);}
  }
  function render(){
-  const view=archived||world;setup.hidden=!!world;selection.hidden=!view;history.hidden=!view;past.hidden=!world;more.hidden=!world;controls.hidden=!world;start.disabled=busy;picker.value=String(division);
+  const view=archived||world;setup.hidden=!!world;selection.hidden=!view;history.hidden=!view;past.hidden=!world;more.hidden=!world;controls.hidden=!world;start.disabled=busy;fresh.disabled=busy||!!hooks.blocked()||!!archived||!world||world.phase!=='complete'&&world.history.length>0;picker.value=String(division);
   for(const {b,mode}of actions){b.hidden=mode==='rollover'?world?.phase!=='complete':mode==='retry'?!pending:false;b.disabled=busy||!!hooks.blocked()||!!archived||!world;
    if(['watch','one','week','phase','season','rollover'].includes(mode)&&pending)b.disabled=true;
    if(['watch','one','week','phase','season'].includes(mode)&&world?.phase==='complete')b.disabled=true;
@@ -148,14 +149,17 @@ export function mountLeagues(host,hooks){
   if(!view){heading.textContent='Seven leagues';drawHistory(null);return;}
   heading.textContent=`Season ${view.season}${archived?' · archive':''}`;const match=LEAGUES.next(view);
   content.append(el('p',view.phase==='league'?`League season · week ${match.week} / ${LEAGUES.weekCount(view)} · Bo${view.settings.bestOf}`:view.phase==='cups'?`Division cups · ${LEAGUES.names[view.cupIndex]}`:LEAGUES.phaseNames[view.phase]||view.phase,'league-phase'));
+  content.append(el('p',`Combat v${LEAGUES.engineVersion(view)} · recruit generation v${view.generationVersion??1} · ${view.careerEnabled?'career retirement enabled · 5 exits per season':'legacy retirement until rollover'}`,'muted'));
+  if(view.careerEnabled){const eligible=view.roster.filter(c=>view.careers[c.id].eligibleSeason<=view.season).length;content.append(el('p',`${eligible} career${eligible===1?'':'s'} eligible after this season · five total retirements at rollover; excess careers wait in order.`,'muted'));}
   if(match)content.append(el('p',`Next: ${name(view,match.a)} vs ${name(view,match.b)} · Bo${match.bestOf}`,'muted'));
   if(view.version===1)content.append(el('p','This saved season keeps its original format until rollover; the next season adds 24 fighters and both interleague cups.','muted'));
+  if(archived?.closedWorld)content.append(el('p','World closed and preserved before a fresh start.','muted'));
   if(archived){const back=button('Return to active season');back.onclick=()=>{archived=null;historyPage=0;render();};content.append(back);}
   tables.append(panel(view,'League standings','standings',body=>drawStandings(body,view),true),
    panel(view,'Division cup fixtures','division-cup',body=>drawFixtures(body,view,leagueCupFixtures(view,division))),
    panel(view,'Interleague cups & qualifiers','interleague',body=>{const fixtures=interleagueFixtures(view);body.append(el('p',fixtures.note,'muted'));for(const cup of fixtures.cups)body.append(panel(view,cup.title,cup.key,body=>drawFixtures(body,view,cup)));}));
   if(view.cupResults.length)tables.append(panel(view,'Season champions','champions',body=>{for(const cup of view.cupResults)body.append(el('p',`${cup.division===8?LEAGUES.cupNames.europa:cup.division===7?(cup.competition==='champions'?LEAGUES.cupNames.champions:'Interleague cup'):LEAGUES.names[cup.division]+' cup'} · ${name(view,cup.champion)}`));}));
-  if(archived)tables.append(panel(view,'Movement, retirements & replacements','movement',body=>{for(const move of archived.movement)body.append(el('p',`${name(view,move.id)}: ${LEAGUES.names[move.from]} → ${LEAGUES.names[move.to]}`));for(const c of archived.retired)body.append(el('p','Retired: '+c.name));for(const c of archived.replacements)body.append(el('p','Replacement: '+c.name+' · '+c.summary.wheelRarity));for(const c of archived.expansion||[])body.append(el('p','Additional league fighter: '+c.name));}));
+  if(archived)tables.append(panel(view,'Movement, retirements & replacements','movement',body=>{for(const move of archived.movement)body.append(el('p',`${name(view,move.id)}: ${LEAGUES.names[move.from]} → ${LEAGUES.names[move.to]}${move.type==='vacancy-promotion'?' · retirement vacancy':''}`));for(const c of archived.retired)body.append(el('p','Retired: '+c.name+' · '+(archived.retirementReasons?.[c.id]||'Dawnrise league finish')));if(archived.deferredCareers?.length)body.append(el('p',archived.deferredCareers.length+' eligible careers deferred by the five-retirement limit.'));for(const c of archived.replacements)body.append(el('p','Replacement: '+c.name+' · '+c.summary.wheelRarity));for(const c of archived.expansion||[])body.append(el('p','Additional league fighter: '+c.name));}));
   drawHistory(view);
  }
  history.addEventListener('toggle',()=>drawHistory(archived||world));render();
