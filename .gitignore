@@ -1,0 +1,5 @@
+node_modules/
+_site/
+validation/screenshots/
+validation/check-output/
+*.zip

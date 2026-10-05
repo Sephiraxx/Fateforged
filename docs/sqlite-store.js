@@ -58,11 +58,22 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
     migrate(db,true);
     if(db.exec('PRAGMA quick_check')[0]?.values[0]?.[0]!=='ok')throw Error('The backup is damaged. Your existing saves were kept.');
     // A backup contains only one local player; reject unrelated server databases.
-    for(const table of ['saved_characters','saved_tournaments','champion_history','current_champions','match_records','fighter_growth','tournament_name_claims']){
+    for(const table of ['saved_characters','saved_tournaments','champion_history','current_champions','match_records','fighter_growth','tournament_name_claims','league_worlds','league_members','league_seasons','league_operations']){
      if(db.exec(`SELECT COUNT(*) FROM ${table} WHERE owner_id != 'local'`)[0].values[0][0])throw Error('This is not a Fateforge browser backup.');
     }
     const env={DB:sqliteAdapter(db)};
-    for(const path of ['/api/characters','/api/tournaments','/api/champions']){
+    if(db.exec("SELECT COUNT(*) FROM saved_characters c LEFT JOIN character_pools p ON c.pool_id=p.id WHERE json_type(c.state_json,'$.pools') IS NULL AND p.id IS NULL")[0].values[0][0])throw Error('The backup is missing a fighter catalog.');
+    const league=await worker.fetch(new Request('https://fateforge.local/api/leagues',{headers:{'oai-authenticated-user-id':'local'}}),env);
+    if(!league.ok)throw Error('The backup has invalid league records.');
+    const {world}=await league.json();
+    if(world){
+     const ids=world.divisions?.flat()||[],rosterIds=world.roster?.map(c=>c.id)||[];
+     if(world.divisions.length!==7||world.divisions.some(d=>d.length!==20)||new Set(ids).size!==140||rosterIds.length!==140||new Set(rosterIds).size!==140||ids.some(id=>!rosterIds.includes(id)))throw Error('The backup has an invalid league roster.');
+     const members=(await env.DB.prepare('SELECT character_id,division FROM league_members WHERE owner_id = ?').bind('local').all()).results;
+     if(members.length!==140||members.some(m=>!world.divisions[m.division]?.includes(m.character_id)))throw Error('The backup has inconsistent league membership.');
+     for(const id of ids)if(!await env.DB.prepare('SELECT id FROM saved_characters WHERE owner_id = ? AND id = ?').bind('local',id).first())throw Error('The backup is missing an active league fighter.');
+    }
+    for(const path of ['/api/characters','/api/tournaments','/api/champions','/api/leagues']){
      const response=await worker.fetch(new Request('https://fateforge.local'+path,{headers:{'oai-authenticated-user-id':'local'}}),env);
      if(!response.ok)throw Error('The backup has invalid game records.');
     }

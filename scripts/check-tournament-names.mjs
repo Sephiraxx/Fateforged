@@ -30,9 +30,9 @@ const counts=()=>['saved_characters','saved_tournaments','champion_history','cur
 const completedBefore=db.prepare('SELECT tournament_id,character_id,completed_at FROM champion_history ORDER BY tournament_id').all();
 assert.equal((await worker.fetch(new Request('https://fateforge.test/arena'),env)).status,200);
 assert.deepEqual(counts(),before);assert.deepEqual(db.prepare('SELECT tournament_id,character_id,completed_at FROM champion_history ORDER BY tournament_id').all(),completedBefore);
-for(const [tid,name]of NAME_REPAIRS){const r=await call('tournaments/'+tid);assert.equal(r.status,200);const t=(await r.json()).tournament;assert.equal(t.name,name);assert.equal(t.state.name,name);assert.equal(db.prepare('SELECT tournament_name FROM champion_history WHERE tournament_id=?').get(tid).tournament_name,name);assert.equal(db.prepare('SELECT name FROM tournament_name_claims WHERE tournament_id=?').get(tid).name,name.toLowerCase());assert(!db.prepare('SELECT 1 FROM tournament_name_claims WHERE owner_id=? AND name=?').get(owner,(name+' 2').toLowerCase()));}
+for(const [tid,name]of NAME_REPAIRS){const r=await call('tournaments/'+tid);assert.equal(r.status,200);const t=(await r.json()).tournament;assert.equal(t.name,name+' 2');assert.equal(t.state.name,name+' 2');assert.equal(db.prepare('SELECT tournament_name FROM champion_history WHERE tournament_id=?').get(tid).tournament_name,name+' 2');}
 assert(db.prepare('SELECT 1 FROM tournament_name_claims WHERE owner_id=?').get('other-owner'));
-assert(db.prepare('SELECT 1 FROM roster_refreshes WHERE owner_id=? AND batch_key=?').get(owner,NAME_REPAIR_KEY));
-assert.equal((await names([await save(crypto.randomUUID(),cup('Moonfall Clash'))]))[0],'Moonfall Clash 2');
+assert(!db.prepare('SELECT 1 FROM roster_refreshes WHERE owner_id=? AND batch_key=?').get(owner,NAME_REPAIR_KEY));
+assert.equal((await names([await save(crypto.randomUUID(),cup('Moonfall Clash'))]))[0],'Moonfall Clash 3');
 const after=counts();assert.equal((await worker.fetch(new Request('https://fateforge.test/'),env)).status,200);assert.deepEqual(counts(),after);
-console.log('Tournament names passed: simultaneous saves reuse one name, distinct cups get suffixes, failed saves retry without extra numbers, three existing names repaired across saved state and titles, orphan reservations removed, current results/roster retained, other owners untouched, and repair runs once.');
+console.log('Tournament names passed: simultaneous idempotent claims, distinct-cup suffixes, failed-save retries, owner isolation and unchanged saved names/history on site entry.');

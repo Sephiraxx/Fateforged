@@ -2,11 +2,11 @@
 const WHEEL_LUCK=(()=>{
  const tiers=Object.freeze([
   {id:'common',label:'Common',chance:50,boost:0},
-  {id:'uncommon',label:'Uncommon',chance:25,boost:.65},
-  {id:'rare',label:'Rare',chance:15,boost:1.1},
-  {id:'unique',label:'Unique',chance:6,boost:1.65},
-  {id:'legendary',label:'Legendary',chance:3,boost:2.25},
-  {id:'mythic',label:'Mythic',chance:1,boost:3}
+  {id:'uncommon',label:'Uncommon',chance:25,boost:1.2},
+  {id:'rare',label:'Rare',chance:15,boost:2.5},
+  {id:'unique',label:'Unique',chance:6,boost:4},
+  {id:'legendary',label:'Legendary',chance:3,boost:6},
+  {id:'mythic',label:'Mythic',chance:1,boost:8}
  ].map(Object.freeze));
  const info=id=>tiers.find(t=>t.id===id)||tiers[0];
  const isNoPower=name=>/^no (second )?power$/i.test(String(name).trim());
@@ -17,6 +17,6 @@ const WHEEL_LUCK=(()=>{
  function magicChance(points){points=Math.max(0,points);const steps=[[0,0],[3,10],[8,20],[15,30],[25,45],[40,60],[65,75],[95,85],[140,92],[200,96],[280,98],[400,99]];for(let i=1;i<steps.length;i++){const[x,y]=steps[i],[px,py]=steps[i-1];if(points<=x)return Math.round(py+(y-py)*(points-px)/(x-px));}return 99;}
  function powerOptions(list,slot,rarity,magicPoints,firstPower){const filtered=list.filter(o=>slot!=='power2'||isNoPower(o.name)||o.name!==firstPower),powers=biasOptions(filtered.filter(o=>!isNoPower(o.name)),rarity),empty=filtered.filter(o=>isNoPower(o.name));if(!empty.length)empty.push({name:slot==='power'?'No power':'No second power',weight:12,stats:[0,0,0,0,0]});const chance=magicChance(magicPoints),powerWeight=powers.reduce((s,o)=>s+o.weight,0),emptyWeight=empty.reduce((s,o)=>s+o.weight,0);if(!powerWeight||!chance)return empty.map(o=>({...o,stats:[0,0,0,0,0]}));return [...powers.map(o=>({...o,weight:o.weight*chance*emptyWeight})),...empty.map(o=>({...o,weight:o.weight*(100-chance)*powerWeight,stats:[0,0,0,0,0]}))].filter(o=>o.weight>0);}
  function pick(options,draw=randomIndex){let ticket=draw(options.reduce((s,o)=>s+o.weight,0));for(const option of options){if(ticket<option.weight)return option;ticket-=option.weight;}throw new Error('Invalid option roll.');}
- function rollTraits(pools,draw=randomIndex){const wheelRarity=roll(draw),traits={};for(const id of ['race','subrace','class','subclass','strength','speed','durability','iq','magic','weapon','mastery','power','power2','weakness']){const list=id==='subrace'?pools.subrace[traits.race]:id==='subclass'?pools.subclass[traits.class]:pools.base[id];const points=pools.base.magic.find(o=>o.name===traits.magic)?.stats[4]||0,options=['power','power2'].includes(id)?powerOptions(list,id,wheelRarity,points,traits.power):biasOptions(list,wheelRarity);traits[id]=pick(options,draw).name;}return {wheelRarity,traits};}
+ function rollTraits(pools,draw=randomIndex,forcedRarity){if(forcedRarity!==undefined&&!tiers.some(t=>t.id===forcedRarity))throw Error('Invalid wheel rarity.');const wheelRarity=forcedRarity??roll(draw),traits={};for(const id of ['race','subrace','class','subclass','strength','speed','durability','iq','magic','weapon','mastery','power','power2','weakness']){const list=id==='subrace'?pools.subrace[traits.race]:id==='subclass'?pools.subclass[traits.class]:pools.base[id];const points=pools.base.magic.find(o=>o.name===traits.magic)?.stats[4]||0,options=['power','power2'].includes(id)?powerOptions(list,id,wheelRarity,points,traits.power):biasOptions(list,wheelRarity);traits[id]=pick(options,draw).name;}return {wheelRarity,traits};}
  return Object.freeze({tiers,info,randomIndex,roll,biasOptions,magicChance,powerOptions,pick,rollTraits});
 })();

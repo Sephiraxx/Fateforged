@@ -6,6 +6,7 @@ files['/combat-v4.js']='combat-v4.js';
 files['/combat-v5.js']='combat-v5.js';files['/combat-v6.js']='combat-v6.js';files['/combat-v7.js']='combat-v7.js';files['/combat-v8.js']='combat-v8.js';files['/combat-base-v6.js']='combat-base-v6.js';
 files['/roster-view.js']='roster-view.js';files['/bulk-characters.js']='bulk-characters.js';files['/series.js']='series.js';files['/promotion-rules.js']='promotion-rules.js';
 for(const file of ['trait-details.js','trait-detail-ui.js','trait-details.css'])files['/'+file]=file;
+for(const file of ['leagues.js','league-ui.js','league-sim-worker.js','leagues.css'])files['/'+file]=file;
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 await rm('dist',{recursive:true,force:true});await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});
 const binary={};for(const name of ['weapons','effects'])binary['/assets/'+name+'.webp']=(await readFile('public/'+name+'.webp')).toString('base64');
@@ -22,12 +23,15 @@ const nameHelpers=(await readFile('public/tournament-names.js','utf8')).replaceA
 const historyHelpers=(await readFile('public/champion-history.js','utf8')).replaceAll('export function','function');
 const version=createHash('sha256').update(JSON.stringify(assets)+JSON.stringify(binary)).digest('hex').slice(0,16);
 const revision=createHash('sha256').update(JSON.stringify(catalog)+reconciliation).digest('hex');
+const leagueHelpers=(await readFile('public/leagues.js','utf8')).replaceAll('export const','const');
+const leagueStorage=await readFile('worker/leagues.mjs','utf8');
+const poolHelpers=await readFile('worker/pools.mjs','utf8');
 const paths=[...Object.keys(files).filter(p=>/\.(js|css)$/.test(p)),...Object.keys(binary)];
 for(const path of Object.keys(assets)){
  if(!/\.(js|css|html)$/.test(path)&&path!=='/'&&path!=='/arena')continue;
  for(const asset of paths){const escaped=asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),local=asset.slice(1).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');assets[path]=assets[path].replace(new RegExp(`(["'])(?:${escaped}|(?:\\./)?${local})\\1`,'g'),`$1${asset}?v=${version}$1`);}
  assets[path]=assets[path].replaceAll('${name}.webp','${name}.webp?v='+version);
 }
-await writeFile('dist/server/index.js',`${assets['/luck.js']}\n${resetHelpers}\n${tournamentNameStorage}\n${nameHelpers}\n${historyHelpers}\n${seriesHelpers}\n${promotionHelpers}\nconst GENERATION_POOLS=${JSON.stringify(context.generationPools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${characterNames};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\nconst ASSET_VERSION=${JSON.stringify(version)};\n${reconciliation}\nconst ASSETS=${JSON.stringify(assets)};\nconst BINARY_ASSETS=${JSON.stringify(binary)};\n`+await readFile('worker/index.js','utf8'));
-await writeFile('dist/.openai/hosting.json',await readFile('.openai/hosting.json','utf8'));
+await writeFile('dist/server/index.js',`${assets['/luck.js']}\n${resetHelpers}\n${tournamentNameStorage}\n${nameHelpers}\n${historyHelpers}\n${seriesHelpers}\n${promotionHelpers}\n${leagueHelpers}\n${leagueStorage}\nconst GENERATION_POOL_REVISION=${JSON.stringify(createHash('sha256').update(JSON.stringify(context.generationPools)).digest('hex'))};\nconst GENERATION_POOLS=${JSON.stringify(context.generationPools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${characterNames};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\n${poolHelpers}\nconst ASSET_VERSION=${JSON.stringify(version)};\n${reconciliation}\nconst ASSETS=${JSON.stringify(assets)};\nconst BINARY_ASSETS=${JSON.stringify(binary)};\n`+await readFile('worker/index.js','utf8'));
+try{await writeFile('dist/.openai/hosting.json',await readFile('.openai/hosting.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
 console.log('Built Fateforge Worker with embedded assets.');

@@ -4,13 +4,13 @@
  function removalMatches(characters,{selectedTiers=[],rule='any',percent=''}={}){
   if(!selectedTiers.length&&rule==='any')return [];
   const value=Number(percent);if(!['any','unplayed','below','at-most','at-least'].includes(rule)||(!['any','unplayed'].includes(rule)&&(percent===''||!Number.isFinite(value)||value<0||value>100)))throw new Error('Enter a win rate from 0 to 100.');
-  return characters.filter(c=>{if(selectedTiers.length&&!selectedTiers.includes(tier(c)))return false;const rate=root.ROSTER_VIEW.winRate(c);return rule==='any'||(rule==='unplayed'?rate===null:rate!==null&&(rule==='below'?rate<value:rule==='at-most'?rate<=value:rate>=value));});
+  return characters.filter(c=>{if(c.leagueMember)return false;if(selectedTiers.length&&!selectedTiers.includes(tier(c)))return false;const rate=root.ROSTER_VIEW.winRate(c);return rule==='any'||(rule==='unplayed'?rate===null:rate!==null&&(rule==='below'?rate<value:rule==='at-most'?rate<=value:rate>=value));});
  }
  function mount(host,hooks){
   if(!host)return;
   const e=(tag,text='',cls='')=>{const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n;},button=(text,cls='quiet')=>{const n=e('button',text,cls);n.type='button';return n;};
   const actions=e('div','','bulk-actions'),openRemove=button('Bulk remove'),openGenerate=button('Bulk generate'),panel=e('div','','bulk-panel'),message=e('p','','bulk-status');message.setAttribute('role','status');message.setAttribute('aria-live','polite');panel.hidden=true;actions.append(openRemove,openGenerate);host.append(actions,panel,message);
-  let running=false,stop=false,job=null,preview=null,mode='',controls=[];
+  let running=false,stop=false,job=null,preview=null,mode='',controls=[],forms=new Map();
   panel.id=(host.id||'collection-bulk')+'-panel';
   const collapse=button('Collapse');
   const expanded=()=>{for(const [b,type]of [[openRemove,'remove'],[openGenerate,'generate']]){b.setAttribute('aria-controls',panel.id);b.setAttribute('aria-expanded',String(!panel.hidden&&mode===type));}};
@@ -23,7 +23,7 @@
   const start=()=>{hooks.start?.();lock(true);};
   const finish=async()=>{lock(false);hooks.finish?.();};
   const label=(text,input)=>{const n=e('label',text);n.append(input);return n;};
-  function open(next){if(running)return;mode=next;panel.replaceChildren(collapse);panel.hidden=false;controls=[];preview=null;say('');if(next==='generate')generateForm();else removeForm();expanded();}
+  function open(next){if(running)return;if(mode)forms.set(mode,{children:[...panel.children],controls});mode=next;if(forms.has(next)){const form=forms.get(next);panel.replaceChildren(...form.children);controls=form.controls;panel.hidden=false;expanded();return;}panel.replaceChildren(collapse);panel.hidden=false;controls=[];preview=null;say('');if(next==='generate')generateForm();else removeForm();expanded();}
   function toggle(next){if(running)return;if(mode===next){if(panel.hidden){panel.hidden=false;expanded();}else close();}else open(next);}
   function generateForm(){
    const count=e('input');count.type='number';count.min='1';count.step='1';count.value=job?String(job.total):'128';count.id='bulk-generate-count';count.disabled=!!job;
@@ -49,7 +49,7 @@
    const rule=e('select');rule.id='bulk-remove-rule';for(const [value,text]of [['any','Any win rate'],['below','Win rate below'],['at-most','Win rate at most'],['at-least','Win rate at least'],['unplayed','Unplayed only']]){const o=e('option',text);o.value=value;rule.append(o);}rule.value='any';
    const percent=e('input');percent.type='number';percent.min='0';percent.max='100';percent.step='any';percent.value='50';percent.id='bulk-remove-percent';percent.disabled=true;
    const fields=e('div','','bulk-fields');fields.append(label('Win-rate rule',rule),label('Win rate (%)',percent));
-   const note=e('p','Choose tiers, a win-rate rule, or both. When combined, both must match. Unplayed fighters are excluded from percentage rules. This applies to your entire saved roster.','dialog-note'),review=button('Preview removal','button secondary'),confirm=button('Remove these characters','button bulk-danger'),results=e('div','','bulk-preview');confirm.hidden=true;
+   const note=e('p','Choose tiers, a win-rate rule, or both. When combined, both must match. Unplayed fighters are excluded from percentage rules. Active league fighters are protected and excluded. This applies to the rest of your saved roster.','dialog-note'),review=button('Preview removal','button secondary'),confirm=button('Remove these characters','button bulk-danger'),results=e('div','','bulk-preview');confirm.hidden=true;
    const history=e('p','Removal deletes saved fighters. Past tournament results, match records and championship history remain.','dialog-note');
    panel.append(fieldset,fields,note,review,results,confirm,history);percent.bulkDisabled=()=>['any','unplayed'].includes(rule.value);controls=[collapse,review,confirm,rule,percent,...choices.map(c=>c.input)];
    const invalidate=()=>{preview=null;results.replaceChildren();confirm.hidden=true;percent.disabled=['any','unplayed'].includes(rule.value);};for(const input of [...choices.map(c=>c.input),rule,percent])input.addEventListener('input',invalidate);

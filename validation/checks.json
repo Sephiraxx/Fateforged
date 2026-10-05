@@ -1,0 +1,105 @@
+{
+  "node": "v24.19.0",
+  "checks": [
+    {
+      "file": "check-arena-ui.mjs",
+      "passed": true,
+      "seconds": 0.8
+    },
+    {
+      "file": "check-bulk-characters.mjs",
+      "passed": true,
+      "seconds": 0.3
+    },
+    {
+      "file": "check-fighter-growth.mjs",
+      "passed": true,
+      "seconds": 0.4
+    },
+    {
+      "file": "check-group-scheduling.mjs",
+      "passed": true,
+      "seconds": 0.1
+    },
+    {
+      "file": "check-league-combat.mjs",
+      "passed": true,
+      "seconds": 20.8
+    },
+    {
+      "file": "check-league-pages.mjs",
+      "passed": true,
+      "seconds": 0.6
+    },
+    {
+      "file": "check-leagues.mjs",
+      "passed": true,
+      "seconds": 52.1
+    },
+    {
+      "file": "check-luck.mjs",
+      "passed": true,
+      "seconds": 3.6
+    },
+    {
+      "file": "check-match-records.mjs",
+      "passed": true,
+      "seconds": 0.2
+    },
+    {
+      "file": "check-pages.mjs",
+      "passed": true,
+      "seconds": 1.2
+    },
+    {
+      "file": "check-requested-reset.mjs",
+      "passed": true,
+      "seconds": 0.1
+    },
+    {
+      "file": "check-rewind.mjs",
+      "passed": true,
+      "seconds": 4.5
+    },
+    {
+      "file": "check-roster-performance.mjs",
+      "passed": true,
+      "seconds": 0.5
+    },
+    {
+      "file": "check-roster-view.mjs",
+      "passed": true,
+      "seconds": 0.1
+    },
+    {
+      "file": "check-series.mjs",
+      "passed": true,
+      "seconds": 0.7
+    },
+    {
+      "file": "check-singularity.mjs",
+      "passed": true,
+      "seconds": 5.6
+    },
+    {
+      "file": "check-stage-recommendations.mjs",
+      "passed": true,
+      "seconds": 0.1
+    },
+    {
+      "file": "check-tournament-names.mjs",
+      "passed": true,
+      "seconds": 0.2
+    },
+    {
+      "file": "check-trait-details.mjs",
+      "passed": true,
+      "seconds": 0.1
+    },
+    {
+      "file": "check-wheel-ui.cjs",
+      "passed": true,
+      "seconds": 0.3
+    }
+  ]
+}

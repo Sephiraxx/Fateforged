@@ -13,14 +13,14 @@ const catalog=Object.fromEntries(['power','power2','weakness'].map(slot=>[slot,c
 const strip=code=>code.replaceAll('export const','const').replaceAll('export async function','async function').replaceAll('export function','function');
 const reconciliation=strip(await readFile('public/catalog-repair.js','utf8'));
 const helpers=[];
-for(const file of ['public/luck.js','public/tournament-names.js','public/champion-history.js','public/series.js','public/promotion-rules.js'])helpers.push(strip(await readFile(file,'utf8')));
+for(const file of ['public/luck.js','public/tournament-names.js','public/champion-history.js','public/series.js','public/promotion-rules.js','public/leagues.js','worker/leagues.mjs'])helpers.push(strip(await readFile(file,'utf8')));
 helpers.push(strip((await readFile('worker/tournament-names.mjs','utf8')).split('// Repair the three cups')[0]));
 const names=await readFile('public/names.js','utf8');
 const revision=createHash('sha256').update(JSON.stringify(catalog)+reconciliation).digest('hex');
 let backend=await readFile('worker/index.js','utf8');
 backend=backend.replace(/if\(env\.DB\?\.batch&&request\.method==='GET'&&\['\/','\/arena'\]\.includes\(url\.pathname\)\)\{await applyRequestedReset\(env\);await repairRequestedTournamentNames\(env\);\}/,'');
 backend=backend.replace('https://fateforge-character-wheel.sephiraxx.chatgpt.site','https://fateforge.local');
-await writeFile(`${output}/local-api.js`,`${helpers.join('\n')}\nconst GENERATION_POOLS=${JSON.stringify(context.pools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${names};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\nconst ASSETS={},BINARY_ASSETS={},ASSET_VERSION='pages';\n${reconciliation}\n${backend}`);
+await writeFile(`${output}/local-api.js`,`${helpers.join('\n')}\nconst GENERATION_POOL_REVISION=${JSON.stringify(createHash('sha256').update(JSON.stringify(context.pools)).digest('hex'))};\nconst GENERATION_POOLS=${JSON.stringify(context.pools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${names};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\nconst ASSETS={},BINARY_ASSETS={},ASSET_VERSION='pages';\n${reconciliation}\n${strip(await readFile('worker/pools.mjs','utf8'))}\n${backend}`);
 const migrations=[];
 for(const file of (await readdir('drizzle')).filter(f=>f.endsWith('.sql')).sort())migrations.push(await readFile('drizzle/'+file,'utf8'));
 await writeFile(`${output}/local-schema.js`,`export default ${JSON.stringify(migrations)};\n`);
