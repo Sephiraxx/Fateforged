@@ -1,0 +1,7 @@
+{
+  "completedRolloversVerified": 40,
+  "allRosterSizes": "20/24/24/24/24/24/24",
+  "generationVersion": 2,
+  "combatVersion": 10,
+  "checks": "Exact next-season roster, division order, career metadata, seed/settings, five replacements, seeded rarity composition, retirement priority/deferred queue and vacancy cascade."
+}
