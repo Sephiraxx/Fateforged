@@ -1,6 +1,6 @@
 # Fateforged leagues, fixtures and phase saves — October 5
 
-The follow-up incorporates current main `9bccf36`, including the restored original WebP assets. No schema migration is needed beyond the league schema already merged in PR #1.
+The cup-round follow-up starts from current main `56c5a5e`, which includes the merged league, fixture and themed-cup changes from PR #2. No additional schema migration is needed.
 
 The current updates are committed for testing at the user's request, including the fixture-view and phase-checkpoint follow-up. **No tests, browser checks, or performance benchmarks were run for this update.** Earlier passing results in `validation/checks.json` and `validation/league-combat.json` belong to commit `8cc5277`; they do not validate these changes. Both reports are marked accordingly. The combat engine's mechanics, stat balance and replay versions remain unchanged.
 
@@ -54,6 +54,8 @@ New Swiss stages qualify a fighter on three series wins or eliminate them on thr
 Simulation runs on the user's device in the Pages edition. It is not limited by a game server's combat capacity.
 
 League and ordinary cup simulation reuse a small pool of workers (up to four, based on browser-reported hardware). Independent series run in parallel; games within each series preserve their original ordering and seeds. Simulation buffers results in this tab and saves **once after each completed phase** (once after each cup-creator stage). A full-season run checkpoints between phases. Short one-series/matchweek operations no longer write automatically unless they finish a phase. Pause & save and the explicit Save progress controls can checkpoint early. Partial progress must be checkpointed before a reload to retain it.
+
+The league matchweek control becomes **Simulate cup round** during division cups, interleague cups and their qualifiers (including older saved interleague seasons). It finishes the remaining series in the current competition's round, then stops before the next round or competition. League matchweek simulation still includes all divisions scheduled for that week. Cup-round runs use the same phase-end checkpoints; completing a round alone does not trigger a save.
 
 League saves accept a complete phase (up to 4,096 series) in one atomic command with revision/operation checks. Successful responses return only the new revision. Large operation receipts are compressed, and retrying a completed checkpoint cannot repeat records or titles. Conflicting checkpoints retain local results and rebase compatible already-saved prefixes. League calendars are cached, simulation avoids repeated whole-world clones, and UI rendering is throttled between computation batches.
 
