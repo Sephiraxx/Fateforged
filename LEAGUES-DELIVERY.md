@@ -1,6 +1,6 @@
 # Fateforged leagues and cup update — October 5
 
-The current update is committed for testing at the user's request. **No tests, browser checks, or performance benchmarks were run for this update.** Earlier passing results in `validation/checks.json` and `validation/league-combat.json` belong to commit `8cc5277`; they do not validate these changes. Both reports are marked accordingly. The combat engine's mechanics, stat balance and replay versions remain unchanged.
+The current updates are committed for testing at the user's request, including the fixture-view and phase-checkpoint follow-up. **No tests, browser checks, or performance benchmarks were run for this update.** Earlier passing results in `validation/checks.json` and `validation/league-combat.json` belong to commit `8cc5277`; they do not validate these changes. Both reports are marked accordingly. The combat engine's mechanics, stat balance and replay versions remain unchanged.
 
 ## Generation audit
 
@@ -51,15 +51,19 @@ New Swiss stages qualify a fighter on three series wins or eliminate them on thr
 
 Simulation runs on the user's device in the Pages edition. It is not limited by a game server's combat capacity.
 
-League and ordinary cup simulation reuse a small pool of workers (up to four, based on browser-reported hardware). Independent series run in parallel; games within each series preserve their original ordering and seeds. League commands save up to twelve series atomically with one revision claim and operation ID, rather than compressing/saving after every series. Successful batch responses return only the new revision instead of transferring the full season. Retried batches remain idempotent, and conflicting tabs reload the latest season. League calendars are cached. UI rendering happens between batches; collapsed league replay lists avoid rebuilding replay rows during simulation, and ordinary cup history shows the latest 80 rows with older replays available through the bracket.
+League and ordinary cup simulation reuse a small pool of workers (up to four, based on browser-reported hardware). Independent series run in parallel; games within each series preserve their original ordering and seeds. Simulation buffers results in this tab and saves **once after each completed phase** (once after each cup-creator stage). A full-season run checkpoints between phases. Short one-series/matchweek operations no longer write automatically unless they finish a phase. Pause & save and the explicit Save progress controls can checkpoint early. Partial progress must be checkpointed before a reload to retain it.
 
-Pause waits for the current batch (up to twelve series) to finish and save. Failed batch saves retain the completed results for Retry save. Export/import retains both 140-member legacy worlds and 164-member new worlds and checks membership against each world's version.
+League saves accept a complete phase (up to 4,096 series) in one atomic command with revision/operation checks. Successful responses return only the new revision. Large operation receipts are compressed, and retrying a completed checkpoint cannot repeat records or titles. Conflicting checkpoints retain local results and rebase compatible already-saved prefixes. League calendars are cached, simulation avoids repeated whole-world clones, and UI rendering is throttled between computation batches.
+
+The league picker opens a compact view with independently collapsible standings, division-cup fixtures, interleague cups/qualifiers and season champions. Fixture draws are reconstructed from their original seeds without mutating the season. They show byes, completed scores/replays, the next series and labelled future-winner slots. Interleague fixtures highlight selected-league entrants. Cup draws unlock after the league season, and older single-interleague seasons retain their original format. Expanded/collapsed preferences survive redraws and are kept per selected league and season. Archives expose the same fixture views.
+
+Export/import retains both 140-member legacy worlds and 164-member new worlds and checks membership against each world's version. Backups contain the last successful checkpoint, so use the manual Save progress control first if stopping in the middle of a phase.
 
 These changes remove identifiable overhead, but the actual speed improvement has not been measured. Combat still uses the same simulation step and engine.
 
 ## Deferred validation and delivery
 
-Check scripts were updated for 20/24 schedules, 164 fighters, two distinct cup fields, qualification stages, draws, Swiss thresholds, legacy roster expansion, and atomic compact batch retries. They have **not** been executed in this update. The expected series counts are 2,055 for a single season and 3,901 for a double season, including division cups and both qualification/main-cup pairs. There are 16 title categories per new season.
+Check scripts were updated for 20/24 schedules, 164 fighters, two distinct cup fields, qualification stages, draws, Swiss thresholds, legacy roster expansion, full-phase atomic checkpoints and compressed retry receipts. A separate read-only fixture check covers the seeded draws and every next pairing through a full season. They have **not** been executed in this update. The expected series counts are 2,055 for a single season and 3,901 for a double season, including division cups and both qualification/main-cup pairs. There are 16 title categories per new season.
 
 The server and Pages output were rebuilt for delivery. Run the updated checks after the commit with Node 24:
 

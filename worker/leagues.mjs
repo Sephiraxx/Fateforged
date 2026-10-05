@@ -11,10 +11,12 @@ async function leagueApi(request,env,url){
  if(request.method!=='POST'||url.pathname!=='/api/leagues')fail('Method not allowed.',405);
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a league command as JSON.',415);
- const text=await request.text();if(text.length>100000)fail('League command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
+ const text=await request.text();if(text.length>12000000)fail('League command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
  if(!plain(input)||!UUID.test(input.operationId)||!['start','record','recordBatch','rollover'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid league command.');
- const encodedRequest=JSON.stringify(input),previous=await env.DB.prepare('SELECT request_json FROM league_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
- if(previous){if(previous.request_json!==encodedRequest)fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
+ const requestJson=JSON.stringify(input),previous=await env.DB.prepare('SELECT request_json FROM league_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
+ if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
+ // Full phases contain thousands of games. Keep their retry receipt compact.
+ const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
  const row=await get();if((row?.revision??0)!==input.revision)fail('League progress changed in another tab. Refresh before continuing.',409);
  let world=row?await decodeTournament(row.state_json):null,newFighters=[],archive=null,played=[];
  if(input.action==='start'){
@@ -24,8 +26,9 @@ async function leagueApi(request,env,url){
  }else if(!world)fail('Start the league system first.',409);
  else if(input.action==='record'||input.action==='recordBatch'){
   const records=input.action==='record'?[input]:input.series;
-  if(!Array.isArray(records)||!records.length||records.length>12)fail('Save between one and twelve series per batch.');
-  try{for(const record of records)played.push(LEAGUES.record(world,record.matchId,record.results));}catch(e){fail(e.message);}
+  if(!Array.isArray(records)||!records.length||records.length>4096)fail('Save no more than one league phase at a time.');
+  const phase=world.phase;
+  try{for(const record of records){if(world.phase!==phase)throw Error('Save each completed phase before the next phase.');played.push(LEAGUES.record(world,record.matchId,record.results));}}catch(e){fail(e.message);}
  }else{
   if(world.phase!=='complete')fail('Finish the season before rollover.');
   newFighters=['legendary','legendary','unique','unique','mythic'].map(rarity=>makeLeagueFighter(rarity));
