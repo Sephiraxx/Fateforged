@@ -34,9 +34,10 @@ for(const team of drafted.teams){
 assert.equal(L.available(drafted).length,20,'Undrafted fighters become free agents.');
 // Snake order: round two reverses round one.
 assert.deepEqual(drafted.draft.picks.slice(8,16).map(p=>p.team),drafted.draft.picks.slice(0,8).map(p=>p.team).reverse());
-// Star chasers spend more on their top pick than bargain hunters on average.
-const firstPick=style=>{const ids=drafted.teams.filter(t=>t.coach.personality===style).map(t=>t.id);const picks=drafted.draft.picks.filter(p=>ids.includes(p.team));return picks.length?Math.max(...picks.map(p=>p.salary)):null;};
-if(firstPick('star')!==null&&firstPick('bargain')!==null)assert(firstPick('star')>=firstPick('bargain'));
+// Star chasers spend more on their top pick than bargain hunters, on average over several leagues.
+const topSpend={star:[],bargain:[]};
+for(const [teams,seed]of [[8,4242],[8,4243],[16,4244],[16,4245]]){const w=L.create({id:'x',format:3,teams,seed,fighters:buildPool(3,teams,seed)});L.draftPicks(w,1e6);for(const t of w.teams)topSpend[t.coach.personality]?.push(Math.max(...w.draft.picks.filter(p=>p.team===t.id).map(p=>p.salary)));}
+const mean=list=>list.reduce((a,b)=>a+b,0)/list.length;assert(mean(topSpend.star)>mean(topSpend.bargain),`star ${mean(topSpend.star)} vs bargain ${mean(topSpend.bargain)}`);
 assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.slice(1)}),/must hold/);
 assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.map((f,i)=>i?f:{...f,summary:{...f.summary,tier:f.summary.tier==='A'?'S':'A'}})}),/planned tier/);
 
