@@ -85,9 +85,10 @@
 .team-league-table tr.role-healer td:first-child{box-shadow:inset 3px 0 var(--lime)}
 .team-league-table tr.role-controller td:first-child{box-shadow:inset 3px 0 var(--violet)}
 .team-league-table tr.role-damage td:first-child{box-shadow:inset 3px 0 #ffb070}
-.team-conferences{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.team-conferences{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:16px}
+.team-conference{min-width:0}
 .team-conference h3{font:700 .85rem/1.2 var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.team-division{display:grid;gap:6px;margin-bottom:12px}
+.team-division{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin-bottom:12px}
 .team-division h4{margin:4px 0 2px}
 .team-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;width:100%;padding:9px 12px;text-align:left;background:#ffffff04;border:1px solid var(--line);color:var(--text);transition:border-color .15s,background .15s}
 .team-card:hover{border-color:var(--line-2)}
@@ -195,5 +196,8 @@ body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{disp
 .week-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 6px}
 .week-nav select{margin:0;flex:0 1 200px}
 /* Team rosters open inline under their card. */
-.team-division .team-detail{margin:0 0 8px}
+.team-division .team-detail{margin:0 0 8px;min-width:0;padding:12px}
+/* Wide tables inside a team scroll sideways in their own box instead of widening the page. */
+.team-detail .table-scroll{max-width:100%;overflow-x:auto}
+@media (max-width:640px){.team-detail .team-league-table td,.team-detail .team-league-table th{padding-left:6px;padding-right:6px}}
 .team-card[aria-expanded="true"]{border-color:var(--accent)}
