@@ -78,3 +78,60 @@ Every support role adds value, and mixed teams beat pure damage. `scripts/check-
 - an average 5v5 battle runs in under 750 ms in node.
 
 Measured runtimes are about 40–330 ms per battle, so whole seasons are practical to simulate.
+
+# Team leagues: phase 2 (pool, ratings, coaches, draft)
+
+Each format (3v3 and 5v5) has one franchise league per player. You create it from the **League** tab of the 3v3 or 5v5 screen.
+
+## Founding a league
+- **Size.** Choose 8, 16 or 32 teams.
+  - 32 teams: the **Sunward** and **Shadeward** conferences, each with four divisions (**Frostmark**, **Emberreach**, **Dawnvale**, **Duskhold**) of four teams.
+  - 16 teams: two divisions per conference.
+  - 8 teams: one division per conference.
+- **Teams and coaches.** Every team gets a themed name and an AI head coach with a seeded personality:
+
+| Personality | Drafting style |
+|---|---|
+| Bargain hunter | Values rating per salary |
+| Star chaser | Pays up for the highest ratings |
+| Glass cannon | Favours damage and control |
+| Fortress builder | Favours tanks and healers |
+| Tactician | Favours controllers and healers |
+| Balanced | Fills role needs first |
+
+- **Fighter pool.** The league scouts a fresh pool sized at 1.5× the roster slots:
+  - 3v3 rosters hold 5 fighters, so 8/16/32 teams get 60/120/240 fighters.
+  - 5v5 rosters hold 8 fighters, so 8/16/32 teams get 96/192/384 fighters.
+  - Each pool slot has a seeded role and tier: about 70% A, 28% S and 2% SS.
+- **Generation and validation.**
+  - The browser generates the pool (`team-generation.js` `poolFighter`) in small chunks so the page stays responsive.
+  - The server re-validates every fighter against the canonical wheel pools (`validateSnapshot`) and checks its tier against the seeded pool plan.
+  - Ratings, salaries, coaches and draft picks are always computed by the shared rules (`public/team-league.js`). The client never submits them.
+
+## Ratings and salaries
+- **OVR (40–99)** is a closed-form rating built from:
+  - effective HP and damage per second (the same square-root scaling as combat);
+  - spell power and ability rarity;
+  - speed and IQ;
+  - a small per-role term.
+- **Calibration.** The weights are fitted to each fighter's measured win share in thousands of seeded team battles (`scripts/evaluate-team-values.mjs`, `validation/team-values.json`).
+- **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
+- **Salary cap.** Every team gets the same cap: the average salary of the fighters who will be drafted, multiplied by roster size. An average team can afford an average roster, but nobody can stack stars.
+
+## The draft
+- **Order.** Season 1 uses a seeded random order as a snake draft: round two reverses round one.
+- **How a coach picks.** On the clock, a coach scores every affordable fighter by OVR, salary relative to the average roster slot, role need and its personality, plus a small seeded tiebreak. A pick must leave enough cap to fill the remaining slots with the cheapest fighters still available. When open slots equal unmet role needs, only needed roles are considered.
+- **Guarantees.** Every roster ends complete, under the cap, and covering its format's needs:
+  - 3v3: tank, healer, two damage.
+  - 5v5: two tanks, two healers, a controller, three damage.
+- **Starting lineups** fill the format's role slots with the best rated fighters.
+- **Free agents.** Undrafted fighters stay in the league as free agents for the offseason (phase 4).
+- **Pacing.** The server runs picks one at a time, by round or all at once. Each command is deterministic, revision-checked and retry-safe, using the same operation receipts as the 1v1 league.
+- **Scrimmages.** After the draft, any two teams' starters can scrimmage on the arena canvas.
+
+## Storage
+- Migration `0013_team_leagues` adds two tables:
+  - `team_worlds`: one row per owner per format.
+  - `team_operations`: retry receipts.
+- Worlds are gzip-encoded (a 384-fighter 5v5 world is about 270 KB raw).
+- Browser backups include both tables.

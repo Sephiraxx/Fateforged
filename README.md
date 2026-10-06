@@ -4,6 +4,8 @@ Fantasy character generator, saved roster, top-down combat arena and multi-stage
 
 **Team battles:** 3v3 and 5v5 battles put every fighter on the field, with tank, healer, controller and damage roles. They run on a team engine that reuses combat 12's rules, and combat 12 itself stays frozen. The rail's 3v3 and 5v5 screens run exhibition battles with saved or generated S/A fighters. See [TEAM-BATTLES.md](TEAM-BATTLES.md).
 
+**Team leagues:** found an 8, 16 or 32-team 3v3 or 5v5 league from the League tab. The league scouts a fresh S/A pool (rare SS) and rates every fighter (OVR, calibrated on team-battle results) with a matching salary. AI head coaches with their own personalities then snake-draft under a shared salary cap. Season play and the offseason follow in later updates.
+
 The interface uses one app shell across both pages: a navigation rail (a bottom tab bar on phones) for Forge, Roster, Fight, Cups, Leagues and Champions, with the Arena screens addressable as `arena.html#fight`, `#cups`, `#leagues` and `#champions`. Rules and reference text live in the **How it works** drawer (the `?` and ⓘ buttons). Styles are `style.css` (shared design system and shell) plus `forge.css`, `arena.css`, `leagues.css` and `roster.css`.
 
 The class-identity release adds class/subclass-aware equipment, 54 spells and 10 stamina techniques. See [the release report](CLASS-ABILITIES.md) for rules, validation, compatibility and reproducible evaluations. New worlds use combat 12 and generation 3; existing competitions finish on their pinned engine before season rollover adopts the release.
