@@ -14,7 +14,18 @@
   return labels.length?'👑 Current champion · '+labels.join(' · '):'';
  };
  const growthText=character=>{const g=character.summary?.growth;return g?`+${(g.bonus||[]).reduce((a,b)=>a+b,0)} previously earned points (retained)`:'';};
- root.ROSTER_VIEW={winRate,titles,select,currentChampionText,growthText};
+ function titleBreakdown(character,records=[]){
+  return records.filter(r=>r.characterId===character.id&&r.divisionKey!=='latest'&&r.titles>0).sort((a,b)=>b.titles-a.titles||a.label.localeCompare(b.label));
+ }
+ function championshipDetails(character,records=[]){
+  const details=document.createElement('details');details.className='fighter-trophies';
+  const summary=document.createElement('summary');summary.textContent=`${titles(character,records)} championships won`;details.append(summary);
+  const breakdown=titleBreakdown(character,records);
+  for(const r of breakdown){const item=document.createElement('p');item.className='title-record';item.textContent=`${r.titles}× ${r.label}`;if(r.currentStreak>=2)item.textContent+=` · ${r.currentStreak} in a row 🔥`;details.append(item);}
+  if(!breakdown.length){const empty=document.createElement('p');empty.className='muted';empty.textContent=titles(character,records)?'No competition breakdown is available for these older titles.':'No championships yet.';details.append(empty);}
+  return details;
+ }
+ root.ROSTER_VIEW={winRate,titles,select,currentChampionText,growthText,titleBreakdown,championshipDetails};
 })(globalThis);
 
 if(typeof document!=='undefined'&&document.head){const fonts=document.createElement('link');fonts.rel='stylesheet';fonts.href='https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap';document.head.append(fonts);}

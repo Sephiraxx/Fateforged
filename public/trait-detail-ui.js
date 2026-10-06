@@ -3,11 +3,12 @@ const LABELS={race:'Race',subrace:'Subrace',class:'Class',subclass:'Subclass',st
 const node=(tag,className,text)=>{const e=document.createElement(tag);e.className=className;if(text!==undefined)e.textContent=text;return e;};
 let installed=false;
 export function openTraitDetails(character,key='overview',options={}){
+ const rollStats={strength:'STR',speed:'SPD',durability:'DUR',iq:'IQ',magic:'MAG'};key=rollStats[key]||key;
  const dialog=document.getElementById('trait-details'),picker=document.getElementById('trait-detail-picker');
  if(!installed){document.getElementById('close-trait-details').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();});installed=true;}
  const traits=character.traits||character.state?.traits||{};
  picker.replaceChildren();let selectedButton;
- for(const [id,label] of [...STAT_KEYS.map(k=>[k,k]),...Object.entries(LABELS).filter(([id])=>traits[id])]){
+ for(const [id,label] of [...STAT_KEYS.map(k=>[k,k]),...Object.entries(LABELS).filter(([id])=>traits[id]&&!['strength','speed','durability','iq','magic'].includes(id))]){
   const button=node('button','detail-picker-button',label);button.type='button';button.setAttribute('aria-pressed',String(key===id));if(key===id)selectedButton=button;button.addEventListener('click',()=>openTraitDetails(character,id,{...options,label:LABELS[id]||'Combat stat',contribution:options.contributions?.[id]}));picker.append(button);
  }
  const model=buildTraitDetails(character,key,{...options,label:options.label||LABELS[key]});

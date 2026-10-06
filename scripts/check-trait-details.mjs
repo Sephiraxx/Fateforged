@@ -55,3 +55,7 @@ elements.get('close-trait-details').listeners.click();assert(!elements.get('trai
 openTraitDetails(fighter,'power2');assert.equal(elements.get('trait-detail-title').textContent,'Blood control');
 elements.get('trait-details').listeners.click({target:elements.get('trait-details'),clientX:0,clientY:0});assert(!elements.get('trait-details').open);
 console.log('Trait details passed: all 50 powers, all 26 weaknesses, 5 stats, live engine damage/duration comparisons, weapon formulas, contributions, no-power slots and shared dialog navigation/closing.');
+
+const rollTraits={strength:'Titanic',speed:'Swift',durability:'Sturdy',iq:'Genius',magic:'Adept'},rollKeys=Object.keys(rollTraits);
+for(const [i,key]of STAT_KEYS.entries()){const c={...fighter,traits:{...fighter.traits,...rollTraits}},contributions={[rollKeys[i]]:[11,22,33,44,55]};const m=buildTraitDetails(c,key,{contributions});assert.equal(m.rows.find(r=>r.label==='Roll result').value,rollTraits[rollKeys[i]]);assert(m.rows.find(r=>r.label==='Roll result').formula.includes('+'+[11,22,33,44,55][i]+' '+key));}
+openTraitDetails({...fighter,traits:{...fighter.traits,...rollTraits}},'strength',{contributions:{strength:[25,0,0,0,0]}});assert.equal(elements.get('trait-detail-title').textContent,'Strength');assert(!elements.get('trait-detail-picker').children.some(b=>/ roll$/.test(b.textContent)));assert(elements.get('trait-detail-metrics').children.some(e=>e.children.some(x=>x.textContent==='Titanic')));

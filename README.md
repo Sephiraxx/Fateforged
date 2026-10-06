@@ -7,3 +7,7 @@ The class-identity release adds class/subclass-aware equipment, 54 spells and 10
 The frozen [v11 balance report](BALANCE-V11.md) remains the comparison baseline. Saved careers, historical results and earned stat bonuses are preserved.
 
 Crownfire Convergence and Emberveil Challenge use [double elimination](INTERLEAGUE-CUPS.md): Bo3 brackets, Bo5 grand finals, and a Bo5 reset when needed.
+
+Fighter championship totals expand into counts for each league, division cup, interleague cup and custom tournament category in both collections, arena profiles and league tables. Each stat's details include its original roll and bonus; the five separate roll entries are removed from the detail picker and character reveal. Fixture lists omit entrant and first-round bye paragraphs.
+
+At rollover, complete fighters saved from the wheel or bulk generator fill roster openings before automatic recruits. They enter Dawnrise oldest saved first, keeping their names, rolls, equipment and earned bonuses; excess fighters wait for later seasons. Older 140-fighter worlds also use waiting fighters for their expansion openings. Previously admitted fighters, incomplete builds and fighters retained from closed worlds are excluded. Automatic recruits still follow the seeded rarity recipe for any unfilled slots. No reset or new roster is required.

@@ -28,3 +28,5 @@ button.stat-row{width:100%;border:0;background:transparent;color:inherit;font:in
 @media(max-width:480px){#trait-details{max-height:90dvh;border-radius:15px}.detail-heading{padding:17px 16px 13px}.detail-body{padding:14px 16px 20px}#trait-detail-metrics{grid-template-columns:1fr 1fr;gap:7px}.detail-metric{padding:11px 10px}.detail-metric-value{font-size:14px}.detail-metric-formula{font-size:11px}}
 
 button.stat-row .stat-track,button.stat-row .stat-fill{display:block}.sheet-panel>.detail-hint{padding:0 20px}
+
+.fighter-trophies{margin:10px 0;font-size:13px;color:#bbc8d2}.fighter-trophies>summary{cursor:pointer;min-height:32px;padding:6px 0;color:#e4c58c;overflow-wrap:anywhere}.fighter-trophies>summary:focus-visible{outline:2px solid #e4c58c;outline-offset:3px}.fighter-trophies .title-record{margin:6px 0;overflow-wrap:anywhere}

@@ -30,13 +30,13 @@ const ctx=$('arena').getContext('2d'),images={};for(const name of ['weapons','ef
 const arenaFloor=new Image();arenaFloor.src='./assets/obsidian.webp';arenaFloor.onload=()=>needsDraw=true;
 const status=(text,error=false)=>{$('arena-status').textContent=text;$('arena-status').classList.toggle('error',error);};
 async function api(path,options={}){const response=await globalThis.FATEFORGE_STORAGE.fetch('/api/'+path,{credentials:'same-origin',...options,headers:{'content-type':'application/json',...options.headers}});let data;try{data=await response.json();}catch{throw new Error('Storage did not respond. Try again.');}if(!response.ok){const e=new Error(data.error||'Could not save or load.');e.status=response.status;throw e;}return data;}
-function compact(c){return {id:c.id,name:c.name,summary:c.summary,traits:c.state?.traits||c.traits||{}};}
+function compact(c){return {id:c.id,name:c.name,summary:c.summary,...(Number.isInteger(c.championships)?{championships:c.championships}:{}),traits:c.state?.traits||c.traits||{}};}
 async function character(id){if(loaded.has(id))return loaded.get(id);const {character:c}=await api('characters/'+id);profileContributions.set(id,traitContributions(c.state));const result=compact(c);loaded.set(id,result);return result;}
 function option(value,text){const n=node('option',text);n.value=value;return n;}
 function rosterName(id){return tournament?.roster.find(c=>c.id===id)?.name||roster.find(c=>c.id===id)?.name||id;}
 async function refreshRoster(){status('Loading saved characters…');$('arena-signin').hidden=true;try{const data=await api('characters');roster=data.characters;loaded.clear();profileContributions.clear();for(const c of roster)if(c.traits)loaded.set(c.id,compact(c));renderArenaCollection();for(const id of ['choose-a','choose-b']){const old=$(id).value;$(id).replaceChildren(option('','Choose a saved character'));for(const c of roster)$(id).append(option(c.id,`${c.name} · ${tierFor(c.summary.total)}`));if(roster.some(c=>c.id===old))$(id).value=old;}
  renderEntrants();
- if(roster.length>=2&&!$('choose-a').value&&!$('choose-b').value){$('choose-a').value=roster[0].id;$('choose-b').value=roster[1].id;}const repaired=roster.filter(c=>c.repairs?.length).length;status(repaired?`${repaired} fighter${repaired===1?'':'s'} updated: removed powers / weaknesses rerolled. No-power results kept.`:roster.length<2?'Save at least two characters on the character wheel to start fighting.':`${roster.length} saved characters · tiers do not restrict matchups.`);await Promise.all([refreshChampions(),showProfile('a'),showProfile('b')]);updateButtons();}catch(e){status(e.message,true);$('arena-signin').hidden=e.status!==401;}}
+ if(roster.length>=2&&!$('choose-a').value&&!$('choose-b').value){$('choose-a').value=roster[0].id;$('choose-b').value=roster[1].id;}const repaired=roster.filter(c=>c.repairs?.length).length;status(repaired?`${repaired} fighter${repaired===1?'':'s'} updated: removed powers / weaknesses rerolled. No-power results kept.`:roster.length<2?'Save at least two characters on the character wheel to start fighting.':`${roster.length} saved characters · tiers do not restrict matchups.`);await refreshChampions();await Promise.all([showProfile('a'),showProfile('b')]);updateButtons();}catch(e){status(e.message,true);$('arena-signin').hidden=e.status!==401;}}
 async function inspectCharacter(c,key='overview'){
  if(!profileContributions.has(c.id)){const {character:full}=await api('characters/'+c.id);profileContributions.set(c.id,traitContributions(full.state));c=compact(full);loaded.set(c.id,c);}
  openTraitDetails(c,key,{contributions:profileContributions.get(c.id),contribution:profileContributions.get(c.id)?.[key]});
@@ -46,7 +46,7 @@ async function showProfile(side){
  try{const c=await character(id);if($('choose-'+side).value!==id)return;
  const tap=(key,text)=>{const b=node('button',text,'trait-tap');b.type='button';b.setAttribute('aria-label',text+'. View combat details');b.addEventListener('click',()=>guard(()=>inspectCharacter(c,key)));return b;};
  const badge=node('span',tierFor(c.summary.total),'tier-badge');badge.setAttribute('data-tier',tierFor(c.summary.total));$p.append(badge,node('p','Tap stats or traits for combat details.','detail-hint'));
- const stats=node('div','','detail-stat-buttons');c.summary.stats.forEach((x,i)=>stats.append(tap(STAT_KEYS[i],STAT_KEYS[i]+' '+x)));$p.append(stats,tap('weapon',c.traits.weapon||'Bare hands'));
+ const stats=node('div','','detail-stat-buttons');c.summary.stats.forEach((x,i)=>stats.append(tap(STAT_KEYS[i],STAT_KEYS[i]+' '+x)));$p.append(ROSTER_VIEW.championshipDetails(c,championRecords),stats,tap('weapon',c.traits.weapon||'Bare hands'));
  for(const key of ['power','power2'])if(c.traits[key]){const line=node('div','','trait');line.append(tap(key,c.traits[key]));$p.append(line);}
  const weak=node('div','','trait');weak.append(tap('weakness','Weakness: '+(c.traits.weakness||'None rolled')));$p.append(weak);
  const lineage=node('details','','profile-lineage');lineage.append(node('summary','Ancestry & training'));for(const key of ['race','subrace','class','subclass','mastery'])if(c.traits[key])lineage.append(tap(key,c.traits[key]));$p.append(lineage);
@@ -199,7 +199,7 @@ function renderArenaCollection(){const filterKey=JSON.stringify(['collection-ord
   if(c.summary.growth||c.summary.promotion)card.append(node('p',globalThis.ROSTER_VIEW.growthText(c),'earned-growth'));
   const crownText=ROSTER_VIEW.currentChampionText(c,champions);if(crownText)card.append(node('p',crownText,'champion-titles'));
   if(c.leagueMember)card.append(node('p',c.leagueMember.name+' · protected league member','saved-details'));
-  const rate=ROSTER_VIEW.winRate(c),r=c.matchRecord||{wins:0,losses:0,draws:0,matches:0};card.append(node('p',`${r.wins} W · ${r.losses} L${r.draws?' · '+r.draws+' D':''} · ${r.matches} matches · ${rate===null?'Unplayed':rate.toFixed(1)+'% wins'}`,'fighter-record'),node('p',`${ROSTER_VIEW.titles(c,championRecords)} championships won`,'saved-details'));
+  const rate=ROSTER_VIEW.winRate(c),r=c.matchRecord||{wins:0,losses:0,draws:0,matches:0};card.append(node('p',`${r.wins} W · ${r.losses} L${r.draws?' · '+r.draws+' D':''} · ${r.matches} matches · ${rate===null?'Unplayed':rate.toFixed(1)+'% wins'}`,'fighter-record'),ROSTER_VIEW.championshipDetails(c,championRecords));
   const details=node('details'),body=node('div','','profile');details.append(node('summary','Stats & traits'));
   const tap=(key,text)=>{const button=node('button',text,'trait-tap');button.type='button';button.addEventListener('click',()=>guard(async()=>inspectCharacter(await character(c.id),key)));return button;};
   const stats=node('div','','detail-stat-buttons');c.summary.stats.forEach((v,i)=>stats.append(tap(STAT_KEYS[i],STAT_KEYS[i]+' '+v)));body.append(stats);
@@ -225,4 +225,4 @@ BULK_CHARACTERS.mount($('collection-bulk'),{
  }
 });
 
-const leagueUI=mountLeagues($('league-panel'),{blocked:()=>!!series||resolving||bulkBusy||saving,busy:value=>{leagueBusy=value;updateButtons();},refresh:refreshRoster,watch:async(a,b,format,conditions,environments)=>{await loadReplayEngine(format.engineVersion??12);return new Promise((resolve,reject)=>{try{beginSeries(a,b,format,format.seed,conditions,!environments&&!format.allowDraw,'League series',resolve,format.engineVersion??12,environments);}catch(e){reject(e);}});}});
+const leagueUI=mountLeagues($('league-panel'),{blocked:()=>!!series||resolving||bulkBusy||saving,busy:value=>{leagueBusy=value;updateButtons();},trophies:c=>ROSTER_VIEW.championshipDetails(c,championRecords),refresh:refreshRoster,watch:async(a,b,format,conditions,environments)=>{await loadReplayEngine(format.engineVersion??12);return new Promise((resolve,reject)=>{try{beginSeries(a,b,format,format.seed,conditions,!environments&&!format.allowDraw,'League series',resolve,format.engineVersion??12,environments);}catch(e){reject(e);}});}});

@@ -4,12 +4,12 @@
     {
       "file": "check-arena-ui.mjs",
       "passed": true,
-      "seconds": 0.7
+      "seconds": 0.8
     },
     {
       "file": "check-balance-v10.mjs",
       "passed": true,
-      "seconds": 6.5
+      "seconds": 6.3
     },
     {
       "file": "check-balance-v11.mjs",
@@ -24,7 +24,7 @@
     {
       "file": "check-class-abilities.mjs",
       "passed": true,
-      "seconds": 12.6
+      "seconds": 12.8
     },
     {
       "file": "check-fighter-growth.mjs",
@@ -44,12 +44,12 @@
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 41.7
+      "seconds": 40.5
     },
     {
       "file": "check-league-fixtures.mjs",
       "passed": true,
-      "seconds": 1.9
+      "seconds": 2
     },
     {
       "file": "check-league-pages.mjs",
@@ -74,7 +74,12 @@
     {
       "file": "check-pages.mjs",
       "passed": true,
-      "seconds": 2.1
+      "seconds": 2
+    },
+    {
+      "file": "check-player-intake.mjs",
+      "passed": true,
+      "seconds": 3
     },
     {
       "file": "check-requested-reset.mjs",
@@ -84,12 +89,12 @@
     {
       "file": "check-rewind.mjs",
       "passed": true,
-      "seconds": 4.2
+      "seconds": 4
     },
     {
       "file": "check-roster-performance.mjs",
       "passed": true,
-      "seconds": 0.8
+      "seconds": 0.9
     },
     {
       "file": "check-roster-view.mjs",
@@ -104,7 +109,7 @@
     {
       "file": "check-singularity.mjs",
       "passed": true,
-      "seconds": 5.3
+      "seconds": 5.1
     },
     {
       "file": "check-stage-recommendations.mjs",

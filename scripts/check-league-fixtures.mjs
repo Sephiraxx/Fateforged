@@ -20,3 +20,22 @@ while(LEAGUES.next(world)){
 }
 for(const cup of [...world.divisions.map((_,d)=>leagueCupFixtures(world,d)),...interleagueFixtures(world).cups])for(const fixture of cup.rounds.flatMap(r=>r.matches).filter(m=>m.status!=='conditional')){const actual=world.history.find(m=>m.id===fixture.id);assert(actual);assert.deepEqual(fixture.result,actual);assert.equal(fixture.status,'completed');}
 console.log('League fixtures: seeded draws, 20/24-member byes, every next pairing, qualifiers, two cups, completed results and read-only viewing.');
+
+// Exercise the actual collapsible renderer, including lazy fixture expansion
+// and trophy access from current/archived league rows.
+class Element{
+ constructor(tag){this.tag=tag;this.children=[];this.listeners={};this.classes=new Set();this.classList={add:v=>this.classes.add(v),toggle(){}};this.textContent='';}
+ append(...children){this.children.push(...children);}replaceChildren(...children){this.children=children;}setAttribute(k,v){this[k]=v;}addEventListener(k,fn){this.listeners[k]=fn;}
+}
+globalThis.document={createElement:tag=>new Element(tag)};
+globalThis.fetch=async path=>({ok:true,json:async()=>path.endsWith('/history')?{seasons:[]}:{world:structuredClone(world),revision:1}});
+await import('../public/roster-view.js');const {mountLeagues}=await import('../public/league-ui.js');
+const host=new Element('section'),records=[{characterId:world.divisions[0][0],divisionKey:'league:0',label:'Crownfire Premier league',titles:2}],ui=mountLeagues(host,{blocked:()=>false,trophies:c=>globalThis.ROSTER_VIEW.championshipDetails(c,records)});
+await ui.load();const walk=e=>[e,...e.children.flatMap(walk)],panel=label=>walk(host).find(e=>e.tag==='details'&&e.children[0]?.textContent===label);
+assert(walk(host).some(e=>e.textContent==='2 championships won'));
+const divisionPanel=panel('Division cup fixtures');divisionPanel.open=true;divisionPanel.listeners.toggle();
+const fixtureText=walk(divisionPanel).map(e=>e.textContent).join(' ');assert(fixtureText.includes('Bo5'));assert(!fixtureText.includes('From this league:'));assert(!fixtureText.includes('First-round byes:'));assert(walk(divisionPanel).some(e=>e.classes.has('league-fixture-own')));
+const interPanel=panel('Interleague cups & qualifiers');interPanel.open=true;interPanel.listeners.toggle();
+for(const inner of walk(interPanel).filter(e=>e.tag==='details'&&e!==interPanel)){inner.open=true;inner.listeners.toggle();assert(walk(inner).some(e=>e.className==='league-fixture'));}
+assert(!walk(host).some(e=>/Could not|undefined|ReferenceError/.test(e.textContent)));
+console.log('League UI passed: lazy fixture expansion, selected-league highlights, removed entrant/bye paragraphs and clickable trophy totals.');
