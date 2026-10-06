@@ -11,6 +11,8 @@ for(const format of [3,5])for(const teams of L.LEAGUE_SIZES){
  assert(plan.every(s=>['A','S','SS'].includes(s.tier)));for(const role of ['tank','healer','damage'])assert(plan.filter(s=>s.role===role).length>=teams*L.FORMATS[format].needs[role],`${format}v${format} ${teams}: enough ${role}s`);
 }
 assert.throws(()=>L.poolPlan(3,12,1),/8, 16 or 32/);
+// The rating model is the recorded calibration (scripts/evaluate-team-values.mjs).
+assert.deepEqual(JSON.parse(JSON.stringify(L.RATING_MODEL)),JSON.parse(fs.readFileSync('validation/team-values.json','utf8')).model);
 // Ratings and salaries: monotonic, capped, and steeply convex.
 assert.equal(L.salaryFor(50),.8);assert.equal(L.salaryFor(99),14);assert(L.salaryFor(90)-L.salaryFor(80)>L.salaryFor(70)-L.salaryFor(60));
 for(let ovr=40;ovr<99;ovr++)assert(L.salaryFor(ovr+1)>=L.salaryFor(ovr));
@@ -25,7 +27,7 @@ const ovrs=Object.values(world.fighters).map(f=>f.ovr);assert(Math.max(...ovrs)-
 const drafted=structuredClone(world),again=structuredClone(world);L.draftPicks(drafted,1e6);L.draftPicks(again,1e6);assert.deepEqual(drafted,again,'The draft is deterministic.');
 assert(drafted.draft.complete);assert.equal(drafted.phase,'ready');assert.equal(drafted.draft.picks.length,40);
 for(const team of drafted.teams){
- assert.equal(team.roster.length,5);assert(L.payroll(drafted,team)<=drafted.settings.salaryCap+1e-9,`${team.name} stays under the cap`);
+ assert.equal(team.roster.length,5);const exceptions=drafted.draft.picks.filter(p=>p.team===team.id&&p.exception).reduce((n,p)=>n+p.salary,0);assert(L.payroll(drafted,team)-exceptions<=drafted.settings.salaryCap+1e-9,`${team.name} stays under the cap (minimum-contract exceptions aside)`);
  const counts=L.roleCounts(drafted,team);for(const [role,need]of Object.entries(L.FORMATS[3].needs))assert(counts[role]>=need,`${team.name} has enough ${role}s`);
  assert.equal(team.lineup.length,3);assert(team.lineup.every(id=>team.roster.includes(id)));
 }

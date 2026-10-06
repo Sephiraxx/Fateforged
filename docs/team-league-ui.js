@@ -13,7 +13,7 @@ export function mountTeamLeague(host,hooks){
  const body=el('div','','team-league');host.append(status,body);
  const say=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
  async function api(method,payload){
-  const response=await fetch('/api/teams'+(method==='GET'?'?format='+size:''),{method,credentials:'same-origin',headers:{'content-type':'application/json'},...(payload?{body:JSON.stringify(payload)}:{})});
+  const response=await globalThis.FATEFORGE_STORAGE.fetch('/api/teams'+(method==='GET'?'?format='+size:''),{method,credentials:'same-origin',headers:{'content-type':'application/json'},...(payload?{body:JSON.stringify(payload)}:{})});
   let data;try{data=await response.json();}catch{throw new Error('Storage did not respond. Try again.');}
   if(!response.ok){const error=new Error(data.error||'Could not save the team league.');error.status=response.status;throw error;}
   return data;

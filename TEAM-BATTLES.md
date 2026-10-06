@@ -114,14 +114,19 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
   - spell power and ability rarity;
   - speed and IQ;
   - a small per-role term.
-- **Calibration.** The weights are fitted to each fighter's measured win share in thousands of seeded team battles (`scripts/evaluate-team-values.mjs`, `validation/team-values.json`).
+- **Calibration.** The weights are fitted by ridge regression to each fighter's measured win share in 2,560 seeded 3v3 battles: 160 fighters × 16 games (`scripts/evaluate-team-values.mjs`, `validation/team-values.json`).
+  - Fighters in the top predicted quarter win 67.3% of their battles, against 40.6% for the bottom quarter (R² 0.27 with 16 games each).
+  - Durability (effective HP), speed and spell power matter most. Healers rate highest, matching their measured team impact. Ability rarity alone does not predict wins.
+  - A 384-fighter pool spreads from OVR 46 to 98 (median 73).
 - **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
 - **Salary cap.** Every team gets the same cap: the average salary of the fighters who will be drafted, multiplied by roster size. An average team can afford an average roster, but nobody can stack stars.
 
 ## The draft
 - **Order.** Season 1 uses a seeded random order as a snake draft: round two reverses round one.
 - **How a coach picks.** On the clock, a coach scores every affordable fighter by OVR, salary relative to the average roster slot, role need and its personality, plus a small seeded tiebreak. A pick must leave enough cap to fill the remaining slots with the cheapest fighters still available. When open slots equal unmet role needs, only needed roles are considered.
-- **Guarantees.** Every roster ends complete, under the cap, and covering its format's needs:
+- **Cap reserve.** The reserve is role-aware: a pick must leave room for the cheapest fighter of each still-unmet role plus the cheapest fighters for the other open slots, with a 15% margin because rivals may draft those fighters first.
+- **Minimum-contract exception.** If, despite the margin, nothing eligible fits, the coach signs the cheapest eligible fighter past the cap and the pick is marked as an exception. In 20 seeded test leagues this happened once, for 0.1M.
+- **Guarantees.** Every roster ends complete, covering its format's needs, and under the cap apart from exceptions:
   - 3v3: tank, healer, two damage.
   - 5v5: two tanks, two healers, a controller, three damage.
 - **Starting lineups** fill the format's role slots with the best rated fighters.

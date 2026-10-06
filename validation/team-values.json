@@ -1,0 +1,27 @@
+{
+  "fightersPerRole": 40,
+  "gamesPerFighter": 16,
+  "samples": 160,
+  "model": {
+    "intercept": -1.384,
+    "ehp": 0.203,
+    "dps": 0.062,
+    "spell": 0.148,
+    "ability": -0.01,
+    "speed": 0.211,
+    "iq": 0.029,
+    "roles": {
+      "tank": 0,
+      "healer": 0.1,
+      "controller": -0.067,
+      "damage": 0.015
+    }
+  },
+  "r2": 0.268,
+  "winShareByPredictedQuartile": [
+    40.6,
+    47.8,
+    57.5,
+    67.3
+  ]
+}
