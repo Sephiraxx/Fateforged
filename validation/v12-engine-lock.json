@@ -1,0 +1,16 @@
+{
+  "normalizedSHA256": {
+    "combat-v12.js": "36da2e60ee000520694724c60890e9e8cc0239d87066bdcf9a869552f93e5fee",
+    "combat-v12-base.js": "1a22d7d57f6f980ede1e25745e3eebf9fbf36b454b86b52214ba3d1c6ed02173",
+    "combat-v12-profile.js": "fa5e7d915d92bbb5e4cc3b39cd0a9db3bba4102f2a617fcdd03e870519b3cf9e",
+    "combat-v12-contact.js": "5d53783a763345fd18be4be39db2d86132383c9f49f25d40c66e46ea3e95da66",
+    "combat-v12-environment.js": "546e274ec3efaf007c71249b4eb1f5b77282b27630a2f917aa65c110aec7dc7e",
+    "combat-v12-powers.js": "1b1cf956d1a152aa6b63fc9fce2be5902ac82e03221736c10723ff2910a90109",
+    "abilities-v12.js": "8242eb401a74131230ecda39b9d2224e94a6796e0e8a1d00fccc5b6f0c426208",
+    "abilities-v11.js": "4787831971c65f1df7aa40f426f62391e9309a2e46be972145643acd9ae4ab61",
+    "abilities.js": "d19f69b0c3fcdf658a1795d792ffefc1a4d7e7d306617929cdf9d060d55ec1bf",
+    "class-abilities.js": "322b4740aed98e5e2ffe78e923e2187ad6b4a3824bd0ab45569c6c05eaf69d4c",
+    "conditions.js": "12c0c677433a8a2710f08f02e9a470fe01cbf5e34318f3e3987e8935ca61c77d",
+    "combat-engines.js": "4e3199b9238c99bb4c67b420526d4ec0727cb197eb10b4e3c72302747eed426e"
+  }
+}

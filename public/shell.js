@@ -1,12 +1,14 @@
 // App shell: keeps the rail, screen title, URL hash and help drawer in step with the page.
 (function(){
  const body=document.body,$=id=>document.getElementById(id);
- const TITLES={forge:'Forge',roster:'Roster',fight:'Fight',cups:'Cups',leagues:'Leagues',champions:'Champions'};
- const TABS={fight:'duel-tab',cups:'tourney-tab',leagues:'league-tab',champions:'history-tab'};
+ const TITLES={forge:'Forge',roster:'Roster',fight:'Fight',cups:'Cups',leagues:'Leagues',champions:'Champions',team3:'3v3',team5:'5v5'};
+ const TABS={fight:'duel-tab',cups:'tourney-tab',leagues:'league-tab',champions:'history-tab',team3:'team3-tab',team5:'team5-tab'};
  const setTitle=mode=>{const t=$('screen-title');if(t&&TITLES[mode])t.textContent=TITLES[mode];};
  const rosters=['collection','arena-collection'].map($).filter(Boolean),rosterOpen=()=>rosters.some(d=>d.open);
  const pageMode=body.dataset.mode;
- const apply=mode=>{body.dataset.mode=rosterOpen()?'roster':mode;setTitle(body.dataset.mode);};
+ // Keep the active rail item visible when the phone tab bar scrolls sideways.
+ const reveal=()=>document.querySelector('.rail [aria-selected="true"], .rail [aria-current="page"]')?.scrollIntoView?.({block:'nearest',inline:'nearest'});
+ const apply=mode=>{body.dataset.mode=rosterOpen()?'roster':mode;setTitle(body.dataset.mode);if(matchMedia('(max-width: 640px)').matches)reveal();};
 
  // Arena: the rail items are the mode tabs; mirror the selected tab onto <body data-mode>.
  const tabs=Object.entries(TABS).map(([mode,id])=>[mode,$(id)]).filter(([,el])=>el);
