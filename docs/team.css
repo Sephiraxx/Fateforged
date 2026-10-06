@@ -1,0 +1,57 @@
+/* Team battles (3v3 / 5v5): live HUD, team builder and battle report. */
+.team-hud{display:none;grid-template-columns:1fr 1fr;gap:8px}
+.team-fight .health-row{display:none}
+.team-fight .team-hud{display:grid}
+.team-column{--side:var(--blue-side);display:flex;flex-direction:column;gap:4px;padding:8px;background:linear-gradient(135deg,color-mix(in srgb,var(--side) 12%,#0a0f1c),#0a0f1c 70%);border:1px solid color-mix(in srgb,var(--side) 38%,transparent)}
+.team-column.red{--side:var(--red-side);background:linear-gradient(225deg,color-mix(in srgb,var(--side) 12%,#0a0f1c),#0a0f1c 70%)}
+.team-hud-row{display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:center;column-gap:6px;row-gap:3px}
+.team-hud-row strong{font:700 .78rem/1.2 var(--display);color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-hud-role{font-size:.78rem;color:var(--side);text-align:center}
+.team-hud-row .fighter-action{font:600 .58rem/1.4 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--side);white-space:nowrap}
+.team-hud-row .health-track{grid-column:1/-1;height:6px;background:#ffffff10;overflow:hidden}
+.team-hud-row .health-fill{height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--side) 55%,#000),var(--side));box-shadow:0 0 8px var(--side);transition:width .12s linear}
+.team-hud-row.down{opacity:.4}
+.team-hud-row.down strong{text-decoration:line-through}
+.team-column.red .team-hud-row{grid-template-columns:auto minmax(0,1fr) 16px}
+.team-column.red .team-hud-row .fighter-action{order:-1}
+.team-column.red .team-hud-role{order:1}
+.team-column.red .team-hud-row strong{text-align:right}
+.team-column.red .team-hud-row .health-track{transform:scaleX(-1);order:2}
+
+.team-intro{color:var(--muted);font-size:.9rem;margin:-6px 0 14px}
+.team-board{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.team-side{--side:var(--blue-side);padding:12px;background:#ffffff04;border:1px solid color-mix(in srgb,var(--side) 35%,transparent);border-top:2px solid var(--side)}
+.team-side.red{--side:var(--red-side)}
+.team-side-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.team-side-head h3{font:700 .85rem/1.2 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--side)}
+.team-side-head .quiet{min-height:34px;font-size:.68rem}
+.team-slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.team-slot{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;column-gap:8px;row-gap:3px}
+.team-slot select{margin:0;min-height:38px;font-size:.88rem;border-left:2px solid var(--side)}
+.team-slot-no{font:700 .78rem/1 var(--display);color:var(--side);text-align:center}
+.team-slot-role{grid-column:2;font:600 .66rem/1.3 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.team-slot-role:empty{display:none}
+.team-slot-role[data-role="tank"]{color:#8fd3ff}
+.team-slot-role[data-role="healer"]{color:var(--lime)}
+.team-slot-role[data-role="controller"]{color:var(--violet)}
+.team-slot-role[data-role="damage"]{color:#ffb070}
+.team-tactic{margin-top:10px}
+.team-tactic select{min-height:38px;font-size:.88rem}
+#team-panel .conditions .field-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+.team-actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:14px}
+.team-actions .start-button{margin:0}
+.team-actions .secondary{min-height:54px}
+.team-status{margin:12px 0 0;padding:8px 12px;font-size:.88rem;border-left:2px solid var(--accent);background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 8%,transparent),transparent)}
+.team-status:empty{display:none}
+.team-results{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.team-results h3{font:600 .85rem/1.2 var(--display);letter-spacing:.14em;text-transform:uppercase}
+.team-score{display:flex;align-items:baseline;gap:12px;margin:8px 0 2px;font:700 2.2rem/1 var(--display)}
+.team-score .blue{color:var(--blue-side);text-shadow:0 0 16px var(--blue-side)}
+.team-score .red{color:var(--red-side);text-shadow:0 0 16px var(--red-side)}
+.team-results tr.blue td:first-child{box-shadow:inset 3px 0 var(--blue-side)}
+.team-results tr.red td:first-child{box-shadow:inset 3px 0 var(--red-side)}
+.team-results td:nth-child(n+3),.team-results th:nth-child(n+3){text-align:right}
+@media (max-width:640px){
+ .team-board{grid-template-columns:1fr}
+ .team-actions{grid-template-columns:1fr}
+}

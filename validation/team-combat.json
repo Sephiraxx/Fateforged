@@ -1,0 +1,96 @@
+{
+  "engine": "team-1",
+  "rules": {
+    "provokeRange": 110,
+    "provokeScore": 3.5,
+    "fortified": 0.35,
+    "bulwarkRange": 80,
+    "bulwarkShare": 0.25,
+    "exposedTime": 3,
+    "exposedBonus": 0.15,
+    "overtime": 75,
+    "overtimeHealing": 0.5,
+    "overtimeDamage": 1.2
+  },
+  "gamesPerMatchup": 40,
+  "note": "Squads are seeded role-targeted S/A fighters (2% SS); each pairing alternates sides.",
+  "matchups": [
+    {
+      "a": "balanced3",
+      "b": "damage3",
+      "games": 40,
+      "winRateA": 72.5,
+      "timeoutRate": 2.5,
+      "averageSeconds": 46.7,
+      "healerHealingPerGame": 371,
+      "ccSecondsPerGame": 1.2,
+      "averageMs": 146
+    },
+    {
+      "a": "tank3",
+      "b": "damage3",
+      "games": 40,
+      "winRateA": 50,
+      "timeoutRate": 0,
+      "averageSeconds": 34.2,
+      "healerHealingPerGame": 0,
+      "ccSecondsPerGame": 1,
+      "averageMs": 36
+    },
+    {
+      "a": "healer3",
+      "b": "damage3",
+      "games": 40,
+      "winRateA": 62.5,
+      "timeoutRate": 2.5,
+      "averageSeconds": 49.7,
+      "healerHealingPerGame": 416,
+      "ccSecondsPerGame": 0.9,
+      "averageMs": 154
+    },
+    {
+      "a": "control3",
+      "b": "damage3",
+      "games": 40,
+      "winRateA": 57.5,
+      "timeoutRate": 5,
+      "averageSeconds": 40.1,
+      "healerHealingPerGame": 0,
+      "ccSecondsPerGame": 2.5,
+      "averageMs": 39
+    },
+    {
+      "a": "balanced3",
+      "b": "balanced3",
+      "games": 40,
+      "winRateA": 50,
+      "timeoutRate": 12.5,
+      "averageSeconds": 66.7,
+      "healerHealingPerGame": 1137,
+      "ccSecondsPerGame": 0.2,
+      "averageMs": 327
+    },
+    {
+      "a": "balanced5",
+      "b": "damage5",
+      "games": 40,
+      "winRateA": 65,
+      "timeoutRate": 0,
+      "averageSeconds": 39.7,
+      "healerHealingPerGame": 280,
+      "ccSecondsPerGame": 2.4,
+      "averageMs": 143
+    },
+    {
+      "a": "balanced5",
+      "b": "balanced5",
+      "games": 40,
+      "winRateA": 52.5,
+      "timeoutRate": 2.5,
+      "averageSeconds": 46.6,
+      "healerHealingPerGame": 837,
+      "ccSecondsPerGame": 3.7,
+      "averageMs": 263
+    }
+  ]
+}
