@@ -2,7 +2,8 @@
 import {ROLE_LABELS,teamRole} from './team-roles.js';
 import {randomTeam} from './team-generation.js';
 import {TEAM_TACTICS,simulateTeam} from './combat-team.js';
-const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect carries','focus-healer':'Focus healer',aggressive:'Aggressive',defensive:'Defensive'};
+import {TEAM_MAPS} from './team-maps.js';
+const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect the carry','focus-healer':'Focus their healer',aggressive:'All-out aggression',defensive:'Hold the line'};
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const scripts=new Map();
 const loadScript=src=>{if(!scripts.has(src))scripts.set(src,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{scripts.delete(src);reject(new Error('Could not load the fighter generator.'));};document.head.append(s);}));return scripts.get(src);};
@@ -25,8 +26,8 @@ export function mountTeamBattles(host,hooks){
  const board=el('div','','team-board'),status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const conditions=el('fieldset','','conditions'),legend=el('legend','Battle conditions'),row=el('div','','field-row');
  const labelled=(text,control)=>{const l=el('label',text);l.append(control);return l;};
- const format=select([['1','Bo1'],['3','Bo3']],'1'),time=select([['random','Random each game'],['day','Day'],['dawn','Dawn'],['dusk','Dusk'],['night','Night']],'random'),weather=select([['random','Random each game'],['clear','Clear'],['rain','Rain'],['frost','Frost'],['storm','Storm']],'random'),ground=select([['random','Random each game'],['stone','Stone'],['water','Shallow water']],'random');
- row.append(labelled('Match format',format),labelled('Time of day',time),labelled('Weather',weather),labelled('Ground',ground));conditions.append(legend,row);
+ const format=select([['1','Bo1'],['3','Bo3']],'1'),time=select([['random','Random each game'],['day','Day'],['dawn','Dawn'],['dusk','Dusk'],['night','Night']],'random'),weather=select([['random','Random each game'],['clear','Clear'],['rain','Rain'],['frost','Frost'],['storm','Storm']],'random'),ground=select([['random','Random each game'],['stone','Stone'],['water','Shallow water']],'random'),map=select([['random','Random each game'],...TEAM_MAPS.map(m=>[m.id,m.label])],'random');
+ row.append(labelled('Match format',format),labelled('Time of day',time),labelled('Weather',weather),labelled('Ground',ground),labelled('Map',map));conditions.append(legend,row);
  const actions=el('div','','team-actions'),watch=button('Watch battle','button primary start-button'),quick=button('Quick result','button secondary');actions.append(watch,quick);
  const results=el('section','','team-results');results.hidden=true;
  host.append(head,intro,board,conditions,actions,status,results);
@@ -63,7 +64,7 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {conditions:{time:time.value,weather:weather.value,ground:ground.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
   if(running||hooks.blocked())return;const squads=await teams(),bestOf=Number(format.value),need=Math.ceil(bestOf/2),seed=crypto.getRandomValues(new Uint32Array(1))[0],games=[],score=[0,0];
   running=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');

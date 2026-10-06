@@ -5141,8 +5141,41 @@ function teamRole(character){
  return {role:ranked[0][0],secondary:ranked[1][0],scores:Object.fromEntries(ranked)};
 }
 
+// Team battle fields: a 960×600 arena with optional terrain. Every map is mirrored across the centre line,
+// so neither side gains ground, and terrain stays out of both spawn zones (x < 280 and x > 680).
+const TEAM_FIELD=Object.freeze({width:960,height:600});
+const TEAM_MAPS=Object.freeze([
+ Object.freeze({id:'open',label:'Open field',weight:4}),
+ Object.freeze({id:'pillars',label:'Pillar hall',weight:1.5}),
+ Object.freeze({id:'ruins',label:'Broken ruins',weight:1.5}),
+ Object.freeze({id:'crossroads',label:'Crossroads',weight:1.5}),
+ Object.freeze({id:'groves',label:'Stone groves',weight:1.5})
+]);
+const MAP_IDS=Object.freeze(TEAM_MAPS.map(m=>m.id));
+const mapLabel=id=>TEAM_MAPS.find(m=>m.id===id)?.label??'Open field';
+function random(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+// 'random' picks by weight from the battle seed with its own salt, so time, weather and ground rolls are unchanged.
+function resolveMap(seed,choice='random'){
+ if(MAP_IDS.includes(choice))return choice;
+ const total=TEAM_MAPS.reduce((n,m)=>n+m.weight,0);let roll=random((seed^0x5bd1e995)>>>0)()*total;
+ for(const m of TEAM_MAPS){roll-=m.weight;if(roll<0)return m.id;}return 'open';
+}
+// Terrain pieces are circles (the engine's obstacle shape). Pieces either touch (walls are chains of circles)
+// or leave at least a 40-unit gap, so fighters never wedge between two rocks.
+function mapTerrain(id,seed){
+ const r=random((seed^0x2c1b3c6d)>>>0),j=n=>(r()-.5)*2*n,pieces=[],{width,height}=TEAM_FIELD,mid=width/2;
+ const add=(x,y,radius)=>{pieces.push({x,y,radius});if(Math.abs(x-mid)>1)pieces.push({x:width-x,y,radius});};
+ if(id==='pillars'){for(const y of [150,450])add(340+j(20),y+j(25),22+r()*6);if(r()<.5)add(mid,height/2+j(40),26);else{add(mid,95+j(15),18);add(mid,505+j(15),18);}}
+ else if(id==='ruins'){const x=372+j(10),gap=j(18);for(let y=86;y<=226;y+=28)add(x,y+gap,13);for(let y=374;y<=514;y+=28)add(x,y+gap,13);add(mid-42,height/2+j(10),15);}
+ else if(id==='crossroads'){const y=height/2+j(12);add(mid,y,32);add(mid-72,y-82,16);add(mid-72,y+82,16);add(395+j(15),70+j(8),20);add(395+j(15),530+j(8),20);}
+ else if(id==='groves'){const placed=[];for(let n=0;n<40&&placed.length<6;n++){const p={x:300+r()*138,y:60+r()*480,radius:10+r()*7};if(placed.every(q=>Math.hypot(q.x-p.x,q.y-p.y)>q.radius+p.radius+46)){placed.push(p);add(p.x,p.y,p.radius);}}}
+ const round=v=>Math.round(v*10)/10;
+ return pieces.map(p=>({x:round(p.x),y:round(p.y),radius:round(p.radius),life:Infinity,terrain:true}));
+}
+
 // Team leagues (3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
+
 
 const TEAM_LEAGUE_VERSION=1;
 const LEAGUE_SIZES=Object.freeze([8,16,32]);
@@ -5181,7 +5214,7 @@ function poolPlan(formatSize,teams,seed){
 function planSlots(counts,seed){const random=rng(seed^0x9e3779b9),slots=[];for(const [role,count]of Object.entries(counts))for(let i=0;i<count;i++){const roll=random();slots.push({role,tier:roll<.02?'SS':roll<.30?'S':'A'});}return shuffle(slots,seed^0x51ed270b);}
 // Overall rating (OVR, 40–99) from closed-form combat numbers, weighted by measured team-battle impact
 // (scripts/evaluate-team-values.mjs, validation/team-values.json).
-const RATING_MODEL=Object.freeze({intercept:-1.384,ehp:0.203,dps:0.062,spell:0.148,ability:-0.01,speed:0.211,iq:0.029,roles:Object.freeze({tank:0,healer:0.1,controller:-0.067,damage:0.015})});
+const RATING_MODEL=Object.freeze({intercept:-0.838,ehp:0.192,dps:-0.055,spell:0.074,ability:0.022,speed:0.149,iq:0.065,roles:Object.freeze({tank:0,healer:0.127,controller:-0.019,damage:0.079})});
 const ABILITY_WEIGHT={Common:.5,Uncommon:1,Rare:1.6,Legendary:2.4};
 function ratingFeatures(character){
  const n=combatNumbers(character),s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||{},catalog=globalThis.CLASS_ABILITIES;
@@ -5218,7 +5251,7 @@ function create({id,format:formatSize,teams,seed,fighters}){
  list.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
- return {version:TEAM_LEAGUE_VERSION,engine:'team-1',format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
+ return {version:TEAM_LEAGUE_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
   settings:{teams,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
@@ -5291,7 +5324,9 @@ const teamOverall=(w,team)=>{const ids=team.lineup.length?team.lineup:bestLineup
 const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,team)).map(id=>w.fighters[id]);
 
 // ---------- Season and playoffs (phase 3) ----------
-const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random'});
+const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
+// Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
+const TEAM_COMBAT_VERSION='team-2';
 const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
@@ -5362,10 +5397,10 @@ function upcoming(w,limit=Infinity){
 }
 function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);return {...m,seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
 const squads=(w,match)=>match.lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,traits:f.traits,summary:f.summary};}));
-const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water']};
+const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
- if(!game||game.combatVersion!=='team-1'||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>120.5)return false;
+ if(!game||game.combatVersion!==TEAM_COMBAT_VERSION||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>120.5)return false;
  if(!Array.isArray(game.hp)||game.hp.length!==2||game.hp.some(h=>!Number.isInteger(h)||h<0||h>100))return false;
  if(!game.environment||Object.entries(ENVIRONMENT).some(([k,v])=>!v.includes(game.environment[k])))return false;
  if(!Array.isArray(game.fighters)||game.fighters.length!==ids.length||game.fighters.some((f,i)=>f?.id!==ids[i]||!count(f.damage)||!count(f.healing)||!count(f.kills)||!count(f.deaths)||!(f.ccSeconds>=0&&f.ccSeconds<=200)))return false;
@@ -5512,7 +5547,7 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,ROSTER_CHURN,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
+return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,ROSTER_CHURN,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
 // Team leagues (3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.

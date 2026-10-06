@@ -6,8 +6,18 @@ export const ROLE_CLASSES=Object.freeze({
  tank:['Guardian','Sentinel','Juggernaut','Warlord','Warrior','Paladin'],
  healer:['Healer','Cleric','Druid','Priest'],
  controller:['Psion','Illusionist','Oracle','Chronomancer'],
- damage:['Mage','Sorcerer','Elementalist','Ranger','Sniper','Assassin','Berserker','Samurai','Rogue','Death Knight','Spellblade','Warlock','Inquisitor','Monk']
+ damage:['Ranger','Sniper','Hunter','Bounty Hunter','Mage','Sorcerer','Elementalist','Warlock','Assassin','Rogue','Samurai','Berserker']
 });
+// Damage dealers fight from behind the front line: mostly rangers with bows or guns (~60%), then casters (~30%).
+// The few melee damage dealers (~10%) always carry a mobility move to make up for their thin health.
+export const MOBILITY_POWERS=Object.freeze(['charge','teleport','portal','space']);
+export const DAMAGE_PLAN=Object.freeze([
+ ['Ranger',3,'ranged'],['Sniper',2,'ranged'],['Hunter',2,'ranged'],['Bounty Hunter',1.5,'ranged'],
+ ['Mage',1.2,'arcane'],['Sorcerer',1,'arcane'],['Elementalist',1.2,'arcane'],['Warlock',.8,'arcane'],
+ ['Assassin',.5,'melee'],['Rogue',.4,'melee'],['Samurai',.3,'melee'],['Berserker',.3,'melee']
+].map(([name,weight,weapon])=>Object.freeze({name,weight,weapon})));
+const DAMAGE_WEIGHT=DAMAGE_PLAN.reduce((n,x)=>n+x.weight,0);
+function damageClass(random){let roll=random()*DAMAGE_WEIGHT;for(const x of DAMAGE_PLAN){roll-=x.weight;if(roll<0)return x;}return DAMAGE_PLAN[0];}
 // Team compositions for random exhibition teams.
 export const COMPOSITIONS=Object.freeze({3:['tank','healer','damage'],5:['tank','healer','controller','damage','damage']});
 export function seededRandom(seed){let n=seed>>>0;return()=>{n+=0x6D2B79F5;let t=n;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
@@ -16,7 +26,10 @@ export function poolTier(random){const roll=random();return roll<.02?'SS':roll<.
 export function roleFighter(pools,luck,{role,tier,random,id,name}){
  const draw=n=>Math.floor(random()*n),classes=ROLE_CLASSES[role];let fallback=null;
  for(let attempt=0;attempt<40;attempt++){
-  const forceClass=classes[Math.floor(random()*classes.length)],character=tierCharacter(pools,tier,{luck,draw,id,forceClass});
+  let forceClass,options={};
+  if(role==='damage'){const pick=damageClass(random);forceClass=pick.name;options={forceWeaponType:pick.weapon,...(pick.weapon==='melee'?{requirePower:MOBILITY_POWERS}:{})};}
+  else forceClass=classes[Math.floor(random()*classes.length)];
+  const character=tierCharacter(pools,tier,{luck,draw,id,forceClass,...options});
   character.name=name?name(character.traits):character.name;
   if(teamRole(character).role===role)return character;fallback??=character;
  }

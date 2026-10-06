@@ -6,7 +6,7 @@ import worker from '../dist/server/index.js';
 
 const league=(format,teams,seed)=>{const plan=L.poolPlan(format,teams,seed),w=L.create({id:crypto.randomUUID(),format,teams,seed,fighters:plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`))});L.draftPicks(w,1e6);return w;};
 // Synthetic but valid series results (fast); one real simulated series is checked separately.
-const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],combatVersion:'team-1',environment:{time:'day',weather:'clear',ground:'stone'},fighters:m.lineups.flat().map(id=>({id,damage:n%500,healing:n%97,kills:n%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
+const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],combatVersion:'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map(id=>({id,damage:n%500,healing:n%97,kills:n%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
 
 // Schedules: perfect weekly matchings with the right number of games, for several seasons and every size.
@@ -22,7 +22,7 @@ const big=league(5,32,2026);assert.throws(()=>L.recordMatch(big,'x',[]),/next te
 L.startSeason(big);assert.equal(big.phase,'season');assert.throws(()=>L.startSeason(big),/Finish the draft/);
 const first=L.upcoming(big,1)[0];assert.equal(first.kind,'regular');assert.equal(first.bestOf,1);assert.deepEqual(first.lineups[0],L.teamById(big,first.home).lineup);
 const bad=fake(first);
-for(const broken of [[{...bad[0],combatVersion:12}],[{...bad[0],winnerTeam:2}],[{...bad[0],seconds:500}],[{...bad[0],fighters:bad[0].fighters.slice(1)}],[{...bad[0],environment:{time:'noon',weather:'clear',ground:'stone'}}],[...bad,...bad]])
+for(const broken of [[{...bad[0],combatVersion:12}],[{...bad[0],winnerTeam:2}],[{...bad[0],seconds:500}],[{...bad[0],fighters:bad[0].fighters.slice(1)}],[{...bad[0],environment:{time:'noon',weather:'clear',ground:'stone'}}],[{...bad[0],environment:{...bad[0].environment,map:'lava pit'}}],[{...bad[0],environment:{time:'day',weather:'clear',ground:'stone'}}],[{...bad[0],combatVersion:'team-1'}],[...bad,...bad]])
  assert.throws(()=>L.recordMatch(structuredClone(big),first.id,broken),/Invalid|decided/);
 assert.throws(()=>L.recordMatch(big,L.upcoming(big,2)[1].id,fake(L.upcoming(big,2)[1])),/next team-league match/,'Matches are recorded in order.');
 let regular=0;while(big.phase==='season'){const [m]=L.upcoming(big,1);L.recordMatch(big,m.id,fake(m));regular++;}
