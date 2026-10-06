@@ -9,7 +9,7 @@
     {
       "file": "check-balance-v10.mjs",
       "passed": true,
-      "seconds": 6.9
+      "seconds": 6.4
     },
     {
       "file": "check-balance-v11.mjs",
@@ -19,12 +19,17 @@
     {
       "file": "check-bulk-characters.mjs",
       "passed": true,
-      "seconds": 0.3
+      "seconds": 0.5
+    },
+    {
+      "file": "check-class-abilities.mjs",
+      "passed": true,
+      "seconds": 12.7
     },
     {
       "file": "check-fighter-growth.mjs",
       "passed": true,
-      "seconds": 0.4
+      "seconds": 0.7
     },
     {
       "file": "check-group-scheduling.mjs",
@@ -34,12 +39,12 @@
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 29.4
+      "seconds": 40.4
     },
     {
       "file": "check-league-fixtures.mjs",
       "passed": true,
-      "seconds": 1.7
+      "seconds": 1.6
     },
     {
       "file": "check-league-pages.mjs",
@@ -49,12 +54,12 @@
     {
       "file": "check-leagues.mjs",
       "passed": true,
-      "seconds": 3.2
+      "seconds": 3.4
     },
     {
       "file": "check-luck.mjs",
       "passed": true,
-      "seconds": 3.4
+      "seconds": 3.3
     },
     {
       "file": "check-match-records.mjs",
@@ -64,7 +69,7 @@
     {
       "file": "check-pages.mjs",
       "passed": true,
-      "seconds": 1.2
+      "seconds": 1.6
     },
     {
       "file": "check-requested-reset.mjs",
@@ -74,7 +79,7 @@
     {
       "file": "check-rewind.mjs",
       "passed": true,
-      "seconds": 4.1
+      "seconds": 4.2
     },
     {
       "file": "check-roster-performance.mjs",
@@ -89,7 +94,7 @@
     {
       "file": "check-series.mjs",
       "passed": true,
-      "seconds": 2.1
+      "seconds": 2.3
     },
     {
       "file": "check-singularity.mjs",

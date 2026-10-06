@@ -136,3 +136,7 @@ table{font-variant-numeric:tabular-nums}
    rules stretched the wheel's Edit options button across the title row. */
 .wheel-body .stage-heading{align-items:center;flex-wrap:nowrap}
 .wheel-body .stage-heading>.quiet{flex:none}
+@media (max-width:620px){
+  /* Rotated SVG corners must not widen the phone page. The circular wheel fits. */
+  .wheel-body .wheel-stage{overflow:clip}
+}

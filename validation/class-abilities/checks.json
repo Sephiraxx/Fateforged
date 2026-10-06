@@ -1,0 +1,343 @@
+{
+  "classes": [
+    {
+      "class": "Warrior",
+      "rolls": 120,
+      "filled": 135,
+      "techniques": 125
+    },
+    {
+      "class": "Berserker",
+      "rolls": 120,
+      "filled": 134,
+      "techniques": 128
+    },
+    {
+      "class": "Gladiator",
+      "rolls": 120,
+      "filled": 126,
+      "techniques": 117
+    },
+    {
+      "class": "Juggernaut",
+      "rolls": 120,
+      "filled": 127,
+      "techniques": 118
+    },
+    {
+      "class": "Sentinel",
+      "rolls": 120,
+      "filled": 140,
+      "techniques": 129
+    },
+    {
+      "class": "Warlord",
+      "rolls": 120,
+      "filled": 132,
+      "techniques": 122
+    },
+    {
+      "class": "Samurai",
+      "rolls": 120,
+      "filled": 127,
+      "techniques": 118
+    },
+    {
+      "class": "Death Knight",
+      "rolls": 120,
+      "filled": 107,
+      "techniques": 70
+    },
+    {
+      "class": "Guardian",
+      "rolls": 120,
+      "filled": 131,
+      "techniques": 120
+    },
+    {
+      "class": "Paladin",
+      "rolls": 120,
+      "filled": 104,
+      "techniques": 56
+    },
+    {
+      "class": "Mage",
+      "rolls": 120,
+      "filled": 99,
+      "techniques": 12
+    },
+    {
+      "class": "Sorcerer",
+      "rolls": 120,
+      "filled": 93,
+      "techniques": 16
+    },
+    {
+      "class": "Witch",
+      "rolls": 120,
+      "filled": 105,
+      "techniques": 14
+    },
+    {
+      "class": "Warlock",
+      "rolls": 120,
+      "filled": 101,
+      "techniques": 13
+    },
+    {
+      "class": "Necromancer",
+      "rolls": 120,
+      "filled": 104,
+      "techniques": 17
+    },
+    {
+      "class": "Elementalist",
+      "rolls": 120,
+      "filled": 99,
+      "techniques": 10
+    },
+    {
+      "class": "Chronomancer",
+      "rolls": 120,
+      "filled": 88,
+      "techniques": 18
+    },
+    {
+      "class": "Blood Mage",
+      "rolls": 120,
+      "filled": 98,
+      "techniques": 12
+    },
+    {
+      "class": "Runemaster",
+      "rolls": 120,
+      "filled": 107,
+      "techniques": 24
+    },
+    {
+      "class": "Illusionist",
+      "rolls": 120,
+      "filled": 101,
+      "techniques": 13
+    },
+    {
+      "class": "Psion",
+      "rolls": 120,
+      "filled": 89,
+      "techniques": 13
+    },
+    {
+      "class": "Conjurer",
+      "rolls": 120,
+      "filled": 90,
+      "techniques": 13
+    },
+    {
+      "class": "Void Walker",
+      "rolls": 120,
+      "filled": 130,
+      "techniques": 76
+    },
+    {
+      "class": "Cleric",
+      "rolls": 120,
+      "filled": 100,
+      "techniques": 13
+    },
+    {
+      "class": "Shaman",
+      "rolls": 120,
+      "filled": 103,
+      "techniques": 18
+    },
+    {
+      "class": "Druid",
+      "rolls": 120,
+      "filled": 91,
+      "techniques": 14
+    },
+    {
+      "class": "Healer",
+      "rolls": 120,
+      "filled": 110,
+      "techniques": 11
+    },
+    {
+      "class": "Oracle",
+      "rolls": 120,
+      "filled": 86,
+      "techniques": 15
+    },
+    {
+      "class": "Summoner",
+      "rolls": 120,
+      "filled": 102,
+      "techniques": 11
+    },
+    {
+      "class": "Priest",
+      "rolls": 120,
+      "filled": 102,
+      "techniques": 13
+    },
+    {
+      "class": "Soul Reaper",
+      "rolls": 120,
+      "filled": 102,
+      "techniques": 63
+    },
+    {
+      "class": "Bard",
+      "rolls": 120,
+      "filled": 100,
+      "techniques": 60
+    },
+    {
+      "class": "Rogue",
+      "rolls": 120,
+      "filled": 132,
+      "techniques": 122
+    },
+    {
+      "class": "Assassin",
+      "rolls": 120,
+      "filled": 131,
+      "techniques": 121
+    },
+    {
+      "class": "Ninja",
+      "rolls": 120,
+      "filled": 125,
+      "techniques": 116
+    },
+    {
+      "class": "Trickster",
+      "rolls": 120,
+      "filled": 113,
+      "techniques": 68
+    },
+    {
+      "class": "Shadow",
+      "rolls": 120,
+      "filled": 132,
+      "techniques": 124
+    },
+    {
+      "class": "Gambler",
+      "rolls": 120,
+      "filled": 119,
+      "techniques": 57
+    },
+    {
+      "class": "Corsair",
+      "rolls": 120,
+      "filled": 130,
+      "techniques": 119
+    },
+    {
+      "class": "Jester",
+      "rolls": 120,
+      "filled": 115,
+      "techniques": 70
+    },
+    {
+      "class": "Dancer",
+      "rolls": 120,
+      "filled": 134,
+      "techniques": 124
+    },
+    {
+      "class": "Ranger",
+      "rolls": 120,
+      "filled": 144,
+      "techniques": 136
+    },
+    {
+      "class": "Sniper",
+      "rolls": 120,
+      "filled": 124,
+      "techniques": 116
+    },
+    {
+      "class": "Bounty Hunter",
+      "rolls": 120,
+      "filled": 132,
+      "techniques": 126
+    },
+    {
+      "class": "Beast Master",
+      "rolls": 120,
+      "filled": 106,
+      "techniques": 72
+    },
+    {
+      "class": "Monk",
+      "rolls": 120,
+      "filled": 120,
+      "techniques": 114
+    },
+    {
+      "class": "Brawler",
+      "rolls": 120,
+      "filled": 129,
+      "techniques": 123
+    },
+    {
+      "class": "Hunter",
+      "rolls": 120,
+      "filled": 132,
+      "techniques": 116
+    },
+    {
+      "class": "Spellblade",
+      "rolls": 120,
+      "filled": 109,
+      "techniques": 67
+    },
+    {
+      "class": "Inquisitor",
+      "rolls": 120,
+      "filled": 119,
+      "techniques": 72
+    },
+    {
+      "class": "Shifter",
+      "rolls": 120,
+      "filled": 112,
+      "techniques": 60
+    },
+    {
+      "class": "Artificer",
+      "rolls": 120,
+      "filled": 126,
+      "techniques": 81
+    },
+    {
+      "class": "Alchemist",
+      "rolls": 120,
+      "filled": 121,
+      "techniques": 79
+    },
+    {
+      "class": "Inventor",
+      "rolls": 120,
+      "filled": 104,
+      "techniques": 62
+    },
+    {
+      "class": "Strategist",
+      "rolls": 120,
+      "filled": 127,
+      "techniques": 110
+    },
+    {
+      "class": "Hexer",
+      "rolls": 120,
+      "filled": 86,
+      "techniques": 12
+    }
+  ],
+  "rolls": 6720,
+  "abilities": 64,
+  "checks": "All class/subclass profiles; deterministic metadata; rarity/affinity odds; compatible equipment; separate resources; root counterplay; timed counters; healing/one-use limits; copied spells; seedburst escape; watched/quick parity; frozen v11 files; prohibited UI text absent"
+}

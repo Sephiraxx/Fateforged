@@ -1,0 +1,541 @@
+{
+  "fingerprint": "d4601706d561b987884251751d13562b31dbd50475266a8ce90b52fe28c08aa7",
+  "seconds": 963.4468707,
+  "series": 246600,
+  "games": 252173,
+  "draws": 6961,
+  "styles": {
+    "arcane vs melee": {
+      "games": 26169,
+      "wins": 15341,
+      "draws": 15,
+      "score": 58.6514578317857
+    },
+    "ranged vs melee": {
+      "games": 11172,
+      "wins": 6272,
+      "draws": 6,
+      "score": 56.1672037235947
+    },
+    "arcane vs ranged": {
+      "games": 10667,
+      "wins": 4531,
+      "draws": 1633,
+      "score": 50.13124589856567
+    }
+  },
+  "season40": [
+    {
+      "season": 40,
+      "fighters": 164,
+      "mean": 1023.1219512195122,
+      "Aplus": 0.16463414634146342,
+      "Splus": 0.054878048780487805,
+      "SS": 0,
+      "departures": 10,
+      "deferred": 34,
+      "promotions": 38,
+      "demotions": 18,
+      "families": {
+        "caster": 81,
+        "hybrid": 49,
+        "martial": 34
+      },
+      "divisionTiers": [
+        {
+          "B": 6,
+          "A": 9,
+          "S": 5
+        },
+        {
+          "B": 15,
+          "C": 4,
+          "A": 5
+        },
+        {
+          "B": 9,
+          "S": 1,
+          "D": 2,
+          "C": 12
+        },
+        {
+          "B": 2,
+          "C": 14,
+          "S": 1,
+          "D": 6,
+          "A": 1
+        },
+        {
+          "C": 10,
+          "D": 8,
+          "A": 2,
+          "B": 4
+        },
+        {
+          "B": 4,
+          "D": 13,
+          "C": 6,
+          "A": 1
+        },
+        {
+          "D": 13,
+          "E": 3,
+          "S": 2,
+          "B": 4,
+          "C": 2
+        }
+      ]
+    },
+    {
+      "season": 40,
+      "fighters": 164,
+      "mean": 1062.6341463414635,
+      "Aplus": 0.20121951219512196,
+      "Splus": 0.04878048780487805,
+      "SS": 0,
+      "departures": 10,
+      "deferred": 23,
+      "promotions": 39,
+      "demotions": 18,
+      "families": {
+        "martial": 35,
+        "caster": 83,
+        "hybrid": 46
+      },
+      "divisionTiers": [
+        {
+          "A": 10,
+          "S": 3,
+          "B": 6,
+          "C": 1
+        },
+        {
+          "B": 11,
+          "C": 8,
+          "A": 4,
+          "S": 1
+        },
+        {
+          "A": 4,
+          "C": 11,
+          "B": 7,
+          "D": 2
+        },
+        {
+          "D": 6,
+          "C": 9,
+          "B": 8,
+          "A": 1
+        },
+        {
+          "C": 8,
+          "B": 2,
+          "D": 11,
+          "S": 1,
+          "A": 2
+        },
+        {
+          "D": 9,
+          "C": 9,
+          "A": 3,
+          "B": 1,
+          "S": 2
+        },
+        {
+          "D": 14,
+          "B": 4,
+          "A": 1,
+          "C": 4,
+          "S": 1
+        }
+      ]
+    },
+    {
+      "season": 40,
+      "fighters": 164,
+      "mean": 1012.0670731707318,
+      "Aplus": 0.1951219512195122,
+      "Splus": 0.06707317073170732,
+      "SS": 0,
+      "departures": 10,
+      "deferred": 33,
+      "promotions": 38,
+      "demotions": 18,
+      "families": {
+        "caster": 81,
+        "martial": 37,
+        "hybrid": 46
+      },
+      "divisionTiers": [
+        {
+          "S": 7,
+          "A": 9,
+          "B": 4
+        },
+        {
+          "C": 8,
+          "A": 5,
+          "B": 9,
+          "D": 2
+        },
+        {
+          "B": 5,
+          "C": 13,
+          "S": 1,
+          "D": 4,
+          "A": 1
+        },
+        {
+          "C": 11,
+          "A": 3,
+          "D": 7,
+          "B": 3
+        },
+        {
+          "D": 17,
+          "B": 4,
+          "C": 3
+        },
+        {
+          "C": 6,
+          "A": 2,
+          "D": 13,
+          "B": 2,
+          "S": 1
+        },
+        {
+          "D": 12,
+          "B": 3,
+          "C": 4,
+          "E": 2,
+          "S": 2,
+          "A": 1
+        }
+      ]
+    }
+  ],
+  "generation": {
+    "v2": {
+      "fighters": 10000,
+      "mean": 645.3566,
+      "Aplus": 0.0578,
+      "Splus": 0.0183,
+      "SS": 0.0003
+    },
+    "v3": {
+      "fighters": 10000,
+      "mean": 656.2586,
+      "Aplus": 0.0582,
+      "Splus": 0.0179,
+      "SS": 0.0003
+    }
+  },
+  "rawClassLeaders": [
+    {
+      "name": "Alchemist",
+      "games": 17698,
+      "wins": 10557,
+      "draws": 765,
+      "total": 22801372,
+      "score": 61.812069160357105,
+      "meanTotal": 1288.3586845971297
+    },
+    {
+      "name": "Warlock",
+      "games": 12191,
+      "wins": 6848,
+      "draws": 446,
+      "total": 12619276,
+      "score": 58.001804609958164,
+      "meanTotal": 1035.1305061110656
+    },
+    {
+      "name": "Witch",
+      "games": 5592,
+      "wins": 3126,
+      "draws": 219,
+      "total": 5226878,
+      "score": 57.85944206008584,
+      "meanTotal": 934.7063662374821
+    },
+    {
+      "name": "Summoner",
+      "games": 8234,
+      "wins": 4744,
+      "draws": 1,
+      "total": 9211594,
+      "score": 57.62084041777994,
+      "meanTotal": 1118.7264998785524
+    },
+    {
+      "name": "Shaman",
+      "games": 6407,
+      "wins": 3549,
+      "draws": 208,
+      "total": 5239146,
+      "score": 57.01576400811612,
+      "meanTotal": 817.7221788668644
+    },
+    {
+      "name": "Strategist",
+      "games": 14598,
+      "wins": 7869,
+      "draws": 3,
+      "total": 17727490,
+      "score": 53.91491985203452,
+      "meanTotal": 1214.3779969858886
+    },
+    {
+      "name": "Inventor",
+      "games": 11867,
+      "wins": 6203,
+      "draws": 333,
+      "total": 12278918,
+      "score": 53.67405409960394,
+      "meanTotal": 1034.7112159770793
+    },
+    {
+      "name": "Psion",
+      "games": 10142,
+      "wins": 5308,
+      "draws": 231,
+      "total": 8644536,
+      "score": 53.475645829225,
+      "meanTotal": 852.3502267797279
+    }
+  ],
+  "strictNaturalComparableGames": 9,
+  "controlledFamilies": {
+    "martial": {
+      "games": 20790,
+      "wins": 7859,
+      "draws": 918,
+      "score": 40.00962000962001
+    },
+    "caster": {
+      "games": 19800,
+      "wins": 11331,
+      "draws": 803,
+      "score": 59.255050505050505
+    },
+    "hybrid": {
+      "games": 14850,
+      "wins": 7329,
+      "draws": 681,
+      "score": 51.64646464646464
+    }
+  },
+  "controlledByWeapon": [
+    {
+      "weapon": "Longbow",
+      "families": {
+        "martial": {
+          "games": 6930,
+          "wins": 2166,
+          "draws": 792,
+          "score": 36.96969696969697
+        },
+        "caster": {
+          "games": 6600,
+          "wins": 3799,
+          "draws": 616,
+          "score": 62.22727272727273
+        },
+        "hybrid": {
+          "games": 4950,
+          "wins": 2284,
+          "draws": 574,
+          "score": 51.93939393939394
+        }
+      }
+    },
+    {
+      "weapon": "Longsword",
+      "families": {
+        "martial": {
+          "games": 6930,
+          "wins": 2894,
+          "draws": 0,
+          "score": 41.76046176046176
+        },
+        "caster": {
+          "games": 6600,
+          "wins": 3771,
+          "draws": 0,
+          "score": 57.13636363636363
+        },
+        "hybrid": {
+          "games": 4950,
+          "wins": 2575,
+          "draws": 0,
+          "score": 52.02020202020202
+        }
+      }
+    },
+    {
+      "weapon": "Staff",
+      "families": {
+        "martial": {
+          "games": 6930,
+          "wins": 2799,
+          "draws": 126,
+          "score": 41.298701298701296
+        },
+        "caster": {
+          "games": 6600,
+          "wins": 3761,
+          "draws": 187,
+          "score": 58.40151515151515
+        },
+        "hybrid": {
+          "games": 4950,
+          "wins": 2470,
+          "draws": 107,
+          "score": 50.97979797979798
+        }
+      }
+    }
+  ],
+  "controlledClassLeaders": [
+    {
+      "name": "Cleric",
+      "games": 990,
+      "wins": 623,
+      "draws": 36,
+      "score": 64.74747474747475
+    },
+    {
+      "name": "Healer",
+      "games": 990,
+      "wins": 588,
+      "draws": 54,
+      "score": 62.121212121212125
+    },
+    {
+      "name": "Psion",
+      "games": 990,
+      "wins": 583,
+      "draws": 48,
+      "score": 61.313131313131315
+    },
+    {
+      "name": "Oracle",
+      "games": 990,
+      "wins": 586,
+      "draws": 35,
+      "score": 60.95959595959596
+    },
+    {
+      "name": "Blood Mage",
+      "games": 990,
+      "wins": 578,
+      "draws": 50,
+      "score": 60.90909090909091
+    },
+    {
+      "name": "Witch",
+      "games": 990,
+      "wins": 579,
+      "draws": 43,
+      "score": 60.656565656565654
+    },
+    {
+      "name": "Chronomancer",
+      "games": 990,
+      "wins": 574,
+      "draws": 45,
+      "score": 60.25252525252525
+    },
+    {
+      "name": "Conjurer",
+      "games": 990,
+      "wins": 569,
+      "draws": 48,
+      "score": 59.898989898989896
+    }
+  ],
+  "controlledClassLowest": [
+    {
+      "name": "Shadow",
+      "games": 990,
+      "wins": 364,
+      "draws": 44,
+      "score": 38.98989898989899
+    },
+    {
+      "name": "Sniper",
+      "games": 990,
+      "wins": 359,
+      "draws": 49,
+      "score": 38.73737373737374
+    },
+    {
+      "name": "Bounty Hunter",
+      "games": 990,
+      "wins": 362,
+      "draws": 33,
+      "score": 38.23232323232323
+    },
+    {
+      "name": "Rogue",
+      "games": 990,
+      "wins": 357,
+      "draws": 40,
+      "score": 38.08080808080808
+    },
+    {
+      "name": "Corsair",
+      "games": 990,
+      "wins": 352,
+      "draws": 46,
+      "score": 37.878787878787875
+    },
+    {
+      "name": "Dancer",
+      "games": 990,
+      "wins": 339,
+      "draws": 45,
+      "score": 36.515151515151516
+    },
+    {
+      "name": "Ranger",
+      "games": 990,
+      "wins": 336,
+      "draws": 45,
+      "score": 36.21212121212121
+    },
+    {
+      "name": "Hunter",
+      "games": 990,
+      "wins": 323,
+      "draws": 40,
+      "score": 34.64646464646464
+    }
+  ],
+  "newAbilityUses": {
+    "Guard": 77340,
+    "Driving strike": 8742,
+    "Charge": 98962,
+    "Parry": 34038,
+    "Cleave": 27663,
+    "Aimed shot": 61033,
+    "Second wind": 30051,
+    "Crippling strike": 42299,
+    "Last stand": 3467,
+    "Perfect counter": 3415,
+    "Thorn bolt": 31984,
+    "Entangling roots": 6394,
+    "Bramble patch": 4040,
+    "Seedburst": 6491
+  },
+  "screeningPassed": {
+    "styles": true,
+    "generationTiers": true
+  },
+  "watchItems": [
+    "Controlled toolkits favor casters; martial techniques need follow-up measurement/tuning. Equal equipment includes off-theme builds and removes normal class stat contributions.",
+    "Cleric leads controlled toolkit score; Alchemist leads raw league score with stronger average stats.",
+    "Eligible-career queues remain; retirement rules are unchanged.",
+    "Sparse technique/theme pools redirect probability; see affinity.json."
+  ]
+}

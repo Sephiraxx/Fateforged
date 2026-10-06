@@ -1,0 +1,20 @@
+{
+  "sourceSHA256": "f911ed4450be74ddb2707e07b3d450e7235e89517e333a32cdd1a5d90935bd0c",
+  "fromEngine": 10,
+  "toEngine": 11,
+  "season": 41,
+  "originalCompletedSeasons": 40,
+  "originalTitles": 640,
+  "nextEngine": 12,
+  "nextGeneration": 3,
+  "games": 3944,
+  "checkpoints": 6,
+  "departures": 10,
+  "careerRulesVersion": 2,
+  "deferred": 21,
+  "preservedArchives": true,
+  "preservedTitles": true,
+  "preservedStatsAndCareers": true,
+  "retrySafe": true,
+  "sourceUnchanged": true
+}

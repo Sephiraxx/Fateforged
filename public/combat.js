@@ -1,1 +1,1 @@
-export * from './combat-v11.js';
+export * from './combat-v12.js';

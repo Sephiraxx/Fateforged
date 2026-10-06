@@ -7,8 +7,8 @@
 #trait-detail-intro{margin:0;color:#aebbc7;font-size:13px}
 #close-trait-details{min-height:44px;flex-shrink:0}
 .detail-body{padding:18px 24px 24px}
-#trait-detail-picker{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:thin;scrollbar-color:#716549 transparent}
-.detail-picker-button{flex-shrink:0;padding:9px 12px;min-height:38px;border-radius:10px;border:1px solid #8a9baa33;background:#243240;color:#bbc8d2;font:inherit;font-size:12px;cursor:pointer}
+#trait-detail-picker{display:flex;flex-direction:row;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:thin;scrollbar-color:#716549 transparent}
+#trait-detail-picker .detail-picker-button{flex:0 0 auto;width:auto;padding:9px 12px;min-height:38px;border-radius:10px;border:1px solid #8a9baa33;background:#243240;color:#bbc8d2;font:inherit;font-size:12px;cursor:pointer}
 .detail-picker-button[aria-pressed=true]{background:#dabb7e;color:#15202a;border-color:#dabb7e}
 #trait-detail-metrics{margin:6px 0 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .detail-metric{padding:13px 14px;border:1px solid #889baa25;border-radius:12px;background:#0d15285c;min-width:0}
