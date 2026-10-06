@@ -140,3 +140,54 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
   - `team_operations`: retry receipts.
 - Worlds are gzip-encoded (a 384-fighter 5v5 world is about 270 KB raw).
 - Browser backups include both tables.
+
+# Team leagues: phase 3 (season and playoffs)
+
+After the draft, **Start season** builds the schedule, which is fixed by the world seed and the season number.
+
+## Schedule
+Every week pairs each team exactly once, so there are no byes.
+
+| League | Weeks | Opponents |
+|---|---:|---|
+| 32 teams | 17 | Division rivals twice (6). A same-conference division, rotating each season (4). A cross-conference division, rotating (4). Same-place teams from the other two divisions in the conference (2). One more cross-conference same-place game (1). |
+| 16 teams | 14 | Division rivals twice (6). The other division in the conference (4). A rotating cross-conference division (4). |
+| 8 teams | 10 | Division rivals twice (6). The other conference's division (4). |
+
+Regular-season games are Bo1 team battles under random conditions.
+
+## Standings
+- Ranked by win percentage.
+- Tied teams are separated in order by:
+  1. head-to-head record within the tied group;
+  2. division record;
+  3. conference record;
+  4. HP margin (team health % difference summed over games);
+  5. a seeded coin.
+- The table also shows each team's streak.
+
+## Playoffs
+| League | Seeds per conference | Rounds |
+|---|---:|---|
+| 32 teams | 7 (four division winners as seeds 1–4, then three wildcards) | Wildcard round (2 v 7, 3 v 6, 4 v 5, with seed 1 on a bye), divisional round, conference final, Forgefire Crown |
+| 16 teams | 4 (two division winners, then two wildcards) | Conference semifinal (1 v 4, 2 v 3), conference final, Forgefire Crown |
+| 8 teams | 2 | Conference final, Forgefire Crown |
+
+- **Re-seeding:** after each round, the best remaining seed in a conference hosts the lowest remaining seed.
+- **Series length:** playoff series are Bo3, and the Forgefire Crown is Bo5. The better regular-season record gets the higher position.
+- **Awards:** the season ends with a champion, a runner-up and an MVP. The MVP is the fighter with the highest season impact: damage + 1.1 × healing + 120 per KO + 30 per second of hard control.
+- **Stat leaders:** impact, damage, healing and KOs.
+
+## Simulation and saving
+- **Simulation runs in the browser.** Matches run on worker threads (`team-sim-worker.js` through `simulation-client.js`). The client can sim one game, a week, the rest of the regular season, a playoff round or the remaining playoffs. "Watch next game/series" plays it on the arena canvas instead, with identical results thanks to deterministic seeds.
+- **The server checks every result.** Each match must be the exact next match in schedule order (playoff series may arrive in any order within a round). Each game must be a complete, valid team-engine result:
+  - `team-1` engine;
+  - a winner of 0 or 1;
+  - seconds within the 120 s limit;
+  - health values from 0 to 100;
+  - a valid environment;
+  - fighters exactly matching both lineups, with non-negative stats.
+  - The series score must reach exactly the required wins.
+- **What the server stores:** the server applies standings, seeding, brackets and awards itself. Regular-season results are stored compactly, alongside per-fighter season stats.
+- **Size and speed:** a complete 32-team season is about 250 KB raw. In the browser, a 32-team 5v5 season simulates in about 30 s and its playoffs in about 4 s; an 8-team 3v3 season takes about 7 s.
+- **What's next:** the season ends at **Season complete**. Phase 4 adds the offseason.

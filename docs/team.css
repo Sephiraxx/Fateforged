@@ -105,3 +105,26 @@
 @media (max-width:640px){.team-size-pick{grid-template-columns:1fr}.team-scrimmage{grid-template-columns:1fr}.team-league-head{flex-direction:column}}
 
 body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{display:none}
+
+/* Season, playoffs and champion */
+.team-league-table tr.played td.won{color:var(--lime);font-weight:700}
+.team-league-table td.score{text-align:center!important;font:600 .78rem/1 var(--display);color:var(--muted)}
+.team-standings{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:16px}
+.team-standings tr.seeded td:first-child{color:var(--gold);font-weight:700}
+.team-standings td:nth-child(n+2),.team-standings th:nth-child(n+2){text-align:right}
+.team-playoffs{margin-top:16px;padding:14px;background:#04060b;border:1px solid var(--line)}
+.team-playoffs h3{font:700 .9rem/1.2 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.playoff-rounds{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr);gap:12px;overflow-x:auto;padding-bottom:6px}
+.playoff-round{display:flex;flex-direction:column;justify-content:space-around;gap:8px}
+.playoff-series{padding:6px 8px;background:#0e1525;border:1px solid #26324d}
+.playoff-series.done{border-color:#7dff8a44}
+.playoff-team{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:6px;align-items:center;padding:3px 0;font-size:.85rem;color:var(--muted)}
+.playoff-team.winner{color:var(--lime);font-weight:700}
+.playoff-team .seed{font:600 .68rem/1 var(--display);color:var(--gold)}
+.playoff-team strong{font:700 .9rem/1 var(--display)}
+.playoff-series small{font:600 .6rem/1 var(--display);letter-spacing:.1em;color:var(--dim)}
+.champion-banner{margin-bottom:12px;padding:16px;text-align:center;background:radial-gradient(120% 140% at 50% 0,#ffd23f26,transparent 60%),#0a0f1c;border:1px solid #ffd23f66}
+.champion-banner h3{font:700 1.6rem/1.2 var(--display);letter-spacing:.06em;color:var(--gold);text-shadow:0 0 18px #ffd23f66;margin:4px 0}
+.champion-banner .mvp{font:600 .9rem/1.4 var(--display);color:var(--text)}
+.draft-recap{margin-top:16px}
+.draft-recap>.team-draft{margin:12px}
