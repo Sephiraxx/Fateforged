@@ -23,7 +23,7 @@ function output(data){fs.mkdirSync('validation/balance-v11',{recursive:true});fs
 if(!isMainThread){
  if(mode==='worlds')for(const index of workerData.indices){
   const seed=seedBase+index*7919,generate=generator(seed);let w=LEAGUES.create('review-v11-world-'+index,Array.from({length:164},()=>generate()),seed,{roundRobin:1,bestOf:1});
-  w.engineVersion=11;w.generationVersion=2;const seasons=[],styles={},titles={},powerTitles={},recruitExits=[],recruits=new Map();let games=0,draws=0,leagueGames=0,firstWins=0,decisive=0,totalSeconds=0;const durations=[];
+  w.cupRulesVersion=1;w.engineVersion=11;w.generationVersion=2;const seasons=[],styles={},titles={},powerTitles={},recruitExits=[],recruits=new Map();let games=0,draws=0,leagueGames=0,firstWins=0,decisive=0,totalSeconds=0;const durations=[];
   for(let season=1;season<=40;season++){
    const characters=new Map(w.roster.map(c=>[c.id,c]));while(LEAGUES.next(w)){
     const m=LEAGUES.next(w),a=characters.get(m.a),b=characters.get(m.b),results=simulateLeagueSeries({match:m,a,b});
@@ -36,7 +36,7 @@ if(!isMainThread){
    for(const [id,r]of recruits){const division=w.divisions.findIndex(d=>d.includes(id));r.highestDivision=Math.min(r.highestDivision,division);}
    const recipe=LEAGUES.recruitIntake(w),replacements=recipe.map(generate);seasons.push({season,...describe(w.roster),departures:exits.retired.length,dawnriseExits:dawnrise.length,careerExits:career.length,overlap:dawnrise.filter(id=>career.includes(id)).length,additionalCareerExits:exits.retired.length-3,deferred:exits.deferredCareers.length,oldestDeferred:exits.deferredCareers.length?Math.max(...exits.deferredCareers.map(id=>season-w.careers[id].eligibleSeason)):0,recruitRarities:replacements.map(c=>c.summary.wheelRarity)});
    assert.equal(exits.retired.length,replacements.length);assert.equal(dawnrise.length,3);assert(exits.retired.length>=3&&exits.retired.length<=10);
-   w=LEAGUES.rollover(w,replacements).world;w.engineVersion=11;w.generationVersion=2;LEAGUES.sizes(w);for(const c of replacements)recruits.set(c.id,{joined:w.season,rarity:c.summary.wheelRarity,total:c.summary.total,highestDivision:6});
+   w=LEAGUES.rollover(w,replacements).world;w.cupRulesVersion=1;w.engineVersion=11;w.generationVersion=2;LEAGUES.sizes(w);for(const c of replacements)recruits.set(c.id,{joined:w.season,rarity:c.summary.wheelRarity,total:c.summary.total,highestDivision:6});
    if(season%5===0)parentPort.postMessage({progress:`World ${index+1}: season ${season}/40`});
   }
   durations.sort((a,b)=>a-b);parentPort.postMessage({world:{index,seasons,styles,titles,powerTitles,recruitExits,activeRecruits:[...recruits.values()],leagueDraws:draws/leagueGames,startingSide:firstWins/decisive,medianSeconds:durations[Math.floor(durations.length*.5)],p90Seconds:durations[Math.floor(durations.length*.9)],games,meanSeconds:totalSeconds/games}});

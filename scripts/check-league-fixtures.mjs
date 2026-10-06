@@ -18,5 +18,5 @@ while(LEAGUES.next(world)){
  }
  LEAGUES.record(world,match.id,result(match));
 }
-for(const cup of [...world.divisions.map((_,d)=>leagueCupFixtures(world,d)),...interleagueFixtures(world).cups])for(const fixture of cup.rounds.flatMap(r=>r.matches)){const actual=world.history.find(m=>m.id===fixture.id);assert(actual);assert.deepEqual(fixture.result,actual);assert.equal(fixture.status,'completed');}
+for(const cup of [...world.divisions.map((_,d)=>leagueCupFixtures(world,d)),...interleagueFixtures(world).cups])for(const fixture of cup.rounds.flatMap(r=>r.matches).filter(m=>m.status!=='conditional')){const actual=world.history.find(m=>m.id===fixture.id);assert(actual);assert.deepEqual(fixture.result,actual);assert.equal(fixture.status,'completed');}
 console.log('League fixtures: seeded draws, 20/24-member byes, every next pairing, qualifiers, two cups, completed results and read-only viewing.');

@@ -91,6 +91,8 @@ These pass the proposal's two-percentage-point high-tier threshold. Full data: [
 
 ### Forty-season worlds
 
+These class-release measurements were recorded at commit `4db78ec`, before the later interleague-format change. They retain the original single-elimination interleague cup schedule. See [INTERLEAGUE-CUPS.md](INTERLEAGUE-CUPS.md) for the subsequent double-elimination rules and validation; combat/generation inputs remain the same.
+
 Three independent seeds, 164 fighters each, 40 complete seasons per world, including division cups, both qualifiers, both interleague cups and rollover. Settings use one round-robin and Bo1 league series; cups use their existing formats. The final run completed **246,600 series / 252,173 games** in about 963 seconds on this machine. All 14 new abilities were actually used.
 
 League style comparisons below restrict total-point ratios to 0.8–1.25. Score is wins plus half a draw divided by games; it is distinct from the league's 3/1/0 table points.

@@ -30,6 +30,27 @@ function bracket(world,{key,title,phase,division,entrants,seed,target=1,note=''}
  return {key,title,phase,division,note,entrants,rounds,byes,champion:cup?.champion||null,qualified:phase.endsWith('-qualifier')?qualification?.qualified||[]:[]};
 }
 
+function doubleCupFixtures(world,{key,title,phase,division,entrants,seed,note=''}){
+ const players=shuffle(entrants,seed),nodes=LEAGUES.doubleBracket(),byKey=new Map(nodes.map(n=>[n.key,n]));
+ const completed=new Map(world.history.filter(m=>m.phase===phase).map(m=>[m.bracketKey,m])),next=LEAGUES.next(world),groups=new Map();
+ const source=ref=>{
+  if(ref.kind==='entrant')return players[ref.index];
+  const result=completed.get(ref.key);if(result)return entrant(ref.kind==='winner'?result.winner:result.winner===result.a?result.b:result.a);
+  const parent=byKey.get(ref.key);return slot(`${ref.kind==='winner'?'Winner':'Loser'} of ${parent.label.toLowerCase()}${parent.key.startsWith('GF')?'':' · match '+(Number(parent.key.split('-')[1])+1)}`);
+ };
+ const final=completed.get('GF');
+ nodes.forEach((node,index)=>{
+  if(node.conditional&&final&&final.winner===final.a)return;
+  const id=`s${world.season}:${phase}:${division}:${index}`,result=completed.get(node.key),a=result?entrant(result.a):source(node.a),b=result?entrant(result.b):source(node.b);
+  const fixture={id,a,b,label:node.label,bracketKey:node.key,result:result||null,bestOf:result?.bestOf??node.bestOf,status:result?'completed':next?.id===id?'next':node.conditional&&!final?'conditional':a.id&&b.id?'upcoming':'waiting'};
+  const groupKey=node.round+':'+node.label;if(!groups.has(groupKey))groups.set(groupKey,{number:node.round,label:node.label,matches:[]});groups.get(groupKey).matches.push(fixture);
+ });
+ const cup=world.cupResults.find(c=>c.competition===phase);
+ return {key,title,phase,division,note:note+' · Double elimination · Bo3 brackets · Bo5 grand final and reset if needed',format:'double',entrants,rounds:[...groups.values()],byes:[],champion:cup?.champion||null,qualified:[]};
+}
+
+const mainCup=(world,options)=>LEAGUES.cupFormat(world,options.phase)==='double'?doubleCupFixtures(world,options):bracket(world,options);
+
 export function leagueCupFixtures(world,division){return bracket(world,{key:`division-${division}`,title:LEAGUES.names[division]+' cup',phase:'cups',division,entrants:world.divisions[division].map(entrant),seed:world.seed^Math.imul(division+1,171)});}
 
 export function interleagueFixtures(world){
@@ -41,10 +62,10 @@ export function interleagueFixtures(world){
  const automatic=LEAGUES.qualify(world).map(c=>entrant(c.id)),championsStage=world.qualificationResults?.find(q=>q.competition==='champions'),europaStage=world.qualificationResults?.find(q=>q.competition==='europa');
  const champions=world.qualifiers.length===16?world.qualifiers.map(c=>entrant(c.id)):[...automatic,...Array.from({length:2},(_,i)=>slot('Crownfire Convergence qualifier winner '+(i+1)))];
  const europa=world.europaQualifiers?.length===16?world.europaQualifiers.map(c=>entrant(c.id)):[...(championsStage?championsStage.eliminated.map(entrant):Array.from({length:12},(_,i)=>slot('Crownfire Convergence qualifier elimination '+(i+1)))),...(europaStage?europaStage.qualified.map(entrant):Array.from({length:4},(_,i)=>slot('Emberveil Challenge qualifier winner '+(i+1))))];
- return {note:'Your selected league’s fighters are highlighted. All rounds stay visible, including completed results, byes and future winner slots.',cups:[
+ return {note:'Your selected league’s fighters are highlighted. All rounds stay visible, including completed results, byes and future winner/loser slots.',cups:[
   bracket(world,{key:'champions-qualifier',title:'Crownfire Convergence qualification',phase:'champions-qualifier',division:7,entrants:positions(world,2,4).map(entrant),seed:world.seed^713,target:2,note:'Third and fourth from each league · Bo3 · two qualify'}),
-  bracket(world,{key:'champions',title:LEAGUES.cupNames.champions,phase:'champions',division:7,entrants:champions,seed:world.seed^913,note:'Top two from each league plus two qualification winners · 16 entrants'}),
+  mainCup(world,{key:'champions',title:LEAGUES.cupNames.champions,phase:'champions',division:7,entrants:champions,seed:world.seed^913,note:'Top two from each league plus two qualification winners · 16 entrants'}),
   bracket(world,{key:'europa-qualifier',title:'Emberveil Challenge qualification',phase:'europa-qualifier',division:7,entrants:positions(world,4,6).map(entrant),seed:world.seed^1713,target:4,note:'Fifth and sixth from each league · Bo3 · four qualify'}),
-  bracket(world,{key:'europa',title:LEAGUES.cupNames.europa,phase:'europa',division:8,entrants:europa,seed:world.seed^1913,note:'Twelve Crownfire Convergence qualifier eliminations plus four qualification winners · 16 entrants'})
+  mainCup(world,{key:'europa',title:LEAGUES.cupNames.europa,phase:'europa',division:8,entrants:europa,seed:world.seed^1913,note:'Twelve Crownfire Convergence qualifier eliminations plus four qualification winners · 16 entrants'})
  ]};
 }
