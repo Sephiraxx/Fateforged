@@ -11,7 +11,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','startSeason','record','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This team league action was already saved differently.',409);return response(format);}
@@ -28,6 +28,21 @@ async function teamApi(request,env,url){
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>1000)fail('Invalid number of draft picks.');
   if(world.draft.complete)fail('The draft is already complete.');TEAM_LEAGUE.draftPicks(world,input.count);
  }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
+ else if(['pick','claim','lineup','tactic','offseason','decide','trade','closeMarket'].includes(input.action)){
+  // Coach-mode and offseason commands: the shared rules validate every choice.
+  if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>200))fail('Invalid rookie class.');
+  const rookies=input.action==='offseason'?input.rookies.map(teamPoolFighter):null;
+  try{
+   if(input.action==='pick'){if(typeof input.fighter!=='string')throw new Error('Choose a fighter.');TEAM_LEAGUE.draftPick(world,input.fighter);}
+   else if(input.action==='claim')TEAM_LEAGUE.claimTeam(world,input.team===null?null:String(input.team));
+   else if(input.action==='lineup')TEAM_LEAGUE.setLineup(world,input.lineup);
+   else if(input.action==='tactic')TEAM_LEAGUE.setTactic(world,input.tactic);
+   else if(input.action==='offseason')TEAM_LEAGUE.startOffseason(world,rookies);
+   else if(input.action==='decide')TEAM_LEAGUE.decideReleases(world,input.release);
+   else if(input.action==='trade')TEAM_LEAGUE.proposeTrade(world,input.partner,input.give,input.get);
+   else TEAM_LEAGUE.closeMarket(world);
+  }catch(e){fail(e.message);}
+ }
  else if(input.action==='record'){
   // Simulated matches arrive in batches; each must be the next match and a complete, valid series.
   if(!Array.isArray(input.results)||!input.results.length||input.results.length>400)fail('Send between 1 and 400 team-league matches.');

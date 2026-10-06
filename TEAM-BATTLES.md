@@ -190,4 +190,108 @@ Regular-season games are Bo1 team battles under random conditions.
   - The series score must reach exactly the required wins.
 - **What the server stores:** the server applies standings, seeding, brackets and awards itself. Regular-season results are stored compactly, alongside per-fighter season stats.
 - **Size and speed:** a complete 32-team season is about 250 KB raw. In the browser, a 32-team 5v5 season simulates in about 30 s and its playoffs in about 4 s; an 8-team 3v3 season takes about 7 s.
-- **What's next:** the season ends at **Season complete**. Phase 4 adds the offseason.
+- **After the final:** the season ends at **Season complete**, and **Begin offseason** starts phase 4.
+
+# Team leagues: phase 4 (offseason and coach mode)
+
+Phase 4 lets you coach one team yourself and adds the offseason between seasons. The rules live in `public/team-league.js`. The server runs every choice through those same rules (`worker/teams.mjs`), and `scripts/check-team-offseason.mjs` covers them.
+
+## Coach mode
+
+- **Taking a team.** Pick a team with **Coach a team** in the league header. You can take over before the first draft pick, or between seasons (rosters set, or season complete). **Hand back** returns the team to its AI coach at any time, except while your keep-or-release or trade decisions are still open. A league with no coached team runs entirely on its own (spectator mode).
+- **Draft picks.**
+  - AI picks stop when your team is on the clock.
+  - The draft board's **Draft** buttons are enabled only for fighters you can sign. Every pick must leave enough cap, with the same 15% reserve the AI uses, to fill your remaining slots and any unmet role. The minimum-contract exception still applies.
+  - **Let the scouts pick** makes the pick your AI coach would have made.
+- **Lineup.**
+  - On your team's card, tick exactly 3 (or 5) starters and press **Save lineup**. You can do this whenever rosters are set, during the season, or during the playoffs.
+  - The lineup applies from the next match.
+  - **Best lineup** restores the automatic choice: role slots first, then the strongest fighters.
+- **Tactics.** Your team plays the tactic you choose. AI teams play their coach's style:
+
+  | Coach style | Tactic |
+  | --- | --- |
+  | Bargain hunter, balanced | Balanced |
+  | Star chaser | Protect the carry |
+  | Glass cannon | All-out aggression |
+  | Fortress | Hold the line |
+  | Tactician | Focus their healer |
+
+  Both teams' tactics are part of every match, including simulated, watched and scrimmage games.
+
+## The offseason
+
+**Begin offseason** (at Season complete) runs these steps:
+
+1. **Rookie class.**
+   - The browser rolls 2 rookies per team for 3v3 and 3 per team for 5v5. It uses the same role mix and S/A/SS odds as the founding pool, and the plan is seeded by league and season.
+   - The server checks that each rookie is an unedited roll of its planned tier.
+2. **Value updates.**
+   - A fighter's impact per game is compared with every other fighter in the same role (a z-score). Each standard deviation is worth 3.5 OVR, capped at ±8.
+   - A seeded drift of −2 to +2 is added. Fighters who did not play only drift down.
+   - Every contract is repriced at the new OVR, so kept fighters cost their **new** salary.
+3. **New cap.** The salary cap is recomputed with the founding formula: the average salary of the top roster-worth of fighters, divided by the number of teams.
+4. **Free agency and retirement.** Free agents left unsigned for two offseasons retire. Former MVPs never retire. This keeps the pool at a steady size.
+5. **Coaching changes.** An AI team that won 25% or fewer of its games fires its coach. A new coach with a fresh personality takes over. Your team is never affected.
+6. **Keep or release.**
+   - AI coaches release anyone a cheaper free agent of the same role could replace almost as well. How much of a roster a coach will turn over depends on personality:
+
+     | Coach style | Share of roster |
+     | --- | --- |
+     | Bargain hunter | 3/8 |
+     | Most styles | 1/4 |
+     | Star chaser, fortress | 1/8 |
+
+   - After that, coaches release whoever is needed to get back under the cap.
+   - If you coach a team, you tick your own releases. A roster still over the cap can't be confirmed.
+7. **Trade window.**
+   - AI coaches make one-for-one swaps of bench or surplus-role fighters. A swap happens only if both teams' roster scores rise by at least 2 and both payrolls stay under the cap. Each team makes at most one trade, and there are at most half as many trades as AI teams.
+   - You can offer one or two fighters for the same number from any roster. The other coach accepts only if their roster score rises by their personality's threshold:
+
+     | Coach style | Score gain needed |
+     | --- | --- |
+     | Bargain hunter | 2 |
+     | Star chaser | 0 |
+     | Other styles | 1 |
+
+     Both payrolls must also stay under the cap.
+   - **Close the trade window** moves on to the draft.
+8. **Draft.**
+   - Teams fill their open roster spots from rookies and free agents.
+   - Order: teams that missed the playoffs pick first, worst record first. Playoff teams follow by how far they went, and the champion picks last.
+   - Each round includes only teams with spots still open.
+   - The usual cap reserve and role-need rules apply.
+9. **Next season.** The season counter advances to the next season, and lineups reset to the best available. Your saved lineup and tactic are kept if they are still valid. The **Offseason report** stays on the next season's start screen. It lists:
+   - ratings changed, with the top risers and fallers;
+   - releases;
+   - trades;
+   - coaching changes;
+   - retirements;
+   - rookies.
+
+Everything above is deterministic from the league seed, the season and the choices made, except the rookies' random roll, which is part of the command.
+
+**Measured offseason churn** (two offseasons each, synthetic results):
+
+| League | Released | Trades | Coaches fired | Offseason rules run time |
+| --- | --- | --- | --- | --- |
+| 32-team 5v5 | about 60 | 3–4 | 0–3 | under 100 ms |
+| 16-team 3v3 | about 18 | 0–1 | 0 | under 100 ms |
+
+Over three seasons, a league stays well under the storage cap.
+
+## Commands
+
+All commands use the same revision and `operationId` protocol as the other team-league commands.
+
+| Command | Payload | Allowed |
+| --- | --- | --- |
+| `claim` | `team` (or `null`) | before the first pick, rosters set, season complete |
+| `pick` | `fighter` | your team on the clock |
+| `lineup` | `lineup` (ids) | rosters set, season, playoffs |
+| `tactic` | `tactic` | any time while coaching |
+| `offseason` | `rookies` | season complete |
+| `decide` | `release` (ids) | offseason, keep-or-release step |
+| `trade` | `partner`, `give`, `get` | offseason, trade window |
+| `closeMarket` | none | offseason, trade window |
+| `draft` | `count` | AI picks, which stop at your pick |
