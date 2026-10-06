@@ -165,3 +165,35 @@ body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{disp
 .team-hud-class{display:inline-grid;place-items:center;width:15px;height:15px;flex:none}
 .team-hud-class svg{width:15px;height:15px;fill:#f4fbff;stroke:#05070d;stroke-width:1.6;stroke-linejoin:round}
 .team-hud-class[data-kind="ranger"] svg{fill:none;stroke:#f4fbff;stroke-width:2.2}
+/* Fighter details: names open a dialog with traits, stats and season numbers. */
+.fighter-link{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted color-mix(in srgb,var(--accent) 55%,transparent);text-underline-offset:3px}
+.fighter-link:hover,.fighter-link:focus-visible{color:var(--accent)}
+.fighter-dialog{width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:18px;color:var(--text);background:#0a0f1c;border:1px solid var(--accent);box-shadow:0 0 40px #000c}
+.fighter-dialog::backdrop{background:#02040acc}
+.fighter-dialog h3{font:700 1.3rem/1.2 var(--display);letter-spacing:.04em;margin:2px 0}
+.fighter-dialog h4{font:700 .8rem/1.2 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:16px 0 8px}
+.fighter-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.fighter-traits{display:grid;gap:4px;margin:0}
+.fighter-traits div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:8px;padding:6px 8px;background:#ffffff05;border:1px solid var(--line)}
+.fighter-traits dt{font:600 .7rem/1.5 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fighter-traits dd{margin:0;font-size:.88rem}
+.fighter-stats{display:grid;gap:5px}
+.fighter-stat{display:grid;grid-template-columns:36px minmax(0,1fr) 44px;align-items:center;gap:8px;font:600 .74rem/1 var(--display)}
+.fighter-stat strong{text-align:right}
+.fighter-stat-track{height:7px;background:#ffffff10;overflow:hidden}
+.fighter-stat-track span{display:block;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 50%,transparent),var(--accent))}
+.fighter-season{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin-bottom:14px}
+/* Draft pool: role filters, sorting and the whole list in a scrolling table. */
+.pool-panel{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pool-filters{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.pool-filters select{margin:0;flex:1 1 180px}
+.pool-chip{padding:5px 10px;font:600 .72rem/1.2 var(--display);letter-spacing:.06em;color:var(--muted);background:#ffffff05;border:1px solid var(--line)}
+.pool-chip[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+.pool-scroll{max-height:460px;overflow:auto}
+.pool-scroll thead th{position:sticky;top:0;background:#0a0f1c;z-index:1}
+/* Week browser */
+.week-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 6px}
+.week-nav select{margin:0;flex:0 1 200px}
+/* Team rosters open inline under their card. */
+.team-division .team-detail{margin:0 0 8px}
+.team-card[aria-expanded="true"]{border-color:var(--accent)}
