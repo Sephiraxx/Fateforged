@@ -1,5 +1,5 @@
 import {buildTraitDetails,STAT_KEYS} from './trait-details.js';
-const LABELS={race:'Race',subrace:'Subrace',class:'Class',subclass:'Subclass',strength:'Strength roll',speed:'Speed roll',durability:'Durability roll',iq:'IQ roll',magic:'Magic roll',weapon:'Weapon',mastery:'Combat mastery',power:'Power',power2:'Second power',weakness:'Weakness'};
+const LABELS={race:'Race',subrace:'Subrace',class:'Class',subclass:'Subclass',strength:'Strength roll',speed:'Speed roll',durability:'Durability roll',iq:'IQ roll',magic:'Magic roll',weapon:'Weapon',mastery:'Combat mastery',power:'Ability',power2:'Second ability',weakness:'Weakness'};
 const node=(tag,className,text)=>{const e=document.createElement(tag);e.className=className;if(text!==undefined)e.textContent=text;return e;};
 let installed=false;
 export function openTraitDetails(character,key='overview',options={}){

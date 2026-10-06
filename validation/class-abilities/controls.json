@@ -1,0 +1,1185 @@
+{
+  "fingerprint": "d4601706d561b987884251751d13562b31dbd50475266a8ce90b52fe28c08aa7",
+  "seed": 20261203,
+  "stats": [
+    225,
+    225,
+    225,
+    225,
+    225
+  ],
+  "mastery": "Veteran",
+  "magicRoll": "Adept",
+  "rarities": [
+    "common",
+    "rare",
+    "legendary"
+  ],
+  "weapons": [
+    "Longsword",
+    "Longbow",
+    "Staff"
+  ],
+  "opponentsPerClass": 55,
+  "method": "A complete 55-round, 56-class round-robin schedule, in each rarity/weapon context. Builds are sampled with the real affinity/availability rules and their normal subclass probabilities. Each pair plays the same seed with sides swapped. All five combat stats are fixed; class stat contributions and preferred weapon sampling are deliberately excluded. This measures toolkit differences under controlled equipment, not complete generated-build strength. Classes have 990 games each and repeated paired builds; rankings are descriptive.",
+  "games": 27720,
+  "classes": {
+    "Warrior": {
+      "games": 990,
+      "wins": 391,
+      "draws": 41
+    },
+    "Hexer": {
+      "games": 990,
+      "wins": 564,
+      "draws": 28
+    },
+    "Berserker": {
+      "games": 990,
+      "wins": 416,
+      "draws": 42
+    },
+    "Strategist": {
+      "games": 990,
+      "wins": 372,
+      "draws": 48
+    },
+    "Gladiator": {
+      "games": 990,
+      "wins": 366,
+      "draws": 42
+    },
+    "Inventor": {
+      "games": 990,
+      "wins": 546,
+      "draws": 42
+    },
+    "Juggernaut": {
+      "games": 990,
+      "wins": 392,
+      "draws": 43
+    },
+    "Alchemist": {
+      "games": 990,
+      "wins": 551,
+      "draws": 47
+    },
+    "Sentinel": {
+      "games": 990,
+      "wins": 380,
+      "draws": 53
+    },
+    "Artificer": {
+      "games": 990,
+      "wins": 455,
+      "draws": 34
+    },
+    "Warlord": {
+      "games": 990,
+      "wins": 393,
+      "draws": 49
+    },
+    "Shifter": {
+      "games": 990,
+      "wins": 499,
+      "draws": 44
+    },
+    "Samurai": {
+      "games": 990,
+      "wins": 371,
+      "draws": 48
+    },
+    "Inquisitor": {
+      "games": 990,
+      "wins": 470,
+      "draws": 45
+    },
+    "Death Knight": {
+      "games": 990,
+      "wins": 455,
+      "draws": 32
+    },
+    "Spellblade": {
+      "games": 990,
+      "wins": 473,
+      "draws": 49
+    },
+    "Guardian": {
+      "games": 990,
+      "wins": 397,
+      "draws": 37
+    },
+    "Hunter": {
+      "games": 990,
+      "wins": 323,
+      "draws": 40
+    },
+    "Paladin": {
+      "games": 990,
+      "wins": 506,
+      "draws": 59
+    },
+    "Brawler": {
+      "games": 990,
+      "wins": 384,
+      "draws": 45
+    },
+    "Mage": {
+      "games": 990,
+      "wins": 564,
+      "draws": 29
+    },
+    "Monk": {
+      "games": 990,
+      "wins": 391,
+      "draws": 44
+    },
+    "Sorcerer": {
+      "games": 990,
+      "wins": 570,
+      "draws": 40
+    },
+    "Beast Master": {
+      "games": 990,
+      "wins": 447,
+      "draws": 59
+    },
+    "Witch": {
+      "games": 990,
+      "wins": 579,
+      "draws": 43
+    },
+    "Bounty Hunter": {
+      "games": 990,
+      "wins": 362,
+      "draws": 33
+    },
+    "Warlock": {
+      "games": 990,
+      "wins": 554,
+      "draws": 19
+    },
+    "Sniper": {
+      "games": 990,
+      "wins": 359,
+      "draws": 49
+    },
+    "Necromancer": {
+      "games": 990,
+      "wins": 530,
+      "draws": 24
+    },
+    "Ranger": {
+      "games": 990,
+      "wins": 336,
+      "draws": 45
+    },
+    "Elementalist": {
+      "games": 990,
+      "wins": 540,
+      "draws": 39
+    },
+    "Dancer": {
+      "games": 990,
+      "wins": 339,
+      "draws": 45
+    },
+    "Chronomancer": {
+      "games": 990,
+      "wins": 574,
+      "draws": 45
+    },
+    "Jester": {
+      "games": 990,
+      "wins": 481,
+      "draws": 45
+    },
+    "Blood Mage": {
+      "games": 990,
+      "wins": 578,
+      "draws": 50
+    },
+    "Corsair": {
+      "games": 990,
+      "wins": 352,
+      "draws": 46
+    },
+    "Runemaster": {
+      "games": 990,
+      "wins": 566,
+      "draws": 39
+    },
+    "Gambler": {
+      "games": 990,
+      "wins": 480,
+      "draws": 60
+    },
+    "Illusionist": {
+      "games": 990,
+      "wins": 556,
+      "draws": 51
+    },
+    "Shadow": {
+      "games": 990,
+      "wins": 364,
+      "draws": 44
+    },
+    "Psion": {
+      "games": 990,
+      "wins": 583,
+      "draws": 48
+    },
+    "Trickster": {
+      "games": 990,
+      "wins": 468,
+      "draws": 46
+    },
+    "Conjurer": {
+      "games": 990,
+      "wins": 569,
+      "draws": 48
+    },
+    "Ninja": {
+      "games": 990,
+      "wins": 396,
+      "draws": 40
+    },
+    "Void Walker": {
+      "games": 990,
+      "wins": 510,
+      "draws": 32
+    },
+    "Assassin": {
+      "games": 990,
+      "wins": 418,
+      "draws": 44
+    },
+    "Cleric": {
+      "games": 990,
+      "wins": 623,
+      "draws": 36
+    },
+    "Rogue": {
+      "games": 990,
+      "wins": 357,
+      "draws": 40
+    },
+    "Shaman": {
+      "games": 990,
+      "wins": 544,
+      "draws": 43
+    },
+    "Bard": {
+      "games": 990,
+      "wins": 470,
+      "draws": 53
+    },
+    "Druid": {
+      "games": 990,
+      "wins": 552,
+      "draws": 38
+    },
+    "Soul Reaper": {
+      "games": 990,
+      "wins": 518,
+      "draws": 34
+    },
+    "Healer": {
+      "games": 990,
+      "wins": 588,
+      "draws": 54
+    },
+    "Priest": {
+      "games": 990,
+      "wins": 552,
+      "draws": 62
+    },
+    "Oracle": {
+      "games": 990,
+      "wins": 586,
+      "draws": 35
+    },
+    "Summoner": {
+      "games": 990,
+      "wins": 559,
+      "draws": 32
+    }
+  },
+  "families": {
+    "martial": {
+      "games": 20790,
+      "wins": 7859,
+      "draws": 918
+    },
+    "caster": {
+      "games": 19800,
+      "wins": 11331,
+      "draws": 803
+    },
+    "hybrid": {
+      "games": 14850,
+      "wins": 7329,
+      "draws": 681
+    }
+  },
+  "byWeapon": [
+    {
+      "weapon": "Longbow",
+      "games": 9240,
+      "classes": {
+        "Warrior": {
+          "games": 330,
+          "wins": 111,
+          "draws": 36
+        },
+        "Hexer": {
+          "games": 330,
+          "wins": 177,
+          "draws": 25
+        },
+        "Berserker": {
+          "games": 330,
+          "wins": 120,
+          "draws": 36
+        },
+        "Strategist": {
+          "games": 330,
+          "wins": 103,
+          "draws": 45
+        },
+        "Gladiator": {
+          "games": 330,
+          "wins": 95,
+          "draws": 40
+        },
+        "Inventor": {
+          "games": 330,
+          "wins": 172,
+          "draws": 34
+        },
+        "Juggernaut": {
+          "games": 330,
+          "wins": 109,
+          "draws": 40
+        },
+        "Alchemist": {
+          "games": 330,
+          "wins": 168,
+          "draws": 39
+        },
+        "Sentinel": {
+          "games": 330,
+          "wins": 103,
+          "draws": 42
+        },
+        "Artificer": {
+          "games": 330,
+          "wins": 145,
+          "draws": 29
+        },
+        "Warlord": {
+          "games": 330,
+          "wins": 100,
+          "draws": 43
+        },
+        "Shifter": {
+          "games": 330,
+          "wins": 165,
+          "draws": 37
+        },
+        "Samurai": {
+          "games": 330,
+          "wins": 104,
+          "draws": 42
+        },
+        "Inquisitor": {
+          "games": 330,
+          "wins": 149,
+          "draws": 42
+        },
+        "Death Knight": {
+          "games": 330,
+          "wins": 134,
+          "draws": 29
+        },
+        "Spellblade": {
+          "games": 330,
+          "wins": 156,
+          "draws": 42
+        },
+        "Guardian": {
+          "games": 330,
+          "wins": 117,
+          "draws": 32
+        },
+        "Hunter": {
+          "games": 330,
+          "wins": 93,
+          "draws": 35
+        },
+        "Paladin": {
+          "games": 330,
+          "wins": 159,
+          "draws": 49
+        },
+        "Brawler": {
+          "games": 330,
+          "wins": 110,
+          "draws": 38
+        },
+        "Mage": {
+          "games": 330,
+          "wins": 189,
+          "draws": 23
+        },
+        "Monk": {
+          "games": 330,
+          "wins": 115,
+          "draws": 33
+        },
+        "Sorcerer": {
+          "games": 330,
+          "wins": 191,
+          "draws": 33
+        },
+        "Beast Master": {
+          "games": 330,
+          "wins": 142,
+          "draws": 43
+        },
+        "Witch": {
+          "games": 330,
+          "wins": 195,
+          "draws": 36
+        },
+        "Bounty Hunter": {
+          "games": 330,
+          "wins": 94,
+          "draws": 28
+        },
+        "Warlock": {
+          "games": 330,
+          "wins": 198,
+          "draws": 15
+        },
+        "Sniper": {
+          "games": 330,
+          "wins": 98,
+          "draws": 42
+        },
+        "Necromancer": {
+          "games": 330,
+          "wins": 178,
+          "draws": 21
+        },
+        "Ranger": {
+          "games": 330,
+          "wins": 98,
+          "draws": 37
+        },
+        "Elementalist": {
+          "games": 330,
+          "wins": 180,
+          "draws": 32
+        },
+        "Dancer": {
+          "games": 330,
+          "wins": 83,
+          "draws": 38
+        },
+        "Chronomancer": {
+          "games": 330,
+          "wins": 193,
+          "draws": 29
+        },
+        "Jester": {
+          "games": 330,
+          "wins": 149,
+          "draws": 35
+        },
+        "Blood Mage": {
+          "games": 330,
+          "wins": 190,
+          "draws": 41
+        },
+        "Corsair": {
+          "games": 330,
+          "wins": 95,
+          "draws": 37
+        },
+        "Runemaster": {
+          "games": 330,
+          "wins": 190,
+          "draws": 30
+        },
+        "Gambler": {
+          "games": 330,
+          "wins": 139,
+          "draws": 51
+        },
+        "Illusionist": {
+          "games": 330,
+          "wins": 188,
+          "draws": 38
+        },
+        "Shadow": {
+          "games": 330,
+          "wins": 102,
+          "draws": 39
+        },
+        "Psion": {
+          "games": 330,
+          "wins": 199,
+          "draws": 25
+        },
+        "Trickster": {
+          "games": 330,
+          "wins": 141,
+          "draws": 36
+        },
+        "Conjurer": {
+          "games": 330,
+          "wins": 198,
+          "draws": 40
+        },
+        "Ninja": {
+          "games": 330,
+          "wins": 111,
+          "draws": 37
+        },
+        "Void Walker": {
+          "games": 330,
+          "wins": 164,
+          "draws": 29
+        },
+        "Assassin": {
+          "games": 330,
+          "wins": 118,
+          "draws": 35
+        },
+        "Cleric": {
+          "games": 330,
+          "wins": 216,
+          "draws": 28
+        },
+        "Rogue": {
+          "games": 330,
+          "wins": 87,
+          "draws": 37
+        },
+        "Shaman": {
+          "games": 330,
+          "wins": 184,
+          "draws": 30
+        },
+        "Bard": {
+          "games": 330,
+          "wins": 140,
+          "draws": 47
+        },
+        "Druid": {
+          "games": 330,
+          "wins": 188,
+          "draws": 28
+        },
+        "Soul Reaper": {
+          "games": 330,
+          "wins": 161,
+          "draws": 32
+        },
+        "Healer": {
+          "games": 330,
+          "wins": 186,
+          "draws": 43
+        },
+        "Priest": {
+          "games": 330,
+          "wins": 177,
+          "draws": 46
+        },
+        "Oracle": {
+          "games": 330,
+          "wins": 198,
+          "draws": 26
+        },
+        "Summoner": {
+          "games": 330,
+          "wins": 184,
+          "draws": 27
+        }
+      }
+    },
+    {
+      "weapon": "Longsword",
+      "games": 9240,
+      "classes": {
+        "Warrior": {
+          "games": 330,
+          "wins": 141,
+          "draws": 0
+        },
+        "Hexer": {
+          "games": 330,
+          "wins": 191,
+          "draws": 0
+        },
+        "Berserker": {
+          "games": 330,
+          "wins": 154,
+          "draws": 0
+        },
+        "Strategist": {
+          "games": 330,
+          "wins": 122,
+          "draws": 0
+        },
+        "Gladiator": {
+          "games": 330,
+          "wins": 147,
+          "draws": 0
+        },
+        "Inventor": {
+          "games": 330,
+          "wins": 193,
+          "draws": 0
+        },
+        "Juggernaut": {
+          "games": 330,
+          "wins": 145,
+          "draws": 0
+        },
+        "Alchemist": {
+          "games": 330,
+          "wins": 200,
+          "draws": 0
+        },
+        "Sentinel": {
+          "games": 330,
+          "wins": 138,
+          "draws": 0
+        },
+        "Artificer": {
+          "games": 330,
+          "wins": 160,
+          "draws": 0
+        },
+        "Warlord": {
+          "games": 330,
+          "wins": 154,
+          "draws": 0
+        },
+        "Shifter": {
+          "games": 330,
+          "wins": 171,
+          "draws": 0
+        },
+        "Samurai": {
+          "games": 330,
+          "wins": 147,
+          "draws": 0
+        },
+        "Inquisitor": {
+          "games": 330,
+          "wins": 157,
+          "draws": 0
+        },
+        "Death Knight": {
+          "games": 330,
+          "wins": 163,
+          "draws": 0
+        },
+        "Spellblade": {
+          "games": 330,
+          "wins": 160,
+          "draws": 0
+        },
+        "Guardian": {
+          "games": 330,
+          "wins": 151,
+          "draws": 0
+        },
+        "Hunter": {
+          "games": 330,
+          "wins": 109,
+          "draws": 0
+        },
+        "Paladin": {
+          "games": 330,
+          "wins": 170,
+          "draws": 0
+        },
+        "Brawler": {
+          "games": 330,
+          "wins": 141,
+          "draws": 0
+        },
+        "Mage": {
+          "games": 330,
+          "wins": 190,
+          "draws": 0
+        },
+        "Monk": {
+          "games": 330,
+          "wins": 152,
+          "draws": 0
+        },
+        "Sorcerer": {
+          "games": 330,
+          "wins": 186,
+          "draws": 0
+        },
+        "Beast Master": {
+          "games": 330,
+          "wins": 162,
+          "draws": 0
+        },
+        "Witch": {
+          "games": 330,
+          "wins": 194,
+          "draws": 0
+        },
+        "Bounty Hunter": {
+          "games": 330,
+          "wins": 128,
+          "draws": 0
+        },
+        "Warlock": {
+          "games": 330,
+          "wins": 169,
+          "draws": 0
+        },
+        "Sniper": {
+          "games": 330,
+          "wins": 122,
+          "draws": 0
+        },
+        "Necromancer": {
+          "games": 330,
+          "wins": 176,
+          "draws": 0
+        },
+        "Ranger": {
+          "games": 330,
+          "wins": 112,
+          "draws": 0
+        },
+        "Elementalist": {
+          "games": 330,
+          "wins": 173,
+          "draws": 0
+        },
+        "Dancer": {
+          "games": 330,
+          "wins": 127,
+          "draws": 0
+        },
+        "Chronomancer": {
+          "games": 330,
+          "wins": 191,
+          "draws": 0
+        },
+        "Jester": {
+          "games": 330,
+          "wins": 171,
+          "draws": 0
+        },
+        "Blood Mage": {
+          "games": 330,
+          "wins": 192,
+          "draws": 0
+        },
+        "Corsair": {
+          "games": 330,
+          "wins": 133,
+          "draws": 0
+        },
+        "Runemaster": {
+          "games": 330,
+          "wins": 197,
+          "draws": 0
+        },
+        "Gambler": {
+          "games": 330,
+          "wins": 176,
+          "draws": 0
+        },
+        "Illusionist": {
+          "games": 330,
+          "wins": 170,
+          "draws": 0
+        },
+        "Shadow": {
+          "games": 330,
+          "wins": 132,
+          "draws": 0
+        },
+        "Psion": {
+          "games": 330,
+          "wins": 195,
+          "draws": 0
+        },
+        "Trickster": {
+          "games": 330,
+          "wins": 167,
+          "draws": 0
+        },
+        "Conjurer": {
+          "games": 330,
+          "wins": 177,
+          "draws": 0
+        },
+        "Ninja": {
+          "games": 330,
+          "wins": 145,
+          "draws": 0
+        },
+        "Void Walker": {
+          "games": 330,
+          "wins": 170,
+          "draws": 0
+        },
+        "Assassin": {
+          "games": 330,
+          "wins": 155,
+          "draws": 0
+        },
+        "Cleric": {
+          "games": 330,
+          "wins": 200,
+          "draws": 0
+        },
+        "Rogue": {
+          "games": 330,
+          "wins": 139,
+          "draws": 0
+        },
+        "Shaman": {
+          "games": 330,
+          "wins": 190,
+          "draws": 0
+        },
+        "Bard": {
+          "games": 330,
+          "wins": 172,
+          "draws": 0
+        },
+        "Druid": {
+          "games": 330,
+          "wins": 184,
+          "draws": 0
+        },
+        "Soul Reaper": {
+          "games": 330,
+          "wins": 183,
+          "draws": 0
+        },
+        "Healer": {
+          "games": 330,
+          "wins": 203,
+          "draws": 0
+        },
+        "Priest": {
+          "games": 330,
+          "wins": 201,
+          "draws": 0
+        },
+        "Oracle": {
+          "games": 330,
+          "wins": 197,
+          "draws": 0
+        },
+        "Summoner": {
+          "games": 330,
+          "wins": 195,
+          "draws": 0
+        }
+      }
+    },
+    {
+      "weapon": "Staff",
+      "games": 9240,
+      "classes": {
+        "Warrior": {
+          "games": 330,
+          "wins": 139,
+          "draws": 5
+        },
+        "Hexer": {
+          "games": 330,
+          "wins": 196,
+          "draws": 3
+        },
+        "Berserker": {
+          "games": 330,
+          "wins": 142,
+          "draws": 6
+        },
+        "Strategist": {
+          "games": 330,
+          "wins": 147,
+          "draws": 3
+        },
+        "Gladiator": {
+          "games": 330,
+          "wins": 124,
+          "draws": 2
+        },
+        "Inventor": {
+          "games": 330,
+          "wins": 181,
+          "draws": 8
+        },
+        "Juggernaut": {
+          "games": 330,
+          "wins": 138,
+          "draws": 3
+        },
+        "Alchemist": {
+          "games": 330,
+          "wins": 183,
+          "draws": 8
+        },
+        "Sentinel": {
+          "games": 330,
+          "wins": 139,
+          "draws": 11
+        },
+        "Artificer": {
+          "games": 330,
+          "wins": 150,
+          "draws": 5
+        },
+        "Warlord": {
+          "games": 330,
+          "wins": 139,
+          "draws": 6
+        },
+        "Shifter": {
+          "games": 330,
+          "wins": 163,
+          "draws": 7
+        },
+        "Samurai": {
+          "games": 330,
+          "wins": 120,
+          "draws": 6
+        },
+        "Inquisitor": {
+          "games": 330,
+          "wins": 164,
+          "draws": 3
+        },
+        "Death Knight": {
+          "games": 330,
+          "wins": 158,
+          "draws": 3
+        },
+        "Spellblade": {
+          "games": 330,
+          "wins": 157,
+          "draws": 7
+        },
+        "Guardian": {
+          "games": 330,
+          "wins": 129,
+          "draws": 5
+        },
+        "Hunter": {
+          "games": 330,
+          "wins": 121,
+          "draws": 5
+        },
+        "Paladin": {
+          "games": 330,
+          "wins": 177,
+          "draws": 10
+        },
+        "Brawler": {
+          "games": 330,
+          "wins": 133,
+          "draws": 7
+        },
+        "Mage": {
+          "games": 330,
+          "wins": 185,
+          "draws": 6
+        },
+        "Monk": {
+          "games": 330,
+          "wins": 124,
+          "draws": 11
+        },
+        "Sorcerer": {
+          "games": 330,
+          "wins": 193,
+          "draws": 7
+        },
+        "Beast Master": {
+          "games": 330,
+          "wins": 143,
+          "draws": 16
+        },
+        "Witch": {
+          "games": 330,
+          "wins": 190,
+          "draws": 7
+        },
+        "Bounty Hunter": {
+          "games": 330,
+          "wins": 140,
+          "draws": 5
+        },
+        "Warlock": {
+          "games": 330,
+          "wins": 187,
+          "draws": 4
+        },
+        "Sniper": {
+          "games": 330,
+          "wins": 139,
+          "draws": 7
+        },
+        "Necromancer": {
+          "games": 330,
+          "wins": 176,
+          "draws": 3
+        },
+        "Ranger": {
+          "games": 330,
+          "wins": 126,
+          "draws": 8
+        },
+        "Elementalist": {
+          "games": 330,
+          "wins": 187,
+          "draws": 7
+        },
+        "Dancer": {
+          "games": 330,
+          "wins": 129,
+          "draws": 7
+        },
+        "Chronomancer": {
+          "games": 330,
+          "wins": 190,
+          "draws": 16
+        },
+        "Jester": {
+          "games": 330,
+          "wins": 161,
+          "draws": 10
+        },
+        "Blood Mage": {
+          "games": 330,
+          "wins": 196,
+          "draws": 9
+        },
+        "Corsair": {
+          "games": 330,
+          "wins": 124,
+          "draws": 9
+        },
+        "Runemaster": {
+          "games": 330,
+          "wins": 179,
+          "draws": 9
+        },
+        "Gambler": {
+          "games": 330,
+          "wins": 165,
+          "draws": 9
+        },
+        "Illusionist": {
+          "games": 330,
+          "wins": 198,
+          "draws": 13
+        },
+        "Shadow": {
+          "games": 330,
+          "wins": 130,
+          "draws": 5
+        },
+        "Psion": {
+          "games": 330,
+          "wins": 189,
+          "draws": 23
+        },
+        "Trickster": {
+          "games": 330,
+          "wins": 160,
+          "draws": 10
+        },
+        "Conjurer": {
+          "games": 330,
+          "wins": 194,
+          "draws": 8
+        },
+        "Ninja": {
+          "games": 330,
+          "wins": 140,
+          "draws": 3
+        },
+        "Void Walker": {
+          "games": 330,
+          "wins": 176,
+          "draws": 3
+        },
+        "Assassin": {
+          "games": 330,
+          "wins": 145,
+          "draws": 9
+        },
+        "Cleric": {
+          "games": 330,
+          "wins": 207,
+          "draws": 8
+        },
+        "Rogue": {
+          "games": 330,
+          "wins": 131,
+          "draws": 3
+        },
+        "Shaman": {
+          "games": 330,
+          "wins": 170,
+          "draws": 13
+        },
+        "Bard": {
+          "games": 330,
+          "wins": 158,
+          "draws": 6
+        },
+        "Druid": {
+          "games": 330,
+          "wins": 180,
+          "draws": 10
+        },
+        "Soul Reaper": {
+          "games": 330,
+          "wins": 174,
+          "draws": 2
+        },
+        "Healer": {
+          "games": 330,
+          "wins": 199,
+          "draws": 11
+        },
+        "Priest": {
+          "games": 330,
+          "wins": 174,
+          "draws": 16
+        },
+        "Oracle": {
+          "games": 330,
+          "wins": 191,
+          "draws": 9
+        },
+        "Summoner": {
+          "games": 330,
+          "wins": 180,
+          "draws": 5
+        }
+      }
+    }
+  ]
+}

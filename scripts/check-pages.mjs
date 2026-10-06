@@ -29,13 +29,29 @@ roster=(await call('characters')).characters;
 const original=(await call('characters/'+roster[0].id)).character;
 assert.equal((await call('characters/'+original.id,'PUT',{name:'Edited',state:original.state})).status,409);
 assert.equal((await call('characters/'+original.id)).character.name,original.name);
+// Isolated class boundary: authoritative IDs, equipment, and old custom-name collisions.
+{
+ const isolated=createStorage({...config,databaseName:'pages-class-boundary'}),snapshot=structuredClone(original.state);
+ snapshot.generationVersion=3;snapshot.traits={race:snapshot.pools.base.race[0].name,class:'Warrior',weapon:'Longsword',mastery:'Veteran',magic:'No magic',power:'Guard',power2:'guard'};
+ snapshot.pools.base.power2.push({name:'guard',weight:1,stats:[0,0,0,0,0]});
+ assert.equal((await call('characters/'+crypto.randomUUID(),'PUT',{name:'Duplicate',state:snapshot},isolated)).status,400);
+ snapshot.traits.power='Perfect counter';snapshot.traits.power2='No second power';snapshot.traits.weapon='Staff';
+ assert.equal((await call('characters/'+crypto.randomUUID(),'PUT',{name:'Unusable counter',state:snapshot},isolated)).status,400);
+ snapshot.traits.power='Guard';snapshot.traits.weapon='Longsword';snapshot.abilityIds=['forged',null];
+ const native=await call('characters/'+crypto.randomUUID(),'PUT',{name:'New technique',state:snapshot},isolated);ok(native);assert.deepEqual(native.character.summary.abilityIds,['guard',null]);assert.equal(native.character.summary.origin,'custom');
+ snapshot.generationVersion=2;snapshot.catalog.powers=snapshot.catalog.powers.filter(name=>!globalThis.CLASS_ABILITIES.newOptions.some(o=>o.name===name));
+ const entrants=[];for(let i=0;i<2;i++){const id=crypto.randomUUID();ok(await call('characters/'+id,'PUT',{name:'Old custom spell '+i,state:snapshot},isolated));const legacy=(await call('characters/'+id,'GET',undefined,isolated)).character;assert.equal(legacy.summary.generationVersion,2);assert.equal(legacy.state.traits.power,'Guard');assert(!legacy.state.catalog.powers.includes('Guard'));entrants.push({...legacy,traits:legacy.state.traits});}
+ const oldCup=createTournament('Legacy custom spell cup',entrants,[defaultStage('single')],2,{shuffle:false});oldCup.engineVersion=11;nextMatch(oldCup);ok(await call('tournaments/'+crypto.randomUUID(),'PUT',{name:oldCup.name,state:oldCup},isolated));
+ const incompatible=createTournament('New technique old cup',[{...native.character,traits:{...snapshot.traits}},entrants[0]],[defaultStage('single')],2,{shuffle:false});incompatible.engineVersion=11;nextMatch(incompatible);
+ assert.equal((await call('tournaments/'+crypto.randomUUID(),'PUT',{name:incompatible.name,state:incompatible},isolated)).error,'These abilities require a new cup.');
+}
 // A multi-stage cup retains compressed snapshots, titles, records and stage history.
 const state=createTournament('Pages Cup',roster.slice(0,8),[{...defaultStage('groups'),groups:2,advance:4},{...defaultStage('swiss'),rounds:3,advance:2},defaultStage('double')],123,{shuffle:false});
 const id=crypto.randomUUID();
 const save=()=>call('tournaments/'+id,'PUT',{name:state.name,state});
 ok(await save());ok(await save());
 assert.equal((await call('tournaments/'+id)).tournament.name,'Pages Cup');
-let n=0;while(!state.done){assert(++n<150);const m=nextMatch(state);recordMatch(state,m,Array.from({length:Math.floor((m.bestOf||1)/2)+1},()=>({winner:m.a,seconds:1,combatVersion:11})));ok(await save());}
+let n=0;while(!state.done){assert(++n<150);const m=nextMatch(state);recordMatch(state,m,Array.from({length:Math.floor((m.bestOf||1)/2)+1},()=>({winner:m.a,seconds:1,combatVersion:12})));ok(await save());}
 let crowns=await call('champions');ok(crowns);assert(crowns.champions.some(c=>c.characterId===state.champion));
 const titlesBefore=JSON.stringify(crowns.records);ok(await save());assert.equal(JSON.stringify((await call('champions')).records),titlesBefore);
 assert((await call('characters')).characters.some(c=>c.matchRecord.wins>0&&c.championships>0));
@@ -45,7 +61,7 @@ assert((await call('tournaments')).tournaments.some(t=>t.name==='Pages Cup 2'));
 // New upset rewards are retired; immutable rolls remain.
 const low=roster.find(c=>c.summary.tier==='C'),high=roster.find(c=>c.summary.tier==='B');
 const growth=createTournament('Growth Cup',[low,high],[{...defaultStage('swiss'),rounds:3,advance:1}],41,{shuffle:false}),growthId=crypto.randomUUID();
-for(let i=0;i<2;i++){const m=nextMatch(growth);recordMatch(growth,m,[{winner:low.id,seconds:1,combatVersion:11}]);ok(await call('tournaments/'+growthId,'PUT',{name:growth.name,state:growth}));}
+for(let i=0;i<2;i++){const m=nextMatch(growth);recordMatch(growth,m,[{winner:low.id,seconds:1,combatVersion:12}]);ok(await call('tournaments/'+growthId,'PUT',{name:growth.name,state:growth}));}
 assert.equal((await call('characters/'+low.id)).character.summary.growth,undefined);
 // Reopen, export, import into a different browser, and reject corrupt/foreign backups.
 const before=await call('characters');storage=createStorage(config);

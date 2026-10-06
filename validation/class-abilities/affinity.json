@@ -1,0 +1,1687 @@
+{
+  "seed": 20261203,
+  "rolls": 6720,
+  "meaning": "Bucket counts are observed outcomes. Redistribution values are mean probability mass over sampled slot contexts, separately for each discipline, not counts of sampled fallback events. They include duplicate exclusion and equipment filtering. A rarity fallback renormalizes compatible rarity groups; a theme fallback moves to the nearest populated bucket within its rarity.",
+  "classes": [
+    {
+      "class": "Warrior",
+      "rolls": 120,
+      "abilityBuckets": [
+        121,
+        5,
+        9
+      ],
+      "weaponBuckets": [
+        89,
+        24,
+        7
+      ],
+      "filled": 135,
+      "empty": 105,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1214919823299391
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.04029411745159371,
+          "meanThemeRedistribution": 0.35376527082903586
+        }
+      }
+    },
+    {
+      "class": "Berserker",
+      "rolls": 120,
+      "abilityBuckets": [
+        131,
+        1,
+        2
+      ],
+      "weaponBuckets": [
+        100,
+        17,
+        3
+      ],
+      "filled": 134,
+      "empty": 106,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.04306124345986268
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.03395224620213417,
+          "meanThemeRedistribution": 0.3209118609552965
+        }
+      }
+    },
+    {
+      "class": "Gladiator",
+      "rolls": 120,
+      "abilityBuckets": [
+        114,
+        3,
+        9
+      ],
+      "weaponBuckets": [
+        102,
+        14,
+        4
+      ],
+      "filled": 126,
+      "empty": 114,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.09692533642033911
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.032424322232477036,
+          "meanThemeRedistribution": 0.34201475814525417
+        }
+      }
+    },
+    {
+      "class": "Juggernaut",
+      "rolls": 120,
+      "abilityBuckets": [
+        115,
+        3,
+        9
+      ],
+      "weaponBuckets": [
+        100,
+        14,
+        6
+      ],
+      "filled": 127,
+      "empty": 113,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.11357093354046276
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.05487089705089031,
+          "meanThemeRedistribution": 0.3286475062528258
+        }
+      }
+    },
+    {
+      "class": "Sentinel",
+      "rolls": 120,
+      "abilityBuckets": [
+        97,
+        42,
+        1
+      ],
+      "weaponBuckets": [
+        100,
+        10,
+        10
+      ],
+      "filled": 140,
+      "empty": 100,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.20036073587908287
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.02720593052056964,
+          "meanThemeRedistribution": 0.10978883491983121
+        }
+      }
+    },
+    {
+      "class": "Warlord",
+      "rolls": 120,
+      "abilityBuckets": [
+        130,
+        0,
+        2
+      ],
+      "weaponBuckets": [
+        114,
+        0,
+        6
+      ],
+      "filled": 132,
+      "empty": 108,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.3657107871828347
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.018470363749529903,
+          "meanThemeRedistribution": 0.29999999999999866
+        }
+      }
+    },
+    {
+      "class": "Samurai",
+      "rolls": 120,
+      "abilityBuckets": [
+        122,
+        2,
+        3
+      ],
+      "weaponBuckets": [
+        96,
+        20,
+        4
+      ],
+      "filled": 127,
+      "empty": 113,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1200717211947627
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.031026852550320824,
+          "meanThemeRedistribution": 0.3074712643678147
+        }
+      }
+    },
+    {
+      "class": "Death Knight",
+      "rolls": 120,
+      "abilityBuckets": [
+        81,
+        11,
+        15
+      ],
+      "weaponBuckets": [
+        98,
+        18,
+        4
+      ],
+      "filled": 107,
+      "empty": 133,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.024433775361883618
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.10871527634002358,
+          "meanThemeRedistribution": 0.3503960715533431
+        }
+      }
+    },
+    {
+      "class": "Guardian",
+      "rolls": 120,
+      "abilityBuckets": [
+        84,
+        45,
+        2
+      ],
+      "weaponBuckets": [
+        94,
+        17,
+        9
+      ],
+      "filled": 131,
+      "empty": 109,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.20059989560731728
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.024002273962709327,
+          "meanThemeRedistribution": 0.10302135416456627
+        }
+      }
+    },
+    {
+      "class": "Paladin",
+      "rolls": 120,
+      "abilityBuckets": [
+        90,
+        12,
+        2
+      ],
+      "weaponBuckets": [
+        99,
+        15,
+        6
+      ],
+      "filled": 104,
+      "empty": 136,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.09407888465813793
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.08616008484263984,
+          "meanThemeRedistribution": 0.3144864745311
+        }
+      }
+    },
+    {
+      "class": "Mage",
+      "rolls": 120,
+      "abilityBuckets": [
+        75,
+        18,
+        6
+      ],
+      "weaponBuckets": [
+        93,
+        23,
+        4
+      ],
+      "filled": 99,
+      "empty": 141,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.06389029916054718
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5203309841155019,
+          "meanThemeRedistribution": 0.5295834996293469
+        }
+      }
+    },
+    {
+      "class": "Sorcerer",
+      "rolls": 120,
+      "abilityBuckets": [
+        62,
+        22,
+        9
+      ],
+      "weaponBuckets": [
+        89,
+        23,
+        8
+      ],
+      "filled": 93,
+      "empty": 147,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.053318500578159504
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.49648765238139875,
+          "meanThemeRedistribution": 0.8302162496965974
+        }
+      }
+    },
+    {
+      "class": "Witch",
+      "rolls": 120,
+      "abilityBuckets": [
+        61,
+        30,
+        14
+      ],
+      "weaponBuckets": [
+        95,
+        20,
+        5
+      ],
+      "filled": 105,
+      "empty": 135,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.13734734055665687
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5348343830476678,
+          "meanThemeRedistribution": 0.8077464275921447
+        }
+      }
+    },
+    {
+      "class": "Warlock",
+      "rolls": 120,
+      "abilityBuckets": [
+        58,
+        25,
+        18
+      ],
+      "weaponBuckets": [
+        96,
+        18,
+        6
+      ],
+      "filled": 101,
+      "empty": 139,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.12503554920501828
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.538927113479542,
+          "meanThemeRedistribution": 0.9499999999999961
+        }
+      }
+    },
+    {
+      "class": "Necromancer",
+      "rolls": 120,
+      "abilityBuckets": [
+        60,
+        21,
+        23
+      ],
+      "weaponBuckets": [
+        89,
+        27,
+        4
+      ],
+      "filled": 104,
+      "empty": 136,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1746127266555638
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.4955547930171243,
+          "meanThemeRedistribution": 0.9499999999999961
+        }
+      }
+    },
+    {
+      "class": "Elementalist",
+      "rolls": 120,
+      "abilityBuckets": [
+        66,
+        26,
+        7
+      ],
+      "weaponBuckets": [
+        100,
+        13,
+        7
+      ],
+      "filled": 99,
+      "empty": 141,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.04922519685273092
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5575642843134855,
+          "meanThemeRedistribution": 0.8295175886153012
+        }
+      }
+    },
+    {
+      "class": "Chronomancer",
+      "rolls": 120,
+      "abilityBuckets": [
+        51,
+        25,
+        12
+      ],
+      "weaponBuckets": [
+        94,
+        20,
+        6
+      ],
+      "filled": 88,
+      "empty": 152,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.13893274956762217
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5265878636842153,
+          "meanThemeRedistribution": 0.8184919442272508
+        }
+      }
+    },
+    {
+      "class": "Blood Mage",
+      "rolls": 120,
+      "abilityBuckets": [
+        58,
+        27,
+        13
+      ],
+      "weaponBuckets": [
+        98,
+        13,
+        9
+      ],
+      "filled": 98,
+      "empty": 142,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.15382874179132183
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5495120577283864,
+          "meanThemeRedistribution": 0.6858957981268433
+        }
+      }
+    },
+    {
+      "class": "Runemaster",
+      "rolls": 120,
+      "abilityBuckets": [
+        74,
+        20,
+        13
+      ],
+      "weaponBuckets": [
+        97,
+        16,
+        7
+      ],
+      "filled": 107,
+      "empty": 133,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.05759863199305119
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5415217721231728,
+          "meanThemeRedistribution": 0.6350264903900985
+        }
+      }
+    },
+    {
+      "class": "Illusionist",
+      "rolls": 120,
+      "abilityBuckets": [
+        59,
+        33,
+        9
+      ],
+      "weaponBuckets": [
+        87,
+        29,
+        4
+      ],
+      "filled": 101,
+      "empty": 139,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.04982270222527503
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.4891236056055431,
+          "meanThemeRedistribution": 0.8140198846618628
+        }
+      }
+    },
+    {
+      "class": "Psion",
+      "rolls": 120,
+      "abilityBuckets": [
+        51,
+        30,
+        8
+      ],
+      "weaponBuckets": [
+        94,
+        20,
+        6
+      ],
+      "filled": 89,
+      "empty": 151,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.04906143505729911
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5240077578999328,
+          "meanThemeRedistribution": 0.7980793531168747
+        }
+      }
+    },
+    {
+      "class": "Conjurer",
+      "rolls": 120,
+      "abilityBuckets": [
+        63,
+        19,
+        8
+      ],
+      "weaponBuckets": [
+        100,
+        15,
+        5
+      ],
+      "filled": 90,
+      "empty": 150,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.0804561511995163
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5509871047759237,
+          "meanThemeRedistribution": 0.72977164059386
+        }
+      }
+    },
+    {
+      "class": "Void Walker",
+      "rolls": 120,
+      "abilityBuckets": [
+        92,
+        17,
+        21
+      ],
+      "weaponBuckets": [
+        101,
+        14,
+        5
+      ],
+      "filled": 130,
+      "empty": 110,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.10640889546056527
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.08441734052187251,
+          "meanThemeRedistribution": 0.3573744793736127
+        }
+      }
+    },
+    {
+      "class": "Cleric",
+      "rolls": 120,
+      "abilityBuckets": [
+        79,
+        9,
+        12
+      ],
+      "weaponBuckets": [
+        93,
+        20,
+        7
+      ],
+      "filled": 100,
+      "empty": 140,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1745778737692403
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5216233181175091,
+          "meanThemeRedistribution": 0.3024757957679736
+        }
+      }
+    },
+    {
+      "class": "Shaman",
+      "rolls": 120,
+      "abilityBuckets": [
+        63,
+        17,
+        23
+      ],
+      "weaponBuckets": [
+        97,
+        15,
+        8
+      ],
+      "filled": 103,
+      "empty": 137,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.10751279193135543
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.0332056082793308,
+          "meanThemeRedistribution": 0.9499999999999961
+        }
+      }
+    },
+    {
+      "class": "Druid",
+      "rolls": 120,
+      "abilityBuckets": [
+        72,
+        7,
+        12
+      ],
+      "weaponBuckets": [
+        93,
+        22,
+        5
+      ],
+      "filled": 91,
+      "empty": 149,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.08679272265860406
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.042166670094012176,
+          "meanThemeRedistribution": 0.6969311096906738
+        }
+      }
+    },
+    {
+      "class": "Healer",
+      "rolls": 120,
+      "abilityBuckets": [
+        80,
+        12,
+        18
+      ],
+      "weaponBuckets": [
+        99,
+        12,
+        9
+      ],
+      "filled": 110,
+      "empty": 130,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.15922421353743327
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5533301973593389,
+          "meanThemeRedistribution": 0.30268943688020505
+        }
+      }
+    },
+    {
+      "class": "Oracle",
+      "rolls": 120,
+      "abilityBuckets": [
+        53,
+        30,
+        3
+      ],
+      "weaponBuckets": [
+        96,
+        19,
+        5
+      ],
+      "filled": 86,
+      "empty": 154,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.039029489001099926
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5403475735681856,
+          "meanThemeRedistribution": 0.8257982845268292
+        }
+      }
+    },
+    {
+      "class": "Summoner",
+      "rolls": 120,
+      "abilityBuckets": [
+        60,
+        0,
+        42
+      ],
+      "weaponBuckets": [
+        91,
+        23,
+        6
+      ],
+      "filled": 102,
+      "empty": 138,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.44475125996639314
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.051926616165057386,
+          "meanThemeRedistribution": 0.9499999999999961
+        }
+      }
+    },
+    {
+      "class": "Priest",
+      "rolls": 120,
+      "abilityBuckets": [
+        82,
+        11,
+        9
+      ],
+      "weaponBuckets": [
+        100,
+        16,
+        4
+      ],
+      "filled": 102,
+      "empty": 138,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.17213330123793033
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.5577782982567957,
+          "meanThemeRedistribution": 0.3016299567059469
+        }
+      }
+    },
+    {
+      "class": "Soul Reaper",
+      "rolls": 120,
+      "abilityBuckets": [
+        71,
+        13,
+        18
+      ],
+      "weaponBuckets": [
+        85,
+        28,
+        7
+      ],
+      "filled": 102,
+      "empty": 138,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.12250478536456466
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.16188248978944364,
+          "meanThemeRedistribution": 0.4414082313945176
+        }
+      }
+    },
+    {
+      "class": "Bard",
+      "rolls": 120,
+      "abilityBuckets": [
+        49,
+        31,
+        20
+      ],
+      "weaponBuckets": [
+        95,
+        19,
+        6
+      ],
+      "filled": 100,
+      "empty": 140,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.054897308218933946
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.1622773600595241,
+          "meanThemeRedistribution": 0.6624915373284989
+        }
+      }
+    },
+    {
+      "class": "Rogue",
+      "rolls": 120,
+      "abilityBuckets": [
+        72,
+        43,
+        17
+      ],
+      "weaponBuckets": [
+        93,
+        17,
+        10
+      ],
+      "filled": 132,
+      "empty": 108,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.07403409759231848
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.034904123149441135,
+          "meanThemeRedistribution": 0.35441072547318875
+        }
+      }
+    },
+    {
+      "class": "Assassin",
+      "rolls": 120,
+      "abilityBuckets": [
+        64,
+        52,
+        15
+      ],
+      "weaponBuckets": [
+        100,
+        14,
+        6
+      ],
+      "filled": 131,
+      "empty": 109,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.05181291398505714
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.029523578792519656,
+          "meanThemeRedistribution": 0.28800678897810855
+        }
+      }
+    },
+    {
+      "class": "Ninja",
+      "rolls": 120,
+      "abilityBuckets": [
+        48,
+        56,
+        21
+      ],
+      "weaponBuckets": [
+        93,
+        21,
+        6
+      ],
+      "filled": 125,
+      "empty": 115,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.08564203550979396
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.037468906562899695,
+          "meanThemeRedistribution": 0.33686109980041173
+        }
+      }
+    },
+    {
+      "class": "Trickster",
+      "rolls": 120,
+      "abilityBuckets": [
+        44,
+        17,
+        52
+      ],
+      "weaponBuckets": [
+        95,
+        18,
+        7
+      ],
+      "filled": 113,
+      "empty": 127,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.11567877697644352
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.13628178122890572,
+          "meanThemeRedistribution": 0.7522817094837548
+        }
+      }
+    },
+    {
+      "class": "Shadow",
+      "rolls": 120,
+      "abilityBuckets": [
+        62,
+        53,
+        17
+      ],
+      "weaponBuckets": [
+        98,
+        16,
+        6
+      ],
+      "filled": 132,
+      "empty": 108,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.06277640529592766
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.03039715260245064,
+          "meanThemeRedistribution": 0.3488103679408041
+        }
+      }
+    },
+    {
+      "class": "Gambler",
+      "rolls": 120,
+      "abilityBuckets": [
+        59,
+        22,
+        38
+      ],
+      "weaponBuckets": [
+        97,
+        13,
+        10
+      ],
+      "filled": 119,
+      "empty": 121,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.08589723360992663
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.09615498174927518,
+          "meanThemeRedistribution": 0.7193229486299242
+        }
+      }
+    },
+    {
+      "class": "Corsair",
+      "rolls": 120,
+      "abilityBuckets": [
+        69,
+        41,
+        20
+      ],
+      "weaponBuckets": [
+        90,
+        26,
+        4
+      ],
+      "filled": 130,
+      "empty": 110,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.062276972709891194
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.030661840426687174,
+          "meanThemeRedistribution": 0.3652502528278958
+        }
+      }
+    },
+    {
+      "class": "Jester",
+      "rolls": 120,
+      "abilityBuckets": [
+        48,
+        14,
+        53
+      ],
+      "weaponBuckets": [
+        99,
+        15,
+        6
+      ],
+      "filled": 115,
+      "empty": 125,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.10953682577637604
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.10464221079017891,
+          "meanThemeRedistribution": 0.6956906842111633
+        }
+      }
+    },
+    {
+      "class": "Dancer",
+      "rolls": 120,
+      "abilityBuckets": [
+        79,
+        39,
+        16
+      ],
+      "weaponBuckets": [
+        103,
+        16,
+        1
+      ],
+      "filled": 134,
+      "empty": 106,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.08252335192097558
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.017172501360956105,
+          "meanThemeRedistribution": 0.34468000894258943
+        }
+      }
+    },
+    {
+      "class": "Ranger",
+      "rolls": 120,
+      "abilityBuckets": [
+        97,
+        16,
+        31
+      ],
+      "weaponBuckets": [
+        92,
+        23,
+        5
+      ],
+      "filled": 144,
+      "empty": 96,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.04304070754836527
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.11191348222428266,
+          "meanThemeRedistribution": 0.45895102928051634
+        }
+      }
+    },
+    {
+      "class": "Sniper",
+      "rolls": 120,
+      "abilityBuckets": [
+        72,
+        19,
+        33
+      ],
+      "weaponBuckets": [
+        93,
+        22,
+        5
+      ],
+      "filled": 124,
+      "empty": 116,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.23975748209331035
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.116410946663092,
+          "meanThemeRedistribution": 0.49647217460343873
+        }
+      }
+    },
+    {
+      "class": "Bounty Hunter",
+      "rolls": 120,
+      "abilityBuckets": [
+        87,
+        21,
+        24
+      ],
+      "weaponBuckets": [
+        93,
+        22,
+        5
+      ],
+      "filled": 132,
+      "empty": 108,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.05287914128206632
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.09671030802822891,
+          "meanThemeRedistribution": 0.49105289356183424
+        }
+      }
+    },
+    {
+      "class": "Beast Master",
+      "rolls": 120,
+      "abilityBuckets": [
+        38,
+        55,
+        13
+      ],
+      "weaponBuckets": [
+        98,
+        18,
+        4
+      ],
+      "filled": 106,
+      "empty": 134,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.10851235061876263
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.02149884632696979,
+          "meanThemeRedistribution": 0.5483124750277323
+        }
+      }
+    },
+    {
+      "class": "Monk",
+      "rolls": 120,
+      "abilityBuckets": [
+        115,
+        2,
+        3
+      ],
+      "weaponBuckets": [
+        103,
+        15,
+        2
+      ],
+      "filled": 120,
+      "empty": 120,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1645749972359378
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.3048376291577185
+        }
+      }
+    },
+    {
+      "class": "Brawler",
+      "rolls": 120,
+      "abilityBuckets": [
+        123,
+        1,
+        5
+      ],
+      "weaponBuckets": [
+        93,
+        22,
+        5
+      ],
+      "filled": 129,
+      "empty": 111,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.16471557165080408
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.0066091954022988505,
+          "meanThemeRedistribution": 0.30955369280634154
+        }
+      }
+    },
+    {
+      "class": "Hunter",
+      "rolls": 120,
+      "abilityBuckets": [
+        94,
+        12,
+        26
+      ],
+      "weaponBuckets": [
+        94,
+        21,
+        5
+      ],
+      "filled": 132,
+      "empty": 108,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.060031406519265744
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.11454765891260688,
+          "meanThemeRedistribution": 0.478413876648403
+        }
+      }
+    },
+    {
+      "class": "Spellblade",
+      "rolls": 120,
+      "abilityBuckets": [
+        80,
+        14,
+        15
+      ],
+      "weaponBuckets": [
+        95,
+        16,
+        9
+      ],
+      "filled": 109,
+      "empty": 131,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.0506150264111315
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.08015183537466945,
+          "meanThemeRedistribution": 0.3573577353963309
+        }
+      }
+    },
+    {
+      "class": "Inquisitor",
+      "rolls": 120,
+      "abilityBuckets": [
+        95,
+        9,
+        15
+      ],
+      "weaponBuckets": [
+        98,
+        15,
+        7
+      ],
+      "filled": 119,
+      "empty": 121,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.07546077240731276
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.09267063279785874,
+          "meanThemeRedistribution": 0.3477491261016237
+        }
+      }
+    },
+    {
+      "class": "Shifter",
+      "rolls": 120,
+      "abilityBuckets": [
+        36,
+        64,
+        12
+      ],
+      "weaponBuckets": [
+        96,
+        18,
+        6
+      ],
+      "filled": 112,
+      "empty": 128,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.1105394636411695
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.011768088230288692,
+          "meanThemeRedistribution": 0.7461288561064429
+        }
+      }
+    },
+    {
+      "class": "Artificer",
+      "rolls": 120,
+      "abilityBuckets": [
+        95,
+        15,
+        16
+      ],
+      "weaponBuckets": [
+        101,
+        11,
+        8
+      ],
+      "filled": 126,
+      "empty": 114,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.12674350780733526
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.10958929316964681,
+          "meanThemeRedistribution": 0.3303439939180846
+        }
+      }
+    },
+    {
+      "class": "Alchemist",
+      "rolls": 120,
+      "abilityBuckets": [
+        94,
+        15,
+        12
+      ],
+      "weaponBuckets": [
+        96,
+        18,
+        6
+      ],
+      "filled": 121,
+      "empty": 119,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.12009719574785452
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.14140802787609416,
+          "meanThemeRedistribution": 0.3586974633734227
+        }
+      }
+    },
+    {
+      "class": "Inventor",
+      "rolls": 120,
+      "abilityBuckets": [
+        72,
+        14,
+        18
+      ],
+      "weaponBuckets": [
+        94,
+        20,
+        6
+      ],
+      "filled": 104,
+      "empty": 136,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.12388797992856586
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.14678597701785767,
+          "meanThemeRedistribution": 0.3449273862510017
+        }
+      }
+    },
+    {
+      "class": "Strategist",
+      "rolls": 120,
+      "abilityBuckets": [
+        121,
+        0,
+        6
+      ],
+      "weaponBuckets": [
+        114,
+        0,
+        6
+      ],
+      "filled": 127,
+      "empty": 113,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.3718574949080681
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.026416097847929972,
+          "meanThemeRedistribution": 0.29999999999999866
+        }
+      }
+    },
+    {
+      "class": "Hexer",
+      "rolls": 120,
+      "abilityBuckets": [
+        58,
+        15,
+        13
+      ],
+      "weaponBuckets": [
+        93,
+        18,
+        9
+      ],
+      "filled": 86,
+      "empty": 154,
+      "fallbacks": {
+        "spell": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0,
+          "meanThemeRedistribution": 0.13453751926360835
+        },
+        "technique": {
+          "slots": 240,
+          "emptyDiscipline": 0,
+          "meanRarityRedistribution": 0.516996745546663,
+          "meanThemeRedistribution": 0.9181162037646923
+        }
+      }
+    }
+  ]
+}

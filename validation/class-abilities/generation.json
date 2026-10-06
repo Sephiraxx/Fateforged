@@ -1,0 +1,28 @@
+{
+  "combatVersion": 12,
+  "generationVersion": 3,
+  "fingerprint": "d4601706d561b987884251751d13562b31dbd50475266a8ce90b52fe28c08aa7",
+  "seed": 20261203,
+  "samples": {
+    "v2": {
+      "fighters": 10000,
+      "mean": 645.3566,
+      "Aplus": 0.0578,
+      "Splus": 0.0183,
+      "SS": 0.0003
+    },
+    "v3": {
+      "fighters": 10000,
+      "mean": 656.2586,
+      "Aplus": 0.0582,
+      "Splus": 0.0179,
+      "SS": 0.0003
+    }
+  },
+  "delta": {
+    "Aplus": 0.0004000000000000045,
+    "Splus": -0.00040000000000000105,
+    "SS": 0,
+    "mean": 10.902000000000044
+  }
+}

@@ -9,12 +9,13 @@ for(const file of ['trait-details.js','trait-detail-ui.js','trait-details.css'])
 for(const file of ['leagues.js','league-fixtures.js','league-ui.js','league-sim-worker.js','simulation-client.js','leagues.css'])files['/'+file]=file;
 for(const file of ['combat-v9.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','combat-engines.js'])files['/'+file]=file;
 for(const file of ['abilities-v11.js','combat-v10.js','combat-v11.js','combat-v11-profile.js','combat-v11-contact.js','combat-v11-environment.js','combat-v11-powers.js'])files['/'+file]=file;
+for(const file of ['class-abilities.js','abilities-v12.js','data-v2.js','luck-v2.js','combat-v12.js','combat-v12-base.js','combat-v12-profile.js','combat-v12-contact.js','combat-v12-environment.js','combat-v12-powers.js'])files['/'+file]=file;
 files['/polish.css']='polish.css';
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 await rm('dist',{recursive:true,force:true});await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});
 const binary={};for(const name of ['weapons','effects'])binary['/assets/'+name+'.webp']=(await readFile('public/'+name+'.webp')).toString('base64');
 binary['/assets/obsidian.webp']=(await readFile('public/obsidian.webp')).toString('base64');
-const context={};vm.createContext(context);vm.runInContext(assets['/data.js']+';this.catalog=WHEEL_DATA.base;this.generationPools=WHEEL_DATA',context);
+const context={};vm.createContext(context);vm.runInContext(assets['/class-abilities.js']+assets['/data.js']+';this.catalog=WHEEL_DATA.base;this.generationPools=WHEEL_DATA',context);
 const catalog=Object.fromEntries(['power','power2','weakness'].map(slot=>[slot,context.catalog[slot]]));
 const reconciliation=(await readFile('public/catalog-repair.js','utf8')).replace('export function reconcileCharacter','function reconcileCharacter');
 const seriesHelpers=(await readFile('public/series.js','utf8')).replaceAll('export const','const').replaceAll('export function','function');
@@ -35,6 +36,6 @@ for(const path of Object.keys(assets)){
  for(const asset of paths){const escaped=asset.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),local=asset.slice(1).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');assets[path]=assets[path].replace(new RegExp(`(["'])(?:${escaped}|(?:\\./)?${local})\\1`,'g'),`$1${asset}?v=${version}$1`);}
  assets[path]=assets[path].replaceAll('${name}.webp','${name}.webp?v='+version);
 }
-await writeFile('dist/server/index.js',`${assets['/luck.js']}\n${resetHelpers}\n${tournamentNameStorage}\n${nameHelpers}\n${historyHelpers}\n${seriesHelpers}\n${promotionHelpers}\n${leagueHelpers}\n${leagueStorage}\nconst GENERATION_POOL_REVISION=${JSON.stringify(createHash('sha256').update(JSON.stringify(context.generationPools)).digest('hex'))};\nconst GENERATION_POOLS=${JSON.stringify(context.generationPools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${characterNames};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\n${poolHelpers}\nconst ASSET_VERSION=${JSON.stringify(version)};\n${reconciliation}\nconst ASSETS=${JSON.stringify(assets)};\nconst BINARY_ASSETS=${JSON.stringify(binary)};\n`+await readFile('worker/index.js','utf8'));
+await writeFile('dist/server/index.js',`${assets['/class-abilities.js']}\n${assets['/luck.js']}\n${resetHelpers}\n${tournamentNameStorage}\n${nameHelpers}\n${historyHelpers}\n${seriesHelpers}\n${promotionHelpers}\n${leagueHelpers}\n${leagueStorage}\nconst GENERATION_POOL_REVISION=${JSON.stringify(createHash('sha256').update(JSON.stringify(context.generationPools)).digest('hex'))};\nconst GENERATION_POOLS=${JSON.stringify(context.generationPools)};\nconst RANDOM_CHARACTER_NAME=(()=>{const randomIndex=WHEEL_LUCK.randomIndex;${characterNames};return suggestFantasyName;})();\nconst CURRENT_CATALOG=${JSON.stringify(catalog)};\nconst CURRENT_CATALOG_REVISION=${JSON.stringify(revision)};\n${poolHelpers}\nconst ASSET_VERSION=${JSON.stringify(version)};\n${reconciliation}\nconst ASSETS=${JSON.stringify(assets)};\nconst BINARY_ASSETS=${JSON.stringify(binary)};\n`+await readFile('worker/index.js','utf8'));
 try{await writeFile('dist/.openai/hosting.json',await readFile('.openai/hosting.json','utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
 console.log('Built Fateforge Worker with embedded assets.');
