@@ -62,8 +62,8 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
   - Tiers are roughly 70% A, 28% S and 2% SS.
 - Random exhibition teams are generated in the browser and never saved to the roster.
 
-## Balance (validation/team-combat.json)
-These results come from `node scripts/evaluate-team-combat.mjs 40`. Each matchup is 40 seeded games with alternating sides.
+## Balance (engine 1)
+These were engine 1's results (`node scripts/evaluate-team-combat.mjs 40`, 40 seeded games per matchup with alternating sides). Engine 2's numbers are in the Team engine 2 section below.
 
 | Matchup | Win rate (first team) | Time limit |
 |---|---:|---:|
@@ -81,6 +81,93 @@ Every support role adds value, and mixed teams beat pure damage. `scripts/check-
 - an average 5v5 battle runs in under 750 ms in node.
 
 Measured runtimes are about 40–330 ms per battle, so whole seasons are practical to simulate.
+
+# Team engine 2: formations, a wide field and maps
+
+Engine 1 let every fighter pick a target and circle it with the duel engine's wide strafe, so teams scattered across the arena and fights broke into 2v1s. Engine 2 (`TEAM_ENGINE_VERSION = 'team-2'`) makes each team fight as a unit. Every match from now on uses it; results already recorded under `team-1` stay as they are.
+
+## The field and maps (`public/team-maps.js`)
+- **Field.** Team battles play on a 960×600 field (duels keep their 600×600 square). Teams spawn on their own third. Combat 12 clamps positions to its square inside several inherited methods, so `TeamBattle` re-implements those pieces with field bounds: movement (Charge travel, the environment pre-steps and contact steering), `push`, knockback, teleport destinations, and the earth, illusion and portal placements. The locked combat 12 files are untouched (`check-engine-lock-v12`).
+- **Maps.** `'random'` picks a map from the battle seed with its own salt, so time, weather and ground rolls are unchanged. The map is stored in the result's `environment.map`, and league games are rejected without a valid one.
+
+  | Map | Weight | Terrain |
+  | --- | --- | --- |
+  | Open field (`open`) | 40% | none |
+  | Pillar hall (`pillars`) | 15% | four to six large pillars |
+  | Broken ruins (`ruins`) | 15% | two walls with a central lane, plus centre stones |
+  | Crossroads (`crossroads`) | 15% | a central rock and flank rocks |
+  | Stone groves (`groves`) | 15% | scattered small rocks |
+
+- **Terrain rules.** Terrain pieces are circles (the engine's obstacle shape; walls are chains of touching circles). Every map is mirrored across the centre line, has a seeded jitter, keeps out of both spawn zones, and never leaves a gap between pieces narrow enough to wedge a fighter (under 40 units). Terrain blocks movement and projectiles; flying fighters pass over it.
+- **Line of sight.** Ranged and arcane fighters do not start an attack, and nobody casts an enemy-directed power, without a clear line to the target. Ally support needs a clear line to the ally. Target choice penalises enemies out of sight, and fighters without a line walk around the obstacle.
+- **Walking around terrain.** A look-ahead steers fighters past rocks, and a blocked fighter takes a waypoint around the obstacle. Along a wall the waypoint follows the chain to its end, on whichever side is shorter. After every step, anyone pushed into terrain (knockback, pulls, swaps) is settled back outside it.
+
+## Formations
+Twice a second each team makes a plan:
+- **Axes.** A facing axis towards the enemy (smoothed so it does not jitter) and a lateral axis.
+- **Front.** The tanks' centre. A team without tanks uses a point just ahead of the group, so it keeps advancing. A lone survivor fights freely.
+- **Slots.** Tanks on the front (spread sideways); ranged and arcane damage dealers about 95 units behind them; controllers about 100 behind; healers about 145 behind; melee damage dealers (skirmishers) on a flank. 5v5 spreads 20% wider.
+- **Called target.** One enemy the team focuses: wounded, valuable (healers first), close to the front, preferably exposed (no enemy tank within 110), and with a bonus for anyone inside our back line.
+- **Back-line threats.** Enemies within 130 of our healers, controllers or ranged dealers. Tanks and controllers peel for them first.
+
+Movement blends each fighter's fighting moves (approach, kite, attack) with a pull towards its slot that grows with distance. Strafing is cut to 0.14–0.3 of the fighter's speed while in formation; the duel engine's 0.62–0.82 orbit was what scattered engine-1 teams. A leash stops anyone running too far forward: tanks stay within the posture's leash of their back line, and everyone else may get no more than 50 units ahead of their slot's depth behind the front. Healers hold their slot and move towards a hurt ally when one is out of reach.
+
+**Skirmishers** (melee damage dealers) wait on a flank. When the posture allows, they dive onto an exposed back-liner, or whenever their mobility move is ready and a target is within 300. They prefer their Charge, Teleportation, Portal or Space folding on the way in, and fall back to the slot after about 3.5 s or below 45% health, resting 4 s before the next dive.
+
+## Postures (tactics)
+| Tactic | Leash | Slot pull | Strafe | Dives | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Hold the line (`defensive`) | 90 | 1.5 | 0.14 | never | holds its own half for up to 12 s until the enemy engages; strong peel |
+| Protect the carry (`protect-carry`) | 100 | 1.25 | 0.16 | never | strongest peel for teammates under attack |
+| Balanced (`balanced`) | 130 | 1 | 0.2 | onto exposed targets, or with mobility | the default |
+| Focus their healer (`focus-healer`) | 140 | 0.9 | 0.2 | flanks towards healers | the team calls enemy healers |
+| All-out aggression (`aggressive`) | 210 | 0.6 | 0.3 | always | the riskiest: fast push, back line left thinner |
+
+AI coaches play their personality's tactic (see phase 4). Coach mode lets you pick any of them.
+
+## Measured (validation/team-combat.json)
+`node scripts/evaluate-team-combat.mjs 40` measures formation metrics every 0.25 s while a fighter is engaged (an enemy within 200 units): **isolated** means no ally within 150; **outnumbered** means more enemies than allies nearby; **spread** is the mean distance from the team centre; **healer cover** is the share of time a healer is within support range of a living tank.
+
+| Balanced mirror | Isolated | Outnumbered | Spread | Healer cover |
+| --- | ---: | ---: | ---: | ---: |
+| 3v3, engine 1 | 33.7% | 17.7% | 93 | 91.8% |
+| 3v3, engine 2 | 15.8% | 10.3% | 60 | 98.4% |
+| 5v5, engine 1 | 26.8% | 23.9% | 116 | 81.8% |
+| 5v5, engine 2 | 7.4% | 13.8% | 63 | 98.4% |
+
+Isolated fighting is less than half what it was, 2v1s are rarer, and healers almost always cover their tanks.
+
+| Matchup (40 games, alternating sides) | Win rate (first team) | Time limit | Average length |
+| --- | ---: | ---: | ---: |
+| Tank + healer + damage vs 3 damage | 85% | 2.5% | 56 s |
+| Tank + 2 damage vs 3 damage | 70% | 0% | 50 s |
+| Healer + 2 damage vs 3 damage | 77.5% | 0% | 60 s |
+| Tank + controller + damage vs 3 damage | 67.5% | 2.5% | 51 s |
+| Balanced 3v3 mirror | 57.5% | 10% | 70 s |
+| Balanced 5v5 vs 5 damage | 85% | 2.5% | 52 s |
+| Balanced 5v5 mirror | 45% | 0% | 59 s |
+
+Each tactic against a balanced team (24 games each):
+
+| Tactic | 3v3 win | 3v3 spread | 5v5 win | 5v5 spread |
+| --- | ---: | ---: | ---: | ---: |
+| Hold the line | 37.5% | 58 | 58.3% | 65 |
+| Protect the carry | 45.8% | 57 | 50% | 65 |
+| Balanced | 58.3% | 60 | 50% | 64 |
+| Focus their healer | 54.2% | 65 | 62.5% | 67 |
+| All-out aggression | 54.2% | 66 | 62.5% | 66 |
+
+No tactic dominates. Hold the line keeps the tightest shape but times out more often in 3v3 (21%). Aggression spreads widest. Every map stays under 17% time limits (ruins the slowest at 71 s on average), and battles run in about 85–440 ms in node.
+
+`scripts/check-team-combat.mjs` enforces:
+- the damage generation mix;
+- mirrored, seeded, wedge-free maps;
+- audited battles on every map (nobody leaves the field, stands inside terrain or shoots through it);
+- half the engine-1 isolation and fewer 2v1s for both balanced mirrors;
+- healer cover of at least 80%;
+- Hold the line tighter than All-out aggression;
+- time limits under 25% everywhere;
+- 5v5 battles under 750 ms.
 
 # Team leagues: phase 2 (pool, ratings, coaches, draft)
 
@@ -118,9 +205,9 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
   - speed and IQ;
   - a small per-role term.
 - **Calibration.** The weights are fitted by ridge regression to each fighter's measured win share in 2,560 seeded 3v3 battles: 160 fighters × 16 games (`scripts/evaluate-team-values.mjs`, `validation/team-values.json`).
-  - Fighters in the top predicted quarter win 67.3% of their battles, against 40.6% for the bottom quarter (R² 0.27 with 16 games each).
-  - Durability (effective HP), speed and spell power matter most. Healers rate highest, matching their measured team impact. Ability rarity alone does not predict wins.
-  - A 384-fighter pool spreads from OVR 46 to 98 (median 73).
+  - Recalibrated on team engine 2: fighters in the top predicted quarter win 62.7% of their battles, against 43% for the bottom quarter (R² 0.16 with 16 games each; engine 1 gave 67.3% vs 40.6%, R² 0.27). Formation play makes results depend more on the team and less on any one fighter's numbers.
+  - Durability (effective HP) and speed matter most, then spell power and IQ. Healers rate highest and damage dealers next, matching their measured team impact. Raw damage per second adds nothing once the rest is known: in formation, a ranged dealer's output depends on staying alive behind the front.
+  - A 384-fighter pool spreads from OVR 47 to 95 (median 74). Fighters already in a league keep their stored OVR; offseasons move it with performance.
 - **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
 - **Salary cap.** Every team gets the same cap: the average salary of the fighters who will be drafted, multiplied by roster size. An average team can afford an average roster, but nobody can stack stars.
 

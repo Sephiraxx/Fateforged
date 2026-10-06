@@ -39,7 +39,7 @@ export function poolPlan(formatSize,teams,seed){
 function planSlots(counts,seed){const random=rng(seed^0x9e3779b9),slots=[];for(const [role,count]of Object.entries(counts))for(let i=0;i<count;i++){const roll=random();slots.push({role,tier:roll<.02?'SS':roll<.30?'S':'A'});}return shuffle(slots,seed^0x51ed270b);}
 // Overall rating (OVR, 40–99) from closed-form combat numbers, weighted by measured team-battle impact
 // (scripts/evaluate-team-values.mjs, validation/team-values.json).
-export const RATING_MODEL=Object.freeze({intercept:-1.384,ehp:0.203,dps:0.062,spell:0.148,ability:-0.01,speed:0.211,iq:0.029,roles:Object.freeze({tank:0,healer:0.1,controller:-0.067,damage:0.015})});
+export const RATING_MODEL=Object.freeze({intercept:-0.838,ehp:0.192,dps:-0.055,spell:0.074,ability:0.022,speed:0.149,iq:0.065,roles:Object.freeze({tank:0,healer:0.127,controller:-0.019,damage:0.079})});
 const ABILITY_WEIGHT={Common:.5,Uncommon:1,Rare:1.6,Legendary:2.4};
 export function ratingFeatures(character){
  const n=combatNumbers(character),s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||{},catalog=globalThis.CLASS_ABILITIES;
