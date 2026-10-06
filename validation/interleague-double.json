@@ -1,0 +1,29 @@
+{
+  "format": "16-entrant double elimination",
+  "bracketsBestOf": 3,
+  "grandFinalBestOf": 5,
+  "cases": [
+    {
+      "resetWinner": null,
+      "cupSeries": {
+        "champions": 30,
+        "europa": 30
+      }
+    },
+    {
+      "resetWinner": "upper",
+      "cupSeries": {
+        "champions": 31,
+        "europa": 31
+      }
+    },
+    {
+      "resetWinner": "lower",
+      "cupSeries": {
+        "champions": 31,
+        "europa": 31
+      }
+    }
+  ],
+  "checks": "Two series losses eliminate; 30/31 series; upper/lower reset victories; all seeded fixture pairings; independent round batches; legacy started/unplayed adoption; qualifiers unchanged; persisted reset checkpoint/reopen; retry-safe result and championship"
+}

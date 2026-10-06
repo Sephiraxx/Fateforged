@@ -1,8 +1,8 @@
 {
   "seed": 9234,
-  "series": 3901,
-  "games": 3945,
+  "series": 3931,
+  "games": 4048,
   "environmentCombinations": 32,
-  "seconds": 40,
-  "checks": "Full double round-robin season, seven 20/24-entrant cups, Crownfire Convergence/Emberveil Challenge qualifiers and cups, timed league draws, Bo5 finals and deterministic saved-condition replays through version-pinned v10 combat."
+  "seconds": 41,
+  "checks": "Full double round-robin season, seven 20/24-entrant cups, Crownfire Convergence/Emberveil Challenge qualifiers and cups, timed league draws, Bo5 finals and deterministic saved-condition replays through version-pinned v12 combat, double-elimination interleague cups with Bo3 brackets, Bo5 grand finals and optional resets."
 }
