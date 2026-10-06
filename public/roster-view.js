@@ -28,4 +28,3 @@
  root.ROSTER_VIEW={winRate,titles,select,currentChampionText,growthText,titleBreakdown,championshipDetails};
 })(globalThis);
 
-if(typeof document!=='undefined'&&document.head){const fonts=document.createElement('link');fonts.rel='stylesheet';fonts.href='https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap';document.head.append(fonts);}

@@ -1,5 +1,5 @@
 {
-  "node": "v24.19.0",
+  "node": "v22.22.0",
   "checks": [
     {
       "file": "check-arena-ui.mjs",
@@ -9,7 +9,7 @@
     {
       "file": "check-balance-v10.mjs",
       "passed": true,
-      "seconds": 6.3
+      "seconds": 6.1
     },
     {
       "file": "check-balance-v11.mjs",
@@ -24,7 +24,7 @@
     {
       "file": "check-class-abilities.mjs",
       "passed": true,
-      "seconds": 12.8
+      "seconds": 11.1
     },
     {
       "file": "check-fighter-growth.mjs",
@@ -39,32 +39,32 @@
     {
       "file": "check-interleague-double.mjs",
       "passed": true,
-      "seconds": 1.9
+      "seconds": 2.1
     },
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 40.5
+      "seconds": 36.4
     },
     {
       "file": "check-league-fixtures.mjs",
       "passed": true,
-      "seconds": 2
+      "seconds": 1.8
     },
     {
       "file": "check-league-pages.mjs",
       "passed": true,
-      "seconds": 1.1
+      "seconds": 1.3
     },
     {
       "file": "check-leagues.mjs",
       "passed": true,
-      "seconds": 4.2
+      "seconds": 5.9
     },
     {
       "file": "check-luck.mjs",
       "passed": true,
-      "seconds": 3.3
+      "seconds": 2.5
     },
     {
       "file": "check-match-records.mjs",
@@ -74,12 +74,12 @@
     {
       "file": "check-pages.mjs",
       "passed": true,
-      "seconds": 2
+      "seconds": 2.5
     },
     {
       "file": "check-player-intake.mjs",
       "passed": true,
-      "seconds": 3
+      "seconds": 6.9
     },
     {
       "file": "check-requested-reset.mjs",
@@ -89,7 +89,7 @@
     {
       "file": "check-rewind.mjs",
       "passed": true,
-      "seconds": 4
+      "seconds": 3.8
     },
     {
       "file": "check-roster-performance.mjs",
@@ -99,27 +99,27 @@
     {
       "file": "check-roster-view.mjs",
       "passed": true,
-      "seconds": 0.1
+      "seconds": 0
     },
     {
       "file": "check-series.mjs",
       "passed": true,
-      "seconds": 2.3
+      "seconds": 1.9
     },
     {
       "file": "check-singularity.mjs",
       "passed": true,
-      "seconds": 5.1
+      "seconds": 4.6
     },
     {
       "file": "check-stage-recommendations.mjs",
       "passed": true,
-      "seconds": 0.1
+      "seconds": 0.2
     },
     {
       "file": "check-tournament-names.mjs",
       "passed": true,
-      "seconds": 0.2
+      "seconds": 0.3
     },
     {
       "file": "check-trait-details.mjs",

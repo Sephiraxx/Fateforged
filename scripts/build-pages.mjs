@@ -31,7 +31,7 @@ for(const file of await readdir('public')){
  content=content.replace(/(["'`])\/assets\//g,'$1./assets/').replace(/(["'])\/([\w-]+\.(?:css|js))/g,'$1./$2');
  content=content.replaceAll('fetch(\'/api/','globalThis.FATEFORGE_STORAGE.fetch(\'/api/');
  if(file.endsWith('.html')){
-  content=content.replaceAll('href="/arena"','href="./arena.html"').replaceAll('href="/"','href="./index.html"');
+  content=content.replace(/href="\/arena(#[\w-]+)?"/g,'href="./arena.html$1"').replaceAll('href="/"','href="./index.html"');
   content=content.replaceAll('Sign in with ChatGPT','Saved on this browser').replace(/href="\/signin-with-chatgpt[^\"]*"/g,'href="#"');
   content=content.replace('</head>','<link rel="stylesheet" href="./pages-storage.css"><script src="./pages-storage.js" defer></script></head>');
   // The classic bridge must exist before deferred app scripts and modules run.

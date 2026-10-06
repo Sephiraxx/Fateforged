@@ -1,0 +1,101 @@
+/* Roster — full-screen collection view, character cards, bulk tools and the trait detail sheet. */
+
+/* ---------- Full-screen roster ---------- */
+.roster-view{--accent:var(--teal);position:fixed;inset:0;margin:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border:0;background:var(--bg);display:flex;flex-direction:column}
+.roster-view:not([open]){display:none}
+.roster-view::backdrop{background:#020409}
+.roster-head{padding:16px var(--gutter) 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0b1220,#05070d);position:relative}
+.roster-head::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent) 30%,transparent 70%);opacity:.6}
+.roster-head .dialog-heading{align-items:center}
+.roster-head h2{font-size:1.6rem;letter-spacing:.08em}
+.roster-head-actions{display:flex;gap:8px}
+.roster-head [role="status"]{margin:8px 0 0;font-size:.85rem;color:var(--muted)}
+.roster-body{flex:1;overflow-y:auto;padding:16px var(--gutter) 40px;display:flex;flex-direction:column;gap:14px}
+.roster-toolbar{position:sticky;top:-16px;z-index:5;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;padding:12px 14px;margin:0 calc(var(--gutter) * -1);padding-left:var(--gutter);padding-right:var(--gutter);background:#05070df2;backdrop-filter:blur(10px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.collection-toolbar{flex:1 1 220px;max-width:300px}
+.collection-filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;flex:2 1 420px}
+.collection-filters label{flex:1 1 150px;margin:0}
+.roster-toolbar label{font:600 .66rem/1.3 var(--display);letter-spacing:.14em;text-transform:uppercase}
+.roster-toolbar input,.roster-toolbar select{min-height:40px}
+.roster-count{flex-basis:100%;margin:0;font:600 .74rem/1.3 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.roster-count:empty{display:none}
+#refresh-collection,#refresh-arena-collection{align-self:center}
+
+#saved-list,#arena-saved-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-items:start}
+#saved-list>.button,#arena-saved-list>.button{grid-column:1/-1;justify-self:center}
+#saved-list>p,#arena-saved-list>p{grid-column:1/-1;color:var(--muted)}
+
+/* ---------- Character card ---------- */
+.saved-card{--rarity-color:var(--r-common);position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;padding:14px 14px 12px 17px;
+ background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--rarity-color) 12%,transparent),transparent 60%),linear-gradient(180deg,var(--panel-2),var(--panel));
+ border:1px solid color-mix(in srgb,var(--rarity-color) 22%,var(--line));
+ clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.saved-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rarity-color);box-shadow:0 0 12px var(--rarity-color)}
+.saved-card[data-wheel-rarity="legendary"],.saved-card[data-wheel-rarity="mythic"]{box-shadow:inset 0 0 30px -12px var(--rarity-color)}
+.saved-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.saved-card-heading h3{font:700 1.08rem/1.25 var(--display);letter-spacing:.02em;overflow-wrap:anywhere}
+.saved-card p{margin:0}
+.saved-card p:empty{display:none}
+.saved-details{font-size:.84rem;color:var(--muted);line-height:1.4}
+.saved-score{font:700 .95rem/1.3 var(--display);letter-spacing:.03em;color:var(--text);font-variant-numeric:tabular-nums}
+.champion-titles{font:600 .8rem/1.35 var(--display);color:var(--gold)}
+.fighter-record{font:600 .78rem/1.35 var(--display);letter-spacing:.04em;color:#c6cfdf;padding:5px 8px;background:#ffffff06;border:1px solid var(--line)}
+.saved-card>details:not(.fighter-trophies)>summary{font:600 .74rem/1.4 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:2px 0}
+.saved-card .profile{padding-top:6px}
+.saved-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+.saved-actions .button,.saved-actions .quiet{flex:1 1 auto;min-height:36px;padding:6px 10px;font-size:.7rem}
+#arena-saved-list .saved-actions .button:nth-child(2){--accent:var(--blue-side)}
+#arena-saved-list .saved-actions .button:nth-child(3){--accent:var(--red-side)}
+
+/* ---------- Bulk tools ---------- */
+.collection-bulk{display:flex;flex-direction:column;gap:10px}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.bulk-actions .quiet{flex:0 1 auto}
+.bulk-actions .quiet[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.bulk-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:16px;border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);background:color-mix(in srgb,var(--accent) 4%,var(--panel))}
+.bulk-panel>label{margin:0}
+.bulk-panel>.dialog-note,.bulk-panel>fieldset,.bulk-panel>.bulk-fields,.bulk-panel>.bulk-preview{grid-column:1/-1;margin:0}
+.bulk-panel>.button,.bulk-panel>.quiet{justify-self:start}
+.bulk-panel>.quiet:first-child{grid-column:1/-1;justify-self:end;min-height:32px;font-size:.7rem}
+.bulk-panel fieldset{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border:1px solid var(--line)}
+.bulk-panel legend{padding:0 6px;font:600 .68rem/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.bulk-tier{display:inline-flex;align-items:center;gap:6px;margin:0;padding:6px 10px;font:700 .82rem/1 var(--display);color:var(--text);border:1px solid var(--line-2);cursor:pointer}
+.bulk-tier:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.bulk-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.bulk-fields label{margin:0}
+.bulk-preview p{margin:0 0 6px;font-weight:600}
+.bulk-preview ul{margin:6px 0 0;padding-left:18px;max-height:200px;overflow:auto;font-size:.84rem;color:var(--muted)}
+.bulk-status{margin:0;font-size:.86rem;color:var(--muted)}
+.bulk-status:empty{display:none}
+
+/* ---------- Trait / combat details sheet ---------- */
+.side-sheet{position:fixed;inset:0 0 0 auto;margin:0;width:min(560px,100vw);height:100dvh;max-height:100dvh;border-width:0 0 0 1px;padding:0;display:flex;flex-direction:column}
+.side-sheet:not([open]){display:none}
+.side-sheet[open]{animation:drawer-in .22s ease-out}
+.detail-heading{padding:20px 22px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),var(--panel))}
+.detail-heading h2{font-size:1.6rem;letter-spacing:.04em;margin-top:2px}
+#trait-detail-intro{margin:8px 0 0;color:var(--muted);font-size:.9rem;line-height:1.5}
+#trait-detail-intro:empty{display:none}
+.detail-body{flex:1;overflow-y:auto;padding:14px 22px 30px}
+#trait-detail-picker{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;scrollbar-width:thin}
+.detail-picker-button{flex:none;min-height:34px;padding:5px 11px;font:600 .74rem/1 var(--display);letter-spacing:.06em;color:var(--muted);background:#ffffff05;border:1px solid var(--line-2);white-space:nowrap}
+.detail-picker-button:hover{color:var(--text);border-color:var(--accent)}
+.detail-picker-button[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+#trait-detail-metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 16px}
+.detail-metric{display:flex;flex-direction:column;gap:3px;padding:10px 12px;background:#ffffff05;border:1px solid var(--line);border-top:2px solid color-mix(in srgb,var(--accent) 55%,transparent)}
+.detail-metric-label{font:600 .64rem/1.3 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.detail-metric-value{margin:0;font:700 1.05rem/1.25 var(--display);color:var(--text);overflow-wrap:anywhere}
+.detail-metric-formula{margin:0;font-size:.74rem;color:var(--dim);line-height:1.4}
+#trait-detail-notes{margin:0;padding-left:18px;color:#c6cfdf;font-size:.9rem;line-height:1.6}
+#trait-detail-notes li{margin-bottom:6px}
+
+@media (max-width:640px){
+ .roster-head h2{font-size:1.3rem}
+ .roster-toolbar{top:-16px}
+ .collection-toolbar{max-width:none}
+ #saved-list,#arena-saved-list{grid-template-columns:1fr}
+ .side-sheet{inset:auto 0 0 0;width:100vw;height:auto;max-height:88dvh;border-width:1px 0 0}
+ .side-sheet[open]{animation:sheet-up .22s ease-out}
+ #trait-detail-metrics{grid-template-columns:1fr 1fr}
+}
+@keyframes sheet-up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}

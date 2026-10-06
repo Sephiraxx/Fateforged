@@ -1,16 +1,15 @@
 import {readFile,mkdir,rm,writeFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
-const files={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/luck.js':'luck.js','/data.js':'data.js','/names.js':'names.js','/style.css':'style.css','/premium.css':'premium.css','/arena':'arena.html','/arena.html':'arena.html','/arena.js':'arena.js','/arena.css':'arena.css','/combat.js':'combat.js','/combat-v1.js':'combat-v1.js','/combat-v2.js':'combat-v2.js','/combat-v3.js':'combat-v3.js','/abilities.js':'abilities.js','/conditions.js':'conditions.js','/divisions.js':'divisions.js','/brackets.js':'brackets.js','/stage-recommendations.js':'stage-recommendations.js','/tournaments.js':'tournaments.js','/tournament-names.js':'tournament-names.js','/champion-history.js':'champion-history.js'};
+const files={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/luck.js':'luck.js','/data.js':'data.js','/names.js':'names.js','/style.css':'style.css','/forge.css':'forge.css','/roster.css':'roster.css','/shell.js':'shell.js','/arena':'arena.html','/arena.html':'arena.html','/arena.js':'arena.js','/arena.css':'arena.css','/combat.js':'combat.js','/combat-v1.js':'combat-v1.js','/combat-v2.js':'combat-v2.js','/combat-v3.js':'combat-v3.js','/abilities.js':'abilities.js','/conditions.js':'conditions.js','/divisions.js':'divisions.js','/brackets.js':'brackets.js','/stage-recommendations.js':'stage-recommendations.js','/tournaments.js':'tournaments.js','/tournament-names.js':'tournament-names.js','/champion-history.js':'champion-history.js'};
 files['/combat-v4.js']='combat-v4.js';
 files['/combat-v5.js']='combat-v5.js';files['/combat-v6.js']='combat-v6.js';files['/combat-v7.js']='combat-v7.js';files['/combat-v8.js']='combat-v8.js';files['/combat-base-v6.js']='combat-base-v6.js';
 files['/roster-view.js']='roster-view.js';files['/bulk-characters.js']='bulk-characters.js';files['/series.js']='series.js';files['/promotion-rules.js']='promotion-rules.js';
-for(const file of ['trait-details.js','trait-detail-ui.js','trait-details.css'])files['/'+file]=file;
+for(const file of ['trait-details.js','trait-detail-ui.js'])files['/'+file]=file;
 for(const file of ['leagues.js','league-fixtures.js','league-ui.js','league-sim-worker.js','simulation-client.js','leagues.css'])files['/'+file]=file;
 for(const file of ['combat-v9.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','combat-engines.js'])files['/'+file]=file;
 for(const file of ['abilities-v11.js','combat-v10.js','combat-v11.js','combat-v11-profile.js','combat-v11-contact.js','combat-v11-environment.js','combat-v11-powers.js'])files['/'+file]=file;
 for(const file of ['class-abilities.js','abilities-v12.js','data-v2.js','luck-v2.js','combat-v12.js','combat-v12-base.js','combat-v12-profile.js','combat-v12-contact.js','combat-v12-environment.js','combat-v12-powers.js'])files['/'+file]=file;
-files['/polish.css']='polish.css';
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 await rm('dist',{recursive:true,force:true});await mkdir('dist/server',{recursive:true});await mkdir('dist/.openai',{recursive:true});
 const binary={};for(const name of ['weapons','effects'])binary['/assets/'+name+'.webp']=(await readFile('public/'+name+'.webp')).toString('base64');

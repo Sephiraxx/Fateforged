@@ -1,2 +1,93 @@
-#league-panel{min-width:0;max-width:100%}.league-actions,.league-divisions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.league-actions button{flex:1 1 135px;min-height:42px}.league-setup{display:grid;gap:12px}.league-setup select{width:100%}.league-divisions button{flex:1 1 130px;text-align:left}.league-divisions [aria-pressed=true]{border-color:#e8b96a;background:#e8b96a18}.league-table-scroll{overflow:auto;max-width:100%;border:1px solid #ffffff20;border-radius:10px}.league-table-scroll table{width:100%;min-width:370px;border-collapse:collapse;font-size:13px}.league-table-scroll th,.league-table-scroll td{padding:9px 7px;text-align:right;white-space:nowrap}.league-table-scroll td:nth-child(2),.league-table-scroll th:nth-child(2){text-align:left;white-space:normal;min-width:105px;max-width:160px;overflow-wrap:anywhere}.league-table-scroll caption{text-align:left;padding:12px;font-weight:600}.promotion-zone{background:#80c99c0a}.relegation-zone{background:#d578690a}.league-match{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #ffffff15}.league-match span{overflow-wrap:anywhere;min-width:0}.league-match button{flex-shrink:0}.mode-tabs{flex-wrap:wrap}.mode-tabs button{min-height:42px}.arena-controls{min-width:0}#league-panel details{margin-top:14px}#league-panel details p{font-size:13px;overflow-wrap:anywhere}#league-panel summary{cursor:pointer;min-height:36px}#league-panel select,#league-panel button{max-width:100%}@media(max-width:800px){.league-actions button{flex-basis:140px}.league-divisions button{flex-basis:120px}.league-match{font-size:12px}.league-table-scroll table{font-size:12px}.league-status{overflow-wrap:anywhere}}
-.league-selection{display:grid;gap:7px;margin:20px 0 10px;font-size:13px;color:#d5d9cd}.league-selection select{width:100%;min-height:42px}.league-phase{font-weight:600;margin:10px 0}.league-season-summary .muted{margin:6px 0;font-size:13px}.league-save-state{font-size:12px;color:#aab6a6;line-height:1.5;margin:8px 0}.league-section{border:1px solid #ffffff18;border-radius:10px;background:#ffffff03;overflow:hidden}.league-section>summary{padding:11px 13px;min-height:44px!important;font-weight:600;font-size:13px}.league-section[open]>summary{border-bottom:1px solid #ffffff12}.league-section-body{padding:0 12px 10px;min-width:0}.league-section-body .league-section{background:transparent}.league-more-controls>summary{font-size:13px;color:#aab6a6}.league-more-controls .league-actions{margin-top:6px}.league-fixture-round h4{font-size:12px;color:#aab6a6;margin:17px 0 8px}.league-fixture{border:1px solid #ffffff16;border-radius:8px;padding:10px;margin:7px 0;min-width:0}.league-fixture-next{border-color:#e8b96a70;background:#e8b96a08}.league-fixture-pair{display:grid;grid-template-columns:minmax(0,1fr) 24px;gap:6px 10px;font-size:13px}.league-fixture-name{overflow-wrap:anywhere;min-width:0}.league-fixture-own{color:#e8b96a}.league-fixture-winner{font-weight:700}.league-fixture-score{text-align:right;font-variant-numeric:tabular-nums;color:#dce1d3}.league-fixture-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;color:#aab6a6}.league-fixture-meta button{font-size:12px;min-height:34px;padding:6px 10px}.league-fixture-meta small{font-size:11px}.league-fixture-entrants,.league-cup-champion{color:#dfc290;font-size:12px!important;line-height:1.6}.league-section .league-table-scroll{margin-top:10px}.league-table-scroll td:nth-child(4){white-space:normal;min-width:90px;max-width:130px;font-size:11px;color:#aab6a6}@media(max-width:800px){.league-section-body{padding:0 9px 9px}.league-fixture{padding:9px}.league-fixture-pair{font-size:12px}.league-selection{margin-top:16px}}
+/* Leagues — season control, standings, fixtures and archives (built by league-ui.js). */
+#league-panel>h2{font-size:1.5rem;letter-spacing:.08em;margin-bottom:10px}
+#league-panel>h2::before{content:'League system';display:block;margin-bottom:4px;font:600 .72rem/1.3 var(--display);letter-spacing:.22em;color:var(--accent)}
+.league-status{margin:0 0 12px;padding:8px 12px;font-size:.88rem;color:var(--text);border-left:2px solid var(--accent);background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 9%,transparent),transparent)}
+.league-status:empty{display:none}
+
+.league-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;padding:16px;margin-bottom:12px;border:1px dashed color-mix(in srgb,var(--accent) 40%,transparent);background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.league-setup>label{margin:0}
+.league-setup>.muted{grid-column:1/-1;margin:0}
+#league-start{grid-column:1/-1;min-height:52px;font-size:1rem;letter-spacing:.2em;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 0 22px -6px var(--accent)}
+#league-start:not(:disabled):hover{background:color-mix(in srgb,var(--accent) 82%,#fff);color:var(--accent-ink)}
+
+.league-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+#league-panel>.league-actions .quiet{flex:1 1 150px;min-height:46px;font-size:.84rem}
+#league-phase,#league-rollover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 0 20px -8px var(--accent)}
+#league-phase:not(:disabled):hover,#league-rollover:not(:disabled):hover{background:color-mix(in srgb,var(--accent) 82%,#fff);color:var(--accent-ink)}
+#league-season{border-color:color-mix(in srgb,var(--accent) 55%,transparent);color:color-mix(in srgb,var(--accent) 75%,#fff)}
+#league-pause{border-color:#ffc27a88;color:#ffc27a}
+#league-retry{border-color:#ff5a6a88;color:#ff9aa4}
+
+.league-more-controls,#league-panel>details,.league-section{border:1px solid var(--line);background:#ffffff03;margin-bottom:10px}
+.league-more-controls>summary,#league-panel>details>summary,.league-section>summary{padding:11px 14px;font:600 .8rem/1.3 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+.league-more-controls>summary:hover,#league-panel>details>summary:hover,.league-section>summary:hover{color:var(--accent)}
+.league-more-controls[open]>summary,#league-panel>details[open]>summary,.league-section[open]>summary{border-bottom:1px solid var(--line)}
+.league-more-controls>.league-actions{padding:12px 14px 4px;margin:0}
+.league-more-controls .quiet{flex:1 1 160px}
+#league-panel>details>:not(summary){padding:0 14px}
+#league-panel>details>:not(summary):first-of-type{padding-top:12px}
+#league-panel>details>:last-child:not(summary){padding-bottom:14px}
+#league-panel>details p{color:#c6cfdf;font-size:.88rem;line-height:1.6}
+
+.league-save-state{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:4px 10px;font:600 .7rem/1.4 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-2)}
+.league-save-state::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+
+.league-season-summary{margin-bottom:12px}
+.league-season-summary:empty{display:none}
+.league-phase{margin:0 0 4px;font:700 1.15rem/1.3 var(--display);letter-spacing:.04em;color:var(--text)}
+.league-season-summary .muted{margin:0 0 6px}
+.league-season-summary .quiet{margin-top:6px}
+
+.league-selection{display:block;margin:0 0 12px;font:600 .7rem/1.3 var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+#league-division{min-height:50px;font:700 1.05rem/1.2 var(--display);letter-spacing:.04em;border-color:color-mix(in srgb,var(--accent) 45%,transparent);border-left:3px solid var(--accent)}
+
+.league-section-body{padding:12px 14px 14px}
+.league-section-body>.muted{margin:0 0 10px}
+.league-section .league-section{margin:8px 0}
+
+/* Standings */
+.league-table-scroll{container-type:inline-size;margin:0 -2px}
+.league-table-scroll table{font-size:.86rem}
+.league-table-scroll th,.league-table-scroll td{padding:7px 6px}
+.league-table-scroll td:nth-child(1){width:32px;font:700 .82rem/1 var(--display);color:var(--muted);text-align:center}
+.league-table-scroll td:nth-child(2){min-width:170px;font-weight:600}
+.league-table-scroll td:nth-child(3){font:700 .82rem/1 var(--display)}
+.league-table-scroll td:nth-child(4){font-size:.74rem;color:var(--muted);min-width:110px}
+.league-table-scroll td:nth-child(5){font:700 .95rem/1 var(--display);color:var(--text)}
+.league-table-scroll td:nth-child(n+5),.league-table-scroll th:nth-child(n+5){text-align:right}
+.league-table-scroll .fighter-trophies{margin-top:2px;font-weight:400}
+.league-table-scroll .fighter-trophies>summary{font-size:.66rem;color:color-mix(in srgb,var(--gold) 75%,var(--muted))}
+.promotion-zone td:first-child{box-shadow:inset 3px 0 var(--lime);color:var(--lime)}
+.relegation-zone td:first-child{box-shadow:inset 3px 0 var(--red);color:var(--red)}
+.promotion-zone td{background:#7dff8a08}
+.relegation-zone td{background:#ff5a6a08}
+@container (max-width:520px){
+ .league-table-scroll td:nth-child(2),.league-table-scroll th:nth-child(2){position:sticky;left:0;z-index:1;background:var(--panel);min-width:140px;max-width:150px}
+}
+
+/* Fixtures */
+.league-cup-champion{margin:0 0 8px;padding:6px 10px;font:600 .88rem/1.4 var(--display);color:var(--gold);border:1px solid #ffd23f44;background:#ffd23f0d}
+.league-fixture-round{margin-top:12px}
+.league-fixture-round h4{margin-bottom:6px;color:var(--accent);font-size:.74rem;letter-spacing:.16em}
+.league-fixture{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:8px 10px;margin-bottom:6px;background:#ffffff04;border:1px solid var(--line)}
+.league-fixture-pair{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.league-fixture-name{font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.league-fixture-score{font:700 .9rem/1 var(--display);text-align:right;min-width:18px;font-variant-numeric:tabular-nums}
+.league-fixture-own{color:var(--accent);font-weight:600}
+.league-fixture-winner{color:var(--lime);font-weight:700}
+.league-fixture-winner::after{content:' ▲';font-size:.6rem}
+.league-fixture-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.league-fixture-meta small{font:600 .64rem/1.3 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.league-fixture-meta .quiet,.league-match .quiet{min-height:30px;padding:4px 10px;font-size:.66rem}
+.league-fixture-next{border-color:var(--gold);box-shadow:inset 3px 0 var(--gold);background:#ffd23f0a}
+.league-fixture-next .league-fixture-meta small{color:var(--gold)}
+
+/* Completed series */
+.league-match{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.league-match>span{min-width:0}
+
+@media (max-width:640px){
+ #league-panel>.league-actions .quiet{flex-basis:calc(50% - 8px)}
+ .league-fixture{grid-template-columns:minmax(0,1fr)}
+ .league-fixture-meta{flex-direction:row;align-items:center;justify-content:space-between}
+}
