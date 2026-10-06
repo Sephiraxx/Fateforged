@@ -28,6 +28,8 @@ export function buildTraitDetails(character,key,options={}){
  if(contribution){add('Rolled stat contribution',contribution.map((v,i)=>v?`${v>0?'+':''}${n(v)} ${STAT_KEYS[i]}`:'').filter(Boolean).join(' · ')||'No stat change','Included in this fighter’s total stats.');}
  if(statIndex>=0||['strength','speed','durability','iq','magic'].includes(key)){
   const index=statIndex>=0?statIndex:['strength','speed','durability','iq','magic'].indexOf(key),stat=STAT_KEYS[index],score=f.stats[index]||0;
+  const rollKey=['strength','speed','durability','iq','magic'][index],roll=traits[rollKey],rollContribution=(options.contributions||traitContributions(character.state))[rollKey];
+  if(roll)add('Roll result',roll,rollContribution?'Rolled bonus: '+rollContribution.map((v,i)=>v?`${v>0?'+':''}${n(v)} ${STAT_KEYS[i]}`:'').filter(Boolean).join(' · '):'Your saved wheel result.');
   add('Total '+stat,n(score)+' points','All rolled traits plus earned promotion bonuses; combat uses √'+stat+' for scaling.');
   const growth=character.summary?.growth?.bonus?.[index];if(growth)add('Earned promotion bonus','+'+n(growth)+' '+stat);
   if(stat==='STR'){add('Weapon damage',damage(physical),'(9 + 1.7 × √STR) × weapon damage multiplier');if(f.weapon.type==='arcane')add('Arcane shot damage',damage(weaponDamage),'Weapon damage + 0.05 × spell strength');add('Beast bite',damage(physical*.30),'0.30 × weapon damage, when Beast command is equipped');add('Shapeshift bite',damage(physical*.8),'0.8 × weapon damage before any active form bonus');}

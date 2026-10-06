@@ -28,3 +28,9 @@ assert.equal(currentChampionText(rows[0],[{characterId:'a',divisionKey:'latest',
 assert.equal(currentChampionText(rows[0],[{characterId:'a',divisionKey:'any|C|any',label:'Tier C'}]),'👑 Current champion · Tier C');
 
 const pending={summary:{growth:{wins:1,bonus:[0,0,0,0,0]},promotion:{tier:'C',wins:1,required:2}}};assert(globalThis.ROSTER_VIEW.growthText(pending).includes('previously earned points'));assert(!globalThis.ROSTER_VIEW.growthText(pending).includes('undefined'));assert.equal(globalThis.ROSTER_VIEW.growthText({summary:{promotion:{tier:'S',wins:0,required:16}}}), '');
+
+// Native disclosures keep the totals compact while preserving competition counts.
+class Element{constructor(tag){this.tag=tag;this.children=[];}append(...children){this.children.push(...children);}}
+globalThis.document={createElement:tag=>new Element(tag)};
+const trophies=[{characterId:'a',divisionKey:'league:0',label:'Crownfire Premier league',titles:3},{characterId:'a',divisionKey:'league-cup:0',label:'Crownfire Premier cup',titles:2},{characterId:'a',divisionKey:'interleague-champions',label:'Crownfire Convergence',titles:1,currentStreak:2},{characterId:'b',divisionKey:'league:0',label:'Crownfire Premier league',titles:7}];
+const detail=globalThis.ROSTER_VIEW.championshipDetails(rows[0],trophies);assert.equal(detail.tag,'details');assert.equal(detail.children[0].tag,'summary');assert.equal(detail.children[0].textContent,'6 championships won');assert(detail.children.some(e=>e.textContent==='3× Crownfire Premier league'));assert(detail.children.some(e=>e.textContent==='2× Crownfire Premier cup'));assert(detail.children.some(e=>e.textContent.includes('1× Crownfire Convergence')));assert(!detail.children.some(e=>e.textContent.includes('7×')));assert(globalThis.ROSTER_VIEW.championshipDetails(rows[2],trophies).children.some(e=>e.textContent==='No championships yet.'));
