@@ -189,8 +189,8 @@ body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{disp
 .pool-filters select{margin:0;flex:1 1 180px}
 .pool-chip{padding:5px 10px;font:600 .72rem/1.2 var(--display);letter-spacing:.06em;color:var(--muted);background:#ffffff05;border:1px solid var(--line)}
 .pool-chip[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
-.pool-scroll{max-height:460px;overflow:auto}
-.pool-scroll thead th{position:sticky;top:0;background:#0a0f1c;z-index:1}
+.pool-pager{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pool-pager .quiet{min-width:44px;font-size:1.1rem}
 /* Week browser */
 .week-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 6px}
 .week-nav select{margin:0;flex:0 1 200px}

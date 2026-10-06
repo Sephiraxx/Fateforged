@@ -14,7 +14,7 @@ const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summa
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',recapOpen=false;
+ let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
@@ -176,13 +176,16 @@ export function mountTeamLeague(host,hooks){
   // The whole pool, filterable by role and sortable, so every fighter can be scouted.
   const pool=LEAGUE.available(world),sorts={ovr:(a,b)=>b.ovr-a.ovr||a.salary-b.salary,value:(a,b)=>b.ovr/b.salary-a.ovr/a.salary||b.ovr-a.ovr,salary:(a,b)=>a.salary-b.salary||b.ovr-a.ovr,stats:(a,b)=>b.summary.total-a.summary.total};
   const filters=el('div','','pool-filters');
-  for(const [key,label]of [['all','All'],['tank',`${ROLE_GLYPH.tank} Tanks`],['healer',`${ROLE_GLYPH.healer} Healers`],['controller',`${ROLE_GLYPH.controller} Controllers`],['damage',`${ROLE_GLYPH.damage} Damage`]]){const n=key==='all'?pool.length:pool.filter(f=>f.role===key).length,chip=button(`${label} ${n}`,'pool-chip');chip.setAttribute('aria-pressed',String(poolRole===key));chip.onclick=()=>{poolRole=key;render();};filters.append(chip);}
-  const order=el('select');order.setAttribute('aria-label','Sort fighters');for(const [key,label]of [['ovr','Best OVR'],['value','Best value (OVR per salary)'],['salary','Cheapest'],['stats','Highest total stats']]){const o=el('option',label);o.value=key;o.selected=poolSort===key;order.append(o);}order.onchange=()=>{poolSort=order.value;render();};filters.append(order);
-  const shown=pool.filter(f=>poolRole==='all'||f.role===poolRole).sort(sorts[poolSort]);
-  const best=shown.map(f=>{if(!myTurn)return fighterRow(f);const b=button('Draft',eligibleIds.has(f.id)?'button primary small':'quiet small');b.disabled=busy||!eligibleIds.has(f.id);if(!eligibleIds.has(f.id))b.title='Over your cap reserve, or a required role is still open.';b.onclick=()=>pick(f.id);return fighterRow(f,[b]);});
+  for(const [key,label]of [['all','All'],['tank',`${ROLE_GLYPH.tank} Tanks`],['healer',`${ROLE_GLYPH.healer} Healers`],['controller',`${ROLE_GLYPH.controller} Controllers`],['damage',`${ROLE_GLYPH.damage} Damage`]]){const n=key==='all'?pool.length:pool.filter(f=>f.role===key).length,chip=button(`${label} ${n}`,'pool-chip');chip.setAttribute('aria-pressed',String(poolRole===key));chip.onclick=()=>{poolRole=key;poolPage=0;render();};filters.append(chip);}
+  const order=el('select');order.setAttribute('aria-label','Sort fighters');for(const [key,label]of [['ovr','Best OVR'],['value','Best value (OVR per salary)'],['salary','Cheapest'],['stats','Highest total stats']]){const o=el('option',label);o.value=key;o.selected=poolSort===key;order.append(o);}order.onchange=()=>{poolSort=order.value;poolPage=0;render();};filters.append(order);
+  // Twelve fighters per page; the arrows page through the rest.
+  const shown=pool.filter(f=>poolRole==='all'||f.role===poolRole).sort(sorts[poolSort]),pages=Math.max(1,Math.ceil(shown.length/12)),page=Math.min(poolPage,pages-1);
+  const best=shown.slice(page*12,page*12+12).map(f=>{if(!myTurn)return fighterRow(f);const b=button('Draft',eligibleIds.has(f.id)?'button primary small':'quiet small');b.disabled=busy||!eligibleIds.has(f.id);if(!eligibleIds.has(f.id))b.title='Over your cap reserve, or a required role is still open.';b.onclick=()=>pick(f.id);return fighterRow(f,[b]);});
   const grid=el('div','','draft-grid');
   if(recent.length)grid.append(table(['Pick','Team','Fighter','Role','OVR','Salary'],recent,'Latest picks'));
-  const poolPanel=el('div','','pool-panel'),list=table(['Fighter','Role','Tier','OVR','Salary',...(myTurn?['']:[])],best,`${d.complete?'Free agents':'Available'} · ${shown.length} of ${pool.length}${myTurn?` · ${eligibleIds.size} you can afford`:''}`);list.classList.add('pool-scroll');poolPanel.append(filters,list);grid.append(poolPanel);
+  const poolPanel=el('div','','pool-panel'),list=table(['Fighter','Role','Tier','OVR','Salary',...(myTurn?['']:[])],best,`${d.complete?'Free agents':'Available'} · ${shown.length} of ${pool.length}${myTurn?` · ${eligibleIds.size} you can afford`:''}`);
+  const pager=el('div','','pool-pager'),back=button('‹','quiet'),forward=button('›','quiet');back.setAttribute('aria-label','Previous 12 fighters');forward.setAttribute('aria-label','Next 12 fighters');back.disabled=page<=0;forward.disabled=page>=pages-1;back.onclick=()=>{poolPage=page-1;render();};forward.onclick=()=>{poolPage=page+1;render();};
+  pager.append(back,el('span',shown.length?`${page*12+1}–${Math.min(shown.length,page*12+12)} of ${shown.length} · page ${page+1} / ${pages}`:'No fighters','muted'),forward);poolPanel.append(filters,list,pager);grid.append(poolPanel);
   panel.append(grid);body.append(panel);
  }
  function seasonActions(){

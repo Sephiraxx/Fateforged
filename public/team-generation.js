@@ -28,7 +28,7 @@ export function roleFighter(pools,luck,{role,tier,random,id,name}){
  for(let attempt=0;attempt<40;attempt++){
   let forceClass,options={};
   if(role==='damage'){const pick=damageClass(random);forceClass=pick.name;options={forceWeaponType:pick.weapon,...(pick.weapon==='melee'?{requirePower:MOBILITY_POWERS}:{})};}
-  else forceClass=classes[Math.floor(random()*classes.length)];
+  else{forceClass=classes[Math.floor(random()*classes.length)];if(role==='tank')options={forceWeaponType:'melee'};}// Tanks always fight in melee.
   const character=tierCharacter(pools,tier,{luck,draw,id,forceClass,...options});
   character.name=name?name(character.traits):character.name;
   if(teamRole(character).role===role)return character;fallback??=character;

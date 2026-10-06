@@ -58,6 +58,7 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
   - It forces a class from the role's class list first. Plain S-tier rolls almost never produce tanks or healers.
   - It accepts a fighter only when its derived role matches. For example, a healer must actually roll healing magic.
   - Damage dealers follow `DAMAGE_PLAN` (engine 2): about 60% rangers with a forced bow or gun (Ranger, Sniper, Hunter, Bounty Hunter), 30% casters with an arcane weapon (Mage, Sorcerer, Elementalist, Warlock) and 10% melee (Assassin, Rogue, Samurai, Berserker). Melee damage dealers must roll a mobility move on their first power: Charge, Teleportation, Portal creation or Space folding.
+  - Tanks always fight in melee: they are generated with a melee weapon, and `teamRole` never makes a fighter with a bow, gun or spell focus a tank. Tanks can still be health walls, regeneration monsters or life-stealing bruisers.
   - `rollTier` gained two options for this: `forceWeaponType` keeps only weapons of one type, and `requirePower` keeps only the listed abilities on the first power wheel.
   - Tiers are roughly 70% A, 28% S and 2% SS.
 - Random exhibition teams are generated in the browser and never saved to the roster.
