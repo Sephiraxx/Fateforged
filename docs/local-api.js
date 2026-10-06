@@ -5272,7 +5272,109 @@ function bestLineup(w,team){
 const teamOverall=(w,team)=>{const ids=team.lineup.length?team.lineup:bestLineup(w,team);return ids.length?Math.round(ids.reduce((n,id)=>n+w.fighters[id].ovr,0)/ids.length):0;};
 const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,team)).map(id=>w.fighters[id]);
 
-return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,coachChoice,draftPick,draftPicks,bestLineup,teamOverall,starters});})();
+// ---------- Season and playoffs (phase 3) ----------
+const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random'});
+const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
+const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
+const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
+const DIVISION_PAIRINGS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
+const grid=w=>w.conferences.map(c=>c.divisions.map(d=>d.teams));
+// Every round is a perfect matching (each team plays exactly once), so weeks have no byes.
+function buildSchedule(w){
+ const C=grid(w),divisions=C[0].length,season=w.season,rounds=[],home=(a,b,flip)=>flip?[b,a]:[a,b];
+ for(const leg of [0,1])for(const pairs of DIVISION_ROUNDS)rounds.push(C.flatMap(conf=>conf.flatMap(div=>pairs.map(([a,b])=>home(div[a],div[b],leg)))));
+ const bipartite=(groups,offsetSame=false)=>{for(let k=0;k<(offsetSame?1:4);k++)rounds.push(groups.flatMap(([A,B])=>A.map((team,i)=>home(team,B[(i+k)%4],(k+i)%2))));};
+ if(divisions===4){
+  const pairing=DIVISION_PAIRINGS[(season-1)%3];
+  bipartite(C.flatMap(conf=>pairing.map(([x,y])=>[conf[x],conf[y]])));
+  bipartite(C[0].map((div,d)=>[div,C[1][(d+season-1)%4]]));
+  const [[a,b],[c,d]]=pairing;for(const pairs of [[[a,c],[b,d]],[[a,d],[b,c]]])bipartite(C.flatMap(conf=>pairs.map(([x,y])=>[conf[x],conf[y]])),true);
+  bipartite(C[0].map((div,d)=>[div,C[1][(d+season+1)%4]]),true);
+ }else if(divisions===2){bipartite(C.map(conf=>[conf[0],conf[1]]));bipartite(C[0].map((div,d)=>[div,C[1][(d+season-1)%2]]));}
+ else bipartite([[C[0][0],C[1][0]]]);
+ return shuffle(rounds.map((games,i)=>({games,i})),w.seed^Math.imul(season,0x632be5ab)).map(({games},week)=>({week:week+1,games:games.map(([homeTeam,away],n)=>({id:`s${season}:w${week+1}:${n}`,home:homeTeam,away}))}));
+}
+const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
+function startSeason(w){
+ if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
+ w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
+}
+const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
+const pct=([wins,losses])=>wins+losses?wins/(wins+losses):0;
+const tiebreak=(w,id)=>matchSeed(w,'tiebreak:'+id);
+function standings(w,ids=w.teams.map(t=>t.id)){
+ const results=w.results??[],team=id=>teamById(w,id),rows=ids.map(id=>{const t=team(id),overall=record(results,id),div=record(results.filter(r=>team(r.home===id?r.away:r.home).division===t.division&&team(r.home===id?r.away:r.home).conference===t.conference),id),conf=record(results.filter(r=>team(r.home===id?r.away:r.home).conference===t.conference),id);let margin=0,streak='';for(const r of results){if(r.home!==id&&r.away!==id)continue;margin+=(r.home===id?1:-1)*(r.hp[0]-r.hp[1]);}
+  for(const r of results.filter(r=>r.home===id||r.away===id).reverse()){const won=r.winner===id;if(!streak)streak=(won?'W':'L')+'1';else if(streak[0]===(won?'W':'L'))streak=streak[0]+(Number(streak.slice(1))+1);else break;}
+  return {id,team:t.name,wins:overall[0],losses:overall[1],pct:pct(overall),division:div,conference:conf,margin,streak};});
+ const compare=(a,b)=>b.pct-a.pct;rows.sort(compare);
+ // Tied groups: head-to-head within the group, then division, conference, HP margin and a seeded coin.
+ const out=[];for(let i=0;i<rows.length;){let j=i;while(j<rows.length&&rows[j].pct===rows[i].pct)j++;const group=rows.slice(i,j),members=new Set(group.map(r=>r.id)),h2h=Object.fromEntries(group.map(r=>[r.id,pct(record(results.filter(x=>members.has(x.home)&&members.has(x.away)),r.id))]));
+  group.sort((a,b)=>h2h[b.id]-h2h[a.id]||pct(b.division)-pct(a.division)||pct(b.conference)-pct(a.conference)||b.margin-a.margin||tiebreak(w,a.id)-tiebreak(w,b.id));out.push(...group);i=j;}
+ return out;
+}
+function divisionStandings(w){return w.conferences.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:standings(w,d.teams)}))}));}
+function playoffSeeds(w){
+ const spots=PLAYOFF_SPOTS[w.teams.length];
+ return Object.fromEntries(w.conferences.map(c=>{const leaders=standings(w,c.divisions.map(d=>standings(w,d.teams)[0].id)),rest=standings(w,c.divisions.flatMap(d=>d.teams).filter(id=>!leaders.some(l=>l.id===id)));const seeded=c.divisions.length>1?[...leaders,...rest]:standings(w,c.divisions[0].teams);return [c.name,seeded.slice(0,spots).map(r=>r.id)];}));
+}
+const seriesFor=(w,round,pairs,bestOf)=>pairs.map(([a,b],n)=>({id:`s${w.season}:p:${round}:${n}`,round,home:a,away:b,bestOf,games:[],winner:null}));
+function openRound(w){
+ const p=w.playoffs,spots=PLAYOFF_SPOTS[w.teams.length],done=p.rounds.at(-1),winners=done?done.series.map(s=>s.winner):null,seedOf=(conf,id)=>p.seeds[conf].indexOf(id);
+ const confOf=id=>teamById(w,id).conference,next=[];
+ if(!done){
+  const key=spots===7?'wildcard':spots===4?'semifinal':'conference';
+  for(const conf of w.conferences.map(c=>c.name)){const s=p.seeds[conf];next.push(...(spots===7?[[s[1],s[6]],[s[2],s[5]],[s[3],s[4]]]:spots===4?[[s[0],s[3]],[s[1],s[2]]]:[[s[0],s[1]]]));}
+  p.rounds.push({key,name:ROUND_NAMES[key],series:seriesFor(w,key,next,3)});return;
+ }
+ if(done.key==='conference'){const [a,b]=winners,order=standings(w,[a,b]);p.rounds.push({key:'final',name:ROUND_NAMES.final,series:seriesFor(w,'final',[[order[0].id,order[1].id]],5)});return;}
+ const key=done.key==='wildcard'?'divisional':'conference';
+ for(const conf of w.conferences.map(c=>c.name)){
+  const alive=[...(done.key==='wildcard'?[p.seeds[conf][0]]:[]),...winners.filter(id=>confOf(id)===conf)].sort((a,b)=>seedOf(conf,a)-seedOf(conf,b));
+  // Re-seed: the best remaining seed hosts the lowest.
+  next.push(...(alive.length===4?[[alive[0],alive[3]],[alive[1],alive[2]]]:[[alive[0],alive[1]]]));
+ }
+ p.rounds.push({key,name:ROUND_NAMES[key],series:seriesFor(w,key,next,3)});
+}
+function startPlayoffs(w){w.phase='playoffs';w.playoffs={seeds:playoffSeeds(w),rounds:[],champion:null};openRound(w);}
+// The next matches to simulate, in the order the server will accept them.
+function upcoming(w,limit=Infinity){
+ const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;if(out.length>=limit)return out;out.push(describe(w,{...g,kind:'regular',week:week.week,bestOf:1}));}}
+ else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;if(out.length>=limit)break;out.push(describe(w,{...s,kind:'playoff'}));}}
+ return out;
+}
+function describe(w,m){return {...m,seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[teamById(w,m.home).lineup,teamById(w,m.away).lineup]};}
+const squads=(w,match)=>match.lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,traits:f.traits,summary:f.summary};}));
+const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water']};
+function validGame(game,lineups){
+ const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
+ if(!game||game.combatVersion!=='team-1'||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>120.5)return false;
+ if(!Array.isArray(game.hp)||game.hp.length!==2||game.hp.some(h=>!Number.isInteger(h)||h<0||h>100))return false;
+ if(!game.environment||Object.entries(ENVIRONMENT).some(([k,v])=>!v.includes(game.environment[k])))return false;
+ if(!Array.isArray(game.fighters)||game.fighters.length!==ids.length||game.fighters.some((f,i)=>f?.id!==ids[i]||!count(f.damage)||!count(f.healing)||!count(f.kills)||!count(f.deaths)||!(f.ccSeconds>=0&&f.ccSeconds<=200)))return false;
+ return true;
+}
+function addStats(w,games,lineups){for(const game of games){const winners=new Set(lineups[game.winnerTeam]);for(const f of game.fighters){const s=w.stats[f.id]??={games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,ccSeconds:0};s.games++;if(winners.has(f.id))s.wins++;s.damage+=f.damage;s.healing+=f.healing;s.kills+=f.kills;s.deaths+=f.deaths;s.ccSeconds=Math.round((s.ccSeconds+f.ccSeconds)*10)/10;}}}
+// Records one simulated match. Only the exact next match is accepted, with a complete, valid series.
+function recordMatch(w,matchId,games){
+ const [m]=upcoming(w,w.phase==='playoffs'?Infinity:1).filter(x=>w.phase==='season'||x.id===matchId);
+ if(!m||m.id!==matchId)throw new Error('That is not the next team-league match.');
+ const need=Math.ceil(m.bestOf/2);if(!Array.isArray(games)||!games.length||games.length>m.bestOf)throw new Error('Invalid team-league series.');
+ const score=[0,0];games.forEach((g,i)=>{if(!validGame(g,m.lineups))throw new Error('Invalid team-league game result.');if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');score[g.winnerTeam]++;});
+ if(Math.max(...score)!==need)throw new Error('The series is not complete.');
+ const winner=score[0]>score[1]?m.home:m.away;addStats(w,games,m.lineups);
+ if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds});if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=games.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds}));s.winner=winner;
+  if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
+ return {id:m.id,winner,score};
+}
+function impact(s){return s.damage+s.healing*1.1+s.kills*120+s.ccSeconds*30;}
+function finishSeason(w,final){
+ const runnerUp=final.home===final.winner?final.away:final.home,best=Object.entries(w.stats).sort((a,b)=>impact(b[1])-impact(a[1])||(a[0]<b[0]?-1:1))[0];
+ w.titles=[...(w.titles??[]),{season:w.season,champion:final.winner,runnerUp,mvp:best?.[0]??null}];w.phase='complete';
+}
+function leaders(w,key,limit=5){return Object.entries(w.stats??{}).map(([id,s])=>({fighter:w.fighters[id],value:key==='impact'?Math.round(impact(s)):s[key],stats:s})).sort((a,b)=>b.value-a.value||(a.fighter.id<b.fighter.id?-1:1)).slice(0,limit);}
+
+return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,coachChoice,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders});})();
 // Team leagues (3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -5286,7 +5388,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','startSeason','record','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This team league action was already saved differently.',409);return response(format);}
@@ -5302,6 +5404,11 @@ async function teamApi(request,env,url){
  else if(input.action==='draft'){
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>1000)fail('Invalid number of draft picks.');
   if(world.draft.complete)fail('The draft is already complete.');TEAM_LEAGUE.draftPicks(world,input.count);
+ }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
+ else if(input.action==='record'){
+  // Simulated matches arrive in batches; each must be the next match and a complete, valid series.
+  if(!Array.isArray(input.results)||!input.results.length||input.results.length>400)fail('Send between 1 and 400 team-league matches.');
+  try{for(const r of input.results){if(!plain(r))throw new Error('Invalid team-league match.');TEAM_LEAGUE.recordMatch(world,r.matchId,r.games);}}catch(e){fail(e.message);}
  }else world=null;
  const revision=input.revision+1,now=Date.now(),state=world?await encodeTournament(world):'null',op=input.operationId;
  const statements=[row?

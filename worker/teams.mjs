@@ -11,7 +11,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','startSeason','record','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This team league action was already saved differently.',409);return response(format);}
@@ -27,6 +27,11 @@ async function teamApi(request,env,url){
  else if(input.action==='draft'){
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>1000)fail('Invalid number of draft picks.');
   if(world.draft.complete)fail('The draft is already complete.');TEAM_LEAGUE.draftPicks(world,input.count);
+ }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
+ else if(input.action==='record'){
+  // Simulated matches arrive in batches; each must be the next match and a complete, valid series.
+  if(!Array.isArray(input.results)||!input.results.length||input.results.length>400)fail('Send between 1 and 400 team-league matches.');
+  try{for(const r of input.results){if(!plain(r))throw new Error('Invalid team-league match.');TEAM_LEAGUE.recordMatch(world,r.matchId,r.games);}}catch(e){fail(e.message);}
  }else world=null;
  const revision=input.revision+1,now=Date.now(),state=world?await encodeTournament(world):'null',op=input.operationId;
  const statements=[row?
