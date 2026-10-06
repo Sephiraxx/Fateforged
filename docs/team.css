@@ -16,7 +16,7 @@
 .team-column.red .team-hud-row .fighter-action{order:-1}
 .team-column.red .team-hud-role{order:1}
 .team-column.red .team-hud-row strong{text-align:right}
-.team-column.red .team-hud-row .health-track{transform:scaleX(-1)}
+.team-column.red .team-hud-row .health-track{transform:scaleX(-1);order:2}
 
 .team-intro{color:var(--muted);font-size:.9rem;margin:-6px 0 14px}
 .team-board{display:grid;grid-template-columns:1fr 1fr;gap:12px}
