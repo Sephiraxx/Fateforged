@@ -13,6 +13,8 @@ for(const c of balanced)assert(['A','S','SS'].includes(c.summary.tier),'Team poo
 // Damage dealers are mostly ranged (rangers first, then casters); melee damage dealers always carry a mobility move.
 const C=globalThis.CLASS_ABILITIES,types={ranged:0,arcane:0,melee:0};let mobile=0;
 for(let i=0;i<80;i++){const random=generation.seededRandom(3100+i),f=generation.roleFighter(WHEEL_DATA,WHEEL_LUCK,{role:'damage',tier:generation.poolTier(random),random,id:'d'+i});const type=C.weaponType(f.traits.weapon);types[type]++;if(type==='melee'&&generation.MOBILITY_POWERS.includes(C.abilityId(f.traits.power)))mobile++;assert.equal(roles.teamRole(f).role,'damage');}
+for(let i=0;i<30;i++){const random=generation.seededRandom(4100+i),f=generation.roleFighter(WHEEL_DATA,WHEEL_LUCK,{role:'tank',tier:generation.poolTier(random),random,id:'t'+i});assert.equal(C.weaponType(f.traits.weapon),'melee','Tanks fight in melee.');assert.equal(roles.teamRole(f).role,'tank');}
+assert.equal(roles.teamRole({...guardian,traits:{...guardian.traits,weapon:'Longbow'}}).role==='tank',false,'A ranged fighter is never a tank.');
 assert(types.ranged>=80*.55,`ranged damage dealers: ${types.ranged}/80`);assert(types.ranged+types.arcane>=80*.85,'Damage dealers fight from range.');assert.equal(mobile,types.melee,'Melee damage dealers carry a mobility move.');
 
 // Maps: seeded, mirrored across the centre line, clear of both spawn zones, and never with wedge-sized gaps.

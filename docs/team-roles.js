@@ -27,7 +27,8 @@ export function teamRole(character){
  if(n.shield)scores.tank+=1.4;
  scores.tank+=Math.max(-1,Math.min(2.5,(n.effectiveHp-260)/90));
  scores.damage+=Math.max(0,Math.min(2.5,(n.dps-18)/10))+(n.weaponType==='melee'?0:.4);
- if(n.weaponType!=='melee')scores.tank-=1;
+ // Tanks hold the front line in melee: a bow, gun or spell focus never makes a fighter a tank.
+ if(n.weaponType!=='melee')scores.tank=-99;
  const ranked=TEAM_ROLES.map(role=>[role,Math.round(scores[role]*100)/100]).sort((a,b)=>b[1]-a[1]||TEAM_ROLES.indexOf(b[0])-TEAM_ROLES.indexOf(a[0]));
  return {role:ranked[0][0],secondary:ranked[1][0],scores:Object.fromEntries(ranked)};
 }
