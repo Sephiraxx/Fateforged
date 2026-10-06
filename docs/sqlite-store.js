@@ -58,7 +58,7 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
     migrate(db,true);
     if(db.exec('PRAGMA quick_check')[0]?.values[0]?.[0]!=='ok')throw Error('The backup is damaged. Your existing saves were kept.');
     // A backup contains only one local player; reject unrelated server databases.
-    for(const table of ['saved_characters','saved_tournaments','champion_history','current_champions','match_records','fighter_growth','tournament_name_claims','league_worlds','league_members','league_seasons','league_operations']){
+    for(const table of ['saved_characters','saved_tournaments','champion_history','current_champions','match_records','fighter_growth','tournament_name_claims','league_worlds','league_members','league_seasons','league_operations','team_worlds','team_operations']){
      if(db.exec(`SELECT COUNT(*) FROM ${table} WHERE owner_id != 'local'`)[0].values[0][0])throw Error('This is not a Fateforge browser backup.');
     }
     const env={DB:sqliteAdapter(db)};

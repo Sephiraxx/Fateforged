@@ -10,7 +10,7 @@ import {LEAGUES} from '../public/leagues.js';
 const SQL=await initSqlJs();
 for(const [platform,engine]of [['server',worker],['pages',pagesWorker]]){
  const db=new SQL.Database();for(const migration of migrations)db.run(migration);
- db.run('PRAGMA user_version=13');db.run('PRAGMA application_id=1178686533');
+ db.run('PRAGMA user_version='+migrations.length);db.run('PRAGMA application_id=1178686533');
  const env={DB:sqliteAdapter(db)},call=async(path,body,method=body?'POST':'GET')=>{
   const r=await engine.fetch(new Request('https://fateforge.test'+path,{method,headers:{'oai-authenticated-user-id':'local','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);
   const data=await r.json();assert.equal(r.status,200,data.error);return data;

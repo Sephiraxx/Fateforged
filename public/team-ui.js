@@ -7,7 +7,7 @@ const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const scripts=new Map();
 const loadScript=src=>{if(!scripts.has(src))scripts.set(src,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{scripts.delete(src);reject(new Error('Could not load the fighter generator.'));};document.head.append(s);}));return scripts.get(src);};
 // The wheel data and luck rules are classic scripts; load them only when a random team is requested.
-async function generator(){
+export async function generator(){
  await loadScript('/data.js');await loadScript('/luck.js');
  /* global WHEEL_DATA, WHEEL_LUCK, suggestFantasyName */
  // names.js draws from a global randomIndex, which the Forge page provides; supply the wheel's here.

@@ -26,3 +26,8 @@ export function randomTeam(pools,luck,{size,seed,prefix='team',name}){
  const random=seededRandom(seed);
  return COMPOSITIONS[size].map((role,i)=>roleFighter(pools,luck,{role,tier:poolTier(random),random,id:`${prefix}-${seed}-${i}`,name}));
 }
+// Deterministic version-4-style UUID from a seeded random stream (pool fighters need storage-safe IDs).
+export function seededUuid(random){const hex=Array.from({length:32},()=>Math.floor(random()*16).toString(16));hex[12]='4';hex[16]=(8+Math.floor(random()*4)).toString(16);const h=hex.join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;}
+// One fighter per pool-plan slot (team-league.js poolPlan). Each slot has its own seeded stream, so a pool can be
+// generated in chunks (keeping the page responsive) and still come out identical.
+export function poolFighter(pools,luck,slot,index,seed,name){const random=seededRandom((seed^Math.imul(index+1,0x9e3779b1))>>>0);return roleFighter(pools,luck,{role:slot.role,tier:slot.tier,random,id:seededUuid(random),name});}
