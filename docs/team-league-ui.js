@@ -1,3 +1,5 @@
+import {nextAuditBundle,auditBaseKey} from './balance-analysis.js';
+import {balanceLabel} from './team-balance.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
 // Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
@@ -57,7 +59,9 @@ export function mountTeamLeague(host,hooks){
   const snapshot=structuredClone({id:world.id,seed:world.seed,season:world.season,format:world.format,settings:world.settings,teams:world.teams,fighters:world.fighters,balance:{profile:world.balance.profile,samples:world.balance.samples,previousSamples:world.balance.previousSamples,previousRoleRates:world.balance.previousRoleRates},lastOffseason:world.lastOffseason?{meta:{shift:world.lastOffseason.meta?.shift}}:null}),plan=LEAGUE.auditPlan(snapshot,phase);let finished=0;
   say(`Checking ${phase==='preseason'?'preseason':'midseason'} balance… 0 / ${plan.candidates.length}`);
   const rows=await Promise.all(plan.candidates.map(candidate=>auditPool.simulate({world:snapshot,plan,key:candidate.key}).then(row=>{say(`Checking balance… ${++finished} / ${plan.candidates.length}`);return row;})));
-  return {version:plan.version,token:plan.token,rows};
+  const report={version:plan.version,token:plan.token,rows,bundles:[]};
+  for(;;){const bundle=nextAuditBundle(snapshot,phase,report);if(bundle.complete)break;say(`Validating combined patch… attempt ${bundle.index+1}`);const comparisons=await Promise.all(bundle.keys.map(key=>auditPool.simulate({world:snapshot,plan,key,mode:'bundle',bundle})));report.bundles.push({index:bundle.index,profileToken:bundle.profileToken,rows:comparisons});}
+  return report;
  }
  async function pendingAudit(){if(world.balance?.enabled&&world.balance.pendingAudit){const phase=world.balance.pendingAudit,audit=await simulateAudit(phase);await command({action:'balanceAudit',phase,audit},true);}}
  async function beginSeason(){
@@ -135,11 +139,30 @@ export function mountTeamLeague(host,hooks){
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
  function check(label,checked=false){const box=el('input');box.type='checkbox';box.checked=checked;box.setAttribute('aria-label',label);return box;}
  function table(headers,rows,caption){const wrap=el('div','','table-scroll'),t=el('table','','team-league-table');if(caption)t.append(el('caption',caption));const head=el('thead'),hr=el('tr');for(const h of headers)hr.append(el('th',h));head.append(hr);const tb=el('tbody');tb.append(...rows);t.append(head,tb);wrap.append(t);return wrap;}
+ function diagnosticName(key){const scope=key.startsWith('within:')?ROLE_LABELS[key.split(':')[1]]+' · ':'',base=auditBaseKey(key),parts=base.split(':');return scope+(parts[0]==='role'?ROLE_LABELS[parts[1]]+(parts[2]==='count'?` (${parts[3]} fighters)`:''):parts[0]==='stat'?parts[1]:parts[0]==='weapon'?parts[1]+' weapons':Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).find(a=>a.id===parts[1])?.name??base);}
  function renderPatches(){
   const section=el('details','','module past-champions');section.open=patchesOpen;section.ontoggle=()=>{patchesOpen=section.open;};section.append(el('summary','League patches'));
-  const toggle=check('Automatic league balance',world.balance?.enabled!==false);toggle.disabled=busy;toggle.onchange=()=>command({action:'balance',enabled:toggle.checked}).catch(e=>say(e.message,true));const label=el('label','Automatic league balance');label.prepend(toggle);section.append(label,el('p','Matched simulations check team roles, compositions, individual abilities and stats before each season and at halfway. Preseason changes can reach 10%; midseason changes stay within 1.5%. Turning this off keeps the current patch.','muted'));
+  const toggle=check('Automatic league balance',world.balance?.enabled!==false);toggle.disabled=busy;toggle.onchange=()=>command({action:'balance',enabled:toggle.checked}).catch(e=>say(e.message,true));const label=el('label','Automatic league balance');label.prepend(toggle);section.append(label,el('p','Each review screens every available ability, all five stats, roles, stacked compositions and weapon families. Shared problems are investigated within roles, then the complete patch is tested together. Preseason adjustments stay within 10%; midseason changes within 1.5%.','muted'));
   const history=world.balance?.history??[];if(!history.length)section.append(el('p','Base rules · no league patches yet.','muted'));
-  for(const season of [...new Set(history.map(p=>p.season))].sort((a,b)=>b-a)){const dropdown=el('details','','patch-season');dropdown.open=patchSeasonsOpen.has(season);dropdown.ontoggle=()=>{dropdown.open?patchSeasonsOpen.add(season):patchSeasonsOpen.delete(season);};const patches=history.filter(p=>p.season===season),changeCount=patches.reduce((n,p)=>n+p.changes.length,0);dropdown.append(el('summary',`Season ${season} · ${changeCount} ${changeCount===1?'change':'changes'}`));for(const p of patches){dropdown.append(el('h4',p.phase==='preseason'?'Preseason':p.phase==='halfway'?'Midseason':'Offseason'));if(!p.changes.length)dropdown.append(el('p','No changes applied.','muted'));for(const c of p.changes)dropdown.append(el('p',c.note,'muted'));for(const d of p.diagnostics??[])if(['needs-assessment','monitor'].includes(d.status))dropdown.append(el('p',`${d.key.startsWith('role:')?`${ROLE_LABELS[d.key.split(':')[1]]}${d.key.includes(':count:')?` (${d.key.split(':')[3]} fighters)`:''}`:d.key.startsWith('stat:')?d.key.slice(5):Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).find(a=>a.id===d.key.split(':')[1])?.name??d.key}: ${d.note}`,'muted'));}section.append(dropdown);}body.append(section);
+  for(const season of [...new Set(history.map(p=>p.season))].sort((a,b)=>b-a)){
+   const dropdown=el('details','','patch-season');dropdown.open=patchSeasonsOpen.has(season);dropdown.ontoggle=()=>{dropdown.open?patchSeasonsOpen.add(season):patchSeasonsOpen.delete(season);};
+   const patches=history.filter(p=>p.season===season),count=patches.reduce((n,p)=>n+p.changes.length,0);dropdown.append(el('summary',`Season ${season} · ${count} ${count===1?'change':'changes'}`));
+   for(const p of patches){
+    dropdown.append(el('h4',p.phase==='preseason'?'Preseason':p.phase==='halfway'?'Midseason':'Offseason'));if(!p.changes.length)dropdown.append(el('p','No changes applied.','muted'));for(const c of p.changes)dropdown.append(el('p',c.note,'muted'));
+    if(p.coverage){const c=p.coverage,parts=[[c.abilities,'ability','abilities'],[c.stats,'stat','stats'],[c.roles,'role','roles'],[c.compositions,'stacked composition','stacked compositions'],[c.weapons,'weapon family','weapon families'],[c.focused,'focused check','focused checks']];dropdown.append(el('p',parts.map(([n,one,many])=>`${n} ${n===1?one:many}`).join(' · '),'muted'));}
+    const diagnostics=p.diagnostics??[];
+    if(diagnostics.length){
+     const report=el('details','','patch-review'),held=diagnostics.filter(d=>['needs-assessment','limited','unmatched'].includes(d.status)).length;report.append(el('summary',`Full balance review · ${diagnostics.length} checks${held?` · ${held} need review`:''}`));
+     for(const d of [...diagnostics].sort((a,b)=>Number(['stable','screened'].includes(a.status))-Number(['stable','screened'].includes(b.status)))){
+      const item=el('p',`${diagnosticName(d.key)}: ${d.note}`,'muted');if(d.method==='role-intervention'&&d.parent)item.append(el('span',` Role intervention: ${Math.round(d.parent.rate*100)}% wins for the parent role in ${d.parent.games} comparable games.`));if(d.observed)item.append(el('span',` Season evidence: ${Math.round(d.observed.rate*100)}% wins in ${d.observed.games} comparable games.`));report.append(item);
+     }
+     if(p.census?.traits?.length){const traits=el('details','','patch-traits');traits.append(el('summary','Race, class, equipment and weakness watchlist'));for(const t of p.census.traits){traits.append(el('p',`${t.key.split(':').slice(1).join(' · ')} · ${t.count} fighters${t.observed?` · ${Math.round(t.observed.rate*100)}% in ${t.observed.games} comparable games`:' · no comparable season evidence yet'}`,'muted'));}traits.append(el('p','These associations help identify shared builds. They do not prove that a race or class caused the result.','muted'));report.append(traits);}
+     dropdown.append(report);
+    }
+   }
+   section.append(dropdown);
+  }
+  body.append(section);
  }
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');

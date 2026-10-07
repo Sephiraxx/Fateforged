@@ -1,0 +1,43 @@
+{
+  "coverage": {
+    "candidates": 50,
+    "abilities": 27,
+    "stats": 5,
+    "roles": 4,
+    "compositions": 4,
+    "weapons": 3,
+    "focused": 7
+  },
+  "neutralChanges": 0,
+  "abilityPowerAndHealingAndDuration": true,
+  "scopedOverrides": true,
+  "neutralEngineParity": true,
+  "oldReplayEnginePreserved": true,
+  "combinedChanges": [
+    {
+      "lever": "role:tank:health",
+      "from": 1,
+      "to": 1.1,
+      "key": "role:tank",
+      "field": "value",
+      "games": 56,
+      "winRate": 0,
+      "direction": 1,
+      "priority": 126.40782507868681,
+      "note": "Tank health +10% (0% → 0% in individual validation; fights became consistently closer)"
+    },
+    {
+      "lever": "role:controller:control",
+      "from": 1,
+      "to": 1.1,
+      "key": "role:controller",
+      "field": "value",
+      "games": 56,
+      "winRate": 0,
+      "direction": 1,
+      "priority": 3.169925001442312,
+      "note": "Controller control +10% (0% → 0% in individual validation; fights became consistently closer)"
+    }
+  ],
+  "combinedAttempts": 1
+}
