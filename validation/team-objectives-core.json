@@ -1,0 +1,6917 @@
+{
+  "phase": "core",
+  "engine": "team-3-core",
+  "note": "Seeded balanced mirrors alternate sides on all weighted maps. Early-phase measurements; later team-brain performance targets remain explicit future goals.",
+  "rows": [
+    {
+      "size": 3,
+      "games": 20,
+      "medianSeconds": 123.2,
+      "averageSeconds": 138,
+      "suddenDeathRate": 5,
+      "timeLimitRate": 0,
+      "titanIgnoredRate": null,
+      "monsterKills": 0,
+      "stealRate": null,
+      "forgefireWinRate": null,
+      "averageMs": 858,
+      "results": [
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51000,
+          "teams": [
+            [
+              "fx-1-0",
+              "fx-1-1",
+              "fx-1-2"
+            ],
+            [
+              "fx-2-0",
+              "fx-2-1",
+              "fx-2-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 245,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            91,
+            74
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "crossroads"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              23.5
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-1-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 77,
+              "damage": 793,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 5,
+              "ccSeconds": 18.1,
+              "objectiveDamage": 1567,
+              "downSeconds": 59,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 92,
+              "damage": 1070,
+              "healing": 1225,
+              "kills": 4,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1664,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 736,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1357,
+              "downSeconds": 13.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 40,
+              "damage": 1081,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 5,
+              "ccSeconds": 0,
+              "objectiveDamage": 1749,
+              "downSeconds": 60.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 95,
+              "damage": 1081,
+              "healing": 645,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2309,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 87,
+              "damage": 1035,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1941,
+              "downSeconds": 12.1,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1850.8789
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51001,
+          "teams": [
+            [
+              "fx-7921-0",
+              "fx-7921-1",
+              "fx-7921-2"
+            ],
+            [
+              "fx-7920-0",
+              "fx-7920-1",
+              "fx-7920-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 184.9,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            76,
+            81
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              33.9,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-7921-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 70,
+              "damage": 1355,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 12.6,
+              "objectiveDamage": 1387,
+              "downSeconds": 24.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 79,
+              "damage": 879,
+              "healing": 1108,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 1258,
+              "downSeconds": 13.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 78,
+              "damage": 1032,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 3355,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 62,
+              "damage": 905,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 12.1,
+              "objectiveDamage": 1504,
+              "downSeconds": 43.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 98,
+              "damage": 228,
+              "healing": 800,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 2,
+              "objectiveDamage": 590,
+              "downSeconds": 24.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 86,
+              "damage": 915,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 6,
+              "objectiveDamage": 1869,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1319.0295999999998
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51002,
+          "teams": [
+            [
+              "fx-15839-0",
+              "fx-15839-1",
+              "fx-15839-2"
+            ],
+            [
+              "fx-15840-0",
+              "fx-15840-1",
+              "fx-15840-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 133.8,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            81,
+            84
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              18.6
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-15839-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 90,
+              "damage": 466,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 3,
+              "ccSeconds": 0,
+              "objectiveDamage": 789,
+              "downSeconds": 29.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 62,
+              "damage": 248,
+              "healing": 230,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 2238,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 86,
+              "damage": 485,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1860,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 74,
+              "damage": 751,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 1,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 847,
+              "downSeconds": 10.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 88,
+              "damage": 310,
+              "healing": 724,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2811,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 92,
+              "damage": 224,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2342,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 644.3876
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51003,
+          "teams": [
+            [
+              "fx-23759-0",
+              "fx-23759-1",
+              "fx-23759-2"
+            ],
+            [
+              "fx-23758-0",
+              "fx-23758-1",
+              "fx-23758-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 130.6,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            58,
+            61
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              45.1
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-23759-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 35,
+              "damage": 427,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 3,
+              "ccSeconds": 0,
+              "objectiveDamage": 713,
+              "downSeconds": 29.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 74,
+              "damage": 514,
+              "healing": 792,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1698,
+              "downSeconds": 9.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 62,
+              "damage": 717,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 885,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 68,
+              "damage": 1254,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1897,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 27,
+              "damage": 584,
+              "healing": 1360,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1573,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 82,
+              "damage": 316,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2530,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 681.5598
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51004,
+          "teams": [
+            [
+              "fx-31677-0",
+              "fx-31677-1",
+              "fx-31677-2"
+            ],
+            [
+              "fx-31678-0",
+              "fx-31678-1",
+              "fx-31678-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 376.8,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            77,
+            56
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              44.4,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-31677-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 49,
+              "damage": 3024,
+              "healing": 0,
+              "kills": 8,
+              "deaths": 9,
+              "ccSeconds": 0,
+              "objectiveDamage": 1441,
+              "downSeconds": 126.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 91,
+              "damage": 2960,
+              "healing": 448,
+              "kills": 7,
+              "deaths": 3,
+              "ccSeconds": 0,
+              "objectiveDamage": 2791,
+              "downSeconds": 48.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 91,
+              "damage": 1796,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 4,
+              "ccSeconds": 0,
+              "objectiveDamage": 1768,
+              "downSeconds": 65.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 0,
+              "damage": 3242,
+              "healing": 0,
+              "kills": 9,
+              "deaths": 10,
+              "ccSeconds": 14.1,
+              "objectiveDamage": 61,
+              "downSeconds": 162.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 85,
+              "damage": 1864,
+              "healing": 3166,
+              "kills": 4,
+              "deaths": 3,
+              "ccSeconds": 10,
+              "objectiveDamage": 1366,
+              "downSeconds": 51.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 74,
+              "damage": 2017,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 4,
+              "ccSeconds": 4,
+              "objectiveDamage": 1908,
+              "downSeconds": 64.5,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2283.2167
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51005,
+          "teams": [
+            [
+              "fx-39597-0",
+              "fx-39597-1",
+              "fx-39597-2"
+            ],
+            [
+              "fx-39596-0",
+              "fx-39596-1",
+              "fx-39596-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 120.6,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            80,
+            80
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              8.8
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-39597-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 57,
+              "damage": 597,
+              "healing": 6,
+              "kills": 0,
+              "deaths": 3,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 2082,
+              "downSeconds": 28.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 89,
+              "damage": 381,
+              "healing": 108,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1401,
+              "downSeconds": 9.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 89,
+              "damage": 552,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1991,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 77,
+              "damage": 840,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 2251,
+              "downSeconds": 19.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 82,
+              "damage": 301,
+              "healing": 872,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1751,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 79,
+              "damage": 299,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1998,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 797.7024000000001
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51006,
+          "teams": [
+            [
+              "fx-47515-0",
+              "fx-47515-1",
+              "fx-47515-2"
+            ],
+            [
+              "fx-47516-0",
+              "fx-47516-1",
+              "fx-47516-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 76,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            85,
+            72
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              34.8
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-47515-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 77,
+              "damage": 484,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 531,
+              "downSeconds": 9.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 85,
+              "damage": 426,
+              "healing": 278,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1956,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 91,
+              "damage": 283,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1423,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 71,
+              "damage": 221,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 4,
+              "objectiveDamage": 1655,
+              "downSeconds": 5.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 75,
+              "damage": 229,
+              "healing": 838,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 1222,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 70,
+              "damage": 295,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 4,
+              "objectiveDamage": 3123,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 636.6952000000001
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51007,
+          "teams": [
+            [
+              "fx-55435-0",
+              "fx-55435-1",
+              "fx-55435-2"
+            ],
+            [
+              "fx-55434-0",
+              "fx-55434-1",
+              "fx-55434-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 110,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            77,
+            88
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              27.7
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-55435-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 68,
+              "damage": 887,
+              "healing": 24,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 6.3,
+              "objectiveDamage": 1137,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 86,
+              "damage": 484,
+              "healing": 1448,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1655,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 78,
+              "damage": 190,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1545,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 80,
+              "damage": 944,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 1519,
+              "downSeconds": 10.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 88,
+              "damage": 314,
+              "healing": 1059,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2186,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 95,
+              "damage": 365,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2296,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 545.4786000000004
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51008,
+          "teams": [
+            [
+              "fx-63353-0",
+              "fx-63353-1",
+              "fx-63353-2"
+            ],
+            [
+              "fx-63354-0",
+              "fx-63354-1",
+              "fx-63354-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 106.2,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            65,
+            92
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              9.9
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-63353-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 34,
+              "damage": 442,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1572,
+              "downSeconds": 9.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 82,
+              "damage": 282,
+              "healing": 352,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1786,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 70,
+              "damage": 426,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2046,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 88,
+              "damage": 567,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1457,
+              "downSeconds": 10.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 89,
+              "damage": 252,
+              "healing": 754,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2169,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 100,
+              "damage": 144,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2375,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 827.1630999999998
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51009,
+          "teams": [
+            [
+              "fx-71273-0",
+              "fx-71273-1",
+              "fx-71273-2"
+            ],
+            [
+              "fx-71272-0",
+              "fx-71272-1",
+              "fx-71272-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 83.6,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            77,
+            88
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              22.1,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-71273-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 75,
+              "damage": 606,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1866,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 87,
+              "damage": 289,
+              "healing": 1021,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2496,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 72,
+              "damage": 187,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1638,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 88,
+              "damage": 556,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 6,
+              "objectiveDamage": 1476,
+              "downSeconds": 9.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 91,
+              "damage": 240,
+              "healing": 569,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1559,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 85,
+              "damage": 403,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1638,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 363.3780000000006
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51010,
+          "teams": [
+            [
+              "fx-79191-0",
+              "fx-79191-1",
+              "fx-79191-2"
+            ],
+            [
+              "fx-79192-0",
+              "fx-79192-1",
+              "fx-79192-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 92.8,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            76,
+            90
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "crossroads"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              33.4
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-79191-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 77,
+              "damage": 370,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1244,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 73,
+              "damage": 225,
+              "healing": 1041,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1368,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 79,
+              "damage": 263,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1381,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 91,
+              "damage": 318,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1948,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 89,
+              "damage": 0,
+              "healing": 571,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1976,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 91,
+              "damage": 871,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 2076,
+              "downSeconds": 9.4,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 495.3621000000003
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51011,
+          "teams": [
+            [
+              "fx-87111-0",
+              "fx-87111-1",
+              "fx-87111-2"
+            ],
+            [
+              "fx-87110-0",
+              "fx-87110-1",
+              "fx-87110-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 118.4,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            77,
+            91
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "pillars"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              14.6
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-87111-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 72,
+              "damage": 908,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1684,
+              "downSeconds": 9.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 69,
+              "damage": 60,
+              "healing": 733,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1957,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 96,
+              "damage": 526,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1484,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 90,
+              "damage": 556,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 10.1,
+              "objectiveDamage": 1181,
+              "downSeconds": 10.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 84,
+              "damage": 115,
+              "healing": 1122,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 2374,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 100,
+              "damage": 554,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2446,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 681.5637000000006
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51012,
+          "teams": [
+            [
+              "fx-95029-0",
+              "fx-95029-1",
+              "fx-95029-2"
+            ],
+            [
+              "fx-95030-0",
+              "fx-95030-1",
+              "fx-95030-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 123.2,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            80,
+            59
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              3.9,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-95029-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 57,
+              "damage": 562,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 3.6,
+              "objectiveDamage": 1474,
+              "downSeconds": 19.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 88,
+              "damage": 19,
+              "healing": 162,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2748,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 98,
+              "damage": 214,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1778,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 45,
+              "damage": 555,
+              "healing": 42,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 1228,
+              "downSeconds": 9.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 54,
+              "damage": 35,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 4,
+              "objectiveDamage": 2649,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 80,
+              "damage": 381,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 4,
+              "objectiveDamage": 1889,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 619.7683000000015
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51013,
+          "teams": [
+            [
+              "fx-102949-0",
+              "fx-102949-1",
+              "fx-102949-2"
+            ],
+            [
+              "fx-102948-0",
+              "fx-102948-1",
+              "fx-102948-2"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 62,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            92,
+            93
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              7.4
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-102949-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 87,
+              "damage": 159,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2072,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 91,
+              "damage": 127,
+              "healing": 123,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2400,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 71,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1081,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 89,
+              "damage": 27,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1365,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 100,
+              "damage": 109,
+              "healing": 371,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2621,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 91,
+              "damage": 0,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2015,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 254.33060000000114
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51014,
+          "teams": [
+            [
+              "fx-110867-0",
+              "fx-110867-1",
+              "fx-110867-2"
+            ],
+            [
+              "fx-110868-0",
+              "fx-110868-1",
+              "fx-110868-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 138.5,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            84,
+            73
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              28.6,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-110867-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 82,
+              "damage": 926,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 2376,
+              "downSeconds": 11,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 79,
+              "damage": 307,
+              "healing": 1387,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 926,
+              "downSeconds": 11.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 92,
+              "damage": 619,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2698,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 59,
+              "damage": 1444,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1700,
+              "downSeconds": 9.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 85,
+              "damage": 199,
+              "healing": 1194,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 642,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 76,
+              "damage": 473,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1945,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1200.1695
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51015,
+          "teams": [
+            [
+              "fx-118787-0",
+              "fx-118787-1",
+              "fx-118787-2"
+            ],
+            [
+              "fx-118786-0",
+              "fx-118786-1",
+              "fx-118786-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 150.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            66,
+            61
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              37.2,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-118787-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 88,
+              "damage": 1389,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1204,
+              "downSeconds": 11.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 42,
+              "damage": 161,
+              "healing": 1410,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 1394,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 70,
+              "damage": 330,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 3402,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 68,
+              "damage": 670,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 3,
+              "ccSeconds": 0.8,
+              "objectiveDamage": 1186,
+              "downSeconds": 30.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 16,
+              "damage": 528,
+              "healing": 237,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1434,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 100,
+              "damage": 716,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1148,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 763.6808999999994
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51016,
+          "teams": [
+            [
+              "fx-126705-0",
+              "fx-126705-1",
+              "fx-126705-2"
+            ],
+            [
+              "fx-126706-0",
+              "fx-126706-1",
+              "fx-126706-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 154.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            63,
+            88
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              16.3,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-126705-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 78,
+              "damage": 1519,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 2,
+              "ccSeconds": 4.6,
+              "objectiveDamage": 1011,
+              "downSeconds": 22.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 76,
+              "damage": 498,
+              "healing": 707,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 1975,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 37,
+              "damage": 766,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 3014,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 73,
+              "damage": 1057,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 2067,
+              "downSeconds": 20.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 90,
+              "damage": 0,
+              "healing": 1188,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1519,
+              "downSeconds": 11.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 100,
+              "damage": 667,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 1434,
+              "downSeconds": 11.8,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1195.1677
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51017,
+          "teams": [
+            [
+              "fx-134625-0",
+              "fx-134625-1",
+              "fx-134625-2"
+            ],
+            [
+              "fx-134624-0",
+              "fx-134624-1",
+              "fx-134624-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 115.4,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            42,
+            82
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              34,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-134625-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 36,
+              "damage": 984,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1578,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 58,
+              "damage": 0,
+              "healing": 1300,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1953,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 29,
+              "damage": 341,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2469,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 82,
+              "damage": 561,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 1.4,
+              "objectiveDamage": 1553,
+              "downSeconds": 20,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 91,
+              "damage": 437,
+              "healing": 357,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1358,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 73,
+              "damage": 726,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1050,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 559.268799999998
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51018,
+          "teams": [
+            [
+              "fx-142543-0",
+              "fx-142543-1",
+              "fx-142543-2"
+            ],
+            [
+              "fx-142544-0",
+              "fx-142544-1",
+              "fx-142544-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 104.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            73,
+            67
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "pillars"
+          },
+          "objective": {
+            "coreHp": [
+              18.7,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-142543-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 44,
+              "damage": 551,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 1956,
+              "downSeconds": 18.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 96,
+              "damage": 350,
+              "healing": 526,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2472,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 76,
+              "damage": 620,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1572,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 51,
+              "damage": 504,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1638,
+              "downSeconds": 9.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 86,
+              "damage": 208,
+              "healing": 772,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1595,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 64,
+              "damage": 554,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1647,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 565.8278999999966
+        },
+        {
+          "mode": "team",
+          "size": 3,
+          "seed": 51019,
+          "teams": [
+            [
+              "fx-150463-0",
+              "fx-150463-1",
+              "fx-150463-2"
+            ],
+            [
+              "fx-150462-0",
+              "fx-150462-1",
+              "fx-150462-2"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 123.9,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            82,
+            40
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              34.1,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-150463-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 83,
+              "damage": 692,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 6,
+              "objectiveDamage": 1105,
+              "downSeconds": 21.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 76,
+              "damage": 563,
+              "healing": 835,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1715,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-2",
+              "team": 0,
+              "role": "damage",
+              "hp": 89,
+              "damage": 325,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 3181,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 5,
+              "damage": 643,
+              "healing": 19,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 8.1,
+              "objectiveDamage": 920,
+              "downSeconds": 9.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 65,
+              "damage": 0,
+              "healing": 490,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1140,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-2",
+              "team": 1,
+              "role": "damage",
+              "hp": 53,
+              "damage": 1163,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 8.1,
+              "objectiveDamage": 1891,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 871.7115999999987
+        }
+      ]
+    },
+    {
+      "size": 5,
+      "games": 20,
+      "medianSeconds": 256.6,
+      "averageSeconds": 231,
+      "suddenDeathRate": 30,
+      "timeLimitRate": 20,
+      "titanIgnoredRate": null,
+      "monsterKills": 0,
+      "stealRate": null,
+      "forgefireWinRate": null,
+      "averageMs": 1983,
+      "results": [
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51000,
+          "teams": [
+            [
+              "fx-1-0",
+              "fx-1-1",
+              "fx-1-2",
+              "fx-1-3",
+              "fx-1-4"
+            ],
+            [
+              "fx-2-0",
+              "fx-2-1",
+              "fx-2-2",
+              "fx-2-3",
+              "fx-2-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 263,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            73,
+            70
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "crossroads"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              46.6
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-1-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 90,
+              "damage": 1032,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 8,
+              "ccSeconds": 9,
+              "objectiveDamage": 991,
+              "downSeconds": 97.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 83,
+              "damage": 1378,
+              "healing": 1825,
+              "kills": 4,
+              "deaths": 2,
+              "ccSeconds": 4,
+              "objectiveDamage": 1226,
+              "downSeconds": 23.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 72,
+              "damage": 779,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 3.2,
+              "objectiveDamage": 520,
+              "downSeconds": 14,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 53,
+              "damage": 1373,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1196,
+              "downSeconds": 13.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-1-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 73,
+              "damage": 1831,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 4,
+              "ccSeconds": 3.5,
+              "objectiveDamage": 876,
+              "downSeconds": 51.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 16,
+              "damage": 1332,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 7,
+              "ccSeconds": 5.2,
+              "objectiveDamage": 1006,
+              "downSeconds": 87.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 99,
+              "damage": 1240,
+              "healing": 615,
+              "kills": 5,
+              "deaths": 2,
+              "ccSeconds": 9.3,
+              "objectiveDamage": 1350,
+              "downSeconds": 27.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 100,
+              "damage": 2072,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 9.1,
+              "objectiveDamage": 1601,
+              "downSeconds": 29.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 81,
+              "damage": 1233,
+              "healing": 0,
+              "kills": 8,
+              "deaths": 4,
+              "ccSeconds": 3.7,
+              "objectiveDamage": 2014,
+              "downSeconds": 46.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-2-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 51,
+              "damage": 1414,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 3028,
+              "downSeconds": 22.3,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2524.1890999999996
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51001,
+          "teams": [
+            [
+              "fx-7921-0",
+              "fx-7921-1",
+              "fx-7921-2",
+              "fx-7921-3",
+              "fx-7921-4"
+            ],
+            [
+              "fx-7920-0",
+              "fx-7920-1",
+              "fx-7920-2",
+              "fx-7920-3",
+              "fx-7920-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 91.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            63,
+            71
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              56.8
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-7921-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 29,
+              "damage": 942,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 13.1,
+              "objectiveDamage": 800,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 65,
+              "damage": 158,
+              "healing": 873,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 737,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 76,
+              "damage": 634,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1055,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 76,
+              "damage": 666,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 757,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7921-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 69,
+              "damage": 494,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 3.6,
+              "objectiveDamage": 541,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 53,
+              "damage": 366,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 3,
+              "ccSeconds": 6.4,
+              "objectiveDamage": 842,
+              "downSeconds": 22,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 95,
+              "damage": 149,
+              "healing": 436,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 4.4,
+              "objectiveDamage": 748,
+              "downSeconds": 10,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 56,
+              "damage": 536,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1086,
+              "downSeconds": 9.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 82,
+              "damage": 28,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 2475,
+              "downSeconds": 9.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-7920-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 68,
+              "damage": 156,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 3849,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 945.0554000000011
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51002,
+          "teams": [
+            [
+              "fx-15839-0",
+              "fx-15839-1",
+              "fx-15839-2",
+              "fx-15839-3",
+              "fx-15839-4"
+            ],
+            [
+              "fx-15840-0",
+              "fx-15840-1",
+              "fx-15840-2",
+              "fx-15840-3",
+              "fx-15840-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 181.2,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            83,
+            56
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              31.8
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-15839-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 70,
+              "damage": 996,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 5,
+              "ccSeconds": 0,
+              "objectiveDamage": 276,
+              "downSeconds": 55.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 57,
+              "damage": 287,
+              "healing": 913,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 4.6,
+              "objectiveDamage": 1898,
+              "downSeconds": 10.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 85,
+              "damage": 1452,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1647,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 1034,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0.1,
+              "objectiveDamage": 1351,
+              "downSeconds": 12.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15839-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 95,
+              "damage": 1304,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 970,
+              "downSeconds": 13.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 24,
+              "damage": 540,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 3,
+              "ccSeconds": 4.3,
+              "objectiveDamage": 706,
+              "downSeconds": 32.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 89,
+              "damage": 1501,
+              "healing": 1064,
+              "kills": 5,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 677,
+              "downSeconds": 26.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 88,
+              "damage": 1202,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 1217,
+              "downSeconds": 12.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 69,
+              "damage": 330,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 0.4,
+              "objectiveDamage": 2980,
+              "downSeconds": 20.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-15840-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 25,
+              "damage": 166,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1,
+              "objectiveDamage": 3420,
+              "downSeconds": 10.4,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1279.4471000000012
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51003,
+          "teams": [
+            [
+              "fx-23759-0",
+              "fx-23759-1",
+              "fx-23759-2",
+              "fx-23759-3",
+              "fx-23759-4"
+            ],
+            [
+              "fx-23758-0",
+              "fx-23758-1",
+              "fx-23758-2",
+              "fx-23758-3",
+              "fx-23758-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 380.5,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            54,
+            27
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              91.6
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-23759-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 0,
+              "damage": 1741,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 12,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 0,
+              "downSeconds": 182.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 100,
+              "damage": 2033,
+              "healing": 1458,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 0,
+              "objectiveDamage": 0,
+              "downSeconds": 66.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 2402,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 30,
+              "downSeconds": 35.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 92,
+              "damage": 4274,
+              "healing": 0,
+              "kills": 15,
+              "deaths": 3,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 414,
+              "downSeconds": 53.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23759-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 71,
+              "damage": 3834,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 3,
+              "ccSeconds": 0,
+              "objectiveDamage": 309,
+              "downSeconds": 48.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 0,
+              "damage": 1912,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 9,
+              "ccSeconds": 3.6,
+              "objectiveDamage": 0,
+              "downSeconds": 139.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 29,
+              "damage": 1907,
+              "healing": 3461,
+              "kills": 2,
+              "deaths": 3,
+              "ccSeconds": 0,
+              "objectiveDamage": 1002,
+              "downSeconds": 49,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 0,
+              "damage": 2285,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 7,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 20,
+              "downSeconds": 99.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 56,
+              "damage": 1260,
+              "healing": 17,
+              "kills": 2,
+              "deaths": 6,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 4483,
+              "downSeconds": 58.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-23758-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 51,
+              "damage": 1636,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 4,
+              "ccSeconds": 0.6,
+              "objectiveDamage": 3495,
+              "downSeconds": 58.3,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2456.8839000000007
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51004,
+          "teams": [
+            [
+              "fx-31677-0",
+              "fx-31677-1",
+              "fx-31677-2",
+              "fx-31677-3",
+              "fx-31677-4"
+            ],
+            [
+              "fx-31678-0",
+              "fx-31678-1",
+              "fx-31678-2",
+              "fx-31678-3",
+              "fx-31678-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 390,
+          "reason": "Time limit: Core health %, then total damage, then seeded coin toss",
+          "hp": [
+            0,
+            44
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              81,
+              72.7
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-31677-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 0,
+              "damage": 1609,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 12,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 0,
+              "downSeconds": 188.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 0,
+              "damage": 3340,
+              "healing": 1633,
+              "kills": 9,
+              "deaths": 5,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 130,
+              "downSeconds": 93.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 2999,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 6,
+              "ccSeconds": 0,
+              "objectiveDamage": 282,
+              "downSeconds": 94.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 0,
+              "damage": 2639,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 4,
+              "ccSeconds": 3,
+              "objectiveDamage": 859,
+              "downSeconds": 63.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31677-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 0,
+              "damage": 3215,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 5,
+              "ccSeconds": 2.2,
+              "objectiveDamage": 1189,
+              "downSeconds": 77.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 0,
+              "damage": 2402,
+              "healing": 0,
+              "kills": 7,
+              "deaths": 14,
+              "ccSeconds": 14.9,
+              "objectiveDamage": 0,
+              "downSeconds": 209.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 84,
+              "damage": 1866,
+              "healing": 3731,
+              "kills": 4,
+              "deaths": 4,
+              "ccSeconds": 5.8,
+              "objectiveDamage": 175,
+              "downSeconds": 66.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 35,
+              "damage": 2833,
+              "healing": 0,
+              "kills": 8,
+              "deaths": 4,
+              "ccSeconds": 9.9,
+              "objectiveDamage": 518,
+              "downSeconds": 65.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 42,
+              "damage": 2857,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 4,
+              "ccSeconds": 5.2,
+              "objectiveDamage": 424,
+              "downSeconds": 63.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-31678-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 50,
+              "damage": 4445,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 3,
+              "ccSeconds": 3.1,
+              "objectiveDamage": 596,
+              "downSeconds": 48.9,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 3279.180700000001
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51005,
+          "teams": [
+            [
+              "fx-39597-0",
+              "fx-39597-1",
+              "fx-39597-2",
+              "fx-39597-3",
+              "fx-39597-4"
+            ],
+            [
+              "fx-39596-0",
+              "fx-39596-1",
+              "fx-39596-2",
+              "fx-39596-3",
+              "fx-39596-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 390,
+          "reason": "Time limit: Core health %, then total damage, then seeded coin toss",
+          "hp": [
+            20,
+            51
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              85.4,
+              28.9
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-39597-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 0,
+              "damage": 2048,
+              "healing": 43,
+              "kills": 5,
+              "deaths": 12,
+              "ccSeconds": 6.4,
+              "objectiveDamage": 0,
+              "downSeconds": 185.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 87,
+              "damage": 1655,
+              "healing": 1728,
+              "kills": 4,
+              "deaths": 2,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 1824,
+              "downSeconds": 32.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 3403,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 7,
+              "ccSeconds": 5.2,
+              "objectiveDamage": 317,
+              "downSeconds": 132.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 23,
+              "damage": 3563,
+              "healing": 0,
+              "kills": 8,
+              "deaths": 2,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 3702,
+              "downSeconds": 24.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39597-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 0,
+              "damage": 1499,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 5,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 555,
+              "downSeconds": 80.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 0,
+              "damage": 3268,
+              "healing": 0,
+              "kills": 11,
+              "deaths": 12,
+              "ccSeconds": 10.9,
+              "objectiveDamage": 0,
+              "downSeconds": 193,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 83,
+              "damage": 2026,
+              "healing": 1853,
+              "kills": 8,
+              "deaths": 3,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 495,
+              "downSeconds": 47.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 71,
+              "damage": 2764,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 3,
+              "ccSeconds": 7.3,
+              "objectiveDamage": 710,
+              "downSeconds": 48,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 0,
+              "damage": 1849,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 6,
+              "ccSeconds": 0,
+              "objectiveDamage": 34,
+              "downSeconds": 121.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-39596-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 88,
+              "damage": 2247,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 5,
+              "ccSeconds": 3,
+              "objectiveDamage": 75,
+              "downSeconds": 83.3,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 3345.9609999999993
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51006,
+          "teams": [
+            [
+              "fx-47515-0",
+              "fx-47515-1",
+              "fx-47515-2",
+              "fx-47515-3",
+              "fx-47515-4"
+            ],
+            [
+              "fx-47516-0",
+              "fx-47516-1",
+              "fx-47516-2",
+              "fx-47516-3",
+              "fx-47516-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 144.9,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            66,
+            49
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              70.7
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-47515-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 13,
+              "damage": 1269,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 4,
+              "ccSeconds": 3.7,
+              "objectiveDamage": 0,
+              "downSeconds": 42.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 100,
+              "damage": 1517,
+              "healing": 447,
+              "kills": 5,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 286,
+              "downSeconds": 13.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 59,
+              "damage": 1310,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 44,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 64,
+              "damage": 894,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1529,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47515-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 387,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 780,
+              "downSeconds": 19.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 17,
+              "damage": 959,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 4,
+              "ccSeconds": 8.2,
+              "objectiveDamage": 33,
+              "downSeconds": 42.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 50,
+              "damage": 677,
+              "healing": 1240,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 7.2,
+              "objectiveDamage": 662,
+              "downSeconds": 11.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 93,
+              "damage": 827,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 0.6,
+              "objectiveDamage": 1063,
+              "downSeconds": 11.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 44,
+              "damage": 77,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 4,
+              "objectiveDamage": 7233,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-47516-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 35,
+              "damage": 784,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 3,
+              "ccSeconds": 10.7,
+              "objectiveDamage": 9,
+              "downSeconds": 33.1,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1859.8849999999948
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51007,
+          "teams": [
+            [
+              "fx-55435-0",
+              "fx-55435-1",
+              "fx-55435-2",
+              "fx-55435-3",
+              "fx-55435-4"
+            ],
+            [
+              "fx-55434-0",
+              "fx-55434-1",
+              "fx-55434-2",
+              "fx-55434-3",
+              "fx-55434-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 258.2,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            71,
+            52
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              74
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-55435-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 51,
+              "damage": 2552,
+              "healing": 139,
+              "kills": 7,
+              "deaths": 4,
+              "ccSeconds": 11.4,
+              "objectiveDamage": 264,
+              "downSeconds": 48.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 81,
+              "damage": 2184,
+              "healing": 2468,
+              "kills": 4,
+              "deaths": 2,
+              "ccSeconds": 4,
+              "objectiveDamage": 681,
+              "downSeconds": 27.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 86,
+              "damage": 1413,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 7.2,
+              "objectiveDamage": 365,
+              "downSeconds": 28.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 68,
+              "damage": 1063,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 2,
+              "objectiveDamage": 345,
+              "downSeconds": 22.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55435-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 73,
+              "damage": 1856,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 686,
+              "downSeconds": 26.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 80,
+              "damage": 1598,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 6,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 2702,
+              "downSeconds": 72.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 26,
+              "damage": 1814,
+              "healing": 1784,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 2084,
+              "downSeconds": 13.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 44,
+              "damage": 1625,
+              "healing": 18,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 1951,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 21,
+              "damage": 1603,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 7,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 23,
+              "downSeconds": 91,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-55434-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 100,
+              "damage": 1490,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 2240,
+              "downSeconds": 30.5,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1881.4252999999953
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51008,
+          "teams": [
+            [
+              "fx-63353-0",
+              "fx-63353-1",
+              "fx-63353-2",
+              "fx-63353-3",
+              "fx-63353-4"
+            ],
+            [
+              "fx-63354-0",
+              "fx-63354-1",
+              "fx-63354-2",
+              "fx-63354-3",
+              "fx-63354-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 79.8,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            85,
+            92
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              11
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-63353-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 94,
+              "damage": 244,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1619,
+              "downSeconds": 9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 89,
+              "damage": 290,
+              "healing": 153,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1932,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 98,
+              "damage": 417,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2100,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 198,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1396,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63353-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 45,
+              "damage": 130,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 966,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 91,
+              "damage": 279,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 1661,
+              "downSeconds": 8.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 100,
+              "damage": 21,
+              "healing": 556,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2340,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 85,
+              "damage": 133,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1485,
+              "downSeconds": 9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 95,
+              "damage": 99,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 2199,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-63354-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 92,
+              "damage": 112,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1315,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 844.4458000000013
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51009,
+          "teams": [
+            [
+              "fx-71273-0",
+              "fx-71273-1",
+              "fx-71273-2",
+              "fx-71273-3",
+              "fx-71273-4"
+            ],
+            [
+              "fx-71272-0",
+              "fx-71272-1",
+              "fx-71272-2",
+              "fx-71272-3",
+              "fx-71272-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 211.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            55,
+            73
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              12
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-71273-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 35,
+              "damage": 1931,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 3,
+              "ccSeconds": 8.6,
+              "objectiveDamage": 1677,
+              "downSeconds": 26.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 65,
+              "damage": 647,
+              "healing": 2194,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 5.9,
+              "objectiveDamage": 1734,
+              "downSeconds": 22.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 65,
+              "damage": 596,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0.4,
+              "objectiveDamage": 1749,
+              "downSeconds": 22.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 28,
+              "damage": 1667,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 5,
+              "ccSeconds": 5.4,
+              "objectiveDamage": 1118,
+              "downSeconds": 55.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71273-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 689,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 0.7,
+              "objectiveDamage": 1643,
+              "downSeconds": 22.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 49,
+              "damage": 2215,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 4,
+              "ccSeconds": 6,
+              "objectiveDamage": 963,
+              "downSeconds": 46.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 85,
+              "damage": 1120,
+              "healing": 1664,
+              "kills": 3,
+              "deaths": 1,
+              "ccSeconds": 2.3,
+              "objectiveDamage": 1359,
+              "downSeconds": 12.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 83,
+              "damage": 1554,
+              "healing": 21,
+              "kills": 1,
+              "deaths": 2,
+              "ccSeconds": 6,
+              "objectiveDamage": 804,
+              "downSeconds": 27,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 88,
+              "damage": 1522,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 3942,
+              "downSeconds": 12.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-71272-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 56,
+              "damage": 1675,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 1932,
+              "downSeconds": 13,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1492.1735999999946
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51010,
+          "teams": [
+            [
+              "fx-79191-0",
+              "fx-79191-1",
+              "fx-79191-2",
+              "fx-79191-3",
+              "fx-79191-4"
+            ],
+            [
+              "fx-79192-0",
+              "fx-79192-1",
+              "fx-79192-2",
+              "fx-79192-3",
+              "fx-79192-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 283.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            44,
+            56
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "crossroads"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              40.3
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-79191-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 35,
+              "damage": 1992,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 5,
+              "ccSeconds": 12.1,
+              "objectiveDamage": 652,
+              "downSeconds": 63.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 27,
+              "damage": 274,
+              "healing": 1600,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 986,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 34,
+              "damage": 2084,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 791,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 21,
+              "damage": 1926,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1468,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79191-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 100,
+              "damage": 1698,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 1476,
+              "downSeconds": 16.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 79,
+              "damage": 1903,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 0,
+              "objectiveDamage": 1495,
+              "downSeconds": 54,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 54,
+              "damage": 0,
+              "healing": 2104,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1677,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 65,
+              "damage": 1142,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1987,
+              "downSeconds": 29.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 0,
+              "damage": 1087,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 8,
+              "ccSeconds": 5.6,
+              "objectiveDamage": 0,
+              "downSeconds": 103,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-79192-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 68,
+              "damage": 862,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 3842,
+              "downSeconds": 24.3,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2732.391300000003
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51011,
+          "teams": [
+            [
+              "fx-87111-0",
+              "fx-87111-1",
+              "fx-87111-2",
+              "fx-87111-3",
+              "fx-87111-4"
+            ],
+            [
+              "fx-87110-0",
+              "fx-87110-1",
+              "fx-87110-2",
+              "fx-87110-3",
+              "fx-87110-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 90.3,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            90,
+            81
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "pillars"
+          },
+          "objective": {
+            "coreHp": [
+              13.9,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-87111-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 89,
+              "damage": 547,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 4.3,
+              "objectiveDamage": 1837,
+              "downSeconds": 8.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 87,
+              "damage": 46,
+              "healing": 356,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 1,
+              "objectiveDamage": 2146,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 93,
+              "damage": 795,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1599,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 93,
+              "damage": 219,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1461,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87111-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 89,
+              "damage": 332,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1956,
+              "downSeconds": 9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 73,
+              "damage": 411,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1646,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 89,
+              "damage": 66,
+              "healing": 1421,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 2,
+              "objectiveDamage": 1341,
+              "downSeconds": 9.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 80,
+              "damage": 260,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2316,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 91,
+              "damage": 212,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1202,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-87110-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 72,
+              "damage": 146,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1242,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 790.5025999999998
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51012,
+          "teams": [
+            [
+              "fx-95029-0",
+              "fx-95029-1",
+              "fx-95029-2",
+              "fx-95029-3",
+              "fx-95029-4"
+            ],
+            [
+              "fx-95030-0",
+              "fx-95030-1",
+              "fx-95030-2",
+              "fx-95030-3",
+              "fx-95030-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 390,
+          "reason": "Time limit: Core health %, then total damage, then seeded coin toss",
+          "hp": [
+            54,
+            19
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              45.4,
+              83.4
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-95029-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 0,
+              "damage": 1402,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 11,
+              "ccSeconds": 3.5,
+              "objectiveDamage": 0,
+              "downSeconds": 181.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 91,
+              "damage": 291,
+              "healing": 967,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 0,
+              "downSeconds": 62.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 846,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 10,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 0,
+              "downSeconds": 145.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 97,
+              "damage": 1844,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 6,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 998,
+              "downSeconds": 93,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95029-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 98,
+              "damage": 2387,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 6,
+              "ccSeconds": 0,
+              "objectiveDamage": 496,
+              "downSeconds": 89.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 0,
+              "damage": 2509,
+              "healing": 42,
+              "kills": 7,
+              "deaths": 9,
+              "ccSeconds": 14.1,
+              "objectiveDamage": 0,
+              "downSeconds": 145.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 0,
+              "damage": 135,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 70,
+              "downSeconds": 13.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 0,
+              "damage": 4209,
+              "healing": 0,
+              "kills": 9,
+              "deaths": 2,
+              "ccSeconds": 4,
+              "objectiveDamage": 355,
+              "downSeconds": 38.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 19,
+              "damage": 4312,
+              "healing": 0,
+              "kills": 9,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 2264,
+              "downSeconds": 34.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-95030-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 84,
+              "damage": 4516,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 2,
+              "ccSeconds": 2,
+              "objectiveDamage": 2229,
+              "downSeconds": 32,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2961.8606
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51013,
+          "teams": [
+            [
+              "fx-102949-0",
+              "fx-102949-1",
+              "fx-102949-2",
+              "fx-102949-3",
+              "fx-102949-4"
+            ],
+            [
+              "fx-102948-0",
+              "fx-102948-1",
+              "fx-102948-2",
+              "fx-102948-3",
+              "fx-102948-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 384.9,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            28,
+            65
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              27.2,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-102949-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 73,
+              "damage": 2692,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 10,
+              "ccSeconds": 10.8,
+              "objectiveDamage": 901,
+              "downSeconds": 144.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 0,
+              "damage": 3012,
+              "healing": 560,
+              "kills": 9,
+              "deaths": 5,
+              "ccSeconds": 4,
+              "objectiveDamage": 622,
+              "downSeconds": 97.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 3045,
+              "healing": 0,
+              "kills": 7,
+              "deaths": 3,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 143,
+              "downSeconds": 64.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 41,
+              "damage": 3843,
+              "healing": 132,
+              "kills": 8,
+              "deaths": 3,
+              "ccSeconds": 2.7,
+              "objectiveDamage": 4235,
+              "downSeconds": 46.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102949-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 28,
+              "damage": 3115,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 3,
+              "ccSeconds": 6,
+              "objectiveDamage": 3099,
+              "downSeconds": 45.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 84,
+              "damage": 544,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 12,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 266,
+              "downSeconds": 173.9,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 86,
+              "damage": 2158,
+              "healing": 1482,
+              "kills": 6,
+              "deaths": 4,
+              "ccSeconds": 2.4,
+              "objectiveDamage": 2174,
+              "downSeconds": 61.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 68,
+              "damage": 3844,
+              "healing": 0,
+              "kills": 11,
+              "deaths": 6,
+              "ccSeconds": 3.6,
+              "objectiveDamage": 1086,
+              "downSeconds": 91.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 86,
+              "damage": 1748,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 6,
+              "ccSeconds": 0,
+              "objectiveDamage": 2001,
+              "downSeconds": 89.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-102948-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 0,
+              "damage": 2950,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 7,
+              "ccSeconds": 0,
+              "objectiveDamage": 1023,
+              "downSeconds": 128.9,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2472.206499999993
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51014,
+          "teams": [
+            [
+              "fx-110867-0",
+              "fx-110867-1",
+              "fx-110867-2",
+              "fx-110867-3",
+              "fx-110867-4"
+            ],
+            [
+              "fx-110868-0",
+              "fx-110868-1",
+              "fx-110868-2",
+              "fx-110868-3",
+              "fx-110868-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 390,
+          "reason": "Time limit: Core health %, then total damage, then seeded coin toss",
+          "hp": [
+            0,
+            53
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              77.9,
+              21.4
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": true
+          },
+          "fighters": [
+            {
+              "id": "fx-110867-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 0,
+              "damage": 4497,
+              "healing": 0,
+              "kills": 11,
+              "deaths": 9,
+              "ccSeconds": 5.4,
+              "objectiveDamage": 0,
+              "downSeconds": 162.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 0,
+              "damage": 1756,
+              "healing": 2877,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 0.6,
+              "objectiveDamage": 569,
+              "downSeconds": 64.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 0,
+              "damage": 2780,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 1,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 251,
+              "downSeconds": 10.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 0,
+              "damage": 1872,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 3,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 6187,
+              "downSeconds": 57.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110867-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 0,
+              "damage": 1773,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 10,
+              "ccSeconds": 5,
+              "objectiveDamage": 66,
+              "downSeconds": 162.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 22,
+              "damage": 3670,
+              "healing": 0,
+              "kills": 10,
+              "deaths": 8,
+              "ccSeconds": 13.6,
+              "objectiveDamage": 510,
+              "downSeconds": 114,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 61,
+              "damage": 1092,
+              "healing": 3098,
+              "kills": 2,
+              "deaths": 5,
+              "ccSeconds": 5.7,
+              "objectiveDamage": 214,
+              "downSeconds": 76.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 90,
+              "damage": 3606,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 2,
+              "ccSeconds": 5.4,
+              "objectiveDamage": 649,
+              "downSeconds": 33.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 44,
+              "damage": 1825,
+              "healing": 0,
+              "kills": 3,
+              "deaths": 3,
+              "ccSeconds": 3.8,
+              "objectiveDamage": 284,
+              "downSeconds": 42.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-110868-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 52,
+              "damage": 2344,
+              "healing": 0,
+              "kills": 6,
+              "deaths": 4,
+              "ccSeconds": 5.3,
+              "objectiveDamage": 334,
+              "downSeconds": 56.5,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 4219.531999999999
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51015,
+          "teams": [
+            [
+              "fx-118787-0",
+              "fx-118787-1",
+              "fx-118787-2",
+              "fx-118787-3",
+              "fx-118787-4"
+            ],
+            [
+              "fx-118786-0",
+              "fx-118786-1",
+              "fx-118786-2",
+              "fx-118786-3",
+              "fx-118786-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 125,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            54,
+            65
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              79.2,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-118787-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 51,
+              "damage": 1136,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 69,
+              "downSeconds": 20.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 0,
+              "damage": 270,
+              "healing": 1411,
+              "kills": 1,
+              "deaths": 3,
+              "ccSeconds": 0.3,
+              "objectiveDamage": 234,
+              "downSeconds": 23.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 68,
+              "damage": 1177,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 2.7,
+              "objectiveDamage": 432,
+              "downSeconds": 10.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 71,
+              "damage": 203,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 5306,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118787-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 78,
+              "damage": 369,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0.6,
+              "objectiveDamage": 2960,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 47,
+              "damage": 681,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 3,
+              "objectiveDamage": 0,
+              "downSeconds": 41.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 67,
+              "damage": 940,
+              "healing": 290,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 789,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 49,
+              "damage": 1018,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 80,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 78,
+              "damage": 687,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 972,
+              "downSeconds": 11.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-118786-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 85,
+              "damage": 930,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 30,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1002.9219999999987
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51016,
+          "teams": [
+            [
+              "fx-126705-0",
+              "fx-126705-1",
+              "fx-126705-2",
+              "fx-126705-3",
+              "fx-126705-4"
+            ],
+            [
+              "fx-126706-0",
+              "fx-126706-1",
+              "fx-126706-2",
+              "fx-126706-3",
+              "fx-126706-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 256.6,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            60,
+            73
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "ruins"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              55.5
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-126705-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 77,
+              "damage": 3438,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 5,
+              "ccSeconds": 14.2,
+              "objectiveDamage": 0,
+              "downSeconds": 65.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 57,
+              "damage": 950,
+              "healing": 1193,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 2,
+              "objectiveDamage": 519,
+              "downSeconds": 27.6,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 35,
+              "damage": 2336,
+              "healing": 0,
+              "kills": 5,
+              "deaths": 1,
+              "ccSeconds": 7.9,
+              "objectiveDamage": 892,
+              "downSeconds": 13.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 87,
+              "damage": 1497,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1416,
+              "downSeconds": 10.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126705-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 47,
+              "damage": 1060,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 1,
+              "ccSeconds": 4,
+              "objectiveDamage": 1178,
+              "downSeconds": 9.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 9,
+              "damage": 1772,
+              "healing": 0,
+              "kills": 4,
+              "deaths": 6,
+              "ccSeconds": 4.8,
+              "objectiveDamage": 272,
+              "downSeconds": 75.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 73,
+              "damage": 59,
+              "healing": 1639,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 0.6,
+              "objectiveDamage": 759,
+              "downSeconds": 31.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 96,
+              "damage": 1915,
+              "healing": 42,
+              "kills": 3,
+              "deaths": 3,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 2569,
+              "downSeconds": 38.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 86,
+              "damage": 862,
+              "healing": 17,
+              "kills": 2,
+              "deaths": 3,
+              "ccSeconds": 2.5,
+              "objectiveDamage": 1580,
+              "downSeconds": 42.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-126706-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 97,
+              "damage": 1014,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 4,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 3820,
+              "downSeconds": 53.3,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 2916.2453000000023
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51017,
+          "teams": [
+            [
+              "fx-134625-0",
+              "fx-134625-1",
+              "fx-134625-2",
+              "fx-134625-3",
+              "fx-134625-4"
+            ],
+            [
+              "fx-134624-0",
+              "fx-134624-1",
+              "fx-134624-2",
+              "fx-134624-3",
+              "fx-134624-4"
+            ]
+          ],
+          "winnerTeam": 1,
+          "seconds": 60.8,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            85,
+            93
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "open"
+          },
+          "objective": {
+            "coreHp": [
+              0,
+              8
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-134625-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 79,
+              "damage": 262,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1053,
+              "downSeconds": 8.7,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 86,
+              "damage": 0,
+              "healing": 466,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2363,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 90,
+              "damage": 24,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1685,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 86,
+              "damage": 38,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2.8,
+              "objectiveDamage": 1530,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134625-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 85,
+              "damage": 0,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1652,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 88,
+              "damage": 127,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1498,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 100,
+              "damage": 101,
+              "healing": 326,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 1.6,
+              "objectiveDamage": 1184,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 94,
+              "damage": 283,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1574,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 91,
+              "damage": 199,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1886,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-134624-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 94,
+              "damage": 313,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 2,
+              "objectiveDamage": 2858,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 339.9629999999961
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51018,
+          "teams": [
+            [
+              "fx-142543-0",
+              "fx-142543-1",
+              "fx-142543-2",
+              "fx-142543-3",
+              "fx-142543-4"
+            ],
+            [
+              "fx-142544-0",
+              "fx-142544-1",
+              "fx-142544-2",
+              "fx-142544-3",
+              "fx-142544-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 110.2,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            78,
+            89
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "pillars"
+          },
+          "objective": {
+            "coreHp": [
+              49.3,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-142543-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 83,
+              "damage": 1066,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 1327,
+              "downSeconds": 20,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 90,
+              "damage": 433,
+              "healing": 364,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2126,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 74,
+              "damage": 637,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2079,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 72,
+              "damage": 568,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 1.2,
+              "objectiveDamage": 1303,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142543-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 76,
+              "damage": 337,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2165,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 88,
+              "damage": 569,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 2,
+              "ccSeconds": 0,
+              "objectiveDamage": 1396,
+              "downSeconds": 18.3,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 93,
+              "damage": 359,
+              "healing": 1232,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1196,
+              "downSeconds": 10.1,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 87,
+              "damage": 0,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 0,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 90,
+              "damage": 244,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1086,
+              "downSeconds": 8.8,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-142544-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 88,
+              "damage": 97,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 886,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 956.1091000000015
+        },
+        {
+          "mode": "team",
+          "size": 5,
+          "seed": 51019,
+          "teams": [
+            [
+              "fx-150463-0",
+              "fx-150463-1",
+              "fx-150463-2",
+              "fx-150463-3",
+              "fx-150463-4"
+            ],
+            [
+              "fx-150462-0",
+              "fx-150462-1",
+              "fx-150462-2",
+              "fx-150462-3",
+              "fx-150462-4"
+            ]
+          ],
+          "winnerTeam": 0,
+          "seconds": 132.5,
+          "reason": "Enemy Core destroyed",
+          "hp": [
+            70,
+            56
+          ],
+          "combatVersion": "team-3-core",
+          "balanceId": "base",
+          "tactics": [
+            "balanced",
+            "balanced"
+          ],
+          "environment": {
+            "time": "day",
+            "weather": "clear",
+            "ground": "stone",
+            "map": "groves"
+          },
+          "objective": {
+            "coreHp": [
+              40.2,
+              0
+            ],
+            "monsterKills": [
+              0,
+              0
+            ],
+            "steals": [
+              0,
+              0
+            ],
+            "forgefireSeconds": [
+              0,
+              0
+            ],
+            "suddenDeath": false
+          },
+          "fighters": [
+            {
+              "id": "fx-150463-0",
+              "team": 0,
+              "role": "tank",
+              "hp": 68,
+              "damage": 757,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 4,
+              "ccSeconds": 13.3,
+              "objectiveDamage": 491,
+              "downSeconds": 31.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-1",
+              "team": 0,
+              "role": "healer",
+              "hp": 90,
+              "damage": 491,
+              "healing": 951,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 2301,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-2",
+              "team": 0,
+              "role": "controller",
+              "hp": 96,
+              "damage": 951,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 5.8,
+              "objectiveDamage": 1916,
+              "downSeconds": 11.2,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-3",
+              "team": 0,
+              "role": "damage",
+              "hp": 60,
+              "damage": 476,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 3009,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150463-4",
+              "team": 0,
+              "role": "damage",
+              "hp": 44,
+              "damage": 274,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 0,
+              "ccSeconds": 1.8,
+              "objectiveDamage": 1282,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-0",
+              "team": 1,
+              "role": "tank",
+              "hp": 6,
+              "damage": 491,
+              "healing": 19,
+              "kills": 2,
+              "deaths": 2,
+              "ccSeconds": 6,
+              "objectiveDamage": 920,
+              "downSeconds": 19,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-1",
+              "team": 1,
+              "role": "healer",
+              "hp": 49,
+              "damage": 83,
+              "healing": 429,
+              "kills": 0,
+              "deaths": 1,
+              "ccSeconds": 4,
+              "objectiveDamage": 410,
+              "downSeconds": 12.5,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-2",
+              "team": 1,
+              "role": "controller",
+              "hp": 92,
+              "damage": 824,
+              "healing": 0,
+              "kills": 0,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1335,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-3",
+              "team": 1,
+              "role": "damage",
+              "hp": 96,
+              "damage": 548,
+              "healing": 0,
+              "kills": 1,
+              "deaths": 1,
+              "ccSeconds": 0,
+              "objectiveDamage": 1335,
+              "downSeconds": 9.4,
+              "monsterLastHits": 0
+            },
+            {
+              "id": "fx-150462-4",
+              "team": 1,
+              "role": "damage",
+              "hp": 34,
+              "damage": 1026,
+              "healing": 0,
+              "kills": 2,
+              "deaths": 0,
+              "ccSeconds": 0,
+              "objectiveDamage": 1385,
+              "downSeconds": 0,
+              "monsterLastHits": 0
+            }
+          ],
+          "ms": 1362.4240000000063
+        }
+      ]
+    }
+  ]
+}
