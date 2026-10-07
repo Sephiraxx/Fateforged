@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {Battle,fighterProfile} from '../public/combat.js';
 import {POWERS,WEAKNESSES,powerFor} from '../public/abilities-v11.js';
-import {buildTraitDetails,traitContributions,STAT_KEYS} from '../public/trait-details.js';
+import {buildCharacterOverview,buildTraitDetails,traitContributions,STAT_KEYS} from '../public/trait-details.js';
 const fighter={id:'a',name:'Test fighter',summary:{stats:[100,144,225,196,400],total:1065},traits:{race:'Human',weapon:'Poisoned dagger',power:'Singularity',power2:'Blood control',weakness:'Short power duration'}};
 const enemy={...fighter,id:'b',name:'Opponent',traits:{weapon:'Longsword'}};
 const number=(model,label)=>Number(model.rows.find(r=>r.label===label)?.value.match(/[\d,.]+/)?.[0].replaceAll(',',''));
@@ -45,7 +45,7 @@ const race=buildTraitDetails({...fighter,traits},'race',{contributions});assert(
 // A real shared renderer can navigate between traits, preserve exact values and
 // close by button, Escape (native dialog), or outside the dialog rectangle.
 class Element{constructor(){this.children=[];this.listeners={};this.textContent='';this.open=false;}append(...v){this.children.push(...v)}replaceChildren(...v){this.children=v}addEventListener(k,v){this.listeners[k]=v}setAttribute(k,v){this[k]=v}showModal(){this.open=true}close(){this.open=false}getBoundingClientRect(){return{left:10,right:500,top:10,bottom:800}}}
-const elements=new Map();for(const id of ['trait-details','trait-detail-picker','close-trait-details','trait-detail-category','trait-detail-title','trait-detail-intro','trait-detail-metrics','trait-detail-notes'])elements.set(id,new Element());
+const elements=new Map();for(const id of ['trait-details','trait-detail-picker','close-trait-details','trait-detail-category','trait-detail-title','trait-detail-intro','trait-detail-overview','trait-detail-metrics','trait-detail-notes'])elements.set(id,new Element());
 globalThis.document={getElementById:id=>elements.get(id),createElement:()=>new Element()};
 const {openTraitDetails}=await import('../public/trait-detail-ui.js');openTraitDetails(fighter,'power');
 assert(elements.get('trait-details').open);assert.equal(elements.get('trait-detail-title').textContent,'Singularity');
@@ -59,3 +59,44 @@ console.log('Trait details passed: all 50 powers, all 26 weaknesses, 5 stats, li
 const rollTraits={strength:'Titanic',speed:'Swift',durability:'Sturdy',iq:'Genius',magic:'Adept'},rollKeys=Object.keys(rollTraits);
 for(const [i,key]of STAT_KEYS.entries()){const c={...fighter,traits:{...fighter.traits,...rollTraits}},contributions={[rollKeys[i]]:[11,22,33,44,55]};const m=buildTraitDetails(c,key,{contributions});assert.equal(m.rows.find(r=>r.label==='Roll result').value,rollTraits[rollKeys[i]]);assert(m.rows.find(r=>r.label==='Roll result').formula.includes('+'+[11,22,33,44,55][i]+' '+key));}
 openTraitDetails({...fighter,traits:{...fighter.traits,...rollTraits}},'strength',{contributions:{strength:[25,0,0,0,0]}});assert.equal(elements.get('trait-detail-title').textContent,'Strength');assert(!elements.get('trait-detail-picker').children.some(b=>/ roll$/.test(b.textContent)));assert(elements.get('trait-detail-metrics').children.some(e=>e.children.some(x=>x.textContent==='Titanic')));
+
+// The full breakdown opens a populated character page and can be revisited
+// from a trait without leaking the previously selected label or contribution.
+const overviewFighter={...fighter,name:'Ulrik Graveward',role:'healer',teamKit:'chainHeal',summary:{...fighter.summary,tier:'S',growth:{bonus:[25,0,0,0,0]}},traits:{...fighter.traits,race:'Titan',subrace:'Storm',class:'Priest',subclass:'Grave priest',weapon:'Spellbook',mastery:'Combat omniscience',...rollTraits}};
+const overview=buildCharacterOverview(overviewFighter),overviewRows=overview.sections.flatMap(s=>s.rows);
+assert(overview.description.includes('Storm Titan'));
+assert(overview.description.includes('Grave priest'));
+assert(overview.description.includes('Spellbook'));
+assert.equal(overview.total,1065);
+assert.equal(overview.sections.find(s=>s.kind==='stats').rows[0].value,100);
+assert.equal(overview.sections.find(s=>s.kind==='stats').rows[0].roll,'Titanic');
+assert.equal(overview.sections.find(s=>s.kind==='stats').rows[0].growth,25);
+assert.equal(overviewRows.find(r=>r.label==='Team kit').value,'Chain heal');
+close(number({rows:overviewRows},'Maximum health'),fighterProfile(overviewFighter).maxHp);
+close(number({rows:overviewRows},'Weapon hit'),fighterProfile(overviewFighter).damage+fighterProfile(overviewFighter).spell*.05);
+const partial=buildCharacterOverview({name:'New fighter',state:{traits:{power:'No power',power2:'No second ability'}}});
+assert.equal(partial.sections.find(s=>s.title==='Identity').rows.find(r=>r.label==='Abilities').value,'None');
+assert(!JSON.stringify(partial).match(/NaN|Infinity|undefined/));
+assert(!partial.sections.find(s=>s.title==='Identity').rows.some(r=>r.label==='Team kit'));
+const textOf=e=>[e.textContent,...e.children.map(textOf)].join(' ');
+openTraitDetails(overviewFighter);
+assert.equal(elements.get('trait-detail-title').textContent,'Ulrik Graveward');
+assert(elements.get('trait-detail-intro').textContent.includes('Storm Titan'));
+assert.equal(elements.get('trait-detail-picker').children[0].textContent,'Character');
+assert.equal(elements.get('trait-detail-picker').children[0]['aria-pressed'],'true');
+assert(!elements.get('trait-detail-overview').hidden);
+assert(textOf(elements.get('trait-detail-overview')).includes('Chain heal'));
+assert(textOf(elements.get('trait-detail-overview')).includes('Roll: Titanic'));
+assert.equal(elements.get('trait-detail-metrics').children.length,0);
+elements.get('trait-detail-picker').children.find(b=>b.textContent==='Race').listeners.click();
+assert(elements.get('trait-detail-overview').hidden);
+assert.equal(elements.get('trait-detail-overview').children.length,0);
+assert.equal(elements.get('trait-detail-title').textContent,'Titan');
+elements.get('trait-detail-picker').children[0].listeners.click();
+assert(!elements.get('trait-detail-overview').hidden);
+assert.equal(elements.get('trait-detail-title').textContent,'Ulrik Graveward');
+assert.equal(elements.get('trait-detail-notes').children.length,0);
+openTraitDetails({...fighter,traits:{weapon:'Longsword'}},'overview');
+assert(!textOf(elements.get('trait-detail-overview')).includes('Chain heal'));
+assert(!textOf(elements.get('trait-detail-overview')).includes('healer'));
+console.log('Character overview passed: populated default, bio, exact stats and rolls, team kit, arcane damage, partial characters, trait/Character navigation and context reset.');

@@ -114,7 +114,7 @@ export function mountTeamLeague(host,hooks){
   const season=el('div','','fighter-season');
   if(stats?.games){for(const [label,value]of [['Games',stats.games],['Damage',stats.damage],['Healing',stats.healing],['KOs',stats.kills],['Downs',stats.deaths],['Control',`${stats.ccSeconds}s`],['Impact / game',Math.round(LEAGUE.impact(stats)/stats.games)]]){const cell=el('div','','offseason-fact');cell.append(el('strong',String(value)),el('span',label));season.append(cell);}}
   else season.append(el('p',`No games yet in season ${world.season}.`,'muted'));
-  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary},'overview');};
+  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,role:f.role,teamKit:f.teamKit,traits:f.traits,summary:f.summary},'overview');};
   dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${world.season}`),season,breakdown);dialog.showModal();
  }
  function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
