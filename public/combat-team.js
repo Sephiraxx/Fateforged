@@ -4,9 +4,11 @@ import {TeamBattle as KitTeamBattle} from './combat-team-v2-2.js';
 import {TeamBattle as PatchTeamBattle} from './combat-team-v2-3.js';
 import {TeamBattle as CurrentTeamBattle} from './combat-team-v2-4.js';
 import {TeamBattle as SupportTitanBattle} from './combat-team-v3-1.js';
+import {TeamBattle as TargetedTeamBattle} from './combat-team-v2-5.js';
+import {TeamBattle as TargetedTitanBattle} from './combat-team-v3-2.js';
 import {TeamBattle as TitanBattle} from './combat-team-v3.js';
 import {TeamBattle as CoreBattle} from './combat-team-v3-core.js';
-export * from './combat-team-v2-4.js';
-export const TEAM_ENGINES=Object.freeze({'team-2':OldTeamBattle,'team-2.1':CoverTeamBattle,'team-2.2':KitTeamBattle,'team-2.3':PatchTeamBattle,'team-2.4':CurrentTeamBattle,'team-3.1':SupportTitanBattle,'team-3-core':CoreBattle,'team-3':TitanBattle});
-export function teamEngine(version='team-2.4'){const Engine=TEAM_ENGINES[version];if(!Engine)throw new Error('Unsupported saved team combat engine.');return Engine;}
+export * from './combat-team-v2-5.js';
+export const TEAM_ENGINES=Object.freeze({'team-2':OldTeamBattle,'team-2.1':CoverTeamBattle,'team-2.2':KitTeamBattle,'team-2.3':PatchTeamBattle,'team-2.4':CurrentTeamBattle,'team-2.5':TargetedTeamBattle,'team-3.2':TargetedTitanBattle,'team-3.1':SupportTitanBattle,'team-3-core':CoreBattle,'team-3':TitanBattle});
+export function teamEngine(version='team-2.5'){const Engine=TEAM_ENGINES[version];if(!Engine)throw new Error('Unsupported saved team combat engine.');return Engine;}
 export function simulateTeam(teams,seed,options={}){const Engine=teamEngine(options.engineVersion),battle=new Engine(teams,seed,{...options,headless:options.headless??true});while(!battle.done)battle.step(1/60);return battle.result();}

@@ -169,6 +169,10 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 /* Fighter details: names open a dialog with traits, stats and season numbers. */
 .fighter-link{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline dotted color-mix(in srgb,var(--accent) 55%,transparent);text-underline-offset:3px}
 .fighter-link:hover,.fighter-link:focus-visible{color:var(--accent)}
+.patch-season,.champion-season{margin-top:10px;border:1px solid var(--line);padding:10px 12px}
+.patch-season>summary,.champion-season>summary{cursor:pointer;font-weight:700;color:var(--text);line-height:1.5}
+.patch-season[open]>summary,.champion-season[open]>summary{margin-bottom:12px}
+.patch-season p{line-height:1.6}
 .fighter-dialog{width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px);padding:18px;color:var(--text);background:#0a0f1c;border:1px solid var(--accent);box-shadow:0 0 40px #000c}
 .fighter-dialog::backdrop{background:#02040acc}
 .fighter-dialog h3{font:700 1.3rem/1.2 var(--display);letter-spacing:.04em;margin:2px 0}

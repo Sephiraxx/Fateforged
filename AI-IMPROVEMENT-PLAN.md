@@ -294,7 +294,7 @@ Checks should assert the decision, support connections, legal actions and abort 
 
 ## 12. Storage, performance and player-facing explanations
 
-- New AI changes receive new immutable engine/policy versions. Preserve `team-2.3`, `team-3-core`, `team-3` and the frozen duel engines for historical replay. Proposed new AI identifiers are `team-2.5` and `team-3.2` (the ability-slot correction uses `team-2.4` and `team-3.1`); finalize the naming before implementation.
+- New AI changes receive new immutable engine/policy versions. Preserve `team-2.3`, `team-3-core`, `team-3` and the frozen duel engines for historical replay. Proposed new AI identifiers are `team-2.6` and `team-3.3` (the ability-slot correction uses `team-2.4` and `team-3.1`); finalize the naming before implementation.
 - Capture initial coach instructions, policy version, legal lineups, balance profile and required learning snapshot per game. Derive subsequent automatic decisions deterministically. Future live user commands require an ordered, timestamped command log.
 - Existing active seasons and partial series keep their pinned policy; move ongoing leagues at an explicit next-season boundary rather than changing the middle of a saved series.
 - Propagate the same policy through workers, watched games, authoritative validation, exhibition setup, series breaks, exports and backup restore. Cover both Pages and server asset builds.

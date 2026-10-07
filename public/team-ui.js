@@ -67,7 +67,7 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3.1':'team-2.4',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3.2':'team-2.5',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
   if(running||hooks.blocked())return;
   running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');
