@@ -1,0 +1,19 @@
+{
+  "note": "Identical seeded squads, side alternation and neutral patches. Candidate shortens the 2v2 defensive hold from 12 to 4 seconds; all other sizes keep their original postures.",
+  "rows": [
+    {
+      "label": "previous",
+      "games": 100,
+      "winRate": 51,
+      "timeoutRate": 3,
+      "averageSeconds": 63.9
+    },
+    {
+      "label": "candidate",
+      "games": 100,
+      "winRate": 51,
+      "timeoutRate": 3,
+      "averageSeconds": 63.9
+    }
+  ]
+}
