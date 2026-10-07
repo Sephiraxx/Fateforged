@@ -453,3 +453,48 @@ All commands use the same revision and `operationId` protocol as the other team-
 Watched Bo3/Bo5 games pause at a recap. Team league games save at each break; returning to setup resumes the same series, including its score, starters and tactics. Your team may choose any legal starters from its roster. AI coaches adapt by a shared deterministic rule, used by both watched and quick simulation. A failed save offers a retry of the same result instead of rerunning the battle. Each format keeps a collapsed season/team champions list.
 
 New seasons use team 2.1. Projectile spells and ordinary shots check their actual aim/radius; a shot blocked during its windup is cancelled, resources refunded and its cooldown reduced. Portal shots check the exit path. Earlier team 2 seasons keep their saved engine. Duel 12 stays frozen.
+
+## Team kits
+
+New team pool fighters receive one role-weighted extra slot. Earlier fighters without a kit and saved team 2/2.1 engines remain valid. New seasons use team 2.2. The ten kits are defined independently of the frozen duel catalog. Healers mostly roll Mending wave, Chain heal, Resurrection, Cleanse or Barrier; tanks favour Taunt shout, Barrier and Knock-up; controllers favour Stun bolt, Disarm shot and Knock-up; damage fighters favour Hamstring and Disarm shot.
+
+Kits share the action and mana economy with normal powers. Resurrection channels for three seconds, restores 40% HP and can be interrupted. Each caster and each recipient can use it only once per game. Other heals cannot revive dead fighters. Control respects the immunity window; disarm suspends weapon attacks for any weapon. Stun lasts 1.2 seconds, taunt two seconds, knock-up 0.6 seconds, hamstring four seconds and disarm 2.4 seconds. Barrier provides one ward hit for four seconds to nearby allies.
+
+Rating calibration uses separate regularized kit coefficients, with each subject facing identical opponents and seeds both with and without its kit. The committed report states the sample and model fit; coefficients are estimates, not guarantees for individual matchups.
+
+The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.
+
+## League-specific patches
+
+Each new league starts at base combat rules. A save owns its own immutable patch history; new seasons use team 2.3, while older active seasons keep their engine. Patches are considered after the complete halfway week and once at the offseason. Each lever changes at most 1.5% at halfway or 3% at the offseason (both relative to its current value and in percentage points of base), with a cumulative ±15% cap per lever. These are per-lever limits; distinct stats can change together.
+
+Evidence compares games where one side fields more of a role, weapon type or kit group than the other; identical compositions add no evidence. The proposer also records role-count categories, such as two-tank lineups. It needs at least 30 comparable games, a win rate outside 45–55%, and a Wilson 95% interval excluding 50%. More tank health / Fortified protection, role healing / control / damage, weapon damage and kit output can be nudged. Supported targeted modifiers also cover healing, control and dive damage. Patches do not alter the original rolled stats or fighter catalog. Observational evidence can be confounded by roster strength; caps limit the response, and synthetic feedback checks test the controller rather than proving real combat causality.
+
+The collapsed League patches panel shows plain-language changes and a per-save switch. Turning it off freezes the current patch. Every match describes its engine and patch snapshot; watched replays retain those options, and saved results retain their patch. A result reporting a different patch ID is rejected. Changes happen between phases, never between games of a series.
+
+Team 2.3 also keeps Bulwark knockback on the wide team field, including shared hits, and preserves an active kit stun when shared damage lands.
+
+## Performance and 2v2 review
+
+The 5v5 check now warms up both engines and alternates eight identical seeded workloads against the frozen team-2 reference in the same run. It limits both whole-match cost and cost per simulated second to 2.5× reference, rather than a machine-dependent 750 ms deadline. The current measurement is 1.25× / 1.42× respectively.
+
+A 100-game, side-alternating neutral-patch comparison after the new kits found Hold the line at 51% wins and 3% timeouts. A shorter opening hold produced identical results. No tactic change is applied on that evidence; repeat the review with long-season save data.
+
+## Core siege preview (objective phase 1)
+
+Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.
+
+The field is 1280×600 with reachable mirrored bases, pit and two flank routes on every map. Cores have 6,000 / 9,000 HP. Two living defenders within 160 reduce incoming Core damage by 75%; each Core pulses the nearest enemy within 140 for 2% max HP every two seconds. Cores are static projectile targets, cannot be healed or hit by allies, and destruction ends the current step.
+
+Downed fighters return at their base after 8–20 seconds, increasing linearly until 5:00. Resources, control and cooldowns reset; statistics and once-per-game revival flags persist. Resurrection cancels the pending respawn. At 6:00 respawns stop and Core damage doubles. At 6:30 Core health %, total damage, then a seeded coin toss decides. Results keep objective damage and time spent down. Impact adds 0.4× objective damage and 300 per monster last hit, preparing phase two.
+
+Core leagues pin their own engine each season, preserve patch snapshots, validate objective results and use Core health for standings health margin. Quick exhibitions and leagues simulate in workers. Canvas crystals show health rings; the HUD shows Guarded and respawn countdowns. Measurements live in validation/team-objectives-core.json. Early AI is intentionally simple; full length and strategic balance targets require the later team brain.
+
+
+## Forge Titan and Forgefire (objective phase 2)
+
+New Core siege exhibitions and new preview league seasons now use team-3. Older active Core seasons and replays stay on team-3-core. The Titan rises at 0:40, with 4,500 / 7,500 HP. It follows its largest damage contributor in the last six seconds, stays within 140 of the pit, resets after six seconds without damage, and warns for 0.8 seconds before its four-second slam. Its killing-blow team claims Forgefire, including steals; it returns 90 seconds later.
+
+Forgefire lasts 60 seconds: +15% outgoing fighter damage, +50% additional Core damage, and bypass of Guarded. It gives living teammates a shield worth 10% max HP that refreshes every 10 seconds. Shields absorb hits after mitigation, including damage shared through Bulwark; overkill penetrates a depleted shield and a shielded survivor is not credited as a KO. Static objective actors use fixed accuracy and no critical hits. The canvas shows the Titan's health and slam warning, and the Forgefire aura thickens while a fighter has a shield. The HUD shows the match timer, Titan timer, buff timers and recent claims/steals. Compact saved results omit the detailed evaluation-only Titan ledger.
+
+The phase-two AI contests a living Titan when no enemy is very close, allows mobile fighters to try a low-health steal, and pushes the Core with Forgefire. It respects taunts. This is the simple phase-two rule set, not the later coach brain. Median length, sudden death, time limits, monster participation, steals and Forgefire correlation are measured in validation/team-objectives-titan.json. Correlation with winning is observational and is not a causal measurement of buff strength. The full brain's length/steal/comeback/buff targets remain to be met before default replacement.

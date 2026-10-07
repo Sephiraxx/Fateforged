@@ -207,3 +207,5 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 /* Team composition line and the offseason meta. */
 .team-comp{margin:2px 0 8px;font:600 .8rem/1.4 var(--display);letter-spacing:.04em;color:var(--text)}
 .offseason-meta{margin:6px 0 12px}
+
+.team-hud-kit{grid-column:1/-1;order:3;color:var(--muted);font-size:.62rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

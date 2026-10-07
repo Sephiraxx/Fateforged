@@ -1,3 +1,5 @@
+> Approved implementation delivered in six dependent review stages: series coaching / cover / past champions; ten team kits; bounded per-save patches; portable performance and 2v2 review; Core siege; Forge Titan / Forgefire. The objective preview is optional while the later full brain, mode replacement and graphics phases remain future work. No merge is automatic.
+
 > Implementation approved: deliver the full plan in stages; merge only on request. Earlier planning notes below remain context.
 
 # Coach career roadmap

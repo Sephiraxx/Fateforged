@@ -7,7 +7,7 @@ import pagesWorker from '../_site/local-api.js';import migrations from '../_site
 
 const roll=(plan,seed)=>plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`R${seed}-${i}`));
 const league=(format,teams,seed)=>L.create({id:crypto.randomUUID(),format,teams,seed,fighters:roll(L.poolPlan(format,teams,seed),seed)});
-const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map((id,i)=>({id,damage:(n>>>(i%8))%500,healing:(n>>>(i%5))%97,kills:(n>>>i%3)%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
+const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],balanceId:m.balance?.id,combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map((id,i)=>({id,damage:(n>>>(i%8))%500,healing:(n>>>(i%5))%97,kills:(n>>>i%3)%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
 // Finish a draft: the user's slots take the scouts' choice, every other slot is the AI's.
 const finishDraft=w=>{let guard=0;while(!w.draft.complete){const team=L.onTheClock(w);if(team&&team===w.settings.userTeam)L.draftPick(w,L.coachChoice(w,L.teamById(w,team)).id);else L.draftPicks(w,1e6);assert(++guard<1000);}};
@@ -115,7 +115,7 @@ const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},
 const server=async body=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams',{method:'POST',headers:{'oai-authenticated-user-id':'coach','content-type':'application/json'},body:JSON.stringify(body)}),env);return {status:r.status,...await r.json()};};
 const pages=createStorage({SQL:await initSqlJs(),migrations,worker:pagesWorker,indexedDB,databaseName:'team-offseason-pages'});
 const local=async body=>{const r=await pages.fetch('/api/teams',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return {status:r.status,...await r.json()};};
-const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
+const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
 for(const [label,send]of [['server',server],['pages',local]]){
  let world=null,revision=0;const call=async body=>{const r=await send({format:3,revision,operationId:crypto.randomUUID(),...body});if(r.status===200)({world,revision}=r);return r;};
  const ok=async body=>{const r=await call(body);assert.equal(r.status,200,`${label} ${body.action}: ${r.error}`);return r;};

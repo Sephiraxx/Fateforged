@@ -11,7 +11,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','balance','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
@@ -22,7 +22,7 @@ async function teamApi(request,env,url){
   if(world)fail('This team league already exists. Refresh to continue it.',409);
   if(!UUID.test(input.worldId)||!Number.isSafeInteger(input.seed)||input.seed<0||input.seed>0xffffffff)fail('Invalid team league setup.');
   if(!Array.isArray(input.fighters)||input.fighters.length>400)fail('Invalid fighter pool.');
-  try{world=TEAM_LEAGUE.create({id:input.worldId,format,teams:input.teams,seed:input.seed,fighters:input.fighters.map(teamPoolFighter)});}catch(e){fail(e.message);}
+  try{world=TEAM_LEAGUE.create({id:input.worldId,format,teams:input.teams,seed:input.seed,fighters:input.fighters.map(teamPoolFighter),battleMode:input.battleMode});}catch(e){fail(e.message);}
  }else if(!world)fail('Create the team league first.',409);
  else if(input.action==='draft'){
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>1000)fail('Invalid number of draft picks.');
@@ -43,6 +43,7 @@ async function teamApi(request,env,url){
    else TEAM_LEAGUE.closeMarket(world);
   }catch(e){fail(e.message);}
  }
+ else if(input.action==='balance'){try{TEAM_LEAGUE.setAutoBalance(world,input.enabled);}catch(e){fail(e.message);}}
  else if(input.action==='seriesGame'){try{TEAM_LEAGUE.recordSeriesGame(world,input.matchId,input.game);}catch(e){fail(e.message);}}
  else if(input.action==='record'){
   // Simulated matches arrive in batches; each must be the next match and a complete, valid series.
@@ -62,5 +63,6 @@ function teamPoolFighter(input){
  if(!plain(input)||!UUID.test(input.id)||typeof input.name!=='string'||!input.name.trim()||input.name.length>100||!plain(input.traits))fail('Invalid pool fighter.');
  const {summary}=validateSnapshot({version:1,generationVersion:3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  if(IDS.some(key=>typeof input.traits[key]!=='string'))fail('Pool fighters need all fourteen traits.');
- return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:3,wheelRarity:summary.wheelRarity}};
+ if(input.teamKit!=null&&!TEAM_LEAGUE.teamKit(input.teamKit))fail('Unknown team kit.');
+ return {teamKit:input.teamKit??null,id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:3,wheelRarity:summary.wheelRarity}};
 }

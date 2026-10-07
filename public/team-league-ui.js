@@ -1,3 +1,4 @@
+import {teamKit} from './team-kits.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
 // Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
@@ -11,11 +12,11 @@ import {STAT_KEYS} from './trait-details.js';
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const money=n=>`${n.toFixed(1)}M`;
 const TACTIC_TEXT={balanced:['Balanced','Default target choice.'],'protect-carry':['Protect the carry','Peel harder for teammates under attack.'],'focus-healer':['Focus their healer','Prioritise enemy healers.'],aggressive:['All-out aggression','Chase wounded targets across the arena.'],defensive:['Hold the line','Fight near your own side instead of chasing.']};
-const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
+const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,unsavedGame=null;
+ let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,patchesOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
@@ -28,7 +29,7 @@ export function mountTeamLeague(host,hooks){
   return data;
  }
  const accept=data=>{world=data.world;revision=data.revision;};
- async function load(){try{accept(await api('GET'));render();}catch(e){say(e.message,true);}}
+ async function load(){const request=++loadRequest,format=size;try{const data=await api('GET');if(request!==loadRequest||format!==size)return;accept(data);render();}catch(e){say(e.message,true);}}
  // A command owns the busy state unless a longer run (simulation batches) already holds it.
  async function command(payload,inRun=false){
   if(busy&&!inRun)return;const owner=!busy;if(owner){busy=true;hooks.busy(true);render();}
@@ -36,14 +37,14 @@ export function mountTeamLeague(host,hooks){
   catch(e){if(e.status===409){await load();say(e.message,true);if(inRun)throw e;}else throw e;}
   finally{if(owner){busy=false;hooks.busy(false);}render();}
  }
- async function found(teams){
+ async function found(teams,battleMode='teamfight'){
   if(busy||hooks.blocked())return;busy=true;hooks.busy(true);render();
   try{
    const kit=await generator(),seed=crypto.getRandomValues(new Uint32Array(1))[0],plan=LEAGUE.poolPlan(size,teams,seed),fighters=[];
    // Generate in small chunks so the page keeps painting the scouting progress.
    for(let i=0;i<plan.length;i++){fighters.push(poolFighter(kit.pools,kit.luck,plan[i],i,seed,kit.name));if(i%6===5){say(`Scouting fighters… ${i+1} / ${plan.length}`);await new Promise(r=>setTimeout(r,0));}}
    say('Founding the league…');busy=false;
-   await command({action:'start',worldId:crypto.randomUUID(),teams,seed,fighters:fighters.map(wire)});
+   await command({action:'start',worldId:crypto.randomUUID(),teams,seed,battleMode,fighters:fighters.map(wire)});
    say(`${teams}-team ${size}v${size} league founded with ${plan.length} fighters. The coaches are ready to draft.`);
   }catch(e){say(e.message,true);}finally{busy=false;hooks.busy(false);render();}
  }
@@ -86,7 +87,7 @@ export function mountTeamLeague(host,hooks){
   try{
    while(m){
     const games=m.completedGames??[],plan=seriesGameOptions(m,games,choice),teams=plan.lineups.map(ids=>ids.map(id=>world.fighters[id])),label=m.kind==='regular'?`Week ${m.week}`:LEAGUE.ROUND_NAMES[m.round];
-    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,engineVersion:m.engineVersion,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
+    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,engineVersion:m.engineVersion,balance:m.balance,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
     unsavedGame={action:'seriesGame',format:size,revision,operationId:crypto.randomUUID(),matchId:m.id,game:{...compactTeamResult(result),...plan}};
     await saveWatchedGame();const partial=world.pendingSeries;
     if(!partial){say('Series complete and saved.');break;}
@@ -106,24 +107,30 @@ export function mountTeamLeague(host,hooks){
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
   const info=el('div');info.append(el('p',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]} · ${f.summary.tier} tier${rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${f.team?name(f.team):'Free agent'} · OVR ${delta(f)} · ${money(f.salary)} salary`,'muted'));head.append(info,close);
   const traits=el('dl','','fighter-traits');
-  for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
+  for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Team kit',teamKit(f.teamKit)?`${teamKit(f.teamKit).name} · ${teamKit(f.teamKit).description}`:'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
   const bars=el('div','','fighter-stats'),values=f.summary.stats??[],top=Math.max(800,...values);
   STAT_KEYS.forEach((key,i)=>{const row=el('div','','fighter-stat'),track=el('span','','fighter-stat-track'),fill=el('span');fill.style.width=Math.min(100,(values[i]??0)/top*100)+'%';track.append(fill);row.append(el('span',key),track,el('strong',String(values[i]??0)));bars.append(row);});
   bars.append(el('p',`Total ${f.summary.total} · rolls: ${[t.strength,t.speed,t.durability,t.iq,t.magic].filter(Boolean).join(' · ')}`,'muted'));
   const season=el('div','','fighter-season');
   if(stats?.games){for(const [label,value]of [['Games',stats.games],['Damage',stats.damage],['Healing',stats.healing],['KOs',stats.kills],['Downs',stats.deaths],['Control',`${stats.ccSeconds}s`],['Impact / game',Math.round(LEAGUE.impact(stats)/stats.games)]]){const cell=el('div','','offseason-fact');cell.append(el('strong',String(value)),el('span',label));season.append(cell);}}
   else season.append(el('p',`No games yet in season ${world.season}.`,'muted'));
-  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,traits:f.traits,summary:f.summary},'overview');};
+  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary},'overview');};
   dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${world.season}`),season,breakdown);dialog.showModal();
  }
  function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
  function check(label,checked=false){const box=el('input');box.type='checkbox';box.checked=checked;box.setAttribute('aria-label',label);return box;}
  function table(headers,rows,caption){const wrap=el('div','','table-scroll'),t=el('table','','team-league-table');if(caption)t.append(el('caption',caption));const head=el('thead'),hr=el('tr');for(const h of headers)hr.append(el('th',h));head.append(hr);const tb=el('tbody');tb.append(...rows);t.append(head,tb);wrap.append(t);return wrap;}
+ function renderPatches(){
+  const section=el('details','','module past-champions');section.open=patchesOpen;section.ontoggle=()=>{patchesOpen=section.open;};section.append(el('summary','League patches'));
+  const toggle=check('Automatic league balance',world.balance?.enabled!==false);toggle.disabled=busy;toggle.onchange=()=>command({action:'balance',enabled:toggle.checked}).catch(e=>say(e.message,true));const label=el('label','Automatic league balance');label.prepend(toggle);section.append(label,el('p','Changes are considered at halfway and in the offseason. Turning this off keeps the current patch.','muted'));
+  if(!['team-2.3','team-3-core','team-3'].includes(world.teamEngine))section.append(el('p','Automatic patches begin when the next season starts.','muted'));const history=world.balance?.history??[];if(!history.length)section.append(el('p','Base rules · no league patches yet.','muted'));for(const p of [...history].reverse()){section.append(el('h4',`Season ${p.season} · ${p.phase==='halfway'?'Midseason':'Offseason'}`));for(const c of p.changes)section.append(el('p',c.note,'muted'));}body.append(section);
+ }
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');
   card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of S and A tier fighters (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
-  for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
+  const rules=el('select'),rulesLabel=el('label','Battle rules');rules.setAttribute('aria-label','League battle rules');for(const [value,text]of [['teamfight','Team battle'],...(size===2?[]:[['core','Core siege (preview)']])]){const o=el('option',text);o.value=value;rules.append(o);}rules.value='teamfight';rules.disabled=busy;rulesLabel.append(rules);card.append(rulesLabel);
+  for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams,rules.value);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
   card.append(pick);body.append(card);
  }
  function teamCard(team){
@@ -325,9 +332,9 @@ export function mountTeamLeague(host,hooks){
   if(!world){renderSetup();return;}
   const phaseLabel={draft:'Draft day',ready:'Rosters set',season:'Regular season',playoffs:'Playoffs',complete:'Season complete',offseason:'Offseason'}[world.phase];
   const head=el('div','','team-league-head'),info=el('div');info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3',phaseLabel));
-  const meta=el('p',`Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
+  const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
-  const side=el('div','','team-league-side');side.append(coachControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);champions.append(wins.length?table(['Season','Team'],wins.map(t=>{const row=el('tr');row.append(el('td',String(t.season)),el('td',t.championName??name(t.champion)));return row;})):el('p','No champions yet.','muted'));body.append(champions);
+  const side=el('div','','team-league-side');side.append(coachControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);champions.append(wins.length?table(['Season','Team'],wins.map(t=>{const row=el('tr');row.append(el('td',String(t.season)),el('td',t.championName??name(t.champion)));return row;})):el('p','No champions yet.','muted'));body.append(champions);renderPatches();
   if(world.phase==='draft'){renderDraft();renderTeams();return;}
   if(world.phase==='offseason'){renderOffseason();renderTeams();return;}
   const season=el('section','','team-draft');season.append(seasonActions());
@@ -342,5 +349,5 @@ export function mountTeamLeague(host,hooks){
   const recap=el('details','','module draft-recap');recap.open=recapOpen;recap.ontoggle=()=>{recapOpen=recap.open;};recap.append(el('summary','Draft recap & free agents'));const holder=body;const before=body.childNodes.length;renderDraft();const draftPanel=body.lastChild;if(body.childNodes.length>before){recap.append(draftPanel);holder.append(recap);}
   renderTeams();
  }
- return {show(next){if(next!==size){size=next;world=null;selected=null;weekView=null;poolRole='all';historyOpen=false;say('');}load();}};
+ return {show(next){if(next!==size){size=next;world=null;selected=null;weekView=null;poolRole='all';historyOpen=false;patchesOpen=false;say('');}load();}};
 }
