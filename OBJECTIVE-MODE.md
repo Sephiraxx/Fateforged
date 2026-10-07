@@ -1,8 +1,8 @@
-> Phase 1 is implemented as the Core siege preview for 3v3/5v5 exhibitions and new leagues. Existing leagues keep their rules. Phase 2 adds the Titan next; the full brain and default replacement remain separate future phases.
+> Phases 1 and 2 are implemented as the Core siege preview for 3v3/5v5 exhibitions and new leagues. New preview seasons include Forge Titan and Forgefire; older active Core seasons retain their original engine. The full brain and default replacement remain separate future phases. Measured early-phase balance limitations are recorded in TEAM-BATTLES.md.
 
 # Objective mode (design)
 
-This is the design for the next team mode: matches with Cores to destroy and a contested monster. It **replaces** today's teamfight mode for 3v3 and 5v5, in exhibitions and leagues. Nothing here is built yet. The sections below are the spec, and each phase ends with the checks that prove it works, so it can be built one PR at a time.
+This is the design for the next team mode: matches with Cores to destroy and a contested monster. It **replaces** today's teamfight mode for 3v3 and 5v5, in exhibitions and leagues. The first two phases are playable; the later sections remain the design for future phases. The sections below are the spec, and each phase ends with the checks that prove it works, so it can be built one PR at a time.
 
 ## Decisions
 - **Win condition: destroy the enemy Core.** It gives teams a reason to fight, push and defend.
