@@ -138,32 +138,37 @@ AI coaches play their personality's tactic (see phase 4). Coach mode lets you pi
 
 Isolated fighting is less than half what it was, 2v1s are rarer, and healers almost always cover their tanks.
 
-Re-measured after melee-only tanks and the 2v2 format.
+Re-measured after melee-only tanks, the 2v2 format and a tighter tank leash (tanks stay within their posture's leash + 20 of their back line).
+
+| Balanced mirror | Isolated | Outnumbered | Spread | Healer cover |
+| --- | ---: | ---: | ---: | ---: |
+| 3v3, engine 2 now | 13.8% | 9.7% | 57 | 99.8% |
+| 5v5, engine 2 now | 6.7% | 12.2% | 65 | 99.3% |
 
 | Matchup (40 games, alternating sides) | Win rate (first team) | Time limit | Average length |
 | --- | ---: | ---: | ---: |
-| 2v2 tank + damage vs 2 damage | 62.5% | 5% | 52 s |
+| 2v2 tank + damage vs 2 damage | 57.5% | 5% | 57 s |
 | 2v2 healer + damage vs 2 damage | 62.5% | 5% | 59 s |
-| 2v2 mirror (tank + damage) | 45% | 0% | 51 s |
-| Tank + healer + damage vs 3 damage | 85% | 2.5% | 52 s |
-| Tank + 2 damage vs 3 damage | 70% | 0% | 55 s |
+| 2v2 mirror (tank + damage) | 45% | 5% | 59 s |
+| Tank + healer + damage vs 3 damage | 82.5% | 0% | 64 s |
+| Tank + 2 damage vs 3 damage | 65% | 0% | 56 s |
 | Healer + 2 damage vs 3 damage | 77.5% | 0% | 60 s |
-| Tank + controller + damage vs 3 damage | 72.5% | 0% | 49 s |
-| Balanced 3v3 mirror | 52.5% | 10% | 71 s |
-| Balanced 5v5 vs 5 damage | 85% | 2.5% | 50 s |
-| Balanced 5v5 mirror | 45% | 0% | 55 s |
+| Tank + controller + damage vs 3 damage | 65% | 0% | 54 s |
+| Balanced 3v3 mirror | 60% | 12.5% | 77 s |
+| Balanced 5v5 vs 5 damage | 80% | 2.5% | 56 s |
+| Balanced 5v5 mirror | 55% | 2.5% | 59 s |
 
 Each tactic against a balanced team (24 games each):
 
 | Tactic | 2v2 win | 3v3 win | 3v3 spread | 5v5 win | 5v5 spread |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Hold the line | 37.5% | 50% | 57 | 62.5% | 65 |
-| Protect the carry | 45.8% | 45.8% | 58 | 58.3% | 64 |
-| Balanced | 41.7% | 50% | 62 | 50% | 69 |
-| Focus their healer | 25% | 50% | 61 | 62.5% | 68 |
-| All-out aggression | 37.5% | 58.3% | 62 | 54.2% | 68 |
+| Hold the line | 25% | 54.2% | 53 | 58.3% | 62 |
+| Protect the carry | 41.7% | 33.3% | 53 | 62.5% | 59 |
+| Balanced | 37.5% | 58.3% | 56 | 62.5% | 66 |
+| Focus their healer | 37.5% | 50% | 60 | 45.8% | 65 |
+| All-out aggression | 45.8% | 62.5% | 60 | 66.7% | 65 |
 
-No tactic dominates in 3v3 or 5v5. In 2v2, Focus their healer is weak (25%), because the tank + damage test squads have no healer to focus. Hold the line keeps the tightest shape. Every map stays under 21% time limits (Stone groves is the slowest at 78 s on average), and battles run in about 40–400 ms in node.
+No tactic dominates in 3v3 or 5v5. In 2v2 the cautious postures are weak (Hold the line wins 25%): with only two fighters, waiting simply gives the other side the first hit. Hold the line keeps the tightest shape. Every map stays under 21% time limits (Crossroads is the slowest at 86 s on average), and battles run in about 40–500 ms in node.
 
 `scripts/check-team-combat.mjs` enforces:
 - the damage generation mix;

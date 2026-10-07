@@ -27,6 +27,7 @@ body[data-mode="fight"]{--accent:var(--cyan)}
 body[data-mode="cups"]{--accent:var(--violet)}
 body[data-mode="leagues"]{--accent:var(--lime)}
 body[data-mode="champions"]{--accent:var(--gold)}
+body[data-mode="team2"]{--accent:var(--teal)}
 body[data-mode="team3"]{--accent:var(--magenta)}
 body[data-mode="team5"]{--accent:var(--orange)}
 
@@ -198,6 +199,7 @@ tbody tr:hover td{background:color-mix(in srgb,var(--accent) 6%,transparent)}
 .rail-item[data-nav="cups"]{--hue:var(--violet)}
 .rail-item[data-nav="leagues"]{--hue:var(--lime)}
 .rail-item[data-nav="champions"]{--hue:var(--gold)}
+.rail-item[data-nav="team2"]{--hue:var(--teal)}
 .rail-item[data-nav="team3"]{--hue:var(--magenta)}
 .rail-item[data-nav="team5"]{--hue:var(--orange)}
 .rail-item[aria-current="page"],.rail-item[aria-selected="true"]{color:var(--hue);border-left-color:var(--hue);background:linear-gradient(90deg,color-mix(in srgb,var(--hue) 16%,transparent),transparent)}

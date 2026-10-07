@@ -1,8 +1,8 @@
 // App shell: keeps the rail, screen title, URL hash and help drawer in step with the page.
 (function(){
  const body=document.body,$=id=>document.getElementById(id);
- const TITLES={forge:'Forge',roster:'Roster',fight:'Fight',cups:'Cups',leagues:'Leagues',champions:'Champions',team3:'3v3',team5:'5v5'};
- const TABS={fight:'duel-tab',cups:'tourney-tab',leagues:'league-tab',champions:'history-tab',team3:'team3-tab',team5:'team5-tab'};
+ const TITLES={forge:'Forge',roster:'Roster',fight:'Fight',cups:'Cups',leagues:'Leagues',champions:'Champions',team2:'2v2',team3:'3v3',team5:'5v5'};
+ const TABS={fight:'duel-tab',cups:'tourney-tab',leagues:'league-tab',champions:'history-tab',team2:'team2-tab',team3:'team3-tab',team5:'team5-tab'};
  const setTitle=mode=>{const t=$('screen-title');if(t&&TITLES[mode])t.textContent=TITLES[mode];};
  const rosters=['collection','arena-collection'].map($).filter(Boolean),rosterOpen=()=>rosters.some(d=>d.open);
  const pageMode=body.dataset.mode;

@@ -1,4 +1,4 @@
-// 3v3 / 5v5 exhibition: build two teams from saved fighters or generated S/A squads, then watch or simulate.
+// 2v2 / 3v3 / 5v5 exhibition: build two teams from saved fighters or generated S/A squads, then watch or simulate.
 import {ROLE_LABELS,teamRole} from './team-roles.js';
 import {randomTeam} from './team-generation.js';
 import {TEAM_TACTICS,simulateTeam} from './combat-team.js';
