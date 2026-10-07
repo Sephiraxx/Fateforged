@@ -1,5 +1,6 @@
 import {fighterProfile,REWIND_HEALTH_RECOVERY,REWIND_MANA_RECOVERY} from './combat.js';
 import {powerFor,weaponProperties,WEAKNESSES} from './abilities-v12.js';
+import {teamKit} from './team-kits.js';
 
 export const STAT_KEYS=['STR','SPD','DUR','IQ','MAG'];
 export function traitContributions(state){
@@ -16,6 +17,43 @@ export function traitContributions(state){
 const n=v=>Number(v.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2}),pct=v=>n(v*100)+'%',seconds=v=>n(v)+' s',damage=v=>n(v)+' DMG',units=v=>n(v)+' units';
 const NEW_IDS=new Set(['ember','frostTouch','kinetic','venom','silence','mirror','chainLightning','phoenix','rewind','singularity']);
 const STAT_NAMES={STR:'Strength',SPD:'Speed',DUR:'Durability',IQ:'Intellect',MAG:'Magic'};
+const ROLL_KEYS=['strength','speed','durability','iq','magic'];
+const article=word=>/^[aeiou]/i.test(word)?'an ':'a ';
+export function buildCharacterOverview(character){
+ const f=fighterProfile(character),t=f.traits,name=character.name||'This fighter';
+ const lineage=[t.subrace,t.race].filter(Boolean).join(' ')||'fighter',vocation=t.subclass||t.class;
+ const abilities=[t.power,t.power2].filter(value=>powerFor(value,character));
+ const kit=teamKit(character.teamKit),total=f.stats.reduce((sum,value)=>sum+value,0);
+ const equipment=f.weapon.name==='Bare hands'?'bare hands':article(f.weapon.name)+f.weapon.name;
+ const description=`${name} is ${article(lineage)}${lineage}${vocation?`, trained as ${article(vocation)}${vocation}`:''}. They fight ${f.weapon.type==='melee'?'at close range':'from range'} with ${equipment}.`;
+ const identity=[
+  {label:'Race',value:[t.race,t.subrace].filter(Boolean).join(' · ')||'Unrolled'},
+  {label:'Class',value:[t.class,t.subclass].filter(Boolean).join(' · ')||'Unrolled'},
+  {label:'Weapon',value:f.weapon.name},
+  {label:'Combat mastery',value:t.mastery||'Unrolled'},
+  {label:'Abilities',value:abilities.join(' · ')||'None'},
+  {label:'Weakness',value:t.weakness||'None'}
+ ];
+ if(kit)identity.push({label:'Team kit',value:kit.name,formula:kit.description});
+ const stats=STAT_KEYS.map((key,i)=>({label:key,name:STAT_NAMES[key],value:f.stats[i]??0,roll:t[ROLL_KEYS[i]]||'Unrolled',growth:character.summary?.growth?.bonus?.[i]||0}));
+ const combat=[
+  {label:'Maximum health',value:n(f.maxHp)+' HP'},
+  {label:'Weapon hit',value:damage(f.damage+(f.weapon.type==='arcane'?f.spell*.05:0))},
+  {label:'Weapon interval',value:seconds(f.interval)},
+  {label:'Movement',value:units(f.move)+'/s'},
+  {label:'Physical reduction',value:pct(f.armor)},
+  {label:'Dodge',value:pct(f.dodge)},
+  {label:'Accuracy',value:pct(f.accuracy)},
+  {label:'Critical chance',value:pct(f.crit)},
+  {label:'Spell strength',value:n(f.spell)},
+  {label:'Maximum mana',value:n(f.maxMana)}
+ ];
+ return {description,total,tier:character.summary?.tier,role:character.role,sections:[
+  {title:'Attributes',kind:'stats',rows:stats},
+  {title:'Identity',rows:identity},
+  {title:'Base combat',hint:'Starting values before temporary effects and league patches. Weapon damage is before enemy defenses.',rows:combat}
+ ]};
+}
 export function buildTraitDetails(character,key,options={}){
  const f=fighterProfile(character),traits=f.traits,statIndex=STAT_KEYS.indexOf(key),name=statIndex<0?traits[key]:STAT_NAMES[key];
  const rows=[],notes=[],add=(label,value,formula='')=>rows.push({label,value,formula});
