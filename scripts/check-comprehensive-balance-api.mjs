@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
+import initSqlJs from 'sql.js';
+import {indexedDB} from 'fake-indexeddb';
+import {generation} from './team-fixtures.mjs';
+import * as L from '../public/team-league.js';
+import {completeAudit} from './balance-fixtures.mjs';
+import worker from '../dist/server/index.js';
+import pagesWorker from '../_site/local-api.js';
+import migrations from '../_site/local-schema.js';
+import {createStorage} from '../_site/sqlite-store.js';
+
+const seed=616,slots=L.poolPlan(2,8,seed),world=L.create({id:crypto.randomUUID(),format:2,teams:8,seed,fighters:slots.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`API ${i}`))});L.draftPicks(world,1e6);
+const response=(teams,seed,options,key)=>{if(!['role:tank','role:controller'].includes(key))return {winnerTeam:seed%2,hp:seed%2?[0,50]:[50,0]};const role=key.split(':')[1],side=teams.findIndex(t=>t[0].role===role),buff=(options.balance.multipliers[role==='tank'?'role:tank:health':'role:controller:control']??1)>1;return {winnerTeam:1-side,hp:side===0?[0,buff?50:60]:[buff?50:60,0]};};
+const {report}=completeAudit(world,'preseason',response,['role:tank','role:controller']);assert(report.bundles.length,'A positive combined report is required for the integration check.');
+const db=new DatabaseSync(':memory:');for(const sql of migrations)db.exec(sql);db.prepare('INSERT INTO team_worlds(owner_id,format,revision,last_operation,state_json,updated_at) VALUES(?,?,?,?,?,?)').run('owner',2,0,'initial',JSON.stringify(world),1);
+const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},first:async()=>db.prepare(sql).get(...args)||null,all:async()=>({results:db.prepare(sql).all(...args)}),run:async()=>({meta:{changes:Number(db.prepare(sql).run(...args).changes)}})};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}}};
+const call=async body=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams',{method:'POST',headers:{'oai-authenticated-user-id':'owner','content-type':'application/json'},body:JSON.stringify(body)}),env);return {status:r.status,...await r.json()};};
+const body={format:2,action:'startSeason',revision:0,operationId:crypto.randomUUID(),audit:report},before=db.prepare('SELECT state_json FROM team_worlds').get().state_json;
+const incomplete={...report,bundles:[]};assert.equal((await call({...body,operationId:crypto.randomUUID(),audit:incomplete})).status,400);assert.equal(db.prepare('SELECT state_json FROM team_worlds').get().state_json,before,'An incomplete combined audit cannot edit the save.');
+const forged=structuredClone(report);forged.bundles[0].profileToken='foreign';assert.equal((await call({...body,operationId:crypto.randomUUID(),audit:forged})).status,400);
+const result=await call(body);assert.equal(result.status,200,result.error);assert(result.world.balance.history[0].changes.length>=1);assert.equal(result.world.teamEngine,'team-2.6');assert.equal(result.world.balance.rulesVersion,3);assert.deepEqual((await call(body)).world,result.world,'A repeated save cannot apply the patch twice.');
+const SQL=await initSqlJs(),local=new SQL.Database();for(const sql of migrations)local.run(sql);local.run('PRAGMA application_id=0x46415445');local.run(`PRAGMA user_version=${migrations.length}`);local.run('INSERT INTO team_worlds(owner_id,format,revision,last_operation,state_json,updated_at) VALUES(?,?,?,?,?,?)',['local',2,0,'initial',JSON.stringify(world),1]);
+const storage=createStorage({SQL,migrations,worker:pagesWorker,indexedDB,databaseName:'comprehensive-api-'+crypto.randomUUID()});await storage.importBackup(local.export());
+const pageResponse=await storage.fetch('/api/teams',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),pageResult=await pageResponse.json();assert.equal(pageResponse.status,200,pageResult.error);assert.deepEqual(pageResult.world.balance.profile,result.world.balance.profile);assert.equal(pageResult.world.balance.history.length,1);
+const backup=await storage.exportBackup(),reopened=createStorage({SQL,migrations,worker:pagesWorker,indexedDB,databaseName:'comprehensive-reload-'+crypto.randomUUID()});await reopened.importBackup(backup);const reload=await(await reopened.fetch('/api/teams?format=2')).json();assert.deepEqual(reload.world.balance.history,pageResult.world.balance.history);assert.equal(reload.world.teamEngine,'team-2.6');
+console.log('Comprehensive audit API: positive combined patch, rejected missing/foreign combined validation, unchanged failed-save state, revision/idempotent retry, Worker/Pages agreement and browser backup/reload passed.');

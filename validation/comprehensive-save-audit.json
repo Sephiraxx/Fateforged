@@ -1,0 +1,2822 @@
+{
+  "auditVersion": 3,
+  "sourceSha256": "76188c73e31d9db43e03ffa230597316bc87a80a6b428bbcf68670e4b5a578fe",
+  "season": 4,
+  "previousSeasonRoleRates": [
+    {
+      "key": "role:healer",
+      "games": 65,
+      "wins": 38,
+      "rate": 0.5846153846153846
+    },
+    {
+      "key": "role:damage",
+      "games": 71,
+      "wins": 44,
+      "rate": 0.6197183098591549
+    },
+    {
+      "key": "role:controller",
+      "games": 41,
+      "wins": 15,
+      "rate": 0.36585365853658536
+    },
+    {
+      "key": "role:tank",
+      "games": 49,
+      "wins": 8,
+      "rate": 0.16326530612244897
+    }
+  ],
+  "coverage": {
+    "candidates": 82,
+    "abilities": 55,
+    "stats": 5,
+    "roles": 4,
+    "compositions": 4,
+    "weapons": 3,
+    "focused": 11
+  },
+  "newCandidates": [
+    "role:tank",
+    "ability:tauntShout",
+    "ability:spirits",
+    "weapon:melee",
+    "ability:aimedShot",
+    "weapon:arcane",
+    "ability:guard",
+    "role:damage",
+    "within:damage:stat:DUR",
+    "within:damage:stat:IQ",
+    "within:damage:stat:MAG",
+    "within:damage:stat:SPD",
+    "within:damage:stat:STR",
+    "within:tank:stat:DUR",
+    "within:tank:stat:IQ",
+    "within:tank:stat:MAG",
+    "within:tank:stat:SPD",
+    "within:tank:stat:STR",
+    "within:tank:ability:charge",
+    "ability:fire",
+    "ability:crystal",
+    "ability:secondWind",
+    "stat:MAG",
+    "ability:barrier",
+    "ability:knockUp",
+    "ability:regeneration",
+    "role:controller",
+    "ability:healing",
+    "ability:ember",
+    "ability:chainHeal",
+    "ability:teleport",
+    "role:healer",
+    "stat:STR",
+    "ability:time",
+    "ability:storm",
+    "ability:mirror",
+    "stat:DUR",
+    "ability:mendingWave",
+    "stat:IQ",
+    "ability:sound",
+    "weapon:ranged",
+    "ability:gravity",
+    "ability:disarmShot",
+    "stat:SPD",
+    "ability:light",
+    "ability:spiritArmor",
+    "ability:flight",
+    "ability:silence",
+    "ability:singularity",
+    "ability:parry",
+    "role:damage:count:2",
+    "ability:frostTouch",
+    "ability:cripplingStrike",
+    "ability:charge",
+    "ability:size",
+    "ability:portal",
+    "ability:dream",
+    "role:healer:count:2",
+    "ability:illusion",
+    "ability:lava",
+    "ability:memory",
+    "ability:metal",
+    "ability:soul",
+    "ability:perfectCounter",
+    "ability:life",
+    "ability:copy",
+    "role:controller:count:2",
+    "ability:future",
+    "role:tank:count:2",
+    "ability:absorption",
+    "ability:kinetic",
+    "ability:invisible",
+    "ability:cleave",
+    "ability:stunBolt",
+    "ability:beast",
+    "ability:cleanse",
+    "ability:force",
+    "ability:hamstring",
+    "ability:mind",
+    "ability:reality",
+    "ability:telekinesis",
+    "ability:thornBolt"
+  ],
+  "changes": [],
+  "diagnostics": [
+    {
+      "key": "role:tank",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 10.5,
+      "validationWins": 10,
+      "feedback": [
+        {
+          "key": "role:tank",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 10,
+          "patchedWins": 9.5,
+          "validationMargin": -0.22169642857142854,
+          "patchedMargin": -0.23535714285714282,
+          "field": "value",
+          "marginMean": -0.013660714285714295
+        }
+      ],
+      "controls": 22,
+      "carriers": 10,
+      "note": "The tested adjustments did not repeat or clearly improve the comparison.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:tauntShout",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 13.5,
+      "validationWins": 13.5,
+      "feedback": [],
+      "controls": 10,
+      "carriers": 9,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 3,
+          "share": 0.23076923076923078,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 4,
+          "share": 0.25,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 11,
+          "share": 0.1746031746031746,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:tauntShout",
+        "games": 65,
+        "wins": 16,
+        "rate": 0.24615384615384617
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:spirits",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 15.5,
+      "validationWins": 16.5,
+      "feedback": [
+        {
+          "key": "ability:spirits",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 16.5,
+          "patchedWins": 16.5,
+          "validationMargin": 0.13517857142857143,
+          "patchedMargin": 0.13044642857142857,
+          "field": "duration",
+          "marginMean": -0.004732142857142851
+        },
+        {
+          "key": "ability:spirits",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 16.5,
+          "patchedWins": 17.5,
+          "validationMargin": 0.13517857142857143,
+          "patchedMargin": 0.18616071428571432,
+          "field": "cooldown",
+          "marginMean": 0.050982142857142865
+        }
+      ],
+      "controls": 5,
+      "carriers": 2,
+      "note": "The tested adjustments did not repeat or clearly improve the comparison.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:spirits",
+        "games": 30,
+        "wins": 27,
+        "rate": 0.9
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "weapon:melee",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 11.5,
+      "validationWins": 12.5,
+      "feedback": [
+        {
+          "key": "weapon:melee",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 12.5,
+          "patchedWins": 11.5,
+          "validationMargin": -0.09169642857142857,
+          "patchedMargin": -0.136875,
+          "field": "value",
+          "marginMean": -0.045178571428571436
+        }
+      ],
+      "controls": 17,
+      "carriers": 15,
+      "note": "The tested adjustments did not repeat or clearly improve the comparison.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 12,
+          "share": 0.3333333333333333,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 2,
+          "share": 0.125,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "weapon:melee",
+        "games": 75,
+        "wins": 22,
+        "rate": 0.29333333333333333
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:aimedShot",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 13,
+      "validationWins": 13,
+      "feedback": [],
+      "controls": 11,
+      "carriers": 10,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 16,
+          "share": 0.25396825396825395,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:aimedShot",
+        "games": 67,
+        "wins": 45,
+        "rate": 0.6716417910447762
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "weapon:arcane",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 15,
+      "validationWins": 15,
+      "feedback": [],
+      "controls": 15,
+      "carriers": 21,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 24,
+          "share": 0.6666666666666666,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 14,
+          "share": 0.875,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 20,
+          "share": 0.31746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "weapon:arcane",
+        "games": 87,
+        "wins": 54,
+        "rate": 0.6206896551724138
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:guard",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 10,
+          "share": 0.15873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:guard",
+        "games": 46,
+        "wins": 32,
+        "rate": 0.6956521739130435
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:damage",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 6.5,
+      "validationWins": 6.5,
+      "feedback": [],
+      "controls": 19,
+      "carriers": 22,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "within:damage:stat:DUR",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 12.5,
+      "validationWins": 12.5,
+      "feedback": [],
+      "controls": 18,
+      "carriers": 21,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:damage:stat:IQ",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 10.5,
+      "validationWins": 10.5,
+      "feedback": [],
+      "controls": 22,
+      "carriers": 25,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:damage:stat:MAG",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 8.5,
+      "validationWins": 8.5,
+      "feedback": [],
+      "controls": 19,
+      "carriers": 24,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:damage:stat:SPD",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 9.5,
+      "validationWins": 9.5,
+      "feedback": [],
+      "controls": 18,
+      "carriers": 20,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:damage:stat:STR",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 11,
+      "validationWins": 11,
+      "feedback": [],
+      "controls": 17,
+      "carriers": 22,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:damage",
+        "games": 71,
+        "wins": 44,
+        "rate": 0.6197183098591549
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:tank:stat:DUR",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 9.5,
+      "validationWins": 11,
+      "feedback": [
+        {
+          "key": "within:tank:stat:DUR",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 11,
+          "patchedWins": 12.5,
+          "validationMargin": -0.17928571428571427,
+          "patchedMargin": -0.11964285714285716,
+          "field": "value",
+          "marginMean": 0.059642857142857164
+        }
+      ],
+      "controls": 20,
+      "carriers": 11,
+      "note": "The combined patch did not confirm this adjustment; held for assessment.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": {
+        "lever": "role:tank:stat:DUR",
+        "from": 1,
+        "to": 1.1,
+        "key": "within:tank:stat:DUR",
+        "field": "value",
+        "games": 56,
+        "winRate": 33.9,
+        "direction": 1,
+        "priority": 83.8073549220576,
+        "note": "Tank DUR effective stat +10% (39% → 45% in individual validation)"
+      }
+    },
+    {
+      "key": "within:tank:stat:IQ",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 13,
+      "validationWins": 13,
+      "feedback": [],
+      "controls": 25,
+      "carriers": 11,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:tank:stat:MAG",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 10,
+      "validationWins": 9.5,
+      "feedback": [
+        {
+          "key": "within:tank:stat:MAG",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 9.5,
+          "patchedWins": 10.5,
+          "validationMargin": -0.2695535714285714,
+          "patchedMargin": -0.21321428571428572,
+          "field": "value",
+          "marginMean": 0.0563392857142857
+        }
+      ],
+      "controls": 19,
+      "carriers": 12,
+      "note": "The combined patch did not confirm this adjustment; held for assessment.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": {
+        "lever": "role:tank:stat:MAG",
+        "from": 1,
+        "to": 1.1,
+        "key": "within:tank:stat:MAG",
+        "field": "value",
+        "games": 56,
+        "winRate": 35.7,
+        "direction": 1,
+        "priority": 83.8073549220576,
+        "note": "Tank MAG effective stat +10% (34% → 38% in individual validation)"
+      }
+    },
+    {
+      "key": "within:tank:stat:SPD",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 17,
+      "validationWins": 17,
+      "feedback": [],
+      "controls": 21,
+      "carriers": 12,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "within:tank:stat:STR",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 11,
+      "validationWins": 9,
+      "feedback": [
+        {
+          "key": "within:tank:stat:STR",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 9,
+          "patchedWins": 13,
+          "validationMargin": -0.2688392857142858,
+          "patchedMargin": -0.07919642857142858,
+          "field": "value",
+          "marginMean": 0.18964285714285717
+        }
+      ],
+      "controls": 23,
+      "carriers": 12,
+      "note": "The combined patch did not confirm this adjustment; held for assessment.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": {
+        "lever": "role:tank:stat:STR",
+        "from": 1,
+        "to": 1.1,
+        "key": "within:tank:stat:STR",
+        "field": "value",
+        "games": 56,
+        "winRate": 39.3,
+        "direction": 1,
+        "priority": 83.8073549220576,
+        "note": "Tank STR effective stat +10% (32% → 46% in individual validation)"
+      }
+    },
+    {
+      "key": "within:tank:ability:charge",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 13,
+      "validationWins": 13,
+      "feedback": [],
+      "controls": 18,
+      "carriers": 5,
+      "note": "Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 5,
+          "share": 0.38461538461538464,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": {
+        "key": "role:tank",
+        "games": 49,
+        "wins": 8,
+        "rate": 0.16326530612244897
+      },
+      "method": "role-intervention",
+      "change": null
+    },
+    {
+      "key": "ability:fire",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 7,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:fire",
+        "games": 18,
+        "wins": 17,
+        "rate": 0.9444444444444444
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:crystal",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 7,
+      "carriers": 4,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:crystal",
+        "games": 22,
+        "wins": 4,
+        "rate": 0.18181818181818182
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:secondWind",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 1,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 2,
+          "share": 0.15384615384615385,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:secondWind",
+        "games": 26,
+        "wins": 6,
+        "rate": 0.23076923076923078
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "stat:MAG",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 10,
+      "validationWins": 10,
+      "feedback": [],
+      "controls": 28,
+      "carriers": 25,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "stat:MAG",
+        "games": 22,
+        "wins": 7,
+        "rate": 0.3181818181818182
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:barrier",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3,
+      "controls": 6,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:barrier",
+        "games": 14,
+        "wins": 2,
+        "rate": 0.14285714285714285
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:knockUp",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 5,
+      "carriers": 4,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 4,
+          "share": 0.3076923076923077,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:knockUp",
+        "games": 8,
+        "wins": 1,
+        "rate": 0.125
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:regeneration",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 7,
+      "carriers": 6,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 11,
+          "share": 0.3055555555555556,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:regeneration",
+        "games": 51,
+        "wins": 19,
+        "rate": 0.37254901960784315
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:controller",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 19,
+      "validationWins": 19,
+      "feedback": [],
+      "controls": 21,
+      "carriers": 12,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "role:controller",
+        "games": 41,
+        "wins": 15,
+        "rate": 0.36585365853658536
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:healing",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 7,
+      "carriers": 5,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 9,
+          "share": 0.25,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:healing",
+        "games": 87,
+        "wins": 52,
+        "rate": 0.5977011494252874
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:ember",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3,
+      "controls": 4,
+      "carriers": 4,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:ember",
+        "games": 16,
+        "wins": 4,
+        "rate": 0.25
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:chainHeal",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 2,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 3,
+          "share": 0.08333333333333333,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:chainHeal",
+        "games": 24,
+        "wins": 17,
+        "rate": 0.7083333333333334
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:teleport",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 5,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:teleport",
+        "games": 8,
+        "wins": 1,
+        "rate": 0.125
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:healer",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 13,
+      "validationWins": 13,
+      "feedback": [],
+      "controls": 22,
+      "carriers": 21,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "role:healer",
+        "games": 65,
+        "wins": 38,
+        "rate": 0.5846153846153846
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "stat:STR",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 16,
+      "validationWins": 16,
+      "feedback": [],
+      "controls": 27,
+      "carriers": 24,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "stat:STR",
+        "games": 76,
+        "wins": 42,
+        "rate": 0.5526315789473685
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:time",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 5,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 4,
+          "share": 0.25,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:time",
+        "games": 25,
+        "wins": 8,
+        "rate": 0.32
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:storm",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 5,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:storm",
+        "games": 26,
+        "wins": 18,
+        "rate": 0.6923076923076923
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:mirror",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 5,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:mirror",
+        "games": 34,
+        "wins": 22,
+        "rate": 0.6470588235294118
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "stat:DUR",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 15.5,
+      "validationWins": 15.5,
+      "feedback": [],
+      "controls": 28,
+      "carriers": 26,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "stat:DUR",
+        "games": 57,
+        "wins": 26,
+        "rate": 0.45614035087719296
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:mendingWave",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 5,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 8,
+          "share": 0.2222222222222222,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:mendingWave",
+        "games": 41,
+        "wins": 16,
+        "rate": 0.3902439024390244
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "stat:IQ",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 16.5,
+      "validationWins": 16.5,
+      "feedback": [],
+      "controls": 26,
+      "carriers": 27,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "stat:IQ",
+        "games": 35,
+        "wins": 16,
+        "rate": 0.45714285714285713
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:sound",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 8,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 3,
+          "share": 0.1875,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:sound",
+        "games": 16,
+        "wins": 5,
+        "rate": 0.3125
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "weapon:ranged",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 5.5,
+      "controls": 6,
+      "carriers": 7,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 41,
+          "share": 0.6507936507936508,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "weapon:ranged",
+        "games": 85,
+        "wins": 46,
+        "rate": 0.5411764705882353
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:gravity",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 1,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:gravity",
+        "games": 8,
+        "wins": 6,
+        "rate": 0.75
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:disarmShot",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 12,
+      "validationWins": 12,
+      "feedback": [],
+      "controls": 10,
+      "carriers": 10,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 15,
+          "share": 0.23809523809523808,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:disarmShot",
+        "games": 61,
+        "wins": 34,
+        "rate": 0.5573770491803278
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "stat:SPD",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 14,
+      "validationWins": 14,
+      "feedback": [],
+      "controls": 26,
+      "carriers": 26,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "stat:SPD",
+        "games": 70,
+        "wins": 34,
+        "rate": 0.4857142857142857
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:light",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3,
+      "controls": 6,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 3,
+          "share": 0.08333333333333333,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:light",
+        "games": 12,
+        "wins": 8,
+        "rate": 0.6666666666666666
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:spiritArmor",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 4,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 3,
+          "share": 0.047619047619047616,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:spiritArmor",
+        "games": 12,
+        "wins": 8,
+        "rate": 0.6666666666666666
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:flight",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:flight",
+        "games": 8,
+        "wins": 6,
+        "rate": 0.75
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:silence",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 1.5,
+      "controls": 3,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:silence",
+        "games": 8,
+        "wins": 6,
+        "rate": 0.75
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:singularity",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 7,
+      "controls": 3,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:singularity",
+        "games": 8,
+        "wins": 2,
+        "rate": 0.25
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:parry",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4.5,
+      "controls": 6,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 3,
+          "share": 0.23076923076923078,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:parry",
+        "games": 21,
+        "wins": 8,
+        "rate": 0.38095238095238093
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:damage:count:2",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 9.5,
+      "validationWins": 9.5,
+      "feedback": [],
+      "controls": 21,
+      "carriers": 21,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 63,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "role:damage:count:2",
+        "games": 40,
+        "wins": 19,
+        "rate": 0.475
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:frostTouch",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 5,
+      "carriers": 4,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:frostTouch",
+        "games": 18,
+        "wins": 7,
+        "rate": 0.3888888888888889
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:cripplingStrike",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 1,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 8,
+          "share": 0.12698412698412698,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:cripplingStrike",
+        "games": 26,
+        "wins": 11,
+        "rate": 0.4230769230769231
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:charge",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 5,
+      "carriers": 5,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 5,
+          "share": 0.38461538461538464,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:charge",
+        "games": 21,
+        "wins": 9,
+        "rate": 0.42857142857142855
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:size",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 7,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:size",
+        "games": 13,
+        "wins": 8,
+        "rate": 0.6153846153846154
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:portal",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4.5,
+      "controls": 5,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:portal",
+        "games": 20,
+        "wins": 12,
+        "rate": 0.6
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:dream",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 5,
+      "carriers": 3,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 3,
+          "share": 0.1875,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:dream",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:healer:count:2",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 19.5,
+      "validationWins": 19.5,
+      "feedback": [],
+      "controls": 23,
+      "carriers": 20,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 36,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:illusion",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 3,
+      "controls": 8,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:illusion",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:lava",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 2.5,
+      "controls": 8,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:lava",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:memory",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 2.5,
+      "controls": 6,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 2,
+          "share": 0.125,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:memory",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:metal",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 7,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:metal",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:soul",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 7,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 2,
+          "share": 0.05555555555555555,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:soul",
+        "games": 8,
+        "wins": 3,
+        "rate": 0.375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:perfectCounter",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 2,
+          "share": 0.031746031746031744,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:perfectCounter",
+        "games": 10,
+        "wins": 6,
+        "rate": 0.6
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:life",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 4,
+      "carriers": 5,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 6,
+          "share": 0.16666666666666666,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:life",
+        "games": 34,
+        "wins": 16,
+        "rate": 0.47058823529411764
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:copy",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 4.5,
+      "controls": 6,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:copy",
+        "games": 10,
+        "wins": 6,
+        "rate": 0.6
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:controller:count:2",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 14,
+      "validationWins": 14,
+      "feedback": [],
+      "controls": 21,
+      "carriers": 12,
+      "note": "No confident advantage or disadvantage was found.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 16,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:future",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 5.5,
+      "controls": 1,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:future",
+        "games": 16,
+        "wins": 7,
+        "rate": 0.4375
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "role:tank:count:2",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 21,
+      "validationWins": 22,
+      "feedback": [
+        {
+          "key": "role:tank:count:2",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 22,
+          "patchedWins": 22.5,
+          "validationMargin": 0.42875,
+          "patchedMargin": 0.45544642857142864,
+          "field": "value",
+          "marginMean": 0.026696428571428597
+        }
+      ],
+      "controls": 25,
+      "carriers": 12,
+      "note": "The tested adjustments did not repeat or clearly improve the comparison.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 13,
+          "share": 1,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:absorption",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4.5,
+      "controls": 6,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        },
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:absorption",
+        "games": 23,
+        "wins": 12,
+        "rate": 0.5217391304347826
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:kinetic",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 5,
+          "share": 0.3125,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:invisible",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 2.5,
+      "controls": 6,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:invisible",
+        "games": 11,
+        "wins": 6,
+        "rate": 0.5454545454545454
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:cleave",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        },
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:stunBolt",
+      "status": "screened",
+      "pairs": 8,
+      "wins": 4.5,
+      "controls": 7,
+      "carriers": 2,
+      "feedback": [],
+      "note": "Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 2,
+          "share": 0.125,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:beast",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 3.5,
+      "controls": 6,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:cleanse",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 3,
+      "controls": 4,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:force",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 5,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        }
+      ],
+      "observed": {
+        "key": "ability:force",
+        "games": 8,
+        "wins": 4,
+        "rate": 0.5
+      },
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:hamstring",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 2,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "tank",
+          "count": 1,
+          "share": 0.07692307692307693,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:mind",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 1.5,
+      "controls": 1,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:reality",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 4,
+      "controls": 2,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "damage",
+          "count": 1,
+          "share": 0.015873015873015872,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:telekinesis",
+      "status": "limited",
+      "pairs": 8,
+      "wins": 5,
+      "controls": 5,
+      "carriers": 1,
+      "feedback": [],
+      "note": "Too few distinct carriers or controls to separate this feature from individual fighters.",
+      "roles": [
+        {
+          "role": "controller",
+          "count": 1,
+          "share": 0.0625,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    },
+    {
+      "key": "ability:thornBolt",
+      "status": "unmatched",
+      "note": "No suitable matched controls were available.",
+      "roles": [
+        {
+          "role": "healer",
+          "count": 1,
+          "share": 0.027777777777777776,
+          "observed": null
+        }
+      ],
+      "observed": null,
+      "parent": null,
+      "method": "feature-comparison",
+      "change": null
+    }
+  ],
+  "combined": [
+    {
+      "index": 0,
+      "profileToken": "357a5f6c",
+      "rows": [
+        {
+          "key": "role:controller",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 16.5,
+          "patchedWins": 16.5,
+          "validationMargin": 0.16794642857142858,
+          "patchedMargin": 0.16375
+        },
+        {
+          "key": "role:damage",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 8,
+          "patchedWins": 8,
+          "validationMargin": -0.34991071428571424,
+          "patchedMargin": -0.35160714285714295
+        },
+        {
+          "key": "role:healer",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 13.5,
+          "patchedWins": 14,
+          "validationMargin": -0.013571428571428564,
+          "patchedMargin": 0.004017857142857129
+        },
+        {
+          "key": "role:tank",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 10,
+          "patchedWins": 10,
+          "validationMargin": -0.24455357142857143,
+          "patchedMargin": -0.2017857142857143
+        },
+        {
+          "key": "within:tank:stat:DUR",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 10,
+          "patchedWins": 12.5,
+          "validationMargin": -0.21285714285714288,
+          "patchedMargin": -0.09687499999999996
+        },
+        {
+          "key": "within:tank:stat:MAG",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 10,
+          "patchedWins": 8.5,
+          "validationMargin": -0.21910714285714294,
+          "patchedMargin": -0.28098214285714296
+        },
+        {
+          "key": "within:tank:stat:STR",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 11,
+          "patchedWins": 10,
+          "validationMargin": -0.15928571428571428,
+          "patchedMargin": -0.21303571428571427
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "profileToken": "c0d2bcbb",
+      "rows": [
+        {
+          "key": "role:controller",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 20,
+          "patchedWins": 19.5,
+          "validationMargin": 0.31848214285714294,
+          "patchedMargin": 0.29321428571428576
+        },
+        {
+          "key": "role:damage",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 9,
+          "patchedWins": 7.5,
+          "validationMargin": -0.3199107142857144,
+          "patchedMargin": -0.3849999999999999
+        },
+        {
+          "key": "role:healer",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 14,
+          "patchedWins": 14,
+          "validationMargin": 0.0010714285714285604,
+          "patchedMargin": -0.009464285714285722
+        },
+        {
+          "key": "role:tank",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 9,
+          "patchedWins": 9.5,
+          "validationMargin": -0.28366071428571427,
+          "patchedMargin": -0.2560714285714286
+        },
+        {
+          "key": "within:tank:stat:DUR",
+          "status": "tested",
+          "pairs": 28,
+          "wins": 12,
+          "patchedWins": 10.5,
+          "validationMargin": -0.1504464285714285,
+          "patchedMargin": -0.1923214285714286
+        }
+      ]
+    }
+  ],
+  "simulationGames": 5080,
+  "sourceUnchanged": true
+}

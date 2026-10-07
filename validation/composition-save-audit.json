@@ -1,0 +1,137 @@
+{
+  "sourceSha256": "76188c73e31d9db43e03ffa230597316bc87a80a6b428bbcf68670e4b5a578fe",
+  "season": 4,
+  "previousSeasonRoleRates": [
+    {
+      "key": "role:healer",
+      "games": 65,
+      "wins": 38,
+      "rate": 0.5846153846153846
+    },
+    {
+      "key": "role:damage",
+      "games": 71,
+      "wins": 44,
+      "rate": 0.6197183098591549
+    },
+    {
+      "key": "role:controller",
+      "games": 41,
+      "wins": 15,
+      "rate": 0.36585365853658536
+    },
+    {
+      "key": "role:tank",
+      "games": 49,
+      "wins": 8,
+      "rate": 0.16326530612244897
+    }
+  ],
+  "oldAudits": [
+    {
+      "season": 3,
+      "phase": "preseason",
+      "changes": 0,
+      "checked": [
+        "stat:SPD",
+        "stat:STR",
+        "ability:tauntShout",
+        "stat:DUR"
+      ]
+    },
+    {
+      "season": 3,
+      "phase": "halfway",
+      "changes": 0,
+      "checked": [
+        "ability:knockUp",
+        "ability:fire",
+        "ability:spiritArmor",
+        "stat:DUR"
+      ]
+    },
+    {
+      "season": 4,
+      "phase": "preseason",
+      "changes": 0,
+      "checked": [
+        "ability:fire",
+        "ability:spirits",
+        "ability:knockUp",
+        "stat:IQ"
+      ]
+    }
+  ],
+  "newCandidates": [
+    "role:tank",
+    "ability:tauntShout",
+    "ability:spirits",
+    "stat:IQ"
+  ],
+  "changes": [
+    {
+      "lever": "role:tank:health",
+      "from": 1.0654,
+      "to": 1.15,
+      "games": 56,
+      "winRate": 44.6,
+      "note": "Tank health +7.9% (43% → 50% in validation simulations)"
+    }
+  ],
+  "diagnostics": [
+    {
+      "key": "role:tank",
+      "status": "adjusted",
+      "pairs": 28,
+      "wins": 12.5,
+      "validationWins": 12,
+      "patchedWins": 14,
+      "controls": 22,
+      "carriers": 10,
+      "validationMargin": -0.11928571428571429,
+      "patchedMargin": -0.015089285714285732,
+      "note": "Tank health +7.9% (43% → 50% in validation simulations)"
+    },
+    {
+      "key": "ability:tauntShout",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 15,
+      "validationWins": 15,
+      "patchedWins": 15,
+      "controls": 10,
+      "carriers": 9,
+      "validationMargin": 0.05616071428571429,
+      "patchedMargin": 0.05616071428571429,
+      "note": "Season results remain uneven, but controlled fights did not confirm an adjustment. Composition, matchups or tactics need review."
+    },
+    {
+      "key": "ability:spirits",
+      "status": "needs-assessment",
+      "pairs": 28,
+      "wins": 16,
+      "validationWins": 16,
+      "patchedWins": 16.5,
+      "controls": 5,
+      "carriers": 2,
+      "validationMargin": 0.11517857142857144,
+      "patchedMargin": 0.13366071428571427,
+      "note": "The proposed adjustment did not clearly improve the matched comparison; no change was applied."
+    },
+    {
+      "key": "stat:IQ",
+      "status": "stable",
+      "pairs": 28,
+      "wins": 14,
+      "validationWins": 14,
+      "patchedWins": 14,
+      "controls": 20,
+      "carriers": 14,
+      "validationMargin": -0.002232142857142853,
+      "patchedMargin": -0.002232142857142853,
+      "note": "No confident advantage or disadvantage was found."
+    }
+  ],
+  "simulationGames": 448,
+  "sourceUnchanged": true
+}

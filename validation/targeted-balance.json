@@ -1,15 +1,15 @@
 {
   "monteCarloPairs": 28,
-  "maxCandidates": 4,
+  "maxCandidates": null,
   "preseasonMaximum": 0.1,
   "midseasonMaximum": 0.015,
   "realSmoke": {
     "key": "ability:fire",
     "status": "tested",
     "pairs": 4,
-    "wins": 4,
-    "validationWins": 4,
-    "patchedWins": 4,
+    "wins": 3,
+    "validationWins": 3,
+    "feedback": [],
     "controls": 4,
     "carriers": 4
   },
@@ -18,9 +18,13 @@
       "lever": "ability:fire:cooldown",
       "from": 1,
       "to": 1.1,
+      "key": "ability:fire",
+      "field": "cooldown",
       "games": 56,
       "winRate": 100,
-      "note": "Fire control cooldown +10% (100% → 50% in validation simulations)"
+      "direction": -1,
+      "priority": 3.700439718141092,
+      "note": "Fire control cooldown +10% (100% → 50% in individual validation)"
     }
   ],
   "baseParity": true,

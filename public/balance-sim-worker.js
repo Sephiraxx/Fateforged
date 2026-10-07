@@ -1,27 +1,45 @@
 import {simulateTeam} from './combat-team.js';
-import {teamRole} from './team-roles.js';
 import {seededRandom} from './team-generation.js';
-import {auditControl,auditFeatures,auditSuggestion,balanceAuditPlan} from './balance-analysis.js';
-const auditTactics=['balanced','defensive','aggressive','focus-healer'];
+import {auditControl,auditCarries,auditBaseKey,auditScope,auditCandidateProposals,auditConcern,balanceAuditPlan} from './balance-analysis.js';
+const auditTactics=['balanced','defensive','aggressive','focus-healer','protect-carry'];
 const auditMaps=['open','pillars','ruins','crossroads'];
-export function simulateBalanceCandidate({world,plan,key},run=simulateTeam){
+export function simulateBalanceCandidate({world,plan,key,mode='candidate',bundle},run=simulateTeam){
  const current=balanceAuditPlan(world,plan.phase);if(current.token!==plan.token||!plan.candidates.some(c=>c.key===key))throw Error('Balance simulation is stale.');
- const salt=key.split('').reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>0,0),random=seededRandom(plan.seed^salt),pick=list=>list[Math.floor(random()*list.length)],roster=Object.values(world.fighters).filter(f=>f.team),carriers=roster.filter(f=>auditFeatures(f).includes(key)),cases=[],controls=new Set(),usedCarriers=new Set();
+ const descriptor=plan.candidates.find(c=>c.key===key),baseKey=auditBaseKey(key),scope=auditScope(key);
+ const salt=key.split('').reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>0,0),random=seededRandom(plan.seed^salt),pick=list=>list[Math.floor(random()*list.length)],roster=Object.values(world.fighters).filter(f=>f.team),carriers=roster.filter(f=>auditCarries(f,key)),cases=[],controls=new Set(),usedCarriers=new Set(),roleKey=baseKey.startsWith('role:')||descriptor.method==='role-intervention',role=descriptor.method==='role-intervention'?scope:baseKey.split(':')[1],count=Number(baseKey.split(':')[3])||1;
  for(let attempt=0;attempt<plan.pairs*30&&cases.length<plan.pairs;attempt++){
   const f=pick(carriers);if(!f)break;let control,controlId;
-  if(key.startsWith('ability:')){const roll=Math.floor(random()*100000);control=auditControl(f,key,roll);controlId=control&&[control.traits.power,control.traits.power2].join('|');}
-  else{const peers=roster.filter(p=>p.id!==f.id&&p.role===f.role&&p.summary.tier===f.summary.tier&&globalThis.CLASS_ABILITIES.weaponType(p.traits.weapon)===globalThis.CLASS_ABILITIES.weaponType(f.traits.weapon)),peer=pick(peers);control=auditControl(f,key,peer);controlId=peer?.id;}
+  if(roleKey){
+   // Replace one role while keeping the rest of the composition identical.
+   // Match tier and rolled budget; keep real kits rather than inventing a
+   // role by editing powers. Role differences are intentional in this test.
+   const total=f.summary.stats.reduce((a,b)=>a+b,0),peers=roster.filter(p=>p.role!==role&&p.summary.tier===f.summary.tier&&Math.abs(p.ovr-f.ovr)<=10&&Math.abs(p.summary.stats.reduce((a,b)=>a+b,0)/total-1)<=.2).sort((a,b)=>Math.abs(a.ovr-f.ovr)-Math.abs(b.ovr-f.ovr)||a.id.localeCompare(b.id)).slice(0,8);
+   control=pick(peers);controlId=control?.id;
+  }else if(baseKey.startsWith('weapon:')){const total=f.summary.total,peers=roster.filter(p=>p.role===f.role&&p.summary.tier===f.summary.tier&&globalThis.CLASS_ABILITIES.weaponType(p.traits.weapon)!==baseKey.split(':')[1]&&Math.abs(p.ovr-f.ovr)<=10&&Math.abs(p.summary.total/total-1)<=.2);control=pick(peers);controlId=control?.id;}else if(baseKey.startsWith('ability:')){const roll=Math.floor(random()*100000);control=auditControl(f,key,roll);controlId=control&&[control.traits.power,control.traits.power2].join('|');}
+  else{const peers=roster.filter(p=>p.id!==f.id&&p.role===f.role&&p.summary.tier===f.summary.tier&&globalThis.CLASS_ABILITIES.weaponType(p.traits.weapon)===globalThis.CLASS_ABILITIES.weaponType(f.traits.weapon)),peer=pick(peers);control=auditControl(f,key,peer);controlId=peer?.id;if(!control){control=auditControl(f,key,Math.floor(random()*1000));controlId=control&&control.summary.stats.join('|');}}
   if(!control)continue;
-  const team=pick(world.teams),mateIds=team.lineup.length===world.format?team.lineup:team.roster.slice(0,world.format),mates=mateIds.map(id=>world.fighters[id]).filter(m=>m.id!==f.id).slice(0,world.format-1);
-  for(const m of roster)if(mates.length<world.format-1&&!mates.some(x=>x.id===m.id)&&m.id!==f.id)mates.push(m);
+  const team=pick(world.teams),mateIds=team.lineup.length===world.format?team.lineup:team.roster.slice(0,world.format),mates=roleKey?[]:mateIds.map(id=>world.fighters[id]).filter(m=>m.id!==f.id&&m.id!==control.id).slice(0,world.format-1);
+  const pool=roleKey?roster.map(m=>({m,order:random()})).sort((a,b)=>a.order-b.order).map(x=>x.m):roster;
+  for(const m of pool){if(!m||mates.length===world.format-1||mates.some(x=>x.id===m.id)||m.id===f.id||m.id===control.id)continue;if(roleKey&&(m.role===role?mates.filter(x=>x.role===role).length>=count-1:mates.filter(x=>x.role!==role).length>=world.format-count))continue;mates.push(m);}
   if(mates.length!==world.format-1)continue;
   const clone=(c,i,side)=>({...structuredClone(c),id:`audit-${side}-${i}`,teamKit:null});
-  cases.push({teams:[[f,...mates].map((c,i)=>clone(c,i,0)),[control,...mates].map((c,i)=>clone(c,i,1))],seed:Math.floor(random()*4294967296),conditions:{map:auditMaps[cases.length%auditMaps.length],time:cases.length%2?'night':'day',weather:cases.length%3?'clear':'rain',ground:'stone'},tactics:Array(2).fill(auditTactics[cases.length%auditTactics.length])});controls.add(controlId);usedCarriers.add(f.id);
+  cases.push({carrierId:f.id,controlId,teams:[[f,...mates].map((c,i)=>clone(c,i,0)),[control,...mates].map((c,i)=>clone(c,i,1))],seed:Math.floor(random()*4294967296),conditions:{map:auditMaps[(2*cases.length+Math.floor(cases.length/4))%4],time:['day','dusk','night','dawn'][(cases.length+Math.floor(cases.length/4))%4],weather:['clear','rain','frost','storm'][cases.length%4],ground:cases.length%3?'stone':'water'},tactics:Array(2).fill(auditTactics[cases.length%auditTactics.length])});controls.add(controlId);usedCarriers.add(f.id);
  }
- if(cases.length!==plan.pairs||controls.size<2||usedCarriers.size<2)return {key,status:'unmatched'};
- const compare=(profile,holdout=false)=>cases.reduce((wins,c)=>{const seed=holdout?(c.seed^0x9e3779b9)>>>0:c.seed,opts={engineVersion:plan.engine,balance:profile,conditions:c.conditions,tactics:c.tactics},a=run(c.teams,seed,opts),b=run([c.teams[1],c.teams[0]],seed,opts);return wins+((a.winnerTeam===0?1:0)+(b.winnerTeam===1?1:0))/2;},0);
- const wins=compare(plan.profile),suggestion=auditSuggestion(plan.profile,key,wins,plan.pairs,plan.phase),profile=structuredClone(plan.profile);if(suggestion)profile.multipliers[suggestion.lever]=suggestion.to;
- const validationWins=suggestion?compare(plan.profile,true):wins,patchedWins=suggestion?compare(profile,true):wins;
- return {key,status:'tested',pairs:cases.length,wins,validationWins,patchedWins,controls:Math.min(controls.size,cases.length),carriers:Math.min(usedCarriers.size,cases.length)};
+ if(cases.length!==plan.pairs)return {key,status:'unmatched'};
+ const margin=(r,side)=>{const hp=r.objective?.coreHp??r.hp??[0,0];return (r.winnerTeam===side ? .5 : -.5)+(hp[side]-hp[1-side])/200;};
+ const compare=(profile,salt=0,pairs=plan.pairs)=>{let wins=0;const margins=[];for(const c of cases.slice(0,pairs)){const seed=(c.seed^salt)>>>0,opts={engineVersion:plan.engine,balance:profile,conditions:c.conditions,tactics:c.tactics},a=run(c.teams,seed,opts),b=run([c.teams[1],c.teams[0]],seed,opts);wins+=((a.winnerTeam===0?1:0)+(b.winnerTeam===1?1:0))/2;margins.push((margin(a,0)+margin(b,1))/2);}return {wins,margins,mean:margins.reduce((a,b)=>a+b,0)/pairs};};
+ const comparison=(baseline,patched)=>({key,status:'tested',pairs:plan.pairs,wins:baseline.wins,patchedWins:patched.wins,validationMargin:baseline.mean,patchedMargin:patched.mean,marginDeltas:patched.margins.map((m,i)=>m-baseline.margins[i])});
+ if(mode==='bundle'){
+  if(!bundle||!bundle.keys.includes(key))throw Error('Invalid combined patch request.');
+  if(controls.size<2||usedCarriers.size<2)return {key,status:'unmatched'};
+  const salt=(0x85ebca6b^Math.imul(bundle.index+1,0xc2b2ae35))>>>0;
+  return comparison(compare(plan.profile,salt),compare(bundle.profile,salt));
+ }
+ const pairs=Math.min(plan.pairs,plan.screenPairs),screen=compare(plan.profile,0,pairs),limited=controls.size<2||usedCarriers.size<2;
+ const confirm=!limited&&(plan.pairs<28||baseKey.startsWith('role:')||baseKey.startsWith('stat:')||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
+ if(!confirm){const screenedControls=new Set(cases.slice(0,pairs).map(c=>c.controlId)).size,screenedCarriers=new Set(cases.slice(0,pairs).map(c=>c.carrierId)).size;return {key,status:screenedControls<2||screenedCarriers<2?'limited':'screened',pairs,wins:screen.wins,controls:screenedControls,carriers:screenedCarriers,feedback:[]};}
+ const discovery=compare(plan.profile),proposals=auditCandidateProposals(plan,key,discovery.wins),validation=proposals.length?compare(plan.profile,0x9e3779b9):discovery,feedback=[];
+ for(const {field,suggestion}of proposals){const profile=structuredClone(plan.profile);profile.multipliers[suggestion.lever]=suggestion.to;feedback.push({...comparison(validation,compare(profile,0x9e3779b9)),field});}
+ return {key,status:'tested',pairs:plan.pairs,wins:discovery.wins,validationWins:validation.wins,feedback,controls:Math.min(controls.size,plan.pairs),carriers:Math.min(usedCarriers.size,plan.pairs)};
 }
 if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=({data})=>{try{self.postMessage({id:data.dispatchId,results:simulateBalanceCandidate(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};
