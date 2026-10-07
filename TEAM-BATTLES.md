@@ -463,3 +463,13 @@ Kits share the action and mana economy with normal powers. Resurrection channels
 Rating calibration uses separate regularized kit coefficients, with each subject facing identical opponents and seeds both with and without its kit. The committed report states the sample and model fit; coefficients are estimates, not guarantees for individual matchups.
 
 The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.
+
+## League-specific patches
+
+Each new league starts at base combat rules. A save owns its own immutable patch history; new seasons use team 2.3, while older active seasons keep their engine. Patches are considered after the complete halfway week and once at the offseason. Each lever changes at most 1.5% at halfway or 3% at the offseason (both relative to its current value and in percentage points of base), with a cumulative ±15% cap per lever. These are per-lever limits; distinct stats can change together.
+
+Evidence compares games where one side fields more of a role, weapon type or kit group than the other; identical compositions add no evidence. The proposer also records role-count categories, such as two-tank lineups. It needs at least 30 comparable games, a win rate outside 45–55%, and a Wilson 95% interval excluding 50%. More tank health / Fortified protection, role healing / control / damage, weapon damage and kit output can be nudged. Supported targeted modifiers also cover healing, control and dive damage. Patches do not alter the original rolled stats or fighter catalog. Observational evidence can be confounded by roster strength; caps limit the response, and synthetic feedback checks test the controller rather than proving real combat causality.
+
+The collapsed League patches panel shows plain-language changes and a per-save switch. Turning it off freezes the current patch. Every match describes its engine and patch snapshot; watched replays retain those options, and saved results retain their patch. A result reporting a different patch ID is rejected. Changes happen between phases, never between games of a series.
+
+Team 2.3 also keeps Bulwark knockback on the wide team field, including shared hits, and preserves an active kit stun when shared damage lands.
