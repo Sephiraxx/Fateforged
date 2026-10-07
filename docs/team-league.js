@@ -1,5 +1,6 @@
 import {neutralBalance,lineupGroups,balanceObservations,applyBalanceCheckpoint} from './team-balance.js';
 import {teamKit,TEAM_KITS} from './team-kits.js';
+import {supportAbility} from './support-abilities.js';
 import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
 // Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
@@ -69,13 +70,30 @@ function planSlots(counts,seed){const random=rng(seed^0x9e3779b9),slots=[];for(c
 export const RATING_MODEL=Object.freeze({"intercept":-2.386,"ehp":0.391,"dps":-0.047,"spell":0.151,"ability":0.046,"speed":0.259,"iq":0.158,"kits":{"mendingWave":-0.02,"chainHeal":-0.042,"resurrection":0.109,"cleanse":-0.027,"barrier":-0.02,"stunBolt":-0.049,"hamstring":-0.024,"disarmShot":0.062,"tauntShout":-0.064,"knockUp":0.022},"roles":{"tank":0,"healer":-0.003,"controller":-0.029,"damage":0.085}});
 const ABILITY_WEIGHT={Common:.5,Uncommon:1,Rare:1.6,Legendary:2.4};
 export function ratingFeatures(character){
- const n=combatNumbers(character),s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||{},catalog=globalThis.CLASS_ABILITIES;
+ const n=combatNumbers(character),s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||{},catalog=(character.summary?.generationVersion??1)>=4?globalThis.CURRENT_CLASS_ABILITIES:globalThis.CLASS_ABILITIES;
  const ability=[traits.power,traits.power2].reduce((sum,name)=>sum+(ABILITY_WEIGHT[name&&catalog.definition(name)?.rarity]??0),0);
  return {ehp:Math.log(n.effectiveHp),dps:Math.log(Math.max(1,n.dps)),spell:n.spell/50,ability,speed:s[1]/20,iq:s[3]/20,...Object.fromEntries(Object.keys(TEAM_KITS).map(id=>['kit_'+id,character.teamKit===id?1:0]))};
 }
-export function rawRating(character,role=teamRole(character).role){const x=ratingFeatures(character),m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+Object.entries(m.kits??{}).reduce((n,[id,weight])=>n+weight*x['kit_'+id],0)+(m.roles[role]??0);}
-// Map the model's predicted win share onto a familiar 40–99 scale.
-export function overall(character,role){return Math.max(40,Math.min(99,Math.round(40+(rawRating(character,role)-.25)*118)));}
+export function rawRating(character,role=teamRole(character).role){const x=ratingFeatures(character),m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+(m.roles[role]??0);}
+// A smooth scale preserves differences between strong recruits instead of
+// flattening every prediction above .75 to 99. Career progression still applies.
+export function overall(character,role){return Math.max(40,Math.min(99,Math.round(40+59/(1+Math.exp(-5*(rawRating(character,role)-.5))))));}
+function previousOverall(character,role){const x=ratingFeatures(character),kit=Object.entries(RATING_MODEL.kits).reduce((n,[id,weight])=>n+weight*x['kit_'+id],0);return Math.max(40,Math.min(99,Math.round(40+(rawRating(character,role)+kit-.25)*118)));}
+export function prepareSupportRules(w){
+ if(!w||w.supportRulesVersion===1||w.pendingSeries)return w;
+ for(const f of Object.values(w.fighters)){
+  const progress=f.ovr-previousOverall(f,f.role),before=f.ovr;
+  if(f.teamKit)f.legacyTeamKit=f.teamKit;
+  delete f.teamKit;
+  if(f.ratingVersion!==2)f.ovr=Math.max(40,Math.min(99,overall(f,f.role)+progress));f.ratingVersion=2;
+  // Existing contracts keep their price until the normal offseason update.
+  if(f.ovr!==before)f.lastOvr=before;
+ }
+ w.supportRulesVersion=1;w.engine=TEAM_COMBAT_VERSION;
+ if(w.balance)w.balance.samples=[];
+ if(w.teamEngine)w.teamEngine=w.settings.battleMode==='core'?OBJECTIVE_COMBAT_VERSION:TEAM_COMBAT_VERSION;
+ return w;
+}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 export function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
 export function scoutFighter(character){const {role,secondary}=teamRole(character),ovr=overall(character,role);return {role,secondary,ovr,salary:salaryFor(ovr)};}
@@ -96,7 +114,7 @@ export function create({id,format:formatSize,teams,seed,fighters,battleMode='tea
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
   if(!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Pool fighters need all fourteen traits.');
   if(c.summary?.tier!==plan[i].tier)throw new Error('A pool fighter does not match its planned tier.');
-  roster[c.id]={id:c.id,name:c.name.trim(),teamKit:teamKit(c.teamKit)?.id??null,traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null};
+  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),ratingVersion:2,team:null};
  });
  const layout=structure(teams),identities=teamIdentities(teams,seed),list=[];
  identities.forEach((x,i)=>{x.coach.comp=coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0));});
@@ -105,7 +123,7 @@ export function create({id,format:formatSize,teams,seed,fighters,battleMode='tea
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  supportRulesVersion:1,balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -177,8 +195,8 @@ export const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,tea
 // ---------- Season and playoffs (phase 3) ----------
 export const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
-export const TEAM_COMBAT_VERSION='team-2.3';
-export const OBJECTIVE_COMBAT_VERSION='team-3';
+export const TEAM_COMBAT_VERSION='team-2.4';
+export const OBJECTIVE_COMBAT_VERSION='team-3.1';
 export const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 export const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
@@ -247,8 +265,8 @@ export function upcoming(w,limit=Infinity){
  else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push({...s,kind:'playoff'});}}
  if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit).map(m=>describe(w,m));
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(['team-2.3','team-3-core','team-3'].includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
-export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary};}));
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(['team-2.3','team-2.4','team-3-core','team-3','team-3.1'].includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
+export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:['team-2.2','team-2.3','team-3-core','team-3'].includes(match.engineVersion)?f.teamKit??f.legacyTeamKit:null,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
@@ -401,7 +419,7 @@ export function startOffseason(w,rookies){
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
  for(const id of retired)delete w.fighters[id];
- for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),teamKit:teamKit(c.teamKit)?.id??null,traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null,rookie:w.season+1,freeAgentSince:w.season};
+ for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),ratingVersion:2,team:null,rookie:w.season+1,freeAgentSince:w.season};
  // The cap follows the market: the average salary of the best roster-worth of fighters.
  const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,w.teams.length*w.settings.rosterSize);w.settings.salaryCap=round1(top.reduce((n,x)=>n+x.salary,0)/w.teams.length);
  // Coaches with dismal seasons are replaced (never the user's team).
@@ -462,4 +480,4 @@ function newSeason(w){
 }
 
 export function setAutoBalance(w,enabled){if(typeof enabled!=='boolean')throw new Error('Choose whether auto-balance is enabled.');w.balance??=neutralBalance();w.balance.enabled=enabled;return w;}
-function balanceCheckpoint(w,phase){if(!w.balance||!['team-2.3','team-3-core','team-3'].includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}
+function balanceCheckpoint(w,phase){if(!w.balance||!['team-2.3','team-2.4','team-3-core','team-3','team-3.1'].includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}

@@ -25,7 +25,7 @@ const c={id:'a',name:'Archer',traits:{weapon:'Longbow',class:'Ranger',power:'No 
 const b=new TeamBattle([[c],[e]],17,{headless:true,map:'open'}),[a,t]=b.fighters;Object.assign(a,{x:100,y:100,cast:99,cooldown:0,energy:100});Object.assign(t,{x:250,y:100,vx:0,vy:90});b.obstacles=[{x:180,y:130,radius:14}];assert(b.clearShot(a,t));b.startAttack(a,t);assert.equal(a.action,null,'Predicted path clips cover even though the current-position ray is clear.');assert.equal(a.energy,100);
 b.obstacles=[];t.vy=0;b.startAttack(a,t);assert.equal(a.action.type,'shot');b.obstacles=[{x:180,y:100,radius:20}];b.updateAttack(a,t,.25);assert.equal(a.action,null);assert.equal(b.projectiles.length,0);assert(a.cooldown<=.12);assert.equal(a.energy,100);
 const fire=powerFor('Fire control');assert.equal(b.projectileClear(a,t,fire),false);const mana=a.mana;b.usePower(a,t,fire);assert.equal(b.projectiles.length,0);assert.equal(a.mana,mana);
-assert.equal(TEAM_ENGINE_VERSION,'team-2.3');assert.notEqual(teamEngine('team-2'),teamEngine(TEAM_ENGINE_VERSION));
+assert.equal(TEAM_ENGINE_VERSION,'team-2.4');assert.notEqual(teamEngine('team-2'),teamEngine(TEAM_ENGINE_VERSION));
 console.log('Team series: durable partial games, user bench/tactic choices, AI restrictions, exactly-once stats, watched/quick parity, predicted-path and windup cover cancellation, preserved legacy engine.');
 
 // A real saved partial series survives browser backup import/reopen and a lost

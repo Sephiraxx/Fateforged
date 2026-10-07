@@ -1,10 +1,11 @@
 import {Battle,simulate} from './combat.js';
+import {Battle as V12,simulate as simulate12} from './combat-v12.js';
 import {Battle as V11,simulate as simulate11} from './combat-v11.js';
 import {Battle as V10,simulate as simulate10} from './combat-v10.js';
 import {Battle as V9,simulate as simulate9} from './combat-v9.js';
-export const CURRENT_COMBAT_VERSION=12;
-export const tournamentEngine=s=>{const first=s.history.find(m=>m.results?.length);return s.engineVersion??(first?first.results[0].combatVersion??1:12);};
-const engines=new Map([[12,{Battle,simulate}],[11,{Battle:V11,simulate:simulate11}],[10,{Battle:V10,simulate:simulate10}],[9,{Battle:V9,simulate:simulate9}]]);
+export const CURRENT_COMBAT_VERSION=13;
+export const tournamentEngine=s=>{const first=s.history.find(m=>m.results?.length);return s.engineVersion??(first?first.results[0].combatVersion??1:13);};
+const engines=new Map([[13,{Battle,simulate}],[12,{Battle:V12,simulate:simulate12}],[11,{Battle:V11,simulate:simulate11}],[10,{Battle:V10,simulate:simulate10}],[9,{Battle:V9,simulate:simulate9}]]);
 export async function loadCombatEngine(version){
  if(!engines.has(version)){
   if(!Number.isInteger(version)||version<1||version>8)throw Error('Unsupported combat version.');
@@ -13,4 +14,4 @@ export async function loadCombatEngine(version){
  return engines.get(version);
 }
 // Normal simulation paths use 9–12; historical versions load before playback.
-export function simulationEngine(version=12){const engine=engines.get(version);if(!engine)throw Error('Load the saved combat engine before simulation.');return engine;}
+export function simulationEngine(version=13){const engine=engines.get(version);if(!engine)throw Error('Load the saved combat engine before simulation.');return engine;}

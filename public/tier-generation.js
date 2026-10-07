@@ -13,7 +13,7 @@ export function traitStats(pools,traits){
  for(const [id,name]of Object.entries(traits)){if(noPower(name))continue;const list=id==='subrace'?pools.subrace[traits.race]:id==='subclass'?pools.subclass[traits.class]:pools.base[id];const option=list?.find(o=>o.name===name);if(option)option.stats.forEach((n,i)=>raw[i]+=n);}
  return raw.map(v=>Math.max(0,v));
 }
-const catalog=()=>globalThis.CLASS_ABILITIES;
+const catalog=()=>globalThis.CURRENT_CLASS_ABILITIES??globalThis.CLASS_ABILITIES;
 export function rollTier(pools,target,{luck,draw,forceClass=null,untiltedAbilities=false,forceWeaponType=null,requirePower=null}={}){
  if(!luck)throw new Error('rollTier needs the wheel luck rules.');
  const base={...pools,base:{...pools.base}};

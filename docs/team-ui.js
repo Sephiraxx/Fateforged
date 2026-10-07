@@ -1,4 +1,3 @@
-import {teamKit} from './team-kits.js';
 // 2v2 / 3v3 / 5v5 exhibition: build two teams from saved fighters or generated S/A squads, then watch or simulate.
 import {ROLE_LABELS,teamRole} from './team-roles.js';
 import {randomTeam} from './team-generation.js';
@@ -11,11 +10,11 @@ const scripts=new Map();
 const loadScript=src=>{if(!scripts.has(src))scripts.set(src,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{scripts.delete(src);reject(new Error('Could not load the fighter generator.'));};document.head.append(s);}));return scripts.get(src);};
 // The wheel data and luck rules are classic scripts; load them only when a random team is requested.
 export async function generator(){
- await loadScript('./data.js');await loadScript('./luck.js');
+ await loadScript('./data.js');await loadScript('./support-catalog.js');await loadScript('./luck-v4.js');
  /* global WHEEL_DATA, WHEEL_LUCK, suggestFantasyName */
  // names.js draws from a global randomIndex, which the Forge page provides; supply the wheel's here.
  globalThis.randomIndex??=WHEEL_LUCK.randomIndex;await loadScript('./names.js');
- return {pools:WHEEL_DATA,luck:WHEEL_LUCK,name:traits=>suggestFantasyName(traits)};
+ return {pools:globalThis.supportPools(WHEEL_DATA),luck:WHEEL_LUCK,name:traits=>suggestFantasyName(traits)};
 }
 export function mountTeamBattles(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
@@ -48,7 +47,7 @@ export function mountTeamBattles(host,hooks){
    for(let i=0;i<size;i++){
     const slot=el('li','','team-slot'),choice=select([['','Choose a fighter'],...[...generated.values()].filter(c=>c.team===team).map(c=>[c.id,`${c.name} · ${c.summary.tier} · generated`]),...hooks.roster().map(c=>[c.id,`${c.name} · ${c.summary.tier}`])],side.ids[i]??'');
     choice.setAttribute('aria-label',`${team?'Red':'Blue'} fighter ${i+1}`);const badge=el('span','','team-slot-role');
-    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const fighter=await lookup(id),role=roleOf(fighter),kit=teamKit(fighter.teamKit);badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[role]} ${ROLE_LABELS[role]}${kit?' · '+kit.name:''}`;}catch(e){say(e.message,true);}};
+    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const fighter=await lookup(id),role=roleOf(fighter);badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[role]} ${ROLE_LABELS[role]}`;}catch(e){say(e.message,true);}};
     choice.onchange=()=>{side.ids[i]=choice.value||undefined;paint();};paint();
     slot.append(el('span',String(i+1),'team-slot-no'),choice,badge);list.append(slot);
    }
@@ -68,7 +67,7 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3':'team-2.3',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3.1':'team-2.4',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
   if(running||hooks.blocked())return;
   running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');

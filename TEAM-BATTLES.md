@@ -2,6 +2,12 @@
 
 Team battles put every fighter on the field at once. This is Phase 1 of the team-league roadmap. It contains the team combat engine and the **3v3** and **5v5** exhibition screens in the Arena rail. Later phases add the generated team pool, AI coaches and the draft (Phase 2), the NFL-style season and playoffs (Phase 3), and the offseason and coach mode (Phase 4). **Team engine 2** (below) adds formation AI, a wide field with terrain maps, and ranged-first damage dealers.
 
+## Current ability rules
+
+Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.4 and Core siege 3.1. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
+
+The sections below record how the team systems were introduced; references to extra kits describe the earlier implementation.
+
 ## Engine
 
 `public/combat-team.js` exports `TeamBattle`, `simulateTeam`, `TEAM_POSTURES` and `TEAM_ENGINE_VERSION = 'team-2'`.

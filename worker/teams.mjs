@@ -5,7 +5,7 @@ async function teamApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save team leagues.',401);storage(env);
  const formatOf=value=>{const n=Number(value);if(![2,3,5].includes(n))fail('Choose 2v2, 3v3 or 5v5.');return n;};
  const get=format=>env.DB.prepare('SELECT * FROM team_worlds WHERE owner_id = ? AND format = ?').bind(owner,format).first();
- const response=async format=>{const row=await get(format);return json({world:row?await decodeTournament(row.state_json):null,revision:row?.revision??0});};
+ const response=async format=>{const row=await get(format);return json({world:row?TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json)):null,revision:row?.revision??0});};
  if(request.method==='GET'){if(url.pathname!=='/api/teams')fail('Not found.',404);return response(formatOf(url.searchParams.get('format')));}
  if(request.method!=='POST'||url.pathname!=='/api/teams')fail('Method not allowed.',405);
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
@@ -17,7 +17,7 @@ async function teamApi(request,env,url){
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
- let world=row?await decodeTournament(row.state_json):null;
+ let world=row?TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json)):null;
  if(input.action==='start'){
   if(world)fail('This team league already exists. Refresh to continue it.',409);
   if(!UUID.test(input.worldId)||!Number.isSafeInteger(input.seed)||input.seed<0||input.seed>0xffffffff)fail('Invalid team league setup.');
@@ -61,8 +61,8 @@ async function teamApi(request,env,url){
 // A pool fighter must be an unedited roll from the canonical generation wheels.
 function teamPoolFighter(input){
  if(!plain(input)||!UUID.test(input.id)||typeof input.name!=='string'||!input.name.trim()||input.name.length>100||!plain(input.traits))fail('Invalid pool fighter.');
- const {summary}=validateSnapshot({version:1,generationVersion:3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
+ const {summary}=validateSnapshot({version:1,generationVersion:input.summary?.generationVersion??3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  if(IDS.some(key=>typeof input.traits[key]!=='string'))fail('Pool fighters need all fourteen traits.');
- if(input.teamKit!=null&&!TEAM_LEAGUE.teamKit(input.teamKit))fail('Unknown team kit.');
- return {teamKit:input.teamKit??null,id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:3,wheelRarity:summary.wheelRarity}};
+ if(input.teamKit!=null)fail('Extra team kits are no longer generated. Roll abilities in the two normal slots.');
+ return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:summary.generationVersion,wheelRarity:summary.wheelRarity}};
 }

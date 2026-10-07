@@ -1,6 +1,5 @@
 // Role-aware fighter generation for team play. Classes are forced first so every role appears in S/A pools,
 // then a fighter is accepted only when its derived role matches (healers must actually roll healing magic).
-import {rollTeamKit} from './team-kits.js';
 import {tierCharacter} from './tier-generation.js';
 import {teamRole} from './team-roles.js';
 export const ROLE_CLASSES=Object.freeze({
@@ -32,9 +31,9 @@ export function roleFighter(pools,luck,{role,tier,random,id,name}){
   else{forceClass=classes[Math.floor(random()*classes.length)];if(role==='tank')options={forceWeaponType:'melee'};}// Tanks always fight in melee.
   const character=tierCharacter(pools,tier,{luck,draw,id,forceClass,...options});
   character.name=name?name(character.traits):character.name;
-  if(teamRole(character).role===role){character.teamKit=rollTeamKit(role,random);return character;}fallback??=character;
+  if(teamRole(character).role===role)return character;fallback??=character;
  }
- if(fallback)fallback.teamKit=rollTeamKit(teamRole(fallback).role,random);return fallback;
+ return fallback;
 }
 // Random exhibition teams draw a coach-style composition (like league coaches do), so lineups vary.
 const RANDOM_STYLES={fortress:{tank:2.2,healer:1.4,controller:.6,damage:1},glass:{tank:.4,healer:.6,controller:.8,damage:2.6},star:{tank:.8,healer:1.5,controller:.5,damage:1.8},tactician:{tank:.8,healer:1,controller:2,damage:1.2},balanced:{tank:1,healer:1,controller:.7,damage:1.6}};

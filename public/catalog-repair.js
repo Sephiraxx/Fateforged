@@ -9,19 +9,20 @@ function chooseReplacement(options,random=()=>crypto.getRandomValues(new Uint32A
 // Saved official-name manifests distinguish retired game options from intentional custom options.
 export function reconcileCharacter(input,catalog,random){
  const state=structuredClone(input),repairs=[];
- const official={powers:catalog.power.filter(o=>!emptyPower(o.name)&&((state.generationVersion??1)>=3||!globalThis.CLASS_ABILITIES?.newOptions.some(a=>a.name===o.name))).map(o=>o.name),weaknesses:catalog.weakness.map(o=>o.name)};
+ const supported=o=>(state.generationVersion??1)>=4||!globalThis.SUPPORT_ABILITIES?.[o.name];
+ const official={powers:catalog.power.filter(o=>supported(o)&&!emptyPower(o.name)&&((state.generationVersion??1)>=3||!globalThis.CLASS_ABILITIES?.newOptions.some(a=>a.name===o.name))).map(o=>o.name),weaknesses:catalog.weakness.map(o=>o.name)};
  const previous=state.catalog;
  for(const slot of traitSlots){
   // Historical fighters keep their spell-only catalog and cannot receive a new
   // technique while repairing a retired name under a pinned old combat engine.
-  const list=catalog[slot].filter(o=>slot==='weakness'||(state.generationVersion??1)>=3||!globalThis.CLASS_ABILITIES?.newOptions.some(a=>a.name===o.name)),names=new Set(list.map(o=>o.name));
+  const list=catalog[slot].filter(o=>supported(o)&&(slot==='weakness'||(state.generationVersion??1)>=3||!globalThis.CLASS_ABILITIES?.newOptions.some(a=>a.name===o.name))),names=new Set(list.map(o=>o.name));
   const oldOfficial=previous?.[slot==='weakness'?'weaknesses':'powers'];
   const retired=name=>!names.has(name)&&!emptyPower(name)&&(!oldOfficial||oldOfficial.includes(name));
   state.pools.base[slot]=state.pools.base[slot].filter(o=>!retired(o.name));
   const selected=state.traits[slot];
   if(selected&&retired(selected)){
    const other=slot==='power'?'power2':'power';
-   const eligible=list.filter(o=>slot==='weakness'||!emptyPower(o.name)&&o.name!==state.traits[other]);
+   const eligible=list.filter(o=>supported(o)&&(slot==='weakness'||!emptyPower(o.name)&&o.name!==state.traits[other]));
    const replacement=chooseReplacement(eligible,random);
    if(!state.pools.base[slot].some(o=>o.name===replacement)){
     // A retired saved selection frees its slot, even in a deliberately restricted custom wheel.

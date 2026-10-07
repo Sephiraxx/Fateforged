@@ -51,7 +51,7 @@ const id=crypto.randomUUID();
 const save=()=>call('tournaments/'+id,'PUT',{name:state.name,state});
 ok(await save());ok(await save());
 assert.equal((await call('tournaments/'+id)).tournament.name,'Pages Cup');
-let n=0;while(!state.done){assert(++n<150);const m=nextMatch(state);recordMatch(state,m,Array.from({length:Math.floor((m.bestOf||1)/2)+1},()=>({winner:m.a,seconds:1,combatVersion:12})));ok(await save());}
+let n=0;while(!state.done){assert(++n<150);const m=nextMatch(state);recordMatch(state,m,Array.from({length:Math.floor((m.bestOf||1)/2)+1},()=>({winner:m.a,seconds:1,combatVersion:13})));ok(await save());}
 let crowns=await call('champions');ok(crowns);assert(crowns.champions.some(c=>c.characterId===state.champion));
 const titlesBefore=JSON.stringify(crowns.records);ok(await save());assert.equal(JSON.stringify((await call('champions')).records),titlesBefore);
 assert((await call('characters')).characters.some(c=>c.matchRecord.wins>0&&c.championships>0));
@@ -61,7 +61,7 @@ assert((await call('tournaments')).tournaments.some(t=>t.name==='Pages Cup 2'));
 // New upset rewards are retired; immutable rolls remain.
 const low=roster.find(c=>c.summary.tier==='C'),high=roster.find(c=>c.summary.tier==='B');
 const growth=createTournament('Growth Cup',[low,high],[{...defaultStage('swiss'),rounds:3,advance:1}],41,{shuffle:false}),growthId=crypto.randomUUID();
-for(let i=0;i<2;i++){const m=nextMatch(growth);recordMatch(growth,m,[{winner:low.id,seconds:1,combatVersion:12}]);ok(await call('tournaments/'+growthId,'PUT',{name:growth.name,state:growth}));}
+for(let i=0;i<2;i++){const m=nextMatch(growth);recordMatch(growth,m,[{winner:low.id,seconds:1,combatVersion:13}]);ok(await call('tournaments/'+growthId,'PUT',{name:growth.name,state:growth}));}
 assert.equal((await call('characters/'+low.id)).character.summary.growth,undefined);
 // Reopen, export, import into a different browser, and reject corrupt/foreign backups.
 const before=await call('characters');storage=createStorage(config);
