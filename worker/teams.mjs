@@ -62,5 +62,6 @@ function teamPoolFighter(input){
  if(!plain(input)||!UUID.test(input.id)||typeof input.name!=='string'||!input.name.trim()||input.name.length>100||!plain(input.traits))fail('Invalid pool fighter.');
  const {summary}=validateSnapshot({version:1,generationVersion:3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  if(IDS.some(key=>typeof input.traits[key]!=='string'))fail('Pool fighters need all fourteen traits.');
- return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:3,wheelRarity:summary.wheelRarity}};
+ if(input.teamKit!=null&&!TEAM_LEAGUE.teamKit(input.teamKit))fail('Unknown team kit.');
+ return {teamKit:input.teamKit??null,id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:3,wheelRarity:summary.wheelRarity}};
 }

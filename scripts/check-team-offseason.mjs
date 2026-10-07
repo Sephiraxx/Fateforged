@@ -115,7 +115,7 @@ const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},
 const server=async body=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams',{method:'POST',headers:{'oai-authenticated-user-id':'coach','content-type':'application/json'},body:JSON.stringify(body)}),env);return {status:r.status,...await r.json()};};
 const pages=createStorage({SQL:await initSqlJs(),migrations,worker:pagesWorker,indexedDB,databaseName:'team-offseason-pages'});
 const local=async body=>{const r=await pages.fetch('/api/teams',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return {status:r.status,...await r.json()};};
-const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
+const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
 for(const [label,send]of [['server',server],['pages',local]]){
  let world=null,revision=0;const call=async body=>{const r=await send({format:3,revision,operationId:crypto.randomUUID(),...body});if(r.status===200)({world,revision}=r);return r;};
  const ok=async body=>{const r=await call(body);assert.equal(r.status,200,`${label} ${body.action}: ${r.error}`);return r;};

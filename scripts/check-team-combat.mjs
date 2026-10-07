@@ -39,7 +39,7 @@ class Audited extends TeamBattle{
 // never start without a clear line of sight.
 class Field extends Audited{
  auditReleased(f,t,start){for(const p of this.projectiles.slice(start)){const angle=Math.atan2(p.vy,p.vx);if(!this.pathClear({...p,tactics:f.tactics},t,angle,p.radius,Math.hypot(p.vx,p.vy)))violations.push(`${f.name} released a projectile into cover`);}}
- updateAttack(f,t,dt){const count=this.projectiles.length,aimed=this.fighters[f.action?.targetIndex]??t;super.updateAttack(f,t,dt);this.auditReleased(f,aimed,count);}
+ updateAttack(f,t,dt){const count=this.projectiles.length,aimed=this.fighters[f.action?.targetIndex??f.action?.targets?.[0]]??t;super.updateAttack(f,t,dt);this.auditReleased(f,aimed,count);}
  usePower(f,t,p,copied){const count=this.projectiles.length,result=super.usePower(f,t,p,copied);this.auditReleased(f,t,count);return result;}
 
  startAttack(f,t){const before=f.action;super.startAttack(f,t);if(f.action&&f.action!==before&&f.action.type==='shot'&&!this.clearShot(f,t))violations.push(`${f.name} shot through terrain`);}
