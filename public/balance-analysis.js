@@ -1,6 +1,7 @@
 import './class-abilities.js';
 import './support-catalog.js';
 import {teamRole} from './team-roles.js';
+import {engineForMode} from './team-engine-versions.js';
 import {balanceRates,balanceEvidence,balanceLabel,balanceLever} from './team-balance.js';
 export const AUDIT_RULES=Object.freeze({version:3,pairs:28,screenPairs:8,maxCandidates:null,maxBundleAttempts:3,preseason:.10,halfway:.015});
 export const AUDIT_STATS=['STR','SPD','DUR','IQ','MAG'];
@@ -57,7 +58,7 @@ export function balanceAuditPlan(w,phase){
  }).sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key));
  const traits={};for(const f of roster)for(const key of auditObservations(f).filter(k=>k.startsWith('trait:'))){const row=traits[key]??={key,count:0,observed:rates.get(key)??null};row.count++;}
  const compositions=new Map();for(const t of w.teams){const counts=auditRoles.map(r=>t.lineup.filter(id=>w.fighters[id]?.role===r).length),key=counts.join('-'),row=compositions.get(key)??{key,counts,teams:0};row.teams++;compositions.set(key,row);}
- const census={fighters:roster.length,traits:Object.values(traits),compositions:[...compositions.values()]},engine=w.settings.battleMode==='core'?'team-3.3':'team-2.6',profile=w.balance?.profile??{id:'base',multipliers:{}};
+ const census={fighters:roster.length,traits:Object.values(traits),compositions:[...compositions.values()]},engine=engineForMode(w.settings.battleMode),profile=w.balance?.profile??{id:'base',multipliers:{}};
  const snapshot={id:w.id,seed:w.seed,format:w.format,season:w.season,phase,engine,profile,roster:roster.map(f=>[f.id,f.traits,f.summary.stats,f.summary.tier,f.role,f.ovr]),teams:w.teams.map(t=>[t.id,t.lineup,t.roster,t.tactic,t.coach.personality]),candidates,census};
  return {version:AUDIT_RULES.version,token:auditHash(snapshot),season:w.season,phase,engine,profile:structuredClone(profile),pairs:AUDIT_RULES.pairs,screenPairs:AUDIT_RULES.screenPairs,candidates,census,seed:parseInt(auditHash([w.seed,w.season,phase]),16)};
 }

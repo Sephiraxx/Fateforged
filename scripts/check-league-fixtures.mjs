@@ -8,7 +8,7 @@ const world=LEAGUES.create(crypto.randomUUID(),roster,123,{roundRobin:1});
 const before=JSON.stringify(world);
 for(let d=0;d<7;d++){const cup=leagueCupFixtures(world,d),size=LEAGUES.divisionSizes[d];assert.equal(cup.rounds.flatMap(r=>r.matches).length,size-1);assert.equal(cup.byes.length,32-size);assert(cup.rounds.at(-1).matches.every(m=>m.bestOf===5));assert.equal(new Set(cup.entrants.map(e=>e.id)).size,size);}
 assert.equal(interleagueFixtures(world).cups.length,0);assert.equal(JSON.stringify(world),before);
-const result=m=>Array.from({length:Math.floor(m.bestOf/2)+1},(_,i)=>({winner:m.a,seconds:1,combatVersion:12,environment:resolveConditions((m.seed+i*65537)>>>0,m.conditions)}));
+const result=m=>Array.from({length:Math.floor(m.bestOf/2)+1},(_,i)=>({winner:m.a,seconds:1,combatVersion:13,environment:resolveConditions((m.seed+i*65537)>>>0,m.conditions)}));
 while(LEAGUES.next(world)){
  const match=LEAGUES.next(world);
  if(match.phase!=='league'){

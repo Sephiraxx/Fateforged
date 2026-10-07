@@ -10,7 +10,9 @@ import {TeamBattle as TitanBattle} from './combat-team-v3.js';
 import {TeamBattle as CoreBattle} from './combat-team-v3-core.js';
 import {TeamBattle as ComprehensiveTeamBattle} from './combat-team-v2-6.js';
 import {TeamBattle as ComprehensiveCoreBattle} from './combat-team-v3-3.js';
-export * from './combat-team-v2-6.js';
-export const TEAM_ENGINES=Object.freeze({'team-2.6':ComprehensiveTeamBattle,'team-3.3':ComprehensiveCoreBattle,'team-2':OldTeamBattle,'team-2.1':CoverTeamBattle,'team-2.2':KitTeamBattle,'team-2.3':PatchTeamBattle,'team-2.4':CurrentTeamBattle,'team-2.5':TargetedTeamBattle,'team-3.2':TargetedTitanBattle,'team-3.1':SupportTitanBattle,'team-3-core':CoreBattle,'team-3':TitanBattle});
-export function teamEngine(version='team-2.6'){const Engine=TEAM_ENGINES[version];if(!Engine)throw new Error('Unsupported saved team combat engine.');return Engine;}
+import {TeamBattle as RoleTeamBattle} from './combat-team-v2-7.js';
+import {TeamBattle as RoleCoreBattle} from './combat-team-v3-4.js';
+export * from './combat-team-v2-7.js';
+export const TEAM_ENGINES=Object.freeze({'team-2.7':RoleTeamBattle,'team-3.4':RoleCoreBattle,'team-2.6':ComprehensiveTeamBattle,'team-3.3':ComprehensiveCoreBattle,'team-2':OldTeamBattle,'team-2.1':CoverTeamBattle,'team-2.2':KitTeamBattle,'team-2.3':PatchTeamBattle,'team-2.4':CurrentTeamBattle,'team-2.5':TargetedTeamBattle,'team-3.2':TargetedTitanBattle,'team-3.1':SupportTitanBattle,'team-3-core':CoreBattle,'team-3':TitanBattle});
+export function teamEngine(version='team-2.7'){const Engine=TEAM_ENGINES[version];if(!Engine)throw new Error('Unsupported saved team combat engine.');return Engine;}
 export function simulateTeam(teams,seed,options={}){const Engine=teamEngine(options.engineVersion),battle=new Engine(teams,seed,{...options,headless:options.headless??true});while(!battle.done)battle.step(1/60);return battle.result();}

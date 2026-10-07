@@ -83,7 +83,9 @@ const {simulateTeamSeries}=await import('../public/team-sim-worker.js');
 assert.throws(()=>L.create({id:'bad',format:2,teams:8,seed:31,fighters:[],battleMode:'core'}),/3v3/);
 let cr=await call({...start,revision:5,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),battleMode:'core'});ok(cr);
 cr=await call({action:'draft',format:3,revision:cr.revision,operationId:crypto.randomUUID(),count:1000});ok(cr);
-cr=await call({action:'startSeason',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');assert.equal(cr.world.teamEngine,L.OBJECTIVE_COMBAT_VERSION);
+// Battle rules switch between seasons through the API.
+cr=await call({action:'rules',mode:'teamfight',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'teamfight');cr=await call({action:'rules',mode:'core',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');
+cr=await call({action:'startSeason',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');assert.equal(cr.world.teamEngine,L.OBJECTIVE_COMBAT_VERSION);{const r=await call({action:'rules',mode:'teamfight',format:3,revision:cr.revision,operationId:crypto.randomUUID()});assert.equal(r.status,400);assert.match(r.error,/between seasons/);}
 const cw=structuredClone(cr.world),cm=L.upcoming(cr.world,1)[0],cg=simulateTeamSeries({match:cm,teams:L.squads(cr.world,cm)}),bad=structuredClone(cg);bad[0].objective.coreHp[bad[0].winnerTeam]=0;
 const cmd={action:'record',format:3,revision:cr.revision,operationId:crypto.randomUUID(),results:[{matchId:cm.id,games:bad}]};assert.equal((await call(cmd)).status,400);
 cr=await call({...cmd,operationId:crypto.randomUUID(),results:[{matchId:cm.id,games:cg}]});ok(cr);assert.deepEqual(cr.world.results[0].objective,cg[0].objective);assert(cr.world.stats[cg[0].fighters[0].id].downSeconds>=0);assert.equal(L.impact({damage:0,healing:0,kills:0,ccSeconds:0,objectiveDamage:100,monsterLastHits:1}),340);

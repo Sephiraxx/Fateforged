@@ -4,6 +4,7 @@ import {randomTeam} from './team-generation.js';
 import {createSimulationPool} from './simulation-client.js';
 import {TEAM_TACTICS} from './combat-team.js';
 import {TEAM_MAPS} from './team-maps.js';
+import {engineForMode} from './team-engine-versions.js';
 const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect the carry','focus-healer':'Focus their healer',aggressive:'All-out aggression',defensive:'Hold the line'};
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const scripts=new Map();
@@ -28,7 +29,7 @@ export function mountTeamBattles(host,hooks){
  const board=el('div','','team-board'),status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const conditions=el('fieldset','','conditions'),legend=el('legend','Battle conditions'),row=el('div','','field-row');
  const labelled=(text,control)=>{const l=el('label',text);l.append(control);return l;};
- const battleMode=select([['teamfight','Team battle'],['core','Core siege (preview)']],'teamfight');battleMode.setAttribute('aria-label','Battle rules');const rulesLabel=labelled('Battle rules',battleMode);
+ const battleMode=select([['core','Core siege'],['teamfight','Classic teamfight']],'core');battleMode.setAttribute('aria-label','Battle rules');const rulesLabel=labelled('Battle rules',battleMode);
  const format=select([['1','Bo1'],['3','Bo3'],['5','Bo5']],'1'),time=select([['random','Random each game'],['day','Day'],['dawn','Dawn'],['dusk','Dusk'],['night','Night']],'random'),weather=select([['random','Random each game'],['clear','Clear'],['rain','Rain'],['frost','Frost'],['storm','Storm']],'random'),ground=select([['random','Random each game'],['stone','Stone'],['water','Shallow water']],'random'),map=select([['random','Random each game'],...TEAM_MAPS.map(m=>[m.id,m.label])],'random');
  row.append(rulesLabel,labelled('Match format',format),labelled('Time of day',time),labelled('Weather',weather),labelled('Ground',ground),labelled('Map',map));conditions.append(legend,row);
  const actions=el('div','','team-actions'),watch=button('Watch battle','button primary start-button'),quick=button('Quick result','button secondary');actions.append(watch,quick);
@@ -67,7 +68,7 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3.2':'team-2.5',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {engineVersion:engineForMode(size>2?battleMode.value:'teamfight'),conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
   if(running||hooks.blocked())return;
   running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');

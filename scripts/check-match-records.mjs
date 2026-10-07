@@ -18,15 +18,15 @@ const t=createTournament('Records',roster,[{...defaultStage('groups'),groups:1,a
 const tid='00000000-0000-4000-9000-000000000001';
 const save=()=>request('tournaments/'+tid,'PUT',{name:t.name,state:t});
 assert.equal((await save()).status,200);
-let m=nextMatch(t);recordMatch(t,m,[{combatVersion:12,winner:m.a,seconds:1},{combatVersion:12,winner:m.b,seconds:1}]);
+let m=nextMatch(t);recordMatch(t,m,[{combatVersion:13,winner:m.a,seconds:1},{combatVersion:13,winner:m.b,seconds:1}]);
 assert.equal((await save()).status,200);assert.equal((await save()).status,200);
 assert.equal(db.prepare('SELECT COUNT(*) AS n FROM match_records').get().n,1);
 assert.equal((await listed()).reduce((n,c)=>n+c.matchRecord.draws,0),2);
-while(t.stageIndex===0){m=nextMatch(t);recordMatch(t,m,[{combatVersion:12,winner:m.a,seconds:1},{combatVersion:12,winner:m.a,seconds:1}]);}
+while(t.stageIndex===0){m=nextMatch(t);recordMatch(t,m,[{combatVersion:13,winner:m.a,seconds:1},{combatVersion:13,winner:m.a,seconds:1}]);}
 assert.equal((await save()).status,200);
 const past=stageStandings(t,0);assert.equal(past.groups.length,1);assert(past.rows.every(r=>r.wins+r.draws+r.losses===2));
 assert.equal(stageStandings(t,2),null);
-while(!t.done){m=nextMatch(t);recordMatch(t,m,Array.from({length:m.bestOf?Math.floor(m.bestOf/2)+1:m.legs},()=>({combatVersion:12,winner:m.a,seconds:1}))); }
+while(!t.done){m=nextMatch(t);recordMatch(t,m,Array.from({length:m.bestOf?Math.floor(m.bestOf/2)+1:m.legs},()=>({combatVersion:13,winner:m.a,seconds:1}))); }
 assert.equal((await save()).status,200);
 const count=t.history.filter(m=>!m.bye).length;
 assert.equal(db.prepare('SELECT COUNT(*) AS n FROM match_records').get().n,count);
@@ -46,7 +46,7 @@ assert.equal((await request('match-records/'+fid,'PUT',{...friendly,score:[1,3]}
 assert.equal(db.prepare('SELECT COUNT(*) AS n FROM match_records').get().n,count+1);
 assert.equal((await request('match-records/'+fid,'PUT',friendly,'other-owner')).status,404);
 assert.deepEqual(await listed('other-owner'),[]);
-const odd=createTournament('Bye',roster,[{...defaultStage('swiss'),rounds:1,bestOf:undefined,legs:2}],2,{shuffle:false});m=nextMatch(odd);recordMatch(odd,m,[{combatVersion:12,winner:m.a,seconds:1},{combatVersion:12,winner:m.a,seconds:1}]);
+const odd=createTournament('Bye',roster,[{...defaultStage('swiss'),rounds:1,bestOf:undefined,legs:2}],2,{shuffle:false});m=nextMatch(odd);recordMatch(odd,m,[{combatVersion:13,winner:m.a,seconds:1},{combatVersion:13,winner:m.a,seconds:1}]);
 const oddId='00000000-0000-4000-9000-000000000003';assert.equal((await request('tournaments/'+oddId,'PUT',{name:odd.name,state:odd})).status,200);
 assert.equal(db.prepare('SELECT COUNT(*) AS n FROM match_records WHERE tournament_id = ?').get(oddId).n,1);
 console.log('Match records passed: whole-match W/L/D, idempotent saves, draws, byes, friendly matches, compressed historical backfill, deletion retention, owner isolation, past-stage standings, and finals between brackets.');

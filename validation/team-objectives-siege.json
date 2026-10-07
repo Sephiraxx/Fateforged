@@ -1,0 +1,33 @@
+{
+  "phase": "siege",
+  "engine": "team-3.4",
+  "note": "Tuned Core siege (team-3.4). Seeded balanced mirrors alternate sides on all weighted maps; summary rows only.",
+  "rows": [
+    {
+      "size": 3,
+      "games": 40,
+      "medianSeconds": 272.7,
+      "averageSeconds": 253,
+      "suddenDeathRate": 10,
+      "timeLimitRate": 10,
+      "titanIgnoredRate": 0,
+      "monsterKills": 66,
+      "stealRate": 19.7,
+      "forgefireWinRate": 87.5,
+      "averageMs": 2542
+    },
+    {
+      "size": 5,
+      "games": 40,
+      "medianSeconds": 284.9,
+      "averageSeconds": 266,
+      "suddenDeathRate": 17.5,
+      "timeLimitRate": 7.5,
+      "titanIgnoredRate": 0,
+      "monsterKills": 63,
+      "stealRate": 20.6,
+      "forgefireWinRate": 93.1,
+      "averageMs": 3989
+    }
+  ]
+}
