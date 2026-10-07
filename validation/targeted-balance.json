@@ -1,0 +1,28 @@
+{
+  "monteCarloPairs": 28,
+  "maxCandidates": 4,
+  "preseasonMaximum": 0.1,
+  "midseasonMaximum": 0.015,
+  "realSmoke": {
+    "key": "ability:fire",
+    "status": "tested",
+    "pairs": 4,
+    "wins": 4,
+    "validationWins": 4,
+    "patchedWins": 4,
+    "controls": 4,
+    "carriers": 4
+  },
+  "syntheticPatch": [
+    {
+      "lever": "ability:fire:cooldown",
+      "from": 1,
+      "to": 1.1,
+      "games": 56,
+      "winRate": 100,
+      "note": "Fire control cooldown +10% (100% → 50% in validation simulations)"
+    }
+  ],
+  "baseParity": true,
+  "savedRollsUnchanged": true
+}

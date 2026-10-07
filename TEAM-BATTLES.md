@@ -4,7 +4,9 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
 
 ## Current ability rules
 
-Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.4 and Core siege 3.1. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
+Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
+
+Save-specific Monte Carlo audits can tune individual ability cooldowns and effective stats, with up to 10% preseason adjustments. Patch history folds by season, and new championships preserve their winning roster. See [TARGETED-BALANCE.md](TARGETED-BALANCE.md).
 
 The sections below record how the team systems were introduced; references to extra kits describe the earlier implementation.
 
