@@ -201,3 +201,6 @@ body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{disp
 .team-detail .table-scroll{max-width:100%;overflow-x:auto}
 @media (max-width:640px){.team-detail .team-league-table td,.team-detail .team-league-table th{padding-left:6px;padding-right:6px}}
 .team-card[aria-expanded="true"]{border-color:var(--accent)}
+/* Playoffs and after: the regular-season weeks fold away under the bracket. */
+.season-results>.week-browser{margin:0 12px 12px}
+.team-draft>.team-playoffs{margin-top:12px}
