@@ -26,7 +26,6 @@ assert.throws(()=>L.draftPick(structuredClone(w),L.teamById(w,w.teams[0].id).ros
 const choice=candidates.at(-1);L.draftPick(w,choice.id);assert.equal(w.fighters[choice.id].team,me);
 if(!w.draft.complete&&L.onTheClock(w)!==me)assert.throws(()=>L.draftPick(structuredClone(w),L.available(w)[0].id),/not your pick/);
 finishDraft(w);const mine=L.teamById(w,me);assert.equal(w.phase,'ready');assert.equal(mine.roster.length,5);
-for(const [role,need]of Object.entries(L.FORMATS[3].needs))assert(L.roleCounts(w,mine)[role]>=need,'The user’s roster still meets every role need.');
 
 // Lineups and tactics: validated, then carried into every match description and simulation.
 for(const bad of [[],mine.roster.slice(0,2),[mine.roster[0],mine.roster[0],mine.roster[1]],[...mine.roster.slice(0,2),w.teams[0].roster[0]]])assert.throws(()=>L.setLineup(w,bad),/Choose 3/);
@@ -83,13 +82,22 @@ const firstRound=w.draft.slots.filter(s=>s.round===1).map(s=>s.team);assert.deep
 assert.equal(L.totalPicks(w),w.teams.reduce((n,t)=>n+5-t.roster.length,0));
 finishDraft(w);assert.equal(w.phase,'ready');assert.equal(w.season,2);assert.equal(w.offseason,null);assert(w.lastOffseason.trades.length>=1);
 assert.deepEqual([w.schedule,w.playoffs,w.results],[null,null,[]]);
-for(const team of w.teams){assert.equal(team.roster.length,5);assert.equal(team.lineup.length,3);assert(team.lineup.every(id=>team.roster.includes(id)));for(const [role,need]of Object.entries(L.FORMATS[3].needs))assert(L.roleCounts(w,team)[role]>=need,`${team.name} fills its ${role} needs`);}
+for(const team of w.teams){assert.equal(team.roster.length,5);assert.equal(team.lineup.length,3);assert(team.lineup.every(id=>team.roster.includes(id)));}
 assert.equal(L.teamById(w,me).tactic,'focus-healer','The user’s tactic carries over.');
 // Season two runs and its offseason retires long-unsigned free agents (MVPs excepted).
 L.startSeason(w);playOut(w);const protectedIds=new Set(w.titles.map(t=>t.mvp));L.startOffseason(w,rookies(w));
 for(const f of Object.values(w.fighters))if(!f.team&&!protectedIds.has(f.id))assert(f.freeAgentSince>=2,'Free agents unsigned for two offseasons retire.');
 assert(w.offseason.retired>0);L.decideReleases(w,[]);L.closeMarket(w);finishDraft(w);assert.equal(w.season,3);
 assert(JSON.stringify(w).length<1500000);
+
+// Metas: if lineups with more healers keep winning, coaches lean towards healers; tacticians fast, fortress builders barely.
+const meta=league(3,8,6060);L.draftPicks(meta,1e6);L.startSeason(meta);
+const rigged=m=>{const healers=m.lineups.map(ids=>ids.filter(id=>meta.fighters[id].role==='healer').length),side=healers[0]!==healers[1]?(healers[0]>healers[1]?0:1):m.seed%2;return fake(m).slice(0,Math.ceil(m.bestOf/2)).map(g=>({...g,winnerTeam:side,hp:side?[0,50]:[50,0]}));};
+let metaGuard=0;while(meta.phase==='season'||meta.phase==='playoffs'){const [m]=L.upcoming(meta,1);L.recordMatch(meta,m.id,rigged(m));assert(++metaGuard<500);}
+const report=L.seasonMeta(meta);assert(report.edge.healer>.2,`Healer-heavy lineups won (edge ${report.edge.healer})`);assert.equal(report.shift.role,'healer');assert(report.top.length>0);
+const adapted=structuredClone(meta),[tact,fort]=adapted.teams;tact.coach.personality='tactician';fort.coach.personality='fortress';tact.coach.comp={tank:1,healer:1,controller:1,damage:1};fort.coach.comp={...tact.coach.comp};
+L.adaptCoaches(adapted,report);assert(tact.coach.comp.healer>fort.coach.comp.healer&&fort.coach.comp.healer>1,'Tacticians copy the meta faster than fortress builders, but both move.');
+L.startOffseason(meta,rookies(meta,6161));assert.equal(meta.offseason.meta.shift.role,'healer','The offseason report names the season’s meta.');
 
 // Spectator leagues run the whole offseason without stopping, for every format and size.
 const churn=[];

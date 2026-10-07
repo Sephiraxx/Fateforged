@@ -44,7 +44,7 @@ class Field extends Audited{
 const run=(teams,seed,options={})=>{const b=new Audited(teams,seed,{headless:true,...options});while(!b.done)b.step(1/60);return b.result();};
 
 // Both sizes finish with a valid result shape.
-for(const size of [3,5]){
+for(const size of [2,3,5]){
  const a=squad(COMPOSITIONS[`balanced${size}`],100+size),b=squad(COMPOSITIONS[`balanced${size}`],200+size),r=run([a,b],900+size);
  assert.equal(r.mode,'team');assert.equal(r.size,size);assert.equal(r.combatVersion,TEAM_ENGINE_VERSION);assert([0,1].includes(r.winnerTeam));
  assert.equal(r.fighters.length,size*2);assert.deepEqual(r.teams,[a.map(c=>c.id),b.map(c=>c.id)]);assert(r.seconds>0&&r.seconds<=engine.TEAM_TIME_LIMIT);
@@ -52,7 +52,7 @@ for(const size of [3,5]){
  for(const f of r.fighters){for(const k of ['damage','healing','kills','deaths'])assert(Number.isInteger(f[k])&&f[k]>=0,k);assert(f.ccSeconds>=0);}
 }
 
-let fieldSteps=0;for(const [i,map]of MAP_IDS.entries())for(const size of [3,5]){const b=new Field([squad(COMPOSITIONS[`balanced${size}`],1200+i*2+size),squad(COMPOSITIONS[`balanced${size}`],1300+i*2+size)],61000+i*10+size,{headless:true,map});assert.equal(b.environment.map,map);assert.deepEqual([b.width,b.height],[960,600]);assert(b.fighters.every(f=>f.team?f.x>680:f.x<280),'Teams spawn on their own side.');while(!b.done){b.step(1/60);fieldSteps++;}assert.equal(b.result().environment.map,map);}
+let fieldSteps=0;for(const [i,map]of MAP_IDS.entries())for(const size of [2,3,5]){const b=new Field([squad(COMPOSITIONS[`balanced${size}`],1200+i*2+size),squad(COMPOSITIONS[`balanced${size}`],1300+i*2+size)],61000+i*10+size,{headless:true,map});assert.equal(b.environment.map,map);assert.deepEqual([b.width,b.height],[960,600]);assert(b.fighters.every(f=>f.team?f.x>680:f.x<280),'Teams spawn on their own side.');while(!b.done){b.step(1/60);fieldSteps++;}assert.equal(b.result().environment.map,map);}
 assert.deepEqual(violations,[],violations.slice(0,3).join('; '));
 
 // Determinism: same seed, same battle; watched (non-headless) and headless runs agree.
@@ -90,6 +90,6 @@ assert.deepEqual(evaluation.maps.map(m=>m.map),MAP_IDS);assert.deepEqual([...new
 // Formations: half as much isolated fighting as the first team engine, healers covering their tanks,
 // and Hold the line keeping a tighter shape than All-out aggression.
 for(const base of evaluation.baseline.matchups.filter(m=>m.a===m.b)){const now=evaluation.matchups.find(m=>m.a===base.a&&m.b===base.b);assert(now.isolatedPct<=base.isolatedPct/2,`${base.a}: isolated ${now.isolatedPct}% vs ${base.isolatedPct}% before`);assert(now.outnumberedPct<base.outnumberedPct,`${base.a}: outnumbered ${now.outnumberedPct}%`);}
-for(const m of evaluation.matchups.filter(m=>m.a.startsWith('balanced')))assert(m.healerCoverPct>=80,`${m.a} vs ${m.b}: healer cover ${m.healerCoverPct}%`);
+for(const m of evaluation.matchups.filter(m=>m.a.startsWith('balanced')&&COMPOSITIONS[m.a].includes('healer')))assert(m.healerCoverPct>=80,`${m.a} vs ${m.b}: healer cover ${m.healerCoverPct}%`);
 for(const size of [3,5]){const spread=t=>evaluation.tactics.find(x=>x.size===size&&x.tactic===t).spread;assert(spread('defensive')<spread('aggressive'),`${size}v${size}: Hold the line should be tighter than All-out aggression`);}
 console.log(`Team combat passed: roles, ranged-first damage generation (${types.ranged} ranged, ${types.arcane} arcane, ${types.melee} melee with mobility), mirrored seeded maps, ${fieldSteps} audited field steps on every map (bounds, terrain, line of sight), formation targets, 3v3/5v5 results, determinism and watched parity, no friendly fire or enemy heals, ally healing ${Math.round(allyHealing)} HP (${healerWins}/${games} healer-comp wins), control immunity, ${Math.round(total/timings)} ms per 5v5.`);

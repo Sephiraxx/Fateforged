@@ -105,7 +105,7 @@
 .team-scrimmage select{margin:0}
 @media (max-width:640px){.team-size-pick{grid-template-columns:1fr}.team-scrimmage{grid-template-columns:1fr}.team-league-head{flex-direction:column}}
 
-body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{display:none}
+body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{display:none}
 
 /* Season, playoffs and champion */
 .team-league-table tr.played td.won{color:var(--lime);font-weight:700}
@@ -204,3 +204,6 @@ body[data-mode="team3"] .arena-status,body[data-mode="team5"] .arena-status{disp
 /* Playoffs and after: the regular-season weeks fold away under the bracket. */
 .season-results>.week-browser{margin:0 12px 12px}
 .team-draft>.team-playoffs{margin-top:12px}
+/* Team composition line and the offseason meta. */
+.team-comp{margin:2px 0 8px;font:600 .8rem/1.4 var(--display);letter-spacing:.04em;color:var(--text)}
+.offseason-meta{margin:6px 0 12px}
