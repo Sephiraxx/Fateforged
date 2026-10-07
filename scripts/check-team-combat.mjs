@@ -38,6 +38,10 @@ class Audited extends TeamBattle{
 // The wide field: every fighter stays inside it, nobody on foot ends a step inside terrain, and ranged attacks
 // never start without a clear line of sight.
 class Field extends Audited{
+ auditReleased(f,t,start){for(const p of this.projectiles.slice(start)){const angle=Math.atan2(p.vy,p.vx);if(!this.pathClear({...p,tactics:f.tactics},t,angle,p.radius,Math.hypot(p.vx,p.vy)))violations.push(`${f.name} released a projectile into cover`);}}
+ updateAttack(f,t,dt){const count=this.projectiles.length,aimed=this.fighters[f.action?.targetIndex]??t;super.updateAttack(f,t,dt);this.auditReleased(f,aimed,count);}
+ usePower(f,t,p,copied){const count=this.projectiles.length,result=super.usePower(f,t,p,copied);this.auditReleased(f,t,count);return result;}
+
  startAttack(f,t){const before=f.action;super.startAttack(f,t);if(f.action&&f.action!==before&&f.action.type==='shot'&&!this.clearShot(f,t))violations.push(`${f.name} shot through terrain`);}
  step(dt){super.step(dt);for(const f of this.fighters){if(f.hp<=0)continue;if(f.x<18-1e-9||f.x>this.width-18+1e-9||f.y<18-1e-9||f.y>this.height-18+1e-9)violations.push(`${f.name} left the field`);if(f.flight<=0)for(const o of this.obstacles)if(o.terrain&&Math.hypot(f.x-o.x,f.y-o.y)<o.radius+f.radius-.5)violations.push(`${f.name} stands inside terrain on ${this.environment.map}`);}}
 }

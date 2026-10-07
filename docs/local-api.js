@@ -5174,6 +5174,31 @@ function mapTerrain(id,seed){
  return pieces.map(p=>({x:round(p.x),y:round(p.y),radius:round(p.radius),life:Infinity,terrain:true}));
 }
 
+// Shared by the worker, watched games and the authoritative league validator.
+const SERIES_TACTICS=['balanced','protect-carry','focus-healer','aggressive','defensive'];
+function seriesScore(games=[]){return games.reduce((score,g)=>{score[g.winnerTeam]++;return score;},[0,0]);}
+function seriesTactics(match,games=[]){
+ const initial=match.initialTactics??match.tactics,previous=games.at(-1),score=seriesScore(games);
+ if(!previous||match.seriesRulesVersion!==2)return [...initial];
+ return initial.map((base,side)=>{
+  const last=previous.tactics?.[side]??base;
+  if(side===match.userSide||previous.winnerTeam===side)return last;
+  const style=match.coachStyles?.[side]??'balanced',behind=score[side]<score[1-side];
+  if(style==='glass')return 'aggressive';
+  if(style==='fortress')return last==='defensive'?'protect-carry':'defensive';
+  if(style==='tactician')return last==='focus-healer'?'balanced':'focus-healer';
+  if(style==='star')return behind?'focus-healer':'protect-carry';
+  if(style==='bargain')return behind?'aggressive':'balanced';
+  return last==='balanced'?'protect-carry':'balanced';
+ });
+}
+function seriesGameOptions(match,games=[],choice=null){
+ const tactics=seriesTactics(match,games),lineups=(games.at(-1)?.lineups??match.initialLineups??match.lineups).map(ids=>[...ids]);
+ if(choice&&match.userSide>=0){if(choice.lineup)lineups[match.userSide]=[...choice.lineup];if(choice.tactic)tactics[match.userSide]=choice.tactic;}
+ return {lineups,tactics};
+}
+
+
 // Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
 
@@ -5350,7 +5375,7 @@ const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,team)).map
 // ---------- Season and playoffs (phase 3) ----------
 const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
-const TEAM_COMBAT_VERSION='team-2';
+const TEAM_COMBAT_VERSION='team-2.1';
 const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
@@ -5374,7 +5399,7 @@ function buildSchedule(w){
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
 function startSeason(w){
  if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
- w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
+ w.teamEngine=TEAM_COMBAT_VERSION;delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
 }
 const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
 const pct=([wins,losses])=>wins+losses?wins/(wins+losses):0;
@@ -5417,14 +5442,14 @@ function startPlayoffs(w){w.phase='playoffs';w.playoffs={seeds:playoffSeeds(w),r
 function upcoming(w,limit=Infinity){
  const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;if(out.length>=limit)return out;out.push(describe(w,{...g,kind:'regular',week:week.week,bestOf:1}));}}
  else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;if(out.length>=limit)break;out.push(describe(w,{...s,kind:'playoff'}));}}
- return out;
+ if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out;
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);return {...m,seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
-const squads=(w,match)=>match.lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,traits:f.traits,summary:f.summary};}));
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
+const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
-function validGame(game,lineups){
+function validGame(game,lineups,engineVersion){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
- if(!game||game.combatVersion!==TEAM_COMBAT_VERSION||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>120.5)return false;
+ if(!game||game.combatVersion!==engineVersion||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>120.5)return false;
  if(!Array.isArray(game.hp)||game.hp.length!==2||game.hp.some(h=>!Number.isInteger(h)||h<0||h>100))return false;
  if(!game.environment||Object.entries(ENVIRONMENT).some(([k,v])=>!v.includes(game.environment[k])))return false;
  if(!Array.isArray(game.fighters)||game.fighters.length!==ids.length||game.fighters.some((f,i)=>f?.id!==ids[i]||!count(f.damage)||!count(f.healing)||!count(f.kills)||!count(f.deaths)||!(f.ccSeconds>=0&&f.ccSeconds<=200)))return false;
@@ -5436,19 +5461,39 @@ function recordMatch(w,matchId,games){
  const [m]=upcoming(w,w.phase==='playoffs'?Infinity:1).filter(x=>w.phase==='season'||x.id===matchId);
  if(!m||m.id!==matchId)throw new Error('That is not the next team-league match.');
  const need=Math.ceil(m.bestOf/2);if(!Array.isArray(games)||!games.length||games.length>m.bestOf)throw new Error('Invalid team-league series.');
- const score=[0,0];games.forEach((g,i)=>{if(!validGame(g,m.lineups))throw new Error('Invalid team-league game result.');if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');score[g.winnerTeam]++;});
+ const partial=w.pendingSeries?.matchId===matchId?w.pendingSeries:null;
+ if(w.pendingSeries&&!partial)throw new Error('Finish the paused series first.');
+ if(partial&&JSON.stringify(games.slice(0,partial.games.length))!==JSON.stringify(partial.games))throw new Error('Completed series games cannot be changed.');
+ const score=[0,0],accepted=[];games.forEach((g,i)=>{if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');const plan=validateSeriesGame(w,m,g,accepted);accepted.push({...g,...plan});score[g.winnerTeam]++;});
  if(Math.max(...score)!==need)throw new Error('The series is not complete.');
- const winner=score[0]>score[1]?m.home:m.away;addStats(w,games,m.lineups);
- const comps=m.lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);});
+ const winner=score[0]>score[1]?m.home:m.away;for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
+ const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),comps=countsFor(accepted[0].lineups);
  if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds,comps});if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=games.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds}));s.comps=comps;s.winner=winner;
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,engineVersion:m.engineVersion,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
   if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
  return {id:m.id,winner,score};
+}
+function validateSeriesGame(w,m,g,previous){
+ const plan=seriesGameOptions(m,previous),lineups=g.lineups??plan.lineups,tactics=g.tactics??plan.tactics;
+ if(!Array.isArray(lineups)||lineups.length!==2||!Array.isArray(tactics)||tactics.length!==2)throw new Error('Invalid game lineup or tactic.');
+ for(const side of [0,1]){const team=teamById(w,side?m.away:m.home),ids=lineups[side];
+  if(!Array.isArray(ids)||ids.length!==w.format||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id))||side!==m.userSide&&JSON.stringify(ids)!==JSON.stringify(plan.lineups[side]))throw new Error('Choose starters from the coached team roster only.');
+  if(!SERIES_TACTICS.includes(tactics[side])||side!==m.userSide&&tactics[side]!==plan.tactics[side])throw new Error('The AI coach tactic must follow the series plan.');
+ }
+ if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics]};
+}
+function recordSeriesGame(w,matchId,game){
+ const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
+ if(w.pendingSeries&&w.pendingSeries.matchId!==matchId)throw new Error('Finish the paused series first.');
+ const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
+ if(Math.max(...score)===Math.ceil(m.bestOf/2)){recordMatch(w,matchId,games);return {complete:true,score};}
+ w.pendingSeries={...partial,games};return {complete:false,score};
 }
 function impact(s){return s.damage+s.healing*1.1+s.kills*120+s.ccSeconds*30;}
 function finishSeason(w,final){
  const runnerUp=final.home===final.winner?final.away:final.home,best=Object.entries(w.stats).sort((a,b)=>impact(b[1])-impact(a[1])||(a[0]<b[0]?-1:1))[0];
- const mvp=best?.[0]??null;w.titles=[...(w.titles??[]),{season:w.season,champion:final.winner,runnerUp,mvp,mvpName:mvp&&w.fighters[mvp].name,mvpTeam:mvp&&w.fighters[mvp].team}];w.phase='complete';
+ const mvp=best?.[0]??null;w.titles=[...(w.titles??[]),{season:w.season,champion:final.winner,championName:teamById(w,final.winner).name,runnerUp,mvp,mvpName:mvp&&w.fighters[mvp].name,mvpTeam:mvp&&w.fighters[mvp].team}];w.phase='complete';
 }
 function leaders(w,key,limit=5){return Object.entries(w.stats??{}).map(([id,s])=>({fighter:w.fighters[id],value:key==='impact'?Math.round(impact(s)):s[key],stats:s})).sort((a,b)=>b.value-a.value||(a.fighter.id<b.fighter.id?-1:1)).slice(0,limit);}
 
@@ -5461,6 +5506,7 @@ function teamTactic(w,team){return team.tactic??COACH_TACTICS[team.coach.persona
 function userTeam(w){const team=w.settings.userTeam&&teamById(w,w.settings.userTeam);if(!team)throw new Error('Take control of a team first.');return team;}
 // Coach mode: take over any team before the draft starts or between seasons; hand it back at any time.
 function claimTeam(w,teamId){
+ if(w.pendingSeries)throw new Error('Finish the paused series before changing coaches.');
  if(teamId===null){if(w.phase==='offseason'&&w.offseason.step!=='draft')throw new Error('Finish your offseason decisions first.');w.settings.userTeam=null;return w;}
  if(!teamById(w,teamId))throw new Error('Unknown team.');
  if(!(w.phase==='draft'&&!w.draft.picks.length||['ready','complete'].includes(w.phase)))throw new Error('Take over a team before the draft starts or between seasons.');
@@ -5515,7 +5561,7 @@ function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.team=
 function seasonMeta(w){
  const games=[],toCounts=a=>Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]])),byKey=new Map(),more=Object.fromEntries(ROLE_KEYS.map(r=>[r,{wins:0,games:0}])),edge={};
  for(const r of w.results??[])if(r.comps)games.push({comps:r.comps,winner:r.winner===r.home?0:1});
- for(const round of w.playoffs?.rounds??[])for(const s of round.series)if(s.comps)for(const g of s.games??[])games.push({comps:s.comps,winner:g.winnerTeam});
+ for(const round of w.playoffs?.rounds??[])for(const s of round.series)if(s.comps)for(const g of s.games??[])games.push({comps:g.comps??s.comps,winner:g.winnerTeam});
  for(const g of games){
   g.comps.forEach((a,side)=>{const counts=toCounts(a),key=compKey(counts),e=byKey.get(key)??{key,label:compLabel(counts),wins:0,games:0};e.games++;if(g.winner===side)e.wins++;byKey.set(key,e);});
   ROLE_KEYS.forEach((r,i)=>{const d=g.comps[0][i]-g.comps[1][i];if(!d)return;more[r].games++;if(g.winner===(d>0?0:1))more[r].wins++;});
@@ -5602,7 +5648,7 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
+return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -5616,7 +5662,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
@@ -5648,6 +5694,7 @@ async function teamApi(request,env,url){
    else TEAM_LEAGUE.closeMarket(world);
   }catch(e){fail(e.message);}
  }
+ else if(input.action==='seriesGame'){try{TEAM_LEAGUE.recordSeriesGame(world,input.matchId,input.game);}catch(e){fail(e.message);}}
  else if(input.action==='record'){
   // Simulated matches arrive in batches; each must be the next match and a complete, valid series.
   if(!Array.isArray(input.results)||!input.results.length||input.results.length>400)fail('Send between 1 and 400 team-league matches.');

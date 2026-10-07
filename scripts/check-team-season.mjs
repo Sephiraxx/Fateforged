@@ -6,7 +6,7 @@ import worker from '../dist/server/index.js';
 
 const league=(format,teams,seed)=>{const plan=L.poolPlan(format,teams,seed),w=L.create({id:crypto.randomUUID(),format,teams,seed,fighters:plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`))});L.draftPicks(w,1e6);return w;};
 // Synthetic but valid series results (fast); one real simulated series is checked separately.
-const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],combatVersion:'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map(id=>({id,damage:n%500,healing:n%97,kills:n%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
+const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map(id=>({id,damage:n%500,healing:n%97,kills:n%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
 
 // Schedules: perfect weekly matchings with the right number of games, for several seasons and every size.
