@@ -68,11 +68,12 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3-core':'team-2.3',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3':'team-2.3',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
-  if(running||hooks.blocked())return;const matchOptions=options(),squads=await teams(),bestOf=Number(format.value),need=Math.ceil(bestOf/2),seed=crypto.getRandomValues(new Uint32Array(1))[0],games=[],score=[0,0];
+  if(running||hooks.blocked())return;
   running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');
   try{
+   const matchOptions=options(),squads=await teams(),bestOf=Number(format.value),need=Math.ceil(bestOf/2),seed=crypto.getRandomValues(new Uint32Array(1))[0],games=[],score=[0,0];
    while(score[0]<need&&score[1]<need){const game=games.length,gameSeed=(seed+game*65537)>>>0,caption=`${size}v${size} exhibition · Bo${bestOf} · game ${game+1} · ${score.join('–')}`;
     const result=watching?await hooks.watch(squads,gameSeed,{...matchOptions,caption}):await quickPool.simulate({exhibition:true,teams:squads,seed:gameSeed,options:matchOptions});games.push(result);score[result.winnerTeam]++;if(watching&&score[0]<need&&score[1]<need){const choice=await hooks.intermission({title:`Game ${games.length} complete`,score,result});if(choice===null){showResults(squads,games,score);hooks.setup?.();say('Series paused. Start a new exhibition when ready.');return;}}}
    showResults(squads,games,score);say(`${score[0]>score[1]?'Blue':'Red'} team wins ${score[0]}–${score[1]}.`);

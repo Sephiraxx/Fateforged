@@ -5416,7 +5416,7 @@ const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,team)).map
 const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
 const TEAM_COMBAT_VERSION='team-2.3';
-const OBJECTIVE_COMBAT_VERSION='team-3-core';
+const OBJECTIVE_COMBAT_VERSION='team-3';
 const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
