@@ -1,3 +1,4 @@
+import {neutralBalance,lineupGroups,balanceObservations,applyBalanceCheckpoint} from './team-balance.js';
 import {teamKit,TEAM_KITS} from './team-kits.js';
 import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
 // Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
@@ -104,7 +105,7 @@ export function create({id,format:formatSize,teams,seed,fighters}){
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  settings:{teams,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  balance:neutralBalance(),settings:{teams,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -176,7 +177,7 @@ export const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,tea
 // ---------- Season and playoffs (phase 3) ----------
 export const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
-export const TEAM_COMBAT_VERSION='team-2.2';
+export const TEAM_COMBAT_VERSION='team-2.3';
 export const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 export const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
@@ -200,7 +201,7 @@ export function buildSchedule(w){
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
 export function startSeason(w){
  if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
- w.teamEngine=TEAM_COMBAT_VERSION;delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
+ w.teamEngine=TEAM_COMBAT_VERSION;w.balance??=neutralBalance();w.balance.samples=[];delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
 }
 const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
 const pct=([wins,losses])=>wins+losses?wins/(wins+losses):0;
@@ -241,11 +242,11 @@ function openRound(w){
 function startPlayoffs(w){w.phase='playoffs';w.playoffs={seeds:playoffSeeds(w),rounds:[],champion:null};openRound(w);}
 // The next matches to simulate, in the order the server will accept them.
 export function upcoming(w,limit=Infinity){
- const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;out.push(describe(w,{...g,kind:'regular',week:week.week,bestOf:1}));}}
- else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push(describe(w,{...s,kind:'playoff'}));}}
- if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit);
+ const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;out.push({...g,kind:'regular',week:week.week,bestOf:1});}}
+ else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push({...s,kind:'playoff'});}}
+ if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit).map(m=>describe(w,m));
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(['team-2.3','team-3-core','team-3'].includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
 export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
@@ -267,10 +268,10 @@ export function recordMatch(w,matchId,games){
  if(partial&&JSON.stringify(games.slice(0,partial.games.length))!==JSON.stringify(partial.games))throw new Error('Completed series games cannot be changed.');
  const score=[0,0],accepted=[];games.forEach((g,i)=>{if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');const plan=validateSeriesGame(w,m,g,accepted);accepted.push({...g,...plan});score[g.winnerTeam]++;});
  if(Math.max(...score)!==need)throw new Error('The series is not complete.');
- const winner=score[0]>score[1]?m.home:m.away;for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
+ const winner=score[0]>score[1]?m.home:m.away;if(m.balance){w.balance??=neutralBalance();for(const g of accepted)w.balance.samples.push(balanceObservations(g.lineups.map(ids=>lineupGroups(ids.map(id=>w.fighters[id]))),g.winnerTeam));}for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
  const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),comps=countsFor(accepted[0].lineups);
- if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds,comps});if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,engineVersion:m.engineVersion,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
+ if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds,comps,engineVersion:m.engineVersion,balance:m.balance,lineups:accepted[0].lineups});balanceCheckpoint(w,'halfway');if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
   if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
  return {id:m.id,winner,score};
 }
@@ -281,6 +282,7 @@ function validateSeriesGame(w,m,g,previous){
   if(!Array.isArray(ids)||ids.length!==w.format||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id))||side!==m.userSide&&JSON.stringify(ids)!==JSON.stringify(plan.lineups[side]))throw new Error('Choose starters from the coached team roster only.');
   if(!SERIES_TACTICS.includes(tactics[side])||side!==m.userSide&&tactics[side]!==plan.tactics[side])throw new Error('The AI coach tactic must follow the series plan.');
  }
+ if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
  return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics]};
 }
@@ -383,7 +385,7 @@ export function startOffseason(w,rookies){
  if(w.phase!=='complete')throw new Error('Finish the season before the offseason.');
  const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
- const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
+ balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
  const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
@@ -448,3 +450,6 @@ function newSeason(w){
  const size=FORMATS[w.format].size;w.lastOffseason=w.offseason;w.offseason=null;w.season++;w.phase='ready';w.schedule=null;w.results=[];w.stats={};w.playoffs=null;
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
+
+export function setAutoBalance(w,enabled){if(typeof enabled!=='boolean')throw new Error('Choose whether auto-balance is enabled.');w.balance??=neutralBalance();w.balance.enabled=enabled;return w;}
+function balanceCheckpoint(w,phase){if(!w.balance||!['team-2.3','team-3-core','team-3'].includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}

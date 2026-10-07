@@ -67,7 +67,8 @@ assert.deepEqual(response.world.draft.picks,drafted.draft.picks.slice(0,12),'Ser
 response=await call({action:'draft',format:3,revision:2,operationId:crypto.randomUUID(),count:1000});ok(response);assert(response.world.draft.complete);assert.deepEqual(response.world.teams,drafted.teams);
 assert.equal((await call({action:'draft',format:3,revision:3,operationId:crypto.randomUUID(),count:1})).status,400,'No picks after the draft.');
 assert.equal((await call(null,5)).world,null,'3v3 and 5v5 leagues are separate.');
-ok(await call({action:'reset',format:3,revision:3,operationId:crypto.randomUUID()}));assert.equal((await call()).world,null);
+const toggle={action:'balance',format:3,revision:3,operationId:crypto.randomUUID(),enabled:false};response=await call(toggle);ok(response);assert.equal(response.world.balance.enabled,false);assert.deepEqual(await call(toggle),response);assert.equal((await call({...toggle,revision:4,operationId:crypto.randomUUID(),enabled:'yes'})).status,400);
+ok(await call({action:'reset',format:3,revision:4,operationId:crypto.randomUUID()}));assert.equal((await call()).world,null);
 assert.equal((await worker.fetch(new Request('https://fateforge.test/api/teams?format=3'),env)).status,401);
 
 // Browser storage (GitHub Pages build) runs the same commands.

@@ -8,7 +8,7 @@ import {powerFor} from '../public/abilities-v12.js';
 
 const seed=1414,plan=L.poolPlan(3,8,seed),fighters=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`)),w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed,fighters});
 L.draftPicks(w,1000);L.claimTeam(w,w.teams[0].id);L.startSeason(w);
-const game=(m,previous=[],winnerTeam=0,choice=null)=>{const p=seriesGameOptions(m,previous,choice);return {winnerTeam,seconds:30,hp:winnerTeam?[0,70]:[70,0],reason:'Team eliminated',combatVersion:m.engineVersion,environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:p.lineups.flat().map(id=>({id,damage:100,healing:0,kills:0,deaths:0,ccSeconds:0})),...p};};
+const game=(m,previous=[],winnerTeam=0,choice=null)=>{const p=seriesGameOptions(m,previous,choice);return {winnerTeam,seconds:30,hp:winnerTeam?[0,70]:[70,0],reason:'Team eliminated',balanceId:m.balance?.id,combatVersion:m.engineVersion,environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:p.lineups.flat().map(id=>({id,damage:100,healing:0,kills:0,deaths:0,ccSeconds:0})),...p};};
 while(w.phase==='season'){const m=L.upcoming(w,1)[0];L.recordMatch(w,m.id,[game(m,[],m.away===w.settings.userTeam?1:0)]);}
 const later=structuredClone(w),laterMatch=L.upcoming(later).at(-1);L.recordSeriesGame(later,laterMatch.id,game(laterMatch));assert.equal(L.upcoming(later,1)[0].id,laterMatch.id,'Apply a limit after prioritizing any paused series.');
 const m=L.upcoming(w).find(m=>[m.home,m.away].includes(w.settings.userTeam));assert(m);const first=game(m,[],0);L.recordSeriesGame(w,m.id,first);assert.equal(w.pendingSeries.games.length,1);assert.equal(w.stats[first.fighters[0].id].games,10,'Incomplete series do not award stats twice.');
@@ -18,14 +18,14 @@ L.recordSeriesGame(w,m.id,second);assert.deepEqual(seriesScore(w.pendingSeries.g
 assert.throws(()=>L.recordSeriesGame(w,m.id,last),/next/);
 // The identical adaptation/seed rules drive quick and individually watched games.
 const remaining=L.upcoming(w,1)[0],teams=L.squads(w,remaining),quick=simulateTeamSeries({match:remaining,teams}),watched=[],score=[0,0],all=new Map(teams.flat().map(c=>[c.id,c]));
-while(Math.max(...score)<Math.ceil(remaining.bestOf/2)){const p=seriesGameOptions(remaining,watched),Engine=teamEngine(remaining.engineVersion),b=new Engine(p.lineups.map(ids=>ids.map(id=>all.get(id))),(remaining.seed+watched.length*65537)>>>0,{conditions:remaining.conditions,tactics:p.tactics,headless:false});while(!b.done)b.step(1/60);const r=b.result();const {compactTeamResult}=await import('../public/team-sim-worker.js');watched.push({...compactTeamResult(r),...p});score[r.winnerTeam]++;}
+while(Math.max(...score)<Math.ceil(remaining.bestOf/2)){const p=seriesGameOptions(remaining,watched),Engine=teamEngine(remaining.engineVersion),b=new Engine(p.lineups.map(ids=>ids.map(id=>all.get(id))),(remaining.seed+watched.length*65537)>>>0,{conditions:remaining.conditions,tactics:p.tactics,balance:remaining.balance,headless:false});while(!b.done)b.step(1/60);const r=b.result();const {compactTeamResult}=await import('../public/team-sim-worker.js');watched.push({...compactTeamResult(r),...p});score[r.winnerTeam]++;}
 assert.deepEqual(watched,quick);
 
 const c={id:'a',name:'Archer',traits:{weapon:'Longbow',class:'Ranger',power:'No power',power2:'No second power'},summary:{generationVersion:3,stats:[225,225,225,225,225],total:1125}},e={...c,id:'b',name:'Enemy'};
 const b=new TeamBattle([[c],[e]],17,{headless:true,map:'open'}),[a,t]=b.fighters;Object.assign(a,{x:100,y:100,cast:99,cooldown:0,energy:100});Object.assign(t,{x:250,y:100,vx:0,vy:90});b.obstacles=[{x:180,y:130,radius:14}];assert(b.clearShot(a,t));b.startAttack(a,t);assert.equal(a.action,null,'Predicted path clips cover even though the current-position ray is clear.');assert.equal(a.energy,100);
 b.obstacles=[];t.vy=0;b.startAttack(a,t);assert.equal(a.action.type,'shot');b.obstacles=[{x:180,y:100,radius:20}];b.updateAttack(a,t,.25);assert.equal(a.action,null);assert.equal(b.projectiles.length,0);assert(a.cooldown<=.12);assert.equal(a.energy,100);
 const fire=powerFor('Fire control');assert.equal(b.projectileClear(a,t,fire),false);const mana=a.mana;b.usePower(a,t,fire);assert.equal(b.projectiles.length,0);assert.equal(a.mana,mana);
-assert.equal(TEAM_ENGINE_VERSION,'team-2.2');assert.notEqual(teamEngine('team-2'),teamEngine(TEAM_ENGINE_VERSION));
+assert.equal(TEAM_ENGINE_VERSION,'team-2.3');assert.notEqual(teamEngine('team-2'),teamEngine(TEAM_ENGINE_VERSION));
 console.log('Team series: durable partial games, user bench/tactic choices, AI restrictions, exactly-once stats, watched/quick parity, predicted-path and windup cover cancellation, preserved legacy engine.');
 
 // A real saved partial series survives browser backup import/reopen and a lost

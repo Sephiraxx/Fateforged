@@ -16,7 +16,7 @@ const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{w
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,unsavedGame=null;
+ let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,patchesOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
@@ -87,7 +87,7 @@ export function mountTeamLeague(host,hooks){
   try{
    while(m){
     const games=m.completedGames??[],plan=seriesGameOptions(m,games,choice),teams=plan.lineups.map(ids=>ids.map(id=>world.fighters[id])),label=m.kind==='regular'?`Week ${m.week}`:LEAGUE.ROUND_NAMES[m.round];
-    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,engineVersion:m.engineVersion,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
+    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,engineVersion:m.engineVersion,balance:m.balance,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
     unsavedGame={action:'seriesGame',format:size,revision,operationId:crypto.randomUUID(),matchId:m.id,game:{...compactTeamResult(result),...plan}};
     await saveWatchedGame();const partial=world.pendingSeries;
     if(!partial){say('Series complete and saved.');break;}
@@ -121,6 +121,11 @@ export function mountTeamLeague(host,hooks){
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
  function check(label,checked=false){const box=el('input');box.type='checkbox';box.checked=checked;box.setAttribute('aria-label',label);return box;}
  function table(headers,rows,caption){const wrap=el('div','','table-scroll'),t=el('table','','team-league-table');if(caption)t.append(el('caption',caption));const head=el('thead'),hr=el('tr');for(const h of headers)hr.append(el('th',h));head.append(hr);const tb=el('tbody');tb.append(...rows);t.append(head,tb);wrap.append(t);return wrap;}
+ function renderPatches(){
+  const section=el('details','','module past-champions');section.open=patchesOpen;section.ontoggle=()=>{patchesOpen=section.open;};section.append(el('summary','League patches'));
+  const toggle=check('Automatic league balance',world.balance?.enabled!==false);toggle.disabled=busy;toggle.onchange=()=>command({action:'balance',enabled:toggle.checked}).catch(e=>say(e.message,true));const label=el('label','Automatic league balance');label.prepend(toggle);section.append(label,el('p','Changes are considered at halfway and in the offseason. Turning this off keeps the current patch.','muted'));
+  if(!['team-2.3','team-3-core','team-3'].includes(world.teamEngine))section.append(el('p','Automatic patches begin when the next season starts.','muted'));const history=world.balance?.history??[];if(!history.length)section.append(el('p','Base rules · no league patches yet.','muted'));for(const p of [...history].reverse()){section.append(el('h4',`Season ${p.season} · ${p.phase==='halfway'?'Midseason':'Offseason'}`));for(const c of p.changes)section.append(el('p',c.note,'muted'));}body.append(section);
+ }
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');
   card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of S and A tier fighters (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
@@ -328,7 +333,7 @@ export function mountTeamLeague(host,hooks){
   const head=el('div','','team-league-head'),info=el('div');info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3',phaseLabel));
   const meta=el('p',`Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
-  const side=el('div','','team-league-side');side.append(coachControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);champions.append(wins.length?table(['Season','Team'],wins.map(t=>{const row=el('tr');row.append(el('td',String(t.season)),el('td',t.championName??name(t.champion)));return row;})):el('p','No champions yet.','muted'));body.append(champions);
+  const side=el('div','','team-league-side');side.append(coachControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);champions.append(wins.length?table(['Season','Team'],wins.map(t=>{const row=el('tr');row.append(el('td',String(t.season)),el('td',t.championName??name(t.champion)));return row;})):el('p','No champions yet.','muted'));body.append(champions);renderPatches();
   if(world.phase==='draft'){renderDraft();renderTeams();return;}
   if(world.phase==='offseason'){renderOffseason();renderTeams();return;}
   const season=el('section','','team-draft');season.append(seasonActions());
@@ -343,5 +348,5 @@ export function mountTeamLeague(host,hooks){
   const recap=el('details','','module draft-recap');recap.open=recapOpen;recap.ontoggle=()=>{recapOpen=recap.open;};recap.append(el('summary','Draft recap & free agents'));const holder=body;const before=body.childNodes.length;renderDraft();const draftPanel=body.lastChild;if(body.childNodes.length>before){recap.append(draftPanel);holder.append(recap);}
   renderTeams();
  }
- return {show(next){if(next!==size){size=next;world=null;selected=null;weekView=null;poolRole='all';historyOpen=false;say('');}load();}};
+ return {show(next){if(next!==size){size=next;world=null;selected=null;weekView=null;poolRole='all';historyOpen=false;patchesOpen=false;say('');}load();}};
 }
