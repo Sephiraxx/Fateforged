@@ -1,0 +1,30 @@
+{
+  "fighters": 160,
+  "newSupportRolls": 57,
+  "ratings": {
+    "tank": {
+      "minimum": 59,
+      "maximum": 84,
+      "mean": 72,
+      "maxed": 0
+    },
+    "healer": {
+      "minimum": 58,
+      "maximum": 84,
+      "mean": 70.6,
+      "maxed": 0
+    },
+    "controller": {
+      "minimum": 50,
+      "maximum": 84,
+      "mean": 69.6,
+      "maxed": 0
+    },
+    "damage": {
+      "minimum": 61,
+      "maximum": 88,
+      "mean": 76.9,
+      "maxed": 0
+    }
+  }
+}

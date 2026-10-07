@@ -1,6 +1,5 @@
 import {fighterProfile,REWIND_HEALTH_RECOVERY,REWIND_MANA_RECOVERY} from './combat.js';
-import {powerFor,weaponProperties,WEAKNESSES} from './abilities-v12.js';
-import {teamKit} from './team-kits.js';
+import {powerFor,weaponProperties,WEAKNESSES} from './abilities-v13.js';
 
 export const STAT_KEYS=['STR','SPD','DUR','IQ','MAG'];
 export function traitContributions(state){
@@ -23,7 +22,7 @@ export function buildCharacterOverview(character){
  const f=fighterProfile(character),t=f.traits,name=character.name||'This fighter';
  const lineage=[t.subrace,t.race].filter(Boolean).join(' ')||'fighter',vocation=t.subclass||t.class;
  const abilities=[t.power,t.power2].filter(value=>powerFor(value,character));
- const kit=teamKit(character.teamKit),total=f.stats.reduce((sum,value)=>sum+value,0);
+ const total=f.stats.reduce((sum,value)=>sum+value,0);
  const equipment=f.weapon.name==='Bare hands'?'bare hands':article(f.weapon.name)+f.weapon.name;
  const description=`${name} is ${article(lineage)}${lineage}${vocation?`, trained as ${article(vocation)}${vocation}`:''}. They fight ${f.weapon.type==='melee'?'at close range':'from range'} with ${equipment}.`;
  const identity=[
@@ -34,7 +33,6 @@ export function buildCharacterOverview(character){
   {label:'Abilities',value:abilities.join(' · ')||'None'},
   {label:'Weakness',value:t.weakness||'None'}
  ];
- if(kit)identity.push({label:'Team kit',value:kit.name,formula:kit.description});
  const stats=STAT_KEYS.map((key,i)=>({label:key,name:STAT_NAMES[key],value:f.stats[i]??0,roll:t[ROLL_KEYS[i]]||'Unrolled',growth:character.summary?.growth?.bonus?.[i]||0}));
  const combat=[
   {label:'Maximum health',value:n(f.maxHp)+' HP'},
@@ -91,6 +89,16 @@ export function buildTraitDetails(character,key,options={}){
  }else if(['power','power2'].includes(key)){
   const p=powerFor(name,character);if(!p){add('Active effect','None');notes.push('This slot has no ability and uses no mana or stamina.');return result;}
   result.category=(key==='power2'?'Second ability':'Ability')+' · '+(p.rarity||'Custom')+' '+(p.kind==='technique'?'technique':'spell');notes.push(p.description);const affinity=globalThis.CLASS_ABILITIES.bucket(p,traits);add('Class affinity',globalThis.CLASS_ABILITIES.profile(traits).neutral?'Shared pool':['Class specialty','Related','Unusual gift'][affinity]);
+  if(p.group){
+   add(p.kind==='technique'?'Stamina per use':'Mana per cast',n(p.cost));add('Ability cooldown',seconds(p.cooldown));add('Channel time',seconds(p.windup));
+   add('Shared cooldown',p.kind==='technique'?'4.2 s':seconds(cooldown));
+   add('Useful range',p.id==='mendingWave'||p.id==='barrier'?'110 units':p.id==='hamstring'?'100 units':p.id==='knockUp'?'85 units':p.id==='tauntShout'?'110 units':p.group==='healing'?'240 units':'260 units');
+   if(p.id==='resurrection')notes.push('Requires a downed teammate; cannot revive the caster or a Core. Once per caster and recipient each game.');
+   if(p.id==='chainHeal')add('Healing per bounce',[.8,.65,.5].map(scale=>n(heal(spell*scale))+' HP').join(' · '));
+   if(p.id==='mendingWave')add('Healing per ally',n(heal(spell*.75))+' HP');
+   notes.push('Occupies one of the two rolled ability slots. Requires a legal target, line of sight and sufficient resources; interrupted channels keep their committed cost.');
+   return result;
+  }
   const cost=p.cost??(['light','future','memory'].includes(p.id)?12:NEW_IDS.has(p.id)?p.rarity==='Legendary'?25:p.rarity==='Rare'?15:9:9);
   if(p.kind==='technique'){notes.push('Listed timings are base values; Short power duration reduces timed effects to 45%. Slow recovery and Death mark reduce Second wind healing.');add('Stamina per use',n(cost));add('Shared cooldown','4.2 s');if(!['guard','secondWind','lastStand'].includes(p.id))add('Damage scaling','Weapon damage');add('Resource reserve','Usually keeps 12 stamina for ordinary attacks');notes.push('Techniques share actions and the ability timer with spells. Magic suppression does not prevent techniques. Equipment-dependent strikes require a usable weapon.');const values={guard:['30% less damage from the next physical hit','1.2 s'],drivingStrike:['1.10 × weapon damage; 15-unit push','0.20 s windup'],charge:['0.65 × weapon damage; up to 90-unit charge','Shield rush adds 20-unit push'],parry:['Blocks one frontal ordinary melee hit; 0.55 × weapon damage riposte','0.65 s window'],cleave:['1.25 × weapon damage; broad swing','0.30 s windup; 0.35 s recovery'],aimedShot:['1.25 × weapon damage; physical projectile','0.35 s aim'],cripplingStrike:['0.90 × weapon damage; slows movement 30%','2 s on connection'],secondWind:['10% maximum health over 3 s','Once per fight below 45% health'],lastStand:['35% less incoming hit damage; +20% weapon damage','Once per fight below 30% health; 4 s'],perfectCounter:['Negates one frontal ordinary physical weapon hit; 1.35 × weapon damage counter','Once per fight; 0.80 s stance; 1.5 s to counter']};for(const [i,v]of (values[p.id]||[]).entries())add(i?'Timing / limits':'Effect',v);return result;}add('Mana per cast',n(cost));add('Shared cooldown',seconds(cooldown),'One shared cooldown; the last accepted power loses 30 priority until a different power is cast. Urgent healing can still win.');add('Casting',p.voice?'Spoken':'Innate / silent');
   if(f.weakness==='power needs a sacrifice')add('Health sacrifice',n(f.maxHp*.03)+' HP per cast','3% of maximum health; cannot cast at or below that amount.');
