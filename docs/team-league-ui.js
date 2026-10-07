@@ -1,3 +1,4 @@
+import {teamKit} from './team-kits.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
 // Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
@@ -11,7 +12,7 @@ import {STAT_KEYS} from './trait-details.js';
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const money=n=>`${n.toFixed(1)}M`;
 const TACTIC_TEXT={balanced:['Balanced','Default target choice.'],'protect-carry':['Protect the carry','Peel harder for teammates under attack.'],'focus-healer':['Focus their healer','Prioritise enemy healers.'],aggressive:['All-out aggression','Chase wounded targets across the arena.'],defensive:['Hold the line','Fight near your own side instead of chasing.']};
-const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
+const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}});
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
@@ -106,14 +107,14 @@ export function mountTeamLeague(host,hooks){
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
   const info=el('div');info.append(el('p',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]} · ${f.summary.tier} tier${rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${f.team?name(f.team):'Free agent'} · OVR ${delta(f)} · ${money(f.salary)} salary`,'muted'));head.append(info,close);
   const traits=el('dl','','fighter-traits');
-  for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
+  for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Team kit',teamKit(f.teamKit)?`${teamKit(f.teamKit).name} · ${teamKit(f.teamKit).description}`:'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
   const bars=el('div','','fighter-stats'),values=f.summary.stats??[],top=Math.max(800,...values);
   STAT_KEYS.forEach((key,i)=>{const row=el('div','','fighter-stat'),track=el('span','','fighter-stat-track'),fill=el('span');fill.style.width=Math.min(100,(values[i]??0)/top*100)+'%';track.append(fill);row.append(el('span',key),track,el('strong',String(values[i]??0)));bars.append(row);});
   bars.append(el('p',`Total ${f.summary.total} · rolls: ${[t.strength,t.speed,t.durability,t.iq,t.magic].filter(Boolean).join(' · ')}`,'muted'));
   const season=el('div','','fighter-season');
   if(stats?.games){for(const [label,value]of [['Games',stats.games],['Damage',stats.damage],['Healing',stats.healing],['KOs',stats.kills],['Downs',stats.deaths],['Control',`${stats.ccSeconds}s`],['Impact / game',Math.round(LEAGUE.impact(stats)/stats.games)]]){const cell=el('div','','offseason-fact');cell.append(el('strong',String(value)),el('span',label));season.append(cell);}}
   else season.append(el('p',`No games yet in season ${world.season}.`,'muted'));
-  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,traits:f.traits,summary:f.summary},'overview');};
+  const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary},'overview');};
   dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${world.season}`),season,breakdown);dialog.showModal();
  }
  function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}

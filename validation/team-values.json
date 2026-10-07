@@ -1,27 +1,97 @@
 {
-  "fightersPerRole": 40,
-  "gamesPerFighter": 16,
-  "samples": 160,
-  "model": {
-    "intercept": -0.838,
-    "ehp": 0.192,
-    "dps": -0.055,
-    "spell": 0.074,
-    "ability": 0.022,
-    "speed": 0.149,
-    "iq": 0.065,
-    "roles": {
-      "tank": 0,
-      "healer": 0.127,
-      "controller": -0.019,
-      "damage": 0.079
+  "engine": "team-2.2",
+  "kitCounts": {
+    "mendingWave": 8,
+    "chainHeal": 8,
+    "resurrection": 8,
+    "cleanse": 24,
+    "barrier": 26,
+    "stunBolt": 18,
+    "hamstring": 26,
+    "disarmShot": 18,
+    "tauntShout": 8,
+    "knockUp": 16
+  },
+  "pairedKitEffects": {
+    "mendingWave": {
+      "fighters": 8,
+      "winShareDelta": -0.031
+    },
+    "chainHeal": {
+      "fighters": 8,
+      "winShareDelta": 0.063
+    },
+    "resurrection": {
+      "fighters": 8,
+      "winShareDelta": 0.031
+    },
+    "cleanse": {
+      "fighters": 24,
+      "winShareDelta": -0.036
+    },
+    "barrier": {
+      "fighters": 26,
+      "winShareDelta": -0.029
+    },
+    "stunBolt": {
+      "fighters": 18,
+      "winShareDelta": -0.035
+    },
+    "hamstring": {
+      "fighters": 26,
+      "winShareDelta": 0.019
+    },
+    "disarmShot": {
+      "fighters": 18,
+      "winShareDelta": 0.028
+    },
+    "tauntShout": {
+      "fighters": 8,
+      "winShareDelta": -0.094
+    },
+    "knockUp": {
+      "fighters": 16,
+      "winShareDelta": 0.008
     }
   },
-  "r2": 0.157,
+  "note": "Stratified compatible kits cover every ability. Each subject plays paired identical opponents and seeds with and without its kit; coefficients are regularized and conditional on role and rating features.",
+  "fightersPerRole": 40,
+  "gamesPerFighter": 16,
+  "subjects": 160,
+  "pairedGames": 8,
+  "samples": 320,
+  "model": {
+    "intercept": -2.386,
+    "ehp": 0.391,
+    "dps": -0.047,
+    "spell": 0.151,
+    "ability": 0.046,
+    "speed": 0.259,
+    "iq": 0.158,
+    "kits": {
+      "mendingWave": -0.02,
+      "chainHeal": -0.042,
+      "resurrection": 0.109,
+      "cleanse": -0.027,
+      "barrier": -0.02,
+      "stunBolt": -0.049,
+      "hamstring": -0.024,
+      "disarmShot": 0.062,
+      "tauntShout": -0.064,
+      "knockUp": 0.022
+    },
+    "roles": {
+      "tank": 0,
+      "healer": -0.003,
+      "controller": -0.029,
+      "damage": 0.085
+    }
+  },
+  "r2": 0.268,
   "winShareByPredictedQuartile": [
-    43,
-    46.9,
-    56.4,
-    62.7
+    37.2,
+    44.7,
+    55.8,
+    72.2
   ]
 }

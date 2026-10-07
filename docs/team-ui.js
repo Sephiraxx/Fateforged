@@ -1,3 +1,4 @@
+import {teamKit} from './team-kits.js';
 // 2v2 / 3v3 / 5v5 exhibition: build two teams from saved fighters or generated S/A squads, then watch or simulate.
 import {ROLE_LABELS,teamRole} from './team-roles.js';
 import {randomTeam} from './team-generation.js';
@@ -44,7 +45,7 @@ export function mountTeamBattles(host,hooks){
    for(let i=0;i<size;i++){
     const slot=el('li','','team-slot'),choice=select([['','Choose a fighter'],...[...generated.values()].filter(c=>c.team===team).map(c=>[c.id,`${c.name} · ${c.summary.tier} · generated`]),...hooks.roster().map(c=>[c.id,`${c.name} · ${c.summary.tier}`])],side.ids[i]??'');
     choice.setAttribute('aria-label',`${team?'Red':'Blue'} fighter ${i+1}`);const badge=el('span','','team-slot-role');
-    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const role=roleOf(await lookup(id));badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[role]} ${ROLE_LABELS[role]}`;}catch(e){say(e.message,true);}};
+    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const fighter=await lookup(id),role=roleOf(fighter),kit=teamKit(fighter.teamKit);badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[role]} ${ROLE_LABELS[role]}${kit?' · '+kit.name:''}`;}catch(e){say(e.message,true);}};
     choice.onchange=()=>{side.ids[i]=choice.value||undefined;paint();};paint();
     slot.append(el('span',String(i+1),'team-slot-no'),choice,badge);list.append(slot);
    }

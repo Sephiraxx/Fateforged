@@ -453,3 +453,13 @@ All commands use the same revision and `operationId` protocol as the other team-
 Watched Bo3/Bo5 games pause at a recap. Team league games save at each break; returning to setup resumes the same series, including its score, starters and tactics. Your team may choose any legal starters from its roster. AI coaches adapt by a shared deterministic rule, used by both watched and quick simulation. A failed save offers a retry of the same result instead of rerunning the battle. Each format keeps a collapsed season/team champions list.
 
 New seasons use team 2.1. Projectile spells and ordinary shots check their actual aim/radius; a shot blocked during its windup is cancelled, resources refunded and its cooldown reduced. Portal shots check the exit path. Earlier team 2 seasons keep their saved engine. Duel 12 stays frozen.
+
+## Team kits
+
+New team pool fighters receive one role-weighted extra slot. Earlier fighters without a kit and saved team 2/2.1 engines remain valid. New seasons use team 2.2. The ten kits are defined independently of the frozen duel catalog. Healers mostly roll Mending wave, Chain heal, Resurrection, Cleanse or Barrier; tanks favour Taunt shout, Barrier and Knock-up; controllers favour Stun bolt, Disarm shot and Knock-up; damage fighters favour Hamstring and Disarm shot.
+
+Kits share the action and mana economy with normal powers. Resurrection channels for three seconds, restores 40% HP and can be interrupted. Each caster and each recipient can use it only once per game. Other heals cannot revive dead fighters. Control respects the immunity window; disarm suspends weapon attacks for any weapon. Stun lasts 1.2 seconds, taunt two seconds, knock-up 0.6 seconds, hamstring four seconds and disarm 2.4 seconds. Barrier provides one ward hit for four seconds to nearby allies.
+
+Rating calibration uses separate regularized kit coefficients, with each subject facing identical opponents and seeds both with and without its kit. The committed report states the sample and model fit; coefficients are estimates, not guarantees for individual matchups.
+
+The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.

@@ -50,7 +50,7 @@ const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},
 const call=async body=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams',{method:'POST',headers:{'oai-authenticated-user-id':'owner','content-type':'application/json'},body:JSON.stringify({format:3,operationId:crypto.randomUUID(),...body})}),env);return {status:r.status,...await r.json()};};
 const ok=r=>{assert.equal(r.status,200,r.error);return r;};
 const seed=4321,plan=L.poolPlan(3,8,seed),pool=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`));
-let {world,revision}=ok(await call({action:'start',revision:0,worldId:crypto.randomUUID(),teams:8,seed,fighters:pool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}}))}));
+let {world,revision}=ok(await call({action:'start',revision:0,worldId:crypto.randomUUID(),teams:8,seed,fighters:pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}}))}));
 assert.equal((await call({action:'startSeason',revision})).status,400,'The season waits for the draft.');
 ({world,revision}=ok(await call({action:'draft',revision,count:1000})));({world,revision}=ok(await call({action:'startSeason',revision})));assert.equal(world.phase,'season');
 const week=L.upcoming(world,4);assert.equal((await call({action:'record',revision,results:week.slice(1).map(m=>({matchId:m.id,games:fake(m)}))})).status,400,'Out-of-order results are rejected.');

@@ -1,3 +1,4 @@
+import {teamKit,TEAM_KITS} from './team-kits.js';
 import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
 // Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
@@ -64,14 +65,14 @@ export function poolPlan(formatSize,teams,seed){
 function planSlots(counts,seed){const random=rng(seed^0x9e3779b9),slots=[];for(const [role,count]of Object.entries(counts))for(let i=0;i<count;i++){const roll=random();slots.push({role,tier:roll<.02?'SS':roll<.30?'S':'A'});}return shuffle(slots,seed^0x51ed270b);}
 // Overall rating (OVR, 40–99) from closed-form combat numbers, weighted by measured team-battle impact
 // (scripts/evaluate-team-values.mjs, validation/team-values.json).
-export const RATING_MODEL=Object.freeze({intercept:-0.838,ehp:0.192,dps:-0.055,spell:0.074,ability:0.022,speed:0.149,iq:0.065,roles:Object.freeze({tank:0,healer:0.127,controller:-0.019,damage:0.079})});
+export const RATING_MODEL=Object.freeze({"intercept":-2.386,"ehp":0.391,"dps":-0.047,"spell":0.151,"ability":0.046,"speed":0.259,"iq":0.158,"kits":{"mendingWave":-0.02,"chainHeal":-0.042,"resurrection":0.109,"cleanse":-0.027,"barrier":-0.02,"stunBolt":-0.049,"hamstring":-0.024,"disarmShot":0.062,"tauntShout":-0.064,"knockUp":0.022},"roles":{"tank":0,"healer":-0.003,"controller":-0.029,"damage":0.085}});
 const ABILITY_WEIGHT={Common:.5,Uncommon:1,Rare:1.6,Legendary:2.4};
 export function ratingFeatures(character){
  const n=combatNumbers(character),s=(character.summary?.stats||[0,0,0,0,0]).map(v=>Math.sqrt(Math.max(0,Number(v)||0))),traits=character.traits||{},catalog=globalThis.CLASS_ABILITIES;
  const ability=[traits.power,traits.power2].reduce((sum,name)=>sum+(ABILITY_WEIGHT[name&&catalog.definition(name)?.rarity]??0),0);
- return {ehp:Math.log(n.effectiveHp),dps:Math.log(Math.max(1,n.dps)),spell:n.spell/50,ability,speed:s[1]/20,iq:s[3]/20};
+ return {ehp:Math.log(n.effectiveHp),dps:Math.log(Math.max(1,n.dps)),spell:n.spell/50,ability,speed:s[1]/20,iq:s[3]/20,...Object.fromEntries(Object.keys(TEAM_KITS).map(id=>['kit_'+id,character.teamKit===id?1:0]))};
 }
-export function rawRating(character,role=teamRole(character).role){const x=ratingFeatures(character),m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+(m.roles[role]??0);}
+export function rawRating(character,role=teamRole(character).role){const x=ratingFeatures(character),m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+Object.entries(m.kits??{}).reduce((n,[id,weight])=>n+weight*x['kit_'+id],0)+(m.roles[role]??0);}
 // Map the model's predicted win share onto a familiar 40–99 scale.
 export function overall(character,role){return Math.max(40,Math.min(99,Math.round(40+(rawRating(character,role)-.25)*118)));}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
@@ -94,7 +95,7 @@ export function create({id,format:formatSize,teams,seed,fighters}){
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
   if(!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Pool fighters need all fourteen traits.');
   if(c.summary?.tier!==plan[i].tier)throw new Error('A pool fighter does not match its planned tier.');
-  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null};
+  roster[c.id]={id:c.id,name:c.name.trim(),teamKit:teamKit(c.teamKit)?.id??null,traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null};
  });
  const layout=structure(teams),identities=teamIdentities(teams,seed),list=[];
  identities.forEach((x,i)=>{x.coach.comp=coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0));});
@@ -175,7 +176,7 @@ export const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,tea
 // ---------- Season and playoffs (phase 3) ----------
 export const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
-export const TEAM_COMBAT_VERSION='team-2.1';
+export const TEAM_COMBAT_VERSION='team-2.2';
 export const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
 export const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
 const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
@@ -240,12 +241,12 @@ function openRound(w){
 function startPlayoffs(w){w.phase='playoffs';w.playoffs={seeds:playoffSeeds(w),rounds:[],champion:null};openRound(w);}
 // The next matches to simulate, in the order the server will accept them.
 export function upcoming(w,limit=Infinity){
- const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;if(out.length>=limit)return out;out.push(describe(w,{...g,kind:'regular',week:week.week,bestOf:1}));}}
- else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;if(out.length>=limit)break;out.push(describe(w,{...s,kind:'playoff'}));}}
- if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out;
+ const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;out.push(describe(w,{...g,kind:'regular',week:week.week,bestOf:1}));}}
+ else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push(describe(w,{...s,kind:'playoff'}));}}
+ if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit);
 }
 function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
-export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,traits:f.traits,summary:f.summary};}));
+export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
@@ -388,7 +389,7 @@ export function startOffseason(w,rookies){
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
  for(const id of retired)delete w.fighters[id];
- for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null,rookie:w.season+1,freeAgentSince:w.season};
+ for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),teamKit:teamKit(c.teamKit)?.id??null,traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null,rookie:w.season+1,freeAgentSince:w.season};
  // The cap follows the market: the average salary of the best roster-worth of fighters.
  const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,w.teams.length*w.settings.rosterSize);w.settings.salaryCap=round1(top.reduce((n,x)=>n+x.salary,0)/w.teams.length);
  // Coaches with dismal seasons are replaced (never the user's team).

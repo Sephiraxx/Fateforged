@@ -16,7 +16,7 @@ const reconciliation=strip(await readFile('public/catalog-repair.js','utf8'));
 const helpers=[];
 for(const file of ['public/class-abilities.js','public/luck.js','public/tournament-names.js','public/champion-history.js','public/series.js','public/promotion-rules.js','public/leagues.js','worker/leagues.mjs'])helpers.push(strip(await readFile(file,'utf8')));
 helpers.push(strip((await readFile('worker/tournament-names.mjs','utf8')).split('// Repair the three cups')[0]));
-helpers.push(moduleBundle('TEAM_LEAGUE',[await readFile('public/team-roles.js','utf8'),await readFile('public/team-maps.js','utf8'),await readFile('public/team-series.js','utf8'),await readFile('public/team-league.js','utf8')]),await readFile('worker/teams.mjs','utf8'));
+helpers.push(moduleBundle('TEAM_LEAGUE',[await readFile('public/team-kits.js','utf8'),await readFile('public/team-roles.js','utf8'),await readFile('public/team-maps.js','utf8'),await readFile('public/team-series.js','utf8'),await readFile('public/team-league.js','utf8')]),await readFile('worker/teams.mjs','utf8'));
 const names=await readFile('public/names.js','utf8');
 const revision=createHash('sha256').update(JSON.stringify(catalog)+reconciliation).digest('hex');
 let backend=await readFile('worker/index.js','utf8');

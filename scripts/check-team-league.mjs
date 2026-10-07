@@ -51,7 +51,7 @@ const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync('drizzle').f
 const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},first:async()=>db.prepare(sql).get(...args)||null,all:async()=>({results:db.prepare(sql).all(...args)}),run:async()=>({meta:{changes:Number(db.prepare(sql).run(...args).changes)}})};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}}};
 const call=async(body,format=3)=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams'+(body?'':'?format='+format),{method:body?'POST':'GET',headers:{'oai-authenticated-user-id':'owner','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);return {status:r.status,...await r.json()};};
 const ok=r=>assert.equal(r.status,200,r.error);
-const wire=pool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}}));
+const wire=pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}}));
 assert.equal((await call()).world,null);
 const start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed:4242,fighters:wire};
 const tampered=structuredClone(start);tampered.operationId=crypto.randomUUID();tampered.fighters[0].traits.power='Singularity';
