@@ -1,4 +1,5 @@
 // Objective phase 1: real attacks hit static Cores; fighters respawn instead of ending the match.
+import {patchFactor} from './team-balance.js';
 import {Battle as DuelBattle} from './combat-v12.js';
 import {TeamBattle as PreviousTeamBattle,CC_IMMUNITY,TEAM_RULES} from './combat-team-v2-3.js';
 import {objectiveTerrain,OBJECTIVE_FIELD} from './objective-maps.js';
