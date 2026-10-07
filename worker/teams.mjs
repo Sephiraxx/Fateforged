@@ -14,8 +14,8 @@ async function teamApi(request,env,url){
  if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
- if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This team league action was already saved differently.',409);return response(format);}
- const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
+ if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
+ const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
  let world=row?await decodeTournament(row.state_json):null;
  if(input.action==='start'){
@@ -53,7 +53,7 @@ async function teamApi(request,env,url){
   env.DB.prepare('UPDATE team_worlds SET revision = ?, last_operation = ?, state_json = ?, updated_at = ? WHERE owner_id = ? AND format = ? AND revision = ?').bind(revision,op,state,now,owner,format,input.revision):
   env.DB.prepare('INSERT INTO team_worlds(owner_id,format,revision,last_operation,state_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(owner_id,format) DO NOTHING').bind(owner,format,revision,op,state,now)];
  statements.push(env.DB.prepare('INSERT INTO team_operations(owner_id,operation_id,request_json) SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM team_worlds WHERE owner_id = ? AND format = ? AND last_operation = ?)').bind(owner,op,encodedRequest,owner,format,op));
- const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('This team league changed in another tab. Refresh before continuing.',409);
+ statements.push(pruneReceipts(env,'team_operations',owner));const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('This team league changed in another tab. Refresh before continuing.',409);
  return response(format);
 }
 // A pool fighter must be an unedited roll from the canonical generation wheels.

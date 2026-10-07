@@ -46,11 +46,12 @@ const before=structuredClone(w),twin=structuredClone(w);L.startOffseason(w,klass
 assert.equal(w.phase,'offseason');assert.equal(w.offseason.step,'decisions','A coached league stops for the user’s decisions.');assert.equal(w.history.length,1);
 for(const f of Object.values(w.fighters))assert.equal(f.salary,L.salaryFor(f.ovr),'Every contract is repriced.');
 assert(w.offseason.ratingChanges.length>Object.keys(before.fighters).length/3,'Ratings move.');
-for(const c of w.offseason.ratingChanges)assert(Math.abs(c.to-c.from)<=10);
+for(const c of w.offseason.ratingChanges){assert(Math.abs(c.to-c.from)<=L.RATING_CHANGE_CAP,`A rating moves at most ±${L.RATING_CHANGE_CAP}: ${c.from} → ${c.to}`);if(c.to>90&&c.to>c.from)assert(c.to-Math.max(90,c.from)<=3,'Gains above 90 are halved.');}
+assert(w.offseason.ratingChanges.some(c=>Math.abs(c.to-c.from)>=3),'Standout seasons still move ratings noticeably.');
 // Fighters who outperform their role rise more than those who underperform.
 const perGame=Object.entries(before.stats).filter(([,s])=>s.games).map(([id,s])=>({id,role:before.fighters[id].role,v:L.impact(s)/s.games}));
 const z=perGame.map(x=>{const same=perGame.filter(y=>y.role===x.role),mean=same.reduce((n,y)=>n+y.v,0)/same.length;return {...x,rel:x.v-mean,d:(w.fighters[x.id]?.ovr??before.fighters[x.id].ovr)-before.fighters[x.id].ovr};}).sort((a,b)=>b.rel-a.rel);
-const avg=list=>list.reduce((n,x)=>n+x.d,0)/list.length,q=Math.floor(z.length/4);assert(avg(z.slice(0,q))>avg(z.slice(-q))+3,'Performance drives the value update.');
+const avg=list=>list.reduce((n,x)=>n+x.d,0)/list.length,q=Math.floor(z.length/4);assert(avg(z.slice(0,q))>avg(z.slice(-q))+2,`Performance drives the value update (${avg(z.slice(0,q)).toFixed(2)} vs ${avg(z.slice(-q)).toFixed(2)}).`);
 const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,8*5);assert.equal(w.settings.salaryCap,Math.round(top.reduce((n,x)=>n+x.salary,0)/8*10)/10,'The cap follows the market.');
 for(const c of klass){assert.equal(w.fighters[c.id].team,null);assert.equal(w.fighters[c.id].rookie,2);}
 for(const team of w.teams)if(team.id!==me)assert(legal(w,team),`${team.name} released down to the cap`);

@@ -274,13 +274,20 @@ export function setLineup(w,ids){
 export function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 export function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
+// Offseason value updates move a fighter at most ±RATING_CHANGE_CAP OVR.
+export const RATING_CHANGE_CAP=5;
 function updateRatings(w){
  const byRole={};for(const [id,s]of Object.entries(w.stats??{}))if(s.games){const f=w.fighters[id];(byRole[f.role]??=[]).push(impact(s)/s.games);}
  const spread=Object.fromEntries(Object.entries(byRole).map(([role,list])=>{const mean=list.reduce((a,b)=>a+b,0)/list.length,sd=Math.sqrt(list.reduce((n,x)=>n+(x-mean)**2,0)/list.length)||1;return [role,{mean,sd}];}));
- const changes=[];
+ const changes=[],maxGames=Math.max(1,...Object.values(w.stats??{}).map(s=>s.games||0));
  for(const f of Object.values(w.fighters)){
-  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*5)-2,z=s?.games&&spread[f.role]?(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd:0;
-  const delta=Math.max(-8,Math.min(8,Math.round(z*3.5)))+(s?.games?drift:Math.min(0,drift)),ovr=Math.max(40,Math.min(99,f.ovr+delta));
+  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*3)-1,z=s?.games&&spread[f.role]?(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd:0;
+  // About 2 OVR per standard deviation (at most ±4), scaled down for fighters who played few games; drift −1..+1.
+  const share=s?.games?Math.min(1,s.games/(maxGames*.5)):0,performance=Math.max(-4,Math.min(4,Math.round(z*2*share)));
+  const delta=Math.max(-RATING_CHANGE_CAP,Math.min(RATING_CHANGE_CAP,performance+(s?.games?drift:Math.min(0,drift))));
+  // Gains above 90 are halved (rounded up), so elite ratings stay rare.
+  let target=f.ovr+delta;if(delta>0&&target>90){const base=Math.max(90,f.ovr);target=base+Math.ceil((target-base)/2);}
+  const ovr=Math.max(40,Math.min(99,target));
   if(ovr!==f.ovr)changes.push({id:f.id,from:f.ovr,to:ovr});f.lastOvr=f.ovr;f.ovr=ovr;f.salary=salaryFor(ovr);
  }
  return changes;

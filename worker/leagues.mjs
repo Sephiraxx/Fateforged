@@ -14,9 +14,9 @@ async function leagueApi(request,env,url){
  const text=await request.text();if(text.length>12000000)fail('League command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
  if(!plain(input)||!UUID.test(input.operationId)||!['start','freshStart','record','recordBatch','rollover'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid league command.');
  const requestJson=JSON.stringify(input),previous=await env.DB.prepare('SELECT request_json FROM league_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
- if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
+ if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
  // Full phases contain thousands of games. Keep their retry receipt compact.
- const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
+ const encodedRequest=await receiptOf(requestJson);
  const row=await get();if((row?.revision??0)!==input.revision)fail('League progress changed in another tab. Refresh before continuing.',409);
  let world=row?LEAGUES.prepare(await decodeTournament(row.state_json)):null,newFighters=[],archive=null,played=[],playerFighters=[];
  if(input.action==='start'||input.action==='freshStart'){
@@ -69,7 +69,7 @@ async function leagueApi(request,env,url){
   statements.push(env.DB.prepare(`INSERT INTO league_seasons(owner_id,world_id,season,state_json,completed_at) SELECT ?,?,?,?,? WHERE ${gate}`).bind(owner,archive.id,archive.season,await encodeTournament(archive),now,owner,op));
   for(const c of archive.retired)statements.push(env.DB.prepare(`DELETE FROM saved_characters WHERE owner_id = ? AND id = ? AND ${gate}`).bind(owner,c.id,owner,op));
  }
- const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('League progress changed in another tab. Refresh before continuing.',409);
+ statements.push(pruneReceipts(env,'league_operations',owner));const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('League progress changed in another tab. Refresh before continuing.',409);
  return response(input.compact?op:null);
 }
 function makeLeagueFighter(rarity){const rolled=WHEEL_LUCK.rollTraits(GENERATION_POOLS,undefined,rarity),{state,summary}=validateSnapshot({version:1,...rolled,pools:GENERATION_POOLS,catalog:{version:1,powers:CURRENT_CATALOG.power.map(p=>p.name),weaknesses:CURRENT_CATALOG.weakness.map(p=>p.name)}});summary.creationSource='league';return {state,character:{id:crypto.randomUUID(),name:RANDOM_CHARACTER_NAME(rolled.traits),summary,traits:rolled.traits}};}
