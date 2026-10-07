@@ -40,7 +40,7 @@ while(LEAGUES.next(world)){
  const phase=world.phase,preview=structuredClone(world),series=[];
  while(preview.phase===phase&&LEAGUES.next(preview)){const next=LEAGUES.next(preview),record={matchId:next.id,results:fake(next)};series.push(record);LEAGUES.record(preview,record.matchId,record.results);}
  command={action:'recordBatch',operationId:crypto.randomUUID(),revision,series,compact:true};response=await call('/api/leagues',command);ok(response);assert(!Object.hasOwn(response,'world'));ok(await call('/api/leagues',command));assert.deepEqual((await call()).world,preview);world=preview;revision=response.revision;n+=series.length;
- if(series.length>1000)assert(db.prepare('SELECT request_json FROM league_operations WHERE operation_id = ?').get(command.operationId).request_json.startsWith('gz:'));
+ if(series.length>1000)assert(db.prepare('SELECT request_json FROM league_operations WHERE operation_id = ?').get(command.operationId).request_json.startsWith('sha256:'));
  console.log('Persistence phase:',phase,series.length,'series in one checkpoint');
 }
 assert.equal(n,2085);assert.equal(db.prepare('SELECT COUNT(*) n FROM match_records').get().n,2085);assert.equal(db.prepare('SELECT COUNT(*) n FROM champion_history').get().n,16);assert.equal(db.prepare('SELECT COUNT(*) n FROM current_champions').get().n,16);

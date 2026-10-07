@@ -7,3 +7,6 @@
 #storage-dialog .dialog-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;margin:14px 0}
 #storage-dialog .button{cursor:pointer;margin:0}
 @media(max-width:640px){.storage-bar{padding:4px var(--gutter,14px);gap:8px}#storage-dialog{padding:18px}#storage-dialog .dialog-actions>*{flex:1;text-align:center}}
+.storage-usage{margin:10px 0;padding:10px 12px;font-size:.84rem;line-height:1.5;background:#ffffff06;border:1px solid var(--line,#ffffff14)}
+.storage-usage strong{display:block;margin-bottom:4px;color:var(--text,#eaf6ff)}
+.storage-usage ul{margin:0;padding-left:18px;color:var(--muted,#8d99b0)}

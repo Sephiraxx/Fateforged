@@ -5013,9 +5013,9 @@ async function leagueApi(request,env,url){
  const text=await request.text();if(text.length>12000000)fail('League command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
  if(!plain(input)||!UUID.test(input.operationId)||!['start','freshStart','record','recordBatch','rollover'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid league command.');
  const requestJson=JSON.stringify(input),previous=await env.DB.prepare('SELECT request_json FROM league_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
- if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
+ if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This league action was already saved differently.',409);return response(input.compact?input.operationId:null);}
  // Full phases contain thousands of games. Keep their retry receipt compact.
- const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
+ const encodedRequest=await receiptOf(requestJson);
  const row=await get();if((row?.revision??0)!==input.revision)fail('League progress changed in another tab. Refresh before continuing.',409);
  let world=row?LEAGUES.prepare(await decodeTournament(row.state_json)):null,newFighters=[],archive=null,played=[],playerFighters=[];
  if(input.action==='start'||input.action==='freshStart'){
@@ -5068,7 +5068,7 @@ async function leagueApi(request,env,url){
   statements.push(env.DB.prepare(`INSERT INTO league_seasons(owner_id,world_id,season,state_json,completed_at) SELECT ?,?,?,?,? WHERE ${gate}`).bind(owner,archive.id,archive.season,await encodeTournament(archive),now,owner,op));
   for(const c of archive.retired)statements.push(env.DB.prepare(`DELETE FROM saved_characters WHERE owner_id = ? AND id = ? AND ${gate}`).bind(owner,c.id,owner,op));
  }
- const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('League progress changed in another tab. Refresh before continuing.',409);
+ statements.push(pruneReceipts(env,'league_operations',owner));const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('League progress changed in another tab. Refresh before continuing.',409);
  return response(input.compact?op:null);
 }
 function makeLeagueFighter(rarity){const rolled=WHEEL_LUCK.rollTraits(GENERATION_POOLS,undefined,rarity),{state,summary}=validateSnapshot({version:1,...rolled,pools:GENERATION_POOLS,catalog:{version:1,powers:CURRENT_CATALOG.power.map(p=>p.name),weaknesses:CURRENT_CATALOG.weakness.map(p=>p.name)}});summary.creationSource='league';return {state,character:{id:crypto.randomUUID(),name:RANDOM_CHARACTER_NAME(rolled.traits),summary,traits:rolled.traits}};}
@@ -5450,13 +5450,20 @@ function setLineup(w,ids){
 function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
+// Offseason value updates move a fighter at most ±RATING_CHANGE_CAP OVR.
+const RATING_CHANGE_CAP=5;
 function updateRatings(w){
  const byRole={};for(const [id,s]of Object.entries(w.stats??{}))if(s.games){const f=w.fighters[id];(byRole[f.role]??=[]).push(impact(s)/s.games);}
  const spread=Object.fromEntries(Object.entries(byRole).map(([role,list])=>{const mean=list.reduce((a,b)=>a+b,0)/list.length,sd=Math.sqrt(list.reduce((n,x)=>n+(x-mean)**2,0)/list.length)||1;return [role,{mean,sd}];}));
- const changes=[];
+ const changes=[],maxGames=Math.max(1,...Object.values(w.stats??{}).map(s=>s.games||0));
  for(const f of Object.values(w.fighters)){
-  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*5)-2,z=s?.games&&spread[f.role]?(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd:0;
-  const delta=Math.max(-8,Math.min(8,Math.round(z*3.5)))+(s?.games?drift:Math.min(0,drift)),ovr=Math.max(40,Math.min(99,f.ovr+delta));
+  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*3)-1,z=s?.games&&spread[f.role]?(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd:0;
+  // About 2 OVR per standard deviation (at most ±4), scaled down for fighters who played few games; drift −1..+1.
+  const share=s?.games?Math.min(1,s.games/(maxGames*.5)):0,performance=Math.max(-4,Math.min(4,Math.round(z*2*share)));
+  const delta=Math.max(-RATING_CHANGE_CAP,Math.min(RATING_CHANGE_CAP,performance+(s?.games?drift:Math.min(0,drift))));
+  // Gains above 90 are halved (rounded up), so elite ratings stay rare.
+  let target=f.ovr+delta;if(delta>0&&target>90){const base=Math.max(90,f.ovr);target=base+Math.ceil((target-base)/2);}
+  const ovr=Math.max(40,Math.min(99,target));
   if(ovr!==f.ovr)changes.push({id:f.id,from:f.ovr,to:ovr});f.lastOvr=f.ovr;f.ovr=ovr;f.salary=salaryFor(ovr);
  }
  return changes;
@@ -5548,7 +5555,7 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,ROSTER_CHURN,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
+return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
 // Team leagues (3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -5565,8 +5572,8 @@ async function teamApi(request,env,url){
  if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
- if(previous){if(JSON.stringify(await decodeTournament(previous.request_json))!==requestJson)fail('This team league action was already saved differently.',409);return response(format);}
- const encodedRequest=requestJson.length>100000?await encodeTournament(input):requestJson;
+ if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
+ const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
  let world=row?await decodeTournament(row.state_json):null;
  if(input.action==='start'){
@@ -5604,7 +5611,7 @@ async function teamApi(request,env,url){
   env.DB.prepare('UPDATE team_worlds SET revision = ?, last_operation = ?, state_json = ?, updated_at = ? WHERE owner_id = ? AND format = ? AND revision = ?').bind(revision,op,state,now,owner,format,input.revision):
   env.DB.prepare('INSERT INTO team_worlds(owner_id,format,revision,last_operation,state_json,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(owner_id,format) DO NOTHING').bind(owner,format,revision,op,state,now)];
  statements.push(env.DB.prepare('INSERT INTO team_operations(owner_id,operation_id,request_json) SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM team_worlds WHERE owner_id = ? AND format = ? AND last_operation = ?)').bind(owner,op,encodedRequest,owner,format,op));
- const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('This team league changed in another tab. Refresh before continuing.',409);
+ statements.push(pruneReceipts(env,'team_operations',owner));const result=await env.DB.batch(statements);if(!result[0].meta?.changes)fail('This team league changed in another tab. Refresh before continuing.',409);
  return response(format);
 }
 // A pool fighter must be an unedited roll from the canonical generation wheels.
@@ -5772,6 +5779,13 @@ function validateTournament(input){
  for(const m of [...input.history,...r.pending]){if(!plain(m)||!ids.has(m.a)||(m.b!==null&&!ids.has(m.b))||m.a===m.b||!int(m.id,1,Number.MAX_SAFE_INTEGER)||!int(m.stage,0,input.stages.length-1)||!int(m.round,1,200)||(m.bestOf!==undefined?!validBestOf(m.bestOf):!int(m.legs,1,101))||!int(m.seed,0,4294967295)||m.allowDraw!==undefined&&(typeof m.allowDraw!=='boolean'||m.allowDraw&&input.stages[m.stage].type!=='groups')||typeof m.label!=='string'||m.label.length>100)fail('Invalid match.');if(m.results!==undefined){if(!Array.isArray(m.results)||m.results.length>102||m.results.some(x=>!plain(x)||![m.a,m.b,...(m.allowDraw&&input.stages[m.stage].type==='groups'?[null]:[])].includes(x.winner)||!Number.isFinite(x.seconds)||x.seconds<0||x.seconds>91)||!Array.isArray(m.score)||m.score.length!==2||m.score.some(n=>!int(n,0,102)))fail('Invalid match result.');if(m.bestOf!==undefined&&!m.bye){let score;try{score=assertSeriesResult(m,m.results,m.a,m.b,['single','double'].includes(input.stages[m.stage].type)||input.stages[m.stage].swissMode==='threshold');}catch{fail('Invalid best-of series result.');}if(m.score.some((v,i)=>v!==score[i])||m.winner!==(score[0]===score[1]?null:score[0]>score[1]?m.a:m.b))fail('Invalid series score.');}}}
  if(input.done&&(input.runtime.pending.length||input.stageResults.at(-1)?.ranking[0]!==input.champion))fail('Finish the final stage before crowning a champion.');if(input.done&&!ids.has(input.champion))fail('Invalid champion.');for(const s of input.stageResults)if(!plain(s)||!Array.isArray(s.ranking)||s.ranking.some(id=>!ids.has(id)))fail('Invalid stage result.');return input;
 }
+// Operation receipts only exist to recognise a retried command, so they store a SHA-256 of the request, not the
+// request itself, and only the newest RECEIPT_LIMIT are kept per owner. Older receipts may still hold the full
+// (optionally gzip'd) request JSON; both forms compare correctly.
+const RECEIPT_LIMIT=200;
+async function receiptOf(requestJson){const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(requestJson)));return 'sha256:'+[...digest].map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function sameReceipt(stored,requestJson){return stored.startsWith('sha256:')?stored===await receiptOf(requestJson):JSON.stringify(await decodeTournament(stored))===requestJson;}
+const pruneReceipts=(env,table,owner)=>env.DB.prepare(`DELETE FROM ${table} WHERE owner_id = ? AND rowid NOT IN (SELECT rowid FROM ${table} WHERE owner_id = ? ORDER BY rowid DESC LIMIT ${RECEIPT_LIMIT})`).bind(owner,owner);
 async function encodeTournament(state){const raw=new TextEncoder().encode(JSON.stringify(state)),compressed=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());let binary='';for(let i=0;i<compressed.length;i+=32768)binary+=String.fromCharCode(...compressed.subarray(i,i+32768));const encoded='gz:'+btoa(binary);if(encoded.length>1800000)fail('This tournament has reached its save size limit. Current progress remains on this page.',413);return encoded;}
 async function decodeTournament(text){if(!text.startsWith('gz:'))return JSON.parse(text);const bytes=Uint8Array.from(atob(text.slice(3)),c=>c.charCodeAt(0));return JSON.parse(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text());}
 const tournamentRecord=row=>({id:row.id,name:row.name,summary:JSON.parse(row.summary_json),createdAt:row.created_at,updatedAt:row.updated_at});

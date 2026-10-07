@@ -34,6 +34,22 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
   if(version>migrations.length)throw Error('This backup is from a newer Fateforge version. Update the site first.');
   db.run('BEGIN');try{for(;version<migrations.length;version++){db.run(migrations[version]);db.run(`PRAGMA user_version=${version+1}`);}db.run(`PRAGMA application_id=${applicationId}`);db.run('COMMIT');}catch(error){db.run('ROLLBACK');throw error;}
  }
+ // Keep saves small. Receipts only exist to recognise a retried command: the worker stores them as hashes and keeps
+ // the newest few, so older full-request receipts are dropped here. The file is vacuumed whenever a quarter of it
+ // is free space (and always before a backup), so deleted data really leaves the save.
+ function compact(db,force=false){
+  for(const table of ['league_operations','team_operations'])db.run(`DELETE FROM ${table} WHERE request_json NOT LIKE 'sha256:%'`);
+  const pages=db.exec('PRAGMA page_count')[0].values[0][0],free=db.exec('PRAGMA freelist_count')[0].values[0][0];
+  if(force||free>pages*.25)db.run('VACUUM');
+ }
+ const LABELS={saved_characters:'Fighters',character_pools:'Fighter catalogs',fighter_growth:'Fighter growth',saved_tournaments:'Tournaments',match_records:'Match records',champion_history:'Champion history',league_worlds:'1v1 league',league_seasons:'1v1 league archives',league_operations:'1v1 league receipts',league_members:'1v1 league members',team_worlds:'Team leagues',team_operations:'Team league receipts',roster_archives:'Roster archives'};
+ function usage(db){
+  const tables=[];for(const [name]of db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")[0]?.values??[]){
+   const cols=db.exec(`PRAGMA table_info(${name})`)[0].values.map(c=>c[1]),size=cols.map(c=>`COALESCE(LENGTH(CAST(${c} AS BLOB)),0)`).join('+'),[[rows,bytes]]=db.exec(`SELECT COUNT(*),COALESCE(SUM(${size}),0) FROM ${name}`)[0].values;
+   if(rows)tables.push({table:name,label:LABELS[name]??name.replaceAll('_',' '),rows,bytes});
+  }
+  return tables.sort((a,b)=>b.bytes-a.bytes);
+ }
  function exclusive(action){const task=()=>locks?.request?locks.request(databaseName,action):action();const result=queue.then(task,task);queue=result.catch(()=>{});return result;}
  async function withDatabase(action,{save=true}={}){
   for(let attempt=0;attempt<4;attempt++){
@@ -47,11 +63,13 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
     db.run('BEGIN');try{
      const headers=new Headers(options.headers);headers.set('oai-authenticated-user-id','local');headers.delete('origin');
      const response=await worker.fetch(new Request(new URL(path,'https://fateforge.local'),{...options,headers}),{DB:sqliteAdapter(db)});
-     db.run(response.ok?'COMMIT':'ROLLBACK');return response;
+     db.run(response.ok?'COMMIT':'ROLLBACK');if(response.ok)compact(db);return response;
     }catch(error){db.run('ROLLBACK');throw error;}
    });}catch(error){console.error('Browser save failed',error);return Response.json({error:'Browser storage could not save or load. Keep this tab open and retry. '+error.message},{status:503});}
   });},
-  exportBackup(){return exclusive(()=>withDatabase(db=>db.export(),{save:false}));},
+  exportBackup(){return exclusive(()=>withDatabase(db=>{compact(db,true);return db.export();},{save:false}));},
+  // Current save size and the biggest parts of it, for the Backups dialog.
+  usage(){return exclusive(()=>withDatabase(db=>({bytes:db.export().length,tables:usage(db)}),{save:false}));},
   importBackup(bytes){return exclusive(async()=>{
    const db=new SQL.Database(bytes);
    try{
@@ -78,7 +96,9 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
      const response=await worker.fetch(new Request('https://fateforge.local'+path,{headers:{'oai-authenticated-user-id':'local'}}),env);
      if(!response.ok)throw Error('The backup has invalid game records.');
     }
-    const snapshot=await read();await write(db.export(),snapshot?.revision);
+    // Old backups can be large: drop stale receipts and compact before saving.
+    const before=bytes.length;compact(db,true);const after=db.export(),snapshot=await read();await write(after,snapshot?.revision);
+    return {before,after:after.length};
    }finally{db.close();}
   });}
  };
