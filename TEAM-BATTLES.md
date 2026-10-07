@@ -1,4 +1,4 @@
-# Team battles (3v3 and 5v5)
+# Team battles (2v2, 3v3 and 5v5)
 
 Team battles put every fighter on the field at once. This is Phase 1 of the team-league roadmap. It contains the team combat engine and the **3v3** and **5v5** exhibition screens in the Arena rail. Later phases add the generated team pool, AI coaches and the draft (Phase 2), the NFL-style season and playoffs (Phase 3), and the offseason and coach mode (Phase 4). **Team engine 2** (below) adds formation AI, a wide field with terrain maps, and ranged-first damage dealers.
 
@@ -138,27 +138,37 @@ AI coaches play their personality's tactic (see phase 4). Coach mode lets you pi
 
 Isolated fighting is less than half what it was, 2v1s are rarer, and healers almost always cover their tanks.
 
+Re-measured after melee-only tanks, the 2v2 format and a tighter tank leash (tanks stay within their posture's leash + 20 of their back line).
+
+| Balanced mirror | Isolated | Outnumbered | Spread | Healer cover |
+| --- | ---: | ---: | ---: | ---: |
+| 3v3, engine 2 now | 13.8% | 9.7% | 57 | 99.8% |
+| 5v5, engine 2 now | 6.7% | 12.2% | 65 | 99.3% |
+
 | Matchup (40 games, alternating sides) | Win rate (first team) | Time limit | Average length |
 | --- | ---: | ---: | ---: |
-| Tank + healer + damage vs 3 damage | 85% | 2.5% | 56 s |
-| Tank + 2 damage vs 3 damage | 70% | 0% | 50 s |
+| 2v2 tank + damage vs 2 damage | 57.5% | 5% | 57 s |
+| 2v2 healer + damage vs 2 damage | 62.5% | 5% | 59 s |
+| 2v2 mirror (tank + damage) | 45% | 5% | 59 s |
+| Tank + healer + damage vs 3 damage | 82.5% | 0% | 64 s |
+| Tank + 2 damage vs 3 damage | 65% | 0% | 56 s |
 | Healer + 2 damage vs 3 damage | 77.5% | 0% | 60 s |
-| Tank + controller + damage vs 3 damage | 67.5% | 2.5% | 51 s |
-| Balanced 3v3 mirror | 57.5% | 10% | 70 s |
-| Balanced 5v5 vs 5 damage | 85% | 2.5% | 52 s |
-| Balanced 5v5 mirror | 45% | 0% | 59 s |
+| Tank + controller + damage vs 3 damage | 65% | 0% | 54 s |
+| Balanced 3v3 mirror | 60% | 12.5% | 77 s |
+| Balanced 5v5 vs 5 damage | 80% | 2.5% | 56 s |
+| Balanced 5v5 mirror | 55% | 2.5% | 59 s |
 
 Each tactic against a balanced team (24 games each):
 
-| Tactic | 3v3 win | 3v3 spread | 5v5 win | 5v5 spread |
-| --- | ---: | ---: | ---: | ---: |
-| Hold the line | 37.5% | 58 | 58.3% | 65 |
-| Protect the carry | 45.8% | 57 | 50% | 65 |
-| Balanced | 58.3% | 60 | 50% | 64 |
-| Focus their healer | 54.2% | 65 | 62.5% | 67 |
-| All-out aggression | 54.2% | 66 | 62.5% | 66 |
+| Tactic | 2v2 win | 3v3 win | 3v3 spread | 5v5 win | 5v5 spread |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Hold the line | 25% | 54.2% | 53 | 58.3% | 62 |
+| Protect the carry | 41.7% | 33.3% | 53 | 62.5% | 59 |
+| Balanced | 37.5% | 58.3% | 56 | 62.5% | 66 |
+| Focus their healer | 37.5% | 50% | 60 | 45.8% | 65 |
+| All-out aggression | 45.8% | 62.5% | 60 | 66.7% | 65 |
 
-No tactic dominates. Hold the line keeps the tightest shape but times out more often in 3v3 (21%). Aggression spreads widest. Every map stays under 17% time limits (ruins the slowest at 71 s on average), and battles run in about 85–440 ms in node.
+No tactic dominates in 3v3 or 5v5. In 2v2 the cautious postures are weak (Hold the line wins 25%): with only two fighters, waiting simply gives the other side the first hit. Hold the line keeps the tightest shape. Every map stays under 21% time limits (Crossroads is the slowest at 86 s on average), and battles run in about 40–500 ms in node.
 
 `scripts/check-team-combat.mjs` enforces:
 - the damage generation mix;
@@ -282,6 +292,56 @@ Regular-season games are Bo1 team battles under random conditions.
 - **What the server stores:** the server applies standings, seeding, brackets and awards itself. Regular-season results are stored compactly, alongside per-fighter season stats.
 - **Size and speed:** a complete 32-team season is about 250 KB raw. In the browser, a 32-team 5v5 season simulates in about 30 s and its playoffs in about 4 s; an 8-team 3v3 season takes about 7 s.
 - **After the final:** the season ends at **Season complete**, and **Begin offseason** starts phase 4.
+
+# Team leagues: 2v2 and free compositions
+
+## 2v2
+2v2 joins 3v3 and 5v5, with its own rail tab, exhibitions and leagues:
+
+| Format | Starters | Roster | Rookies per team |
+| --- | ---: | ---: | ---: |
+| 2v2 | 2 | 4 | 1 |
+| 3v3 | 3 | 5 | 2 |
+| 5v5 | 5 | 8 | 3 |
+
+## No forced compositions
+Teams no longer have to field a tank, a healer or any fixed mix. The draft only makes sure a roster can still be filled under the cap. Each coach instead has a **composition plan**: weights over tank, healer, controller and damage, seeded from their personality plus a personal twist.
+
+| Coach style | Leans towards | Typical 3v3 lineup |
+| --- | --- | --- |
+| Fortress builder | tanks and healers | 2 tanks · 1 healer |
+| Glass cannon | damage | 3 damage |
+| Star chaser | a carry plus healing | 1 healer · 2 damage |
+| Tactician | control | 2 controllers · 1 damage |
+| Balanced | the classic mix | 1 tank · 1 healer · 1 damage |
+| Bargain hunter | no preference; value first | varies |
+
+The plan shapes how coaches value draft picks, which starters they field (`bestLineup`), whom they release and which trades they accept. The plan's weights are split into slots after sharpening (power 1.8), so strong preferences show even in 2- and 3-fighter lineups. Exhibition "Random S/A" teams draw a random coach-style composition as well.
+
+## Metas
+Every result records both lineups' compositions. At the offseason, `seasonMeta` works out:
+- the win rate of each composition (with at least 4 games);
+- for each role, how often the side fielding more of it than the opponent won.
+
+Each AI coach then moves their weights towards the roles that won, at a personality-based rate:
+
+| Coach style | Adaptation rate |
+| --- | ---: |
+| Tactician | 0.8 |
+| Bargain hunter | 0.7 |
+| Balanced | 0.5 |
+| Glass cannon | 0.4 |
+| Star chaser | 0.2 |
+| Fortress builder | 0.15 |
+
+Newly hired coaches start from their template, nudged towards the meta. The offseason report's **Season meta** section lists:
+- the role edge;
+- the top compositions;
+- every coach who changed lineup.
+
+Each team card shows what it **plays**, and its coach's plan when that differs.
+
+Leagues created before this change pick up coach plans from the personality templates.
 
 # Team leagues: phase 4 (offseason and coach mode)
 

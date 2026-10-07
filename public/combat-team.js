@@ -9,7 +9,7 @@ import {teamRole} from './team-roles.js';
 import {TEAM_FIELD,resolveMap,mapTerrain} from './team-maps.js';
 export const TEAM_ENGINE_VERSION='team-2';
 export const TEAM_TIME_LIMIT=120;
-export const TEAM_SIZES=Object.freeze([3,5]);
+export const TEAM_SIZES=Object.freeze([2,3,5]);
 export const TEAM_TACTICS=Object.freeze(['balanced','protect-carry','focus-healer','aggressive','defensive']);
 export const CC_IMMUNITY=2.5;
 // Team-only role mechanics (see TEAM-BATTLES.md).
@@ -169,7 +169,7 @@ export class TeamBattle extends DuelBattle{
   }
   if(plan&&!f.raging&&!(f.shape>0)){
    const posture=plan.posture,slot=plan.slots[f.index];
-   if(f.role==='tank')f.intent={slot,pull:.45*posture.pull,leash:plan.hold?{ref:this.holdPoint(f.team),max:0}:{ref:plan.B,max:posture.leash+110},u:plan.u,strafe:posture.strafe};
+   if(f.role==='tank')f.intent={slot,pull:.45*posture.pull,leash:plan.hold?{ref:this.holdPoint(f.team),max:0}:{ref:plan.B,max:posture.leash+20},u:plan.u,strafe:posture.strafe};
    else if(f.diving)f.intent={slot,pull:0,leash:null,u:plan.u,strafe:posture.strafe};
    else f.intent={slot,pull:posture.pull*(this.isSkirmisher(f)?.8:1.1),leash:{ref:plan.F,max:50-slot.back},u:plan.u,strafe:posture.strafe};
   }

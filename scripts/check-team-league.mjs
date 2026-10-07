@@ -6,9 +6,9 @@ import worker from '../dist/server/index.js';
 import pagesWorker from '../_site/local-api.js';import migrations from '../_site/local-schema.js';import {createStorage} from '../_site/sqlite-store.js';
 
 // Pool plans: sizes, determinism, S/A tiers with rare SS, every role present.
-for(const format of [3,5])for(const teams of L.LEAGUE_SIZES){
+for(const format of [2,3,5])for(const teams of L.LEAGUE_SIZES){
  const plan=L.poolPlan(format,teams,99);assert.equal(plan.length,Math.ceil(teams*L.FORMATS[format].rosterSize*1.5));assert.deepEqual(plan,L.poolPlan(format,teams,99));
- assert(plan.every(s=>['A','S','SS'].includes(s.tier)));for(const role of ['tank','healer','damage'])assert(plan.filter(s=>s.role===role).length>=teams*L.FORMATS[format].needs[role],`${format}v${format} ${teams}: enough ${role}s`);
+ assert(plan.every(s=>['A','S','SS'].includes(s.tier)));for(const role of L.ROLE_KEYS)assert(plan.filter(s=>s.role===role).length>=teams,`${format}v${format} ${teams}: the pool offers every team a ${role}`);
 }
 assert.throws(()=>L.poolPlan(3,12,1),/8, 16 or 32/);
 // The rating model is the recorded calibration (scripts/evaluate-team-values.mjs).
@@ -28,10 +28,15 @@ const drafted=structuredClone(world),again=structuredClone(world);L.draftPicks(d
 assert(drafted.draft.complete);assert.equal(drafted.phase,'ready');assert.equal(drafted.draft.picks.length,40);
 for(const team of drafted.teams){
  assert.equal(team.roster.length,5);const exceptions=drafted.draft.picks.filter(p=>p.team===team.id&&p.exception).reduce((n,p)=>n+p.salary,0);assert(L.payroll(drafted,team)-exceptions<=drafted.settings.salaryCap+1e-9,`${team.name} stays under the cap (minimum-contract exceptions aside)`);
- const counts=L.roleCounts(drafted,team);for(const [role,need]of Object.entries(L.FORMATS[3].needs))assert(counts[role]>=need,`${team.name} has enough ${role}s`);
+ assert(team.coach.comp&&L.ROLE_KEYS.every(r=>team.coach.comp[r]>0),'Every coach has a composition plan.');
  assert.equal(team.lineup.length,3);assert(team.lineup.every(id=>team.roster.includes(id)));
 }
 assert.equal(L.available(drafted).length,20,'Undrafted fighters become free agents.');
+// Free compositions: no role is mandatory, coaches follow their own plans, and lineups vary across the league.
+const comps=new Set(drafted.teams.map(t=>L.compKey(L.roleCounts(drafted,{roster:t.lineup}))));assert(comps.size>=3,`Teams field varied lineups (${[...comps].join(', ')})`);
+const glassy={...drafted.teams[0],coach:{...drafted.teams[0].coach,comp:L.COMP_TEMPLATES.glass}};assert.equal(L.starterTargets(drafted,glassy).damage,3,'A glass-cannon plan starts three damage dealers in 3v3.');
+// 2v2: four-fighter rosters, two starters.
+const duo=L.create({id:'duo',format:2,teams:8,seed:31,fighters:buildPool(2,8,31)});L.draftPicks(duo,1e6);assert.equal(duo.phase,'ready');for(const t of duo.teams){assert.equal(t.roster.length,4);assert.equal(t.lineup.length,2);}
 // Snake order: round two reverses round one.
 assert.deepEqual(drafted.draft.picks.slice(8,16).map(p=>p.team),drafted.draft.picks.slice(0,8).map(p=>p.team).reverse());
 // Star chasers spend more on their top pick than bargain hunters, on average over several leagues.

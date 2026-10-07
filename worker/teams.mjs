@@ -1,9 +1,9 @@
-// Team leagues (3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
+// Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
 async function teamApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save team leagues.',401);storage(env);
- const formatOf=value=>{const n=Number(value);if(n!==3&&n!==5)fail('Choose 3v3 or 5v5.');return n;};
+ const formatOf=value=>{const n=Number(value);if(![2,3,5].includes(n))fail('Choose 2v2, 3v3 or 5v5.');return n;};
  const get=format=>env.DB.prepare('SELECT * FROM team_worlds WHERE owner_id = ? AND format = ?').bind(owner,format).first();
  const response=async format=>{const row=await get(format);return json({world:row?await decodeTournament(row.state_json):null,revision:row?.revision??0});};
  if(request.method==='GET'){if(url.pathname!=='/api/teams')fail('Not found.',404);return response(formatOf(url.searchParams.get('format')));}

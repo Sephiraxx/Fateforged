@@ -38,7 +38,7 @@ playOut(big);assert.equal(big.phase,'complete');assert.deepEqual(big.playoffs.ro
 const title=big.titles[0];assert.equal(title.champion,big.playoffs.champion);assert(title.runnerUp&&title.champion!==title.runnerUp);assert(big.fighters[title.mvp],'An MVP is named.');
 assert.deepEqual(L.leaders(big,'impact',1)[0].fighter.id,title.mvp);assert(JSON.stringify(big).length<1500000,'A full 32-team season stays well under the storage cap.');
 // Smaller formats: 4 and 2 seeds per conference.
-for(const [teams,keys]of [[16,['semifinal','conference','final']],[8,['conference','final']]]){const w=league(3,teams,teams*11);L.startSeason(w);playOut(w);assert.deepEqual(w.playoffs.rounds.map(r=>r.key),keys);assert.equal(w.playoffs.seeds.Sunward.length,L.PLAYOFF_SPOTS[teams]);}
+for(const [teams,keys,format]of [[16,['semifinal','conference','final'],3],[8,['conference','final'],3],[8,['conference','final'],2]]){const w=league(format,teams,teams*11+format);L.startSeason(w);playOut(w);assert.deepEqual(w.playoffs.rounds.map(r=>r.key),keys);assert.equal(w.playoffs.seeds.Sunward.length,L.PLAYOFF_SPOTS[teams]);}
 
 // A real simulated playoff series is accepted as-is.
 const small=league(3,8,99);L.startSeason(small);while(small.phase==='season'){const [m]=L.upcoming(small,1);L.recordMatch(small,m.id,fake(m));}

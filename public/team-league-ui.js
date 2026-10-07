@@ -1,4 +1,4 @@
-// Team league screen: found a 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
+// Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
 import {poolFighter} from './team-generation.js';
 import {generator} from './team-ui.js';
@@ -127,8 +127,8 @@ export function mountTeamLeague(host,hooks){
  // Opens inline under the team's card, like a dropdown.
  function renderTeamDetail(){
   const team=LEAGUE.teamById(world,selected);if(!team)return el('div');const section=el('section','','team-detail'),starters=new Set(team.lineup.length?team.lineup:LEAGUE.bestLineup(world,team)),coached=world.settings.userTeam===team.id;
-  const tactic=LEAGUE.teamTactic(world,team);
-  section.append(el('h3',team.name+(coached?' · your team':'')),el('p',`${coached?'You are head coach':'Head coach '+team.coach.name+' · '+LEAGUE.PERSONALITIES[team.coach.personality].label} · ${team.conference} ${team.division} · cap space ${money(LEAGUE.capSpace(world,team))} · tactic: ${TACTIC_TEXT[tactic][0]}`,'muted'));
+  const tactic=LEAGUE.teamTactic(world,team),plays=LEAGUE.compLabel(LEAGUE.roleCounts(world,{roster:[...starters]})),plan=LEAGUE.compLabel(LEAGUE.starterTargets(world,team));
+  section.append(el('h3',team.name+(coached?' · your team':'')),el('p',`${coached?'You are head coach':'Head coach '+team.coach.name+' · '+LEAGUE.PERSONALITIES[team.coach.personality].label} · ${team.conference} ${team.division} · cap space ${money(LEAGUE.capSpace(world,team))} · tactic: ${TACTIC_TEXT[tactic][0]}`,'muted'),el('p',`Plays: ${plays||'—'}${plays!==plan?` · coach's plan: ${plan}`:''}`,'team-comp'));
   const editing=coached&&['ready','season','playoffs'].includes(world.phase),size=LEAGUE.FORMATS[world.format].size,boxes=[];
   const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>starters.has(b.id)-starters.has(a.id)||b.ovr-a.ovr).map(f=>{if(!editing)return fighterRow(f,[starters.has(f.id)?'Starter':'Bench']);const box=check(`Start ${f.name}`,starters.has(f.id));box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[box]);});
   section.append(table(['Fighter','Role','Tier','OVR','Salary',editing?'Start':'Lineup'],rows,`Roster · team OVR ${LEAGUE.teamOverall(world,team)}`));
@@ -160,7 +160,7 @@ export function mountTeamLeague(host,hooks){
   if(world.phase==='offseason')panel.append(el('h3',`Season ${world.season+1} draft · rookies and free agents`,'offseason-title'));
   if(!d.complete){
    const slot=LEAGUE.draftSlot(world),team=LEAGUE.teamById(world,slot.team),clock=el('div','','draft-clock');myTurn=coach?.id===team.id;
-   clock.append(el('span',`Round ${slot.round} · pick ${slot.pick} · ${made+1} of ${total}`,'eyebrow'),el('strong',myTurn?`You are on the clock: ${team.name}`:`On the clock: ${team.name}`),el('span',myTurn?`Needs ${Object.entries(LEAGUE.eligible(world,team).unmet).filter(([,n])=>n).map(([r,n])=>`${n} ${ROLE_LABELS[r].toLowerCase()}`).join(', ')||'filled'} · ${team.roster.length}/${world.settings.rosterSize} signed · cap space ${money(LEAGUE.capSpace(world,team))}`:`${team.coach.name} · ${LEAGUE.PERSONALITIES[team.coach.personality].label} · cap space ${money(LEAGUE.capSpace(world,team))}`,'muted'));
+   clock.append(el('span',`Round ${slot.round} · pick ${slot.pick} · ${made+1} of ${total}`,'eyebrow'),el('strong',myTurn?`You are on the clock: ${team.name}`:`On the clock: ${team.name}`),el('span',myTurn?`Coach plan still wants ${Object.entries(LEAGUE.eligible(world,team).unmet).filter(([,n])=>n).map(([r,n])=>`${n} ${ROLE_LABELS[r].toLowerCase()}`).join(', ')||'filled'} · ${team.roster.length}/${world.settings.rosterSize} signed · cap space ${money(LEAGUE.capSpace(world,team))}`:`${team.coach.name} · ${LEAGUE.PERSONALITIES[team.coach.personality].label} · cap space ${money(LEAGUE.capSpace(world,team))}`,'muted'));
    if(myTurn)clock.classList.add('mine');
    const actions=el('div','','draft-actions');let roundLeft=0;for(let i=made;i<total&&LEAGUE.draftSlot(world,i).round===slot.round;i++)roundLeft++;
    if(myTurn){
@@ -248,6 +248,16 @@ export function mountTeamLeague(host,hooks){
   const facts=el('div','','offseason-facts');
   for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
   box.append(facts);
+  // The season's meta: which lineups won, which role made the difference, and which coaches changed course.
+  if(o.meta?.games){
+   const meta=el('div','','offseason-meta'),role={tank:'tanks',healer:'healers',controller:'controllers',damage:'damage dealers'};meta.append(el('h4','Season meta'));
+   const lines=el('ul','','offseason-notes');
+   if(o.meta.shift){const sh=o.meta.shift;lines.append(el('li',sh.winPct>=50?`Lineups with more ${role[sh.role]} than their opponent won ${sh.winPct}% of ${sh.games} games.`:`Lineups with more ${role[sh.role]} than their opponent lost ${Math.round((100-sh.winPct)*10)/10}% of ${sh.games} games.`));}
+   for(const t of o.meta.top)lines.append(el('li',`${t.label}: won ${t.pct}% (${t.games} games).`));
+   for(const c of o.meta.changed??[])if(world.teams.some(t=>t.id===c.team))lines.append(el('li',`${name(c.team)} switch from ${c.from} to ${c.to}.`));
+   if(!o.meta.changed?.length)lines.append(el('li','Every coach sticks with their composition.'));
+   meta.append(lines);box.append(meta);
+  }
   const moves=o.ratingChanges.filter(c=>world.fighters[c.id]).map(c=>({...c,f:world.fighters[c.id],d:c.to-c.from})),grid=el('div','','draft-grid');
   const moveRows=list=>list.map(c=>{const tr=el('tr','',`role-${c.f.role}`);tr.append(cell(fighterLink(c.f)),el('td',c.f.team?name(c.f.team):'Free agent'),el('td',`${c.from} → ${c.to}`),el('td',(c.d>0?'+':'')+c.d,c.d>0?'up':'down'));return tr;});
   const risers=moves.filter(c=>c.d>0).sort((a,b)=>b.d-a.d||b.to-a.to).slice(0,5),fallers=moves.filter(c=>c.d<0).sort((a,b)=>a.d-b.d||b.to-a.to).slice(0,5);

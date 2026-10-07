@@ -5174,15 +5174,17 @@ function mapTerrain(id,seed){
  return pieces.map(p=>({x:round(p.x),y:round(p.y),radius:round(p.radius),life:Infinity,terrain:true}));
 }
 
-// Team leagues (3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
+// Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
 
 
 const TEAM_LEAGUE_VERSION=1;
 const LEAGUE_SIZES=Object.freeze([8,16,32]);
+// mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
 const FORMATS=Object.freeze({
- 3:Object.freeze({size:3,rosterSize:5,starters:['tank','healer','damage'],needs:Object.freeze({tank:1,healer:1,controller:0,damage:2}),mix:Object.freeze({tank:1.2,healer:1.2,controller:.6,damage:2})}),
- 5:Object.freeze({size:5,rosterSize:8,starters:['tank','healer','controller','damage','damage'],needs:Object.freeze({tank:2,healer:2,controller:1,damage:3}),mix:Object.freeze({tank:2,healer:2,controller:1.2,damage:2.8})})
+ 2:Object.freeze({size:2,rosterSize:4,mix:Object.freeze({tank:1.1,healer:1.1,controller:.9,damage:2})}),
+ 3:Object.freeze({size:3,rosterSize:5,mix:Object.freeze({tank:1.2,healer:1.2,controller:.8,damage:2})}),
+ 5:Object.freeze({size:5,rosterSize:8,mix:Object.freeze({tank:2,healer:2,controller:1.2,damage:2.8})})
 });
 const POOL_FACTOR=1.5;
 const CONFERENCES=Object.freeze(['Sunward','Shadeward']);
@@ -5203,7 +5205,29 @@ const PERSONALITIES=Object.freeze({
 function rng(seed){let n=seed>>>0;return()=>{n+=0x6D2B79F5;let t=n;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
 function shuffle(list,seed){const out=[...list],random=rng(seed);for(let i=out.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
 const round1=n=>Math.round(n*10)/10;
-function format(value){const f=FORMATS[Number(value)];if(!f)throw new Error('Choose 3v3 or 5v5.');return f;}
+function format(value){const f=FORMATS[Number(value)];if(!f)throw new Error('Choose 2v2, 3v3 or 5v5.');return f;}
+// ---------- Team compositions: each coach builds their own, and metas move them season to season ----------
+const ROLE_KEYS=Object.freeze(['tank','healer','controller','damage']);
+// Starting composition weights by coach personality (before each coach's own seeded twist).
+const COMP_TEMPLATES=Object.freeze({
+ fortress:Object.freeze({tank:2.2,healer:1.4,controller:.6,damage:1}),glass:Object.freeze({tank:.4,healer:.6,controller:.8,damage:2.6}),
+ star:Object.freeze({tank:.8,healer:1.5,controller:.5,damage:1.8}),tactician:Object.freeze({tank:.8,healer:1,controller:2,damage:1.2}),
+ balanced:Object.freeze({tank:1,healer:1,controller:.7,damage:1.6}),bargain:Object.freeze({tank:1,healer:1,controller:1,damage:1})
+});
+// How strongly each personality copies what won last season.
+const META_ADAPTATION=Object.freeze({tactician:.8,bargain:.7,balanced:.5,glass:.4,star:.2,fortress:.15});
+function coachComp(style,random,lean=null){const base=COMP_TEMPLATES[style]??COMP_TEMPLATES.balanced,comp={};for(const r of ROLE_KEYS)comp[r]=Math.round(base[r]*(.75+random()*.55)*(lean?Math.exp(.5*2.5*(lean[r]??0)):1)*100)/100;return comp;}
+// Split n slots by weight (largest remainder; ties follow ROLE_KEYS order). Weights are sharpened (power 1.8) so a
+// coach's strong preferences show up even in a 2- or 3-fighter lineup instead of always rounding to one of each.
+function compTargets(comp,n){const sharp=r=>Math.pow(comp?.[r]??1,1.8),total=ROLE_KEYS.reduce((a,r)=>a+sharp(r),0),raw=ROLE_KEYS.map(r=>sharp(r)/total*n),out=Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,Math.floor(raw[i])]));let left=n-Object.values(out).reduce((a,b)=>a+b,0);
+ for(const i of raw.map((x,i)=>[x-Math.floor(x),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[1])){if(left<=0)break;out[ROLE_KEYS[i]]++;left--;}return out;}
+const teamComp=team=>team.coach.comp??COMP_TEMPLATES[team.coach.personality]??COMP_TEMPLATES.balanced;
+const rosterTargets=(w,team)=>compTargets(teamComp(team),w.settings.rosterSize);
+const starterTargets=(w,team)=>compTargets(teamComp(team),FORMATS[w.format].size);
+const ROLE_LETTER={tank:'T',healer:'H',controller:'C',damage:'D'};
+function compKey(counts){return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]}${ROLE_LETTER[r]}`).join('·')||'—';}
+function compLabel(counts){const names={tank:['tank','tanks'],healer:['healer','healers'],controller:['controller','controllers'],damage:['damage','damage']};return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]} ${names[r][counts[r]>1?1:0]}`).join(' · ');}
+const lineupCounts=(w,ids)=>{const c={tank:0,healer:0,controller:0,damage:0};for(const id of ids){const f=w.fighters[id];if(f)c[f.role]++;}return c;};
 function poolSize(formatSize,teams){return Math.ceil(teams*format(formatSize).rosterSize*POOL_FACTOR);}
 // Pool plan: the role and tier of every fighter to generate, fixed by the seed so the server can verify tiers.
 function poolPlan(formatSize,teams,seed){
@@ -5248,6 +5272,7 @@ function create({id,format:formatSize,teams,seed,fighters}){
   roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),team:null};
  });
  const layout=structure(teams),identities=teamIdentities(teams,seed),list=[];
+ identities.forEach((x,i)=>{x.coach.comp=coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0));});
  layout.forEach(conference=>conference.divisions.forEach(division=>division.slots.forEach(slot=>list.push({id:`t${slot+1}`,name:identities[slot].name,conference:conference.name,division:division.name,coach:identities[slot].coach,roster:[],lineup:[]}))));
  list.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
@@ -5272,21 +5297,19 @@ const totalPicks=w=>w.draft.slots?w.draft.slots.length:w.teams.length*w.settings
 const RESERVE_MARGIN=1.15;
 // Who a team may draft: affordable after reserving room to fill every remaining slot and unmet role.
 function eligible(w,team){
- const f=FORMATS[w.format],slotsLeft=w.settings.rosterSize-team.roster.length,space=capSpace(w,team),pool=available(w);
- const counts=roleCounts(w,team),unmet=Object.fromEntries(Object.entries(f.needs).map(([role,need])=>[role,Math.max(0,need-counts[role])])),unmetTotal=Object.values(unmet).reduce((a,b)=>a+b,0);
+ const slotsLeft=w.settings.rosterSize-team.roster.length,space=capSpace(w,team),pool=available(w);
+ // No role is mandatory: "unmet" is only the coach's own plan, used to value fighters, never to restrict picks.
+ const counts=roleCounts(w,team),plan=rosterTargets(w,team),unmet=Object.fromEntries(ROLE_KEYS.map(r=>[r,Math.max(0,plan[r]-counts[r])]));
  const bySalary=pool.slice().sort((a,b)=>a.salary-b.salary||(a.id<b.id?-1:1));
- const reserveFor=x=>{const need={...unmet};if(need[x.role]>0)need[x.role]--;const taken=new Set([x.id]);let total=0,filled=0;
-  for(const [role,count]of Object.entries(need)){let left=count;for(const y of bySalary){if(!left)break;if(y.role===role&&!taken.has(y.id)){taken.add(y.id);total+=y.salary;left--;filled++;}}if(left)return Infinity;}
-  let free=slotsLeft-1-filled;for(const y of bySalary){if(free<=0)break;if(!taken.has(y.id)){taken.add(y.id);total+=y.salary;free--;}}return free>0?Infinity:total*RESERVE_MARGIN;};
- let candidates=pool.filter(x=>x.salary+reserveFor(x)<=space+1e-9);
- if(slotsLeft<=unmetTotal){const needed=candidates.filter(x=>unmet[x.role]>0);if(needed.length)candidates=needed;}
- // Minimum-contract exception: when nothing fits, the cheapest eligible fighter may be signed past the cap.
- const exception=candidates.length?null:bySalary.find(x=>unmet[x.role]>0)??bySalary[0];
+ const reserveFor=x=>{let total=0,free=slotsLeft-1;for(const y of bySalary){if(free<=0)break;if(y.id!==x.id){total+=y.salary;free--;}}return free>0?Infinity:total*RESERVE_MARGIN;};
+ const candidates=pool.filter(x=>x.salary+reserveFor(x)<=space+1e-9);
+ // Minimum-contract exception: when nothing fits, the cheapest fighter may be signed past the cap.
+ const exception=candidates.length?null:bySalary[0];
  return {candidates:exception?[exception]:candidates,counts,unmet};
 }
 function coachValue(w,team,x,counts,unmet,noise=()=>.5){
- const f=FORMATS[w.format],style=PERSONALITIES[team.coach.personality],average=w.settings.salaryCap/w.settings.rosterSize;
- const need=unmet[x.role]>0?1+.35*style.need:counts[x.role]>=f.needs[x.role]+1?.7:.9;
+ const style=PERSONALITIES[team.coach.personality],average=w.settings.salaryCap/w.settings.rosterSize,plan=rosterTargets(w,team);
+ const need=unmet[x.role]>0?1+.35*style.need:counts[x.role]>=plan[x.role]+1?.7:.9;
  return Math.pow(x.ovr/70,1+style.star)*70*style.rating*(style.roles[x.role]??1)*need-style.cost*(x.salary/average)*9+(noise()-.5)*2;
 }
 // AI head coach: weigh OVR, salary, role needs and personality; never break the cap or the ability to fill the roster.
@@ -5314,10 +5337,10 @@ function draftPick(w,fighterId=null){
 }
 // AI picks stop when the user-coached team comes on the clock.
 function draftPicks(w,count){const made=[];for(let i=0;i<count&&!w.draft.complete;i++){if(isUser(w,onTheClock(w)))break;made.push(draftPick(w));}return made;}
-// Starters fill the format's role slots with the best available fighters, then the strongest remaining.
+// Starters follow the coach's composition plan with the best fighters per role, then the strongest remaining.
 function bestLineup(w,team){
- const f=FORMATS[w.format],left=team.roster.map(id=>w.fighters[id]).sort((a,b)=>b.ovr-a.ovr||(a.id<b.id?-1:1)),lineup=[];
- for(const role of f.starters){const i=left.findIndex(x=>x.role===role);if(i>=0)lineup.push(left.splice(i,1)[0].id);}
+ const f=FORMATS[w.format],left=team.roster.map(id=>w.fighters[id]).sort((a,b)=>b.ovr-a.ovr||(a.id<b.id?-1:1)),lineup=[],plan=starterTargets(w,team);
+ for(const role of ROLE_KEYS)for(let n=0;n<plan[role];n++){const i=left.findIndex(x=>x.role===role);if(i>=0)lineup.push(left.splice(i,1)[0].id);}
  while(lineup.length<f.size&&left.length)lineup.push(left.shift().id);
  return lineup;
 }
@@ -5416,8 +5439,9 @@ function recordMatch(w,matchId,games){
  const score=[0,0];games.forEach((g,i)=>{if(!validGame(g,m.lineups))throw new Error('Invalid team-league game result.');if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');score[g.winnerTeam]++;});
  if(Math.max(...score)!==need)throw new Error('The series is not complete.');
  const winner=score[0]>score[1]?m.home:m.away;addStats(w,games,m.lineups);
- if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds});if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=games.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds}));s.winner=winner;
+ const comps=m.lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);});
+ if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.hp,seconds:g.seconds,comps});if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=games.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds}));s.comps=comps;s.winner=winner;
   if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
  return {id:m.id,winner,score};
 }
@@ -5431,7 +5455,7 @@ function leaders(w,key,limit=5){return Object.entries(w.stats??{}).map(([id,s])=
 // ---------- Coach mode and the offseason (phase 4) ----------
 const TACTICS=Object.freeze(['balanced','protect-carry','focus-healer','aggressive','defensive']);
 const COACH_TACTICS=Object.freeze({bargain:'balanced',star:'protect-carry',glass:'aggressive',fortress:'defensive',tactician:'focus-healer',balanced:'balanced'});
-const ROOKIES_PER_TEAM=Object.freeze({3:2,5:3});
+const ROOKIES_PER_TEAM=Object.freeze({2:1,3:2,5:3});
 const FREE_AGENT_SEASONS=2;
 function teamTactic(w,team){return team.tactic??COACH_TACTICS[team.coach.personality]??'balanced';}
 function userTeam(w){const team=w.settings.userTeam&&teamById(w,w.settings.userTeam);if(!team)throw new Error('Take control of a team first.');return team;}
@@ -5470,15 +5494,15 @@ function updateRatings(w){
 }
 function scoreTeam(w,team,roster=team.roster){
  const f=FORMATS[w.format],members=roster.map(id=>w.fighters[id]),probe={...team,roster,lineup:[]},lineup=bestLineup(w,probe).map(id=>w.fighters[id]),counts={tank:0,healer:0,controller:0,damage:0};for(const m of members)counts[m.role]++;
- const pay=members.reduce((n,m)=>n+m.salary,0);return lineup.reduce((n,m)=>n+m.ovr,0)+Object.entries(f.needs).reduce((n,[role,need])=>n+Math.min(counts[role],need)*6,0)+members.reduce((n,m)=>n+m.ovr*.15,0)-Math.max(0,pay-w.settings.salaryCap)*4;
+ const pay=members.reduce((n,m)=>n+m.salary,0);return lineup.reduce((n,m)=>n+m.ovr,0)+Object.entries(rosterTargets(w,team)).reduce((n,[role,want])=>n+Math.min(counts[role],want)*6,0)+members.reduce((n,m)=>n+m.ovr*.15,0)-Math.max(0,pay-w.settings.salaryCap)*4;
 }
 // Share of a roster each personality is willing to turn over in one offseason.
 const ROSTER_CHURN=Object.freeze({bargain:.375,glass:.25,tactician:.25,balanced:.25,fortress:.125,star:.125});
 // AI keep/release: let go of anyone a free agent of the same role could replace for less, and get back under the cap.
 function aiReleases(w,team){
  const f=FORMATS[w.format],counts=roleCounts(w,team),free=available(w),released=[];
- const keepValue=x=>{const unmet={...Object.fromEntries(Object.keys(f.needs).map(r=>[r,0]))};unmet[x.role]=Math.max(0,f.needs[x.role]-(counts[x.role]-1));return coachValue(w,team,x,counts,unmet);};
- const replacement=x=>Math.max(-Infinity,...free.filter(y=>y.role===x.role&&y.salary<=x.salary&&!released.includes(y.id)).map(y=>coachValue(w,team,y,counts,{[x.role]:Math.max(0,f.needs[x.role]-(counts[x.role]-1))})));
+ const plan=rosterTargets(w,team),keepValue=x=>{const unmet=Object.fromEntries(ROLE_KEYS.map(r=>[r,0]));unmet[x.role]=Math.max(0,plan[x.role]-(counts[x.role]-1));return coachValue(w,team,x,counts,unmet);};
+ const replacement=x=>Math.max(-Infinity,...free.filter(y=>y.role===x.role&&y.salary<=x.salary&&!released.includes(y.id)).map(y=>coachValue(w,team,y,counts,{[x.role]:Math.max(0,plan[x.role]-(counts[x.role]-1))})));
  const ranked=team.roster.map(id=>w.fighters[id]).map(x=>({x,surplus:keepValue(x)-replacement(x)})).sort((a,b)=>a.surplus-b.surplus||(a.x.id<b.x.id?-1:1));
  const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5){released.push(x.id);counts[x.role]--;}}
  let pay=payroll(w,team)-released.reduce((n,id)=>n+w.fighters[id].salary,0);
@@ -5486,11 +5510,34 @@ function aiReleases(w,team){
  return released;
 }
 function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.team=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
+// The season's meta: win rate by starting composition, and for each role whether fielding more of it than the
+// opponent won games. Coaches lean towards what worked, each at their own pace (META_ADAPTATION).
+function seasonMeta(w){
+ const games=[],toCounts=a=>Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]])),byKey=new Map(),more=Object.fromEntries(ROLE_KEYS.map(r=>[r,{wins:0,games:0}])),edge={};
+ for(const r of w.results??[])if(r.comps)games.push({comps:r.comps,winner:r.winner===r.home?0:1});
+ for(const round of w.playoffs?.rounds??[])for(const s of round.series)if(s.comps)for(const g of s.games??[])games.push({comps:s.comps,winner:g.winnerTeam});
+ for(const g of games){
+  g.comps.forEach((a,side)=>{const counts=toCounts(a),key=compKey(counts),e=byKey.get(key)??{key,label:compLabel(counts),wins:0,games:0};e.games++;if(g.winner===side)e.wins++;byKey.set(key,e);});
+  ROLE_KEYS.forEach((r,i)=>{const d=g.comps[0][i]-g.comps[1][i];if(!d)return;more[r].games++;if(g.winner===(d>0?0:1))more[r].wins++;});
+ }
+ for(const r of ROLE_KEYS)edge[r]=more[r].games>=4?Math.round((more[r].wins/more[r].games-.5)*1000)/1000:0;
+ const top=[...byKey.values()].filter(e=>e.games>=4).map(e=>({...e,pct:Math.round(e.wins/e.games*1000)/10})).sort((a,b)=>b.pct-a.pct||b.games-a.games||(a.key<b.key?-1:1)).slice(0,3);
+ const role=ROLE_KEYS.slice().sort((a,b)=>Math.abs(edge[b])-Math.abs(edge[a]))[0];
+ return {games:games.length,top,edge,shift:edge[role]?{role,winPct:Math.round((edge[role]+.5)*1000)/10,games:more[role].games}:null};
+}
+function adaptCoaches(w,meta){
+ const changed=[];
+ for(const team of w.teams){if(isUser(w,team.id))continue;const rate=META_ADAPTATION[team.coach.personality]??.4,before=compKey(starterTargets(w,team)),comp={...teamComp(team)};
+  for(const r of ROLE_KEYS)comp[r]=Math.round(Math.max(.15,Math.min(4,comp[r]*Math.exp(rate*2.5*(meta.edge[r]??0))))*100)/100;
+  team.coach.comp=comp;const after=compKey(starterTargets(w,team));if(after!==before)changed.push({team:team.id,from:before,to:after});}
+ return changed;
+}
 function startOffseason(w,rookies){
  if(w.phase!=='complete')throw new Error('Finish the season before the offseason.');
  const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
  const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
+ const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
  const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
@@ -5500,9 +5547,9 @@ function startOffseason(w,rookies){
  const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,w.teams.length*w.settings.rosterSize);w.settings.salaryCap=round1(top.reduce((n,x)=>n+x.salary,0)/w.teams.length);
  // Coaches with dismal seasons are replaced (never the user's team).
  const fired=[],records=new Map(history.standings.map(r=>[r.id,r]));
- for(const team of w.teams){const r=records.get(team.id);if(isUser(w,team.id)||!r||r.wins/(r.wins+r.losses||1)>.25)continue;const random=rng(matchSeed(w,'coach:'+team.id)),style=Object.keys(PERSONALITIES)[Math.floor(random()*6)],coach={name:`${COACH_FIRST[Math.floor(random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(random()*COACH_LAST.length)]}`,personality:style,hired:w.season+1};fired.push({team:team.id,from:team.coach.name,to:coach.name});team.coach=coach;delete team.tactic;}
+ for(const team of w.teams){const r=records.get(team.id);if(isUser(w,team.id)||!r||r.wins/(r.wins+r.losses||1)>.25)continue;const random=rng(matchSeed(w,'coach:'+team.id)),style=Object.keys(PERSONALITIES)[Math.floor(random()*6)],coach={name:`${COACH_FIRST[Math.floor(random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(random()*COACH_LAST.length)]}`,personality:style,hired:w.season+1,comp:coachComp(style,random,meta.edge)};fired.push({team:team.id,from:team.coach.name,to:coach.name});team.coach=coach;delete team.tactic;}
  const releases={};for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
- w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
+ w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,meta,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
  if(!w.settings.userTeam){aiTrades(w);startOffseasonDraft(w);}
  return w;
 }
@@ -5519,7 +5566,7 @@ function aiTrades(w){
  for(let n=0;n<limit;n++){
   let best=null;
   // Only bench fighters or surplus roles are on the block, which keeps the search small and the trades sensible.
-  const block=new Map(ai.map(t=>{const counts=roleCounts(w,t),starters=new Set(bestLineup(w,t));return [t.id,t.roster.filter(id=>!starters.has(id)||counts[w.fighters[id].role]>FORMATS[w.format].needs[w.fighters[id].role])];}));
+  const block=new Map(ai.map(t=>{const counts=roleCounts(w,t),starters=new Set(bestLineup(w,t));return [t.id,t.roster.filter(id=>!starters.has(id)||counts[w.fighters[id].role]>rosterTargets(w,t)[w.fighters[id].role])];}));
   for(let i=0;i<ai.length;i++)for(let j=i+1;j<ai.length;j++){const A=ai[i],B=ai[j];if(traded.has(A.id)||traded.has(B.id))continue;const baseA=scoreTeam(w,A),baseB=scoreTeam(w,B);
    for(const x of block.get(A.id))for(const y of block.get(B.id)){if(w.fighters[x].role===w.fighters[y].role)continue;const rA=A.roster.map(id=>id===x?y:id),rB=B.roster.map(id=>id===y?x:id);if(!legalRoster(w,rA)||!legalRoster(w,rB))continue;const gainA=scoreTeam(w,A,rA)-baseA,gainB=scoreTeam(w,B,rB)-baseB,gain=Math.min(gainA,gainB);if(gain>=2&&(!best||gain>best.gain||gain===best.gain&&`${A.id}${x}`<`${best.A.id}${best.x}`))best={A,B,x,y,gain};}}
   if(!best)break;swap(w,best.A,best.B,[best.x],[best.y]);traded.add(best.A.id);traded.add(best.B.id);w.offseason.trades.push({teams:[best.A.id,best.B.id],sent:[[best.x],[best.y]]});
@@ -5555,13 +5602,13 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
-// Team leagues (3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
+return Object.freeze({TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,TEAM_COMBAT_VERSION,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder});})();
+// Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
 async function teamApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save team leagues.',401);storage(env);
- const formatOf=value=>{const n=Number(value);if(n!==3&&n!==5)fail('Choose 3v3 or 5v5.');return n;};
+ const formatOf=value=>{const n=Number(value);if(![2,3,5].includes(n))fail('Choose 2v2, 3v3 or 5v5.');return n;};
  const get=format=>env.DB.prepare('SELECT * FROM team_worlds WHERE owner_id = ? AND format = ?').bind(owner,format).first();
  const response=async format=>{const row=await get(format);return json({world:row?await decodeTournament(row.state_json):null,revision:row?.revision??0});};
  if(request.method==='GET'){if(url.pathname!=='/api/teams')fail('Not found.',404);return response(formatOf(url.searchParams.get('format')));}

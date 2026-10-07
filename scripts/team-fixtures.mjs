@@ -8,7 +8,7 @@ if(!globalThis.WHEEL_LUCK)vm.runInThisContext(fs.readFileSync(new URL('luck.js',
 export const engine=await import(new URL('combat-team.js',root));
 export const generation=await import(new URL('team-generation.js',root));
 export const roles=await import(new URL('team-roles.js',root));
-export const COMPOSITIONS={balanced3:['tank','healer','damage'],damage3:['damage','damage','damage'],tank3:['tank','damage','damage'],healer3:['healer','damage','damage'],control3:['tank','controller','damage'],balanced5:['tank','healer','controller','damage','damage'],damage5:['damage','damage','damage','damage','damage']};
+export const COMPOSITIONS={balanced2:['tank','damage'],healer2:['healer','damage'],damage2:['damage','damage'],balanced3:['tank','healer','damage'],damage3:['damage','damage','damage'],tank3:['tank','damage','damage'],healer3:['healer','damage','damage'],control3:['tank','controller','damage'],balanced5:['tank','healer','controller','damage','damage'],damage5:['damage','damage','damage','damage','damage']};
 export function squad(roleList,seed){const random=generation.seededRandom(seed);return roleList.map((role,i)=>generation.roleFighter(globalThis.WHEEL_DATA,globalThis.WHEEL_LUCK,{role,tier:generation.poolTier(random),random,id:`fx-${seed}-${i}`,name:()=>`${role} ${seed}-${i}`}));}
 // Mirrored sides: each pairing is played once from each side so spawn position cannot decide it.
 export function matchup(a,b,games,seedBase=50000){
