@@ -447,3 +447,9 @@ All commands use the same revision and `operationId` protocol as the other team-
 | `trade` | `partner`, `give`, `get` | offseason, trade window |
 | `closeMarket` | none | offseason, trade window |
 | `draft` | `count` | AI picks, which stop at your pick |
+
+## Between-game coaching and cover checks
+
+Watched Bo3/Bo5 games pause at a recap. Team league games save at each break; returning to setup resumes the same series, including its score, starters and tactics. Your team may choose any legal starters from its roster. AI coaches adapt by a shared deterministic rule, used by both watched and quick simulation. A failed save offers a retry of the same result instead of rerunning the battle. Each format keeps a collapsed season/team champions list.
+
+New seasons use team 2.1. Projectile spells and ordinary shots check their actual aim/radius; a shot blocked during its windup is cancelled, resources refunded and its cooldown reduced. Portal shots check the exit path. Earlier team 2 seasons keep their saved engine. Duel 12 stays frozen.

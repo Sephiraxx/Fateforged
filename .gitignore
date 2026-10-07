@@ -3,3 +3,4 @@ _site/
 validation/screenshots/
 validation/check-output/
 *.zip
+validation/browser-fixtures/
