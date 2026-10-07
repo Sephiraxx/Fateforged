@@ -10,6 +10,14 @@
     "wins": 4,
     "validationWins": 4,
     "patchedWins": 4,
+    "validationMargin": 0.665625,
+    "patchedMargin": 0.665625,
+    "marginDeltas": [
+      0,
+      0,
+      0,
+      0
+    ],
     "controls": 4,
     "carriers": 4
   },
