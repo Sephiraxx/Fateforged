@@ -14,7 +14,7 @@ const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{wheelRarity:f.summa
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false;
+ let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
@@ -307,10 +307,12 @@ export function mountTeamLeague(host,hooks){
   if(world.phase==='offseason'){renderOffseason();renderTeams();return;}
   const season=el('section','','team-draft');season.append(seasonActions());
   if(world.phase==='complete')season.prepend(renderChampion());
-  if(world.schedule&&['season','playoffs','complete'].includes(world.phase))season.append(renderWeek());
+  // Regular season: the current week leads. Playoffs and after: the bracket leads and the weeks fold away below it.
+  if(world.phase==='season'&&world.schedule)season.append(renderWeek());
+  if(world.playoffs)season.append(renderPlayoffs());
+  if(world.schedule&&['playoffs','complete'].includes(world.phase)){const weeks=el('details','','module draft-recap season-results');weeks.open=resultsOpen;weeks.ontoggle=()=>{resultsOpen=weeks.open;};weeks.append(el('summary','Regular season results'),renderWeek());season.append(weeks);}
   if(world.phase==='ready'&&world.lastOffseason)season.append(offseasonReport(world.lastOffseason));
   body.append(season);
-  if(world.playoffs)body.append(renderPlayoffs());
   if(world.results?.length){body.append(renderStandings(),renderLeaders());}
   const recap=el('details','','module draft-recap');recap.open=recapOpen;recap.ontoggle=()=>{recapOpen=recap.open;};recap.append(el('summary','Draft recap & free agents'));const holder=body;const before=body.childNodes.length;renderDraft();const draftPanel=body.lastChild;if(body.childNodes.length>before){recap.append(draftPanel);holder.append(recap);}
   renderTeams();
