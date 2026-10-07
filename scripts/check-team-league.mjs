@@ -77,3 +77,17 @@ const local=async body=>{const r=await storage.fetch('/api/teams'+(body?'':'?for
 ok(await local({...start,operationId:crypto.randomUUID()}));response=await local({action:'draft',format:3,revision:1,operationId:crypto.randomUUID(),count:1000});ok(response);assert.deepEqual(response.world.teams,drafted.teams);
 const backup=new SQL.Database(await storage.exportBackup());assert.equal(backup.exec('SELECT COUNT(*) FROM team_worlds')[0].values[0][0],1);backup.close();
 console.log(`Team league passed: pool plans for 3v3/5v5 × 8/16/32, ratings and convex salaries, ${drafted.teams.length}-team deterministic snake draft under a ${drafted.settings.salaryCap}M cap with role needs met, server validation/revisions/retries, and browser storage.`);
+
+// A preview league pins Core rules, validates objective results, and retains objective impact.
+const {simulateTeamSeries}=await import('../public/team-sim-worker.js');
+assert.throws(()=>L.create({id:'bad',format:2,teams:8,seed:31,fighters:[],battleMode:'core'}),/3v3/);
+let cr=await call({...start,revision:5,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),battleMode:'core'});ok(cr);
+cr=await call({action:'draft',format:3,revision:cr.revision,operationId:crypto.randomUUID(),count:1000});ok(cr);
+cr=await call({action:'startSeason',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');assert.equal(cr.world.teamEngine,L.OBJECTIVE_COMBAT_VERSION);
+const cw=structuredClone(cr.world),cm=L.upcoming(cr.world,1)[0],cg=simulateTeamSeries({match:cm,teams:L.squads(cr.world,cm)}),bad=structuredClone(cg);bad[0].objective.coreHp[bad[0].winnerTeam]=0;
+const cmd={action:'record',format:3,revision:cr.revision,operationId:crypto.randomUUID(),results:[{matchId:cm.id,games:bad}]};assert.equal((await call(cmd)).status,400);
+cr=await call({...cmd,operationId:crypto.randomUUID(),results:[{matchId:cm.id,games:cg}]});ok(cr);assert.deepEqual(cr.world.results[0].objective,cg[0].objective);assert(cr.world.stats[cg[0].fighters[0].id].downSeconds>=0);assert.equal(L.impact({damage:0,healing:0,kills:0,ccSeconds:0,objectiveDamage:100,monsterLastHits:1}),340);
+console.log('Core league API passed: selected rules, real worker result, winner consistency, rejection rollback and persisted objective stats.');
+
+const timed=structuredClone(cg);timed[0].seconds=390;timed[0].winnerTeam=0;timed[0].objective.coreHp=[80,70];timed[0].objective.suddenDeath=true;L.recordMatch(structuredClone(cw),cm.id,timed);
+for(const change of [g=>g.seconds=390.6,g=>g.objective.coreHp=[-1,70],g=>g.objective.forgefireSeconds=[NaN,0],g=>g.fighters[0].downSeconds=391,g=>{g.winnerTeam=1;g.objective.coreHp=[80,70];}]){const invalid=structuredClone(timed);change(invalid[0]);assert.throws(()=>L.recordMatch(structuredClone(cw),cm.id,invalid),/Invalid/);}

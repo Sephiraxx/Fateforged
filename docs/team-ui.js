@@ -2,7 +2,8 @@ import {teamKit} from './team-kits.js';
 // 2v2 / 3v3 / 5v5 exhibition: build two teams from saved fighters or generated S/A squads, then watch or simulate.
 import {ROLE_LABELS,teamRole} from './team-roles.js';
 import {randomTeam} from './team-generation.js';
-import {TEAM_TACTICS,simulateTeam} from './combat-team.js';
+import {createSimulationPool} from './simulation-client.js';
+import {TEAM_TACTICS} from './combat-team.js';
 import {TEAM_MAPS} from './team-maps.js';
 const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect the carry','focus-healer':'Focus their healer',aggressive:'All-out aggression',defensive:'Hold the line'};
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
@@ -20,6 +21,7 @@ export function mountTeamBattles(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
  const select=(options,value)=>{const s=el('select');for(const [v,t]of options){const o=el('option',t);o.value=v;s.append(o);}if(value!==undefined)s.value=value;return s;};
+ const quickPool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  let size=3,running=false;const generated=new Map(),characters=new Map(),sides=[{ids:[],tactic:'balanced'},{ids:[],tactic:'balanced'}];
  const heading=el('h2'),eyebrow=el('p','Team battle','eyebrow'),info=button('i','info-button');info.dataset.helpOpen='teams';info.setAttribute('aria-label','How team battles work');
  const head=el('div','','mode-head'),headText=el('div');headText.append(eyebrow,heading);head.append(headText,info);
@@ -27,8 +29,9 @@ export function mountTeamBattles(host,hooks){
  const board=el('div','','team-board'),status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const conditions=el('fieldset','','conditions'),legend=el('legend','Battle conditions'),row=el('div','','field-row');
  const labelled=(text,control)=>{const l=el('label',text);l.append(control);return l;};
+ const battleMode=select([['teamfight','Team battle'],['core','Core siege (preview)']],'teamfight');battleMode.setAttribute('aria-label','Battle rules');const rulesLabel=labelled('Battle rules',battleMode);
  const format=select([['1','Bo1'],['3','Bo3'],['5','Bo5']],'1'),time=select([['random','Random each game'],['day','Day'],['dawn','Dawn'],['dusk','Dusk'],['night','Night']],'random'),weather=select([['random','Random each game'],['clear','Clear'],['rain','Rain'],['frost','Frost'],['storm','Storm']],'random'),ground=select([['random','Random each game'],['stone','Stone'],['water','Shallow water']],'random'),map=select([['random','Random each game'],...TEAM_MAPS.map(m=>[m.id,m.label])],'random');
- row.append(labelled('Match format',format),labelled('Time of day',time),labelled('Weather',weather),labelled('Ground',ground),labelled('Map',map));conditions.append(legend,row);
+ row.append(rulesLabel,labelled('Match format',format),labelled('Time of day',time),labelled('Weather',weather),labelled('Ground',ground),labelled('Map',map));conditions.append(legend,row);
  const actions=el('div','','team-actions'),watch=button('Watch battle','button primary start-button'),quick=button('Quick result','button secondary');actions.append(watch,quick);
  const results=el('section','','team-results');results.hidden=true;
  host.append(head,intro,board,conditions,actions,status,results);
@@ -65,25 +68,26 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ function options(){return {engineVersion:size>2&&battleMode.value==='core'?'team-3-core':'team-2.3',conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
-  if(running||hooks.blocked())return;const squads=await teams(),bestOf=Number(format.value),need=Math.ceil(bestOf/2),seed=crypto.getRandomValues(new Uint32Array(1))[0],games=[],score=[0,0];
-  running=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');
+  if(running||hooks.blocked())return;const matchOptions=options(),squads=await teams(),bestOf=Number(format.value),need=Math.ceil(bestOf/2),seed=crypto.getRandomValues(new Uint32Array(1))[0],games=[],score=[0,0];
+  running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');
   try{
    while(score[0]<need&&score[1]<need){const game=games.length,gameSeed=(seed+game*65537)>>>0,caption=`${size}v${size} exhibition · Bo${bestOf} · game ${game+1} · ${score.join('–')}`;
-    const result=watching?await hooks.watch(squads,gameSeed,{...options(),caption}):simulateTeam(squads,gameSeed,options());games.push(result);score[result.winnerTeam]++;if(watching&&score[0]<need&&score[1]<need){const choice=await hooks.intermission({title:`Game ${games.length} complete`,score,result});if(choice===null){showResults(squads,games,score);hooks.setup?.();say('Series paused. Start a new exhibition when ready.');return;}}}
+    const result=watching?await hooks.watch(squads,gameSeed,{...matchOptions,caption}):await quickPool.simulate({exhibition:true,teams:squads,seed:gameSeed,options:matchOptions});games.push(result);score[result.winnerTeam]++;if(watching&&score[0]<need&&score[1]<need){const choice=await hooks.intermission({title:`Game ${games.length} complete`,score,result});if(choice===null){showResults(squads,games,score);hooks.setup?.();say('Series paused. Start a new exhibition when ready.');return;}}}
    showResults(squads,games,score);say(`${score[0]>score[1]?'Blue':'Red'} team wins ${score[0]}–${score[1]}.`);
-  }finally{running=false;hooks.busy(false);watch.disabled=quick.disabled=false;}
+  }finally{running=false;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=false;hooks.busy(false);watch.disabled=quick.disabled=false;}
  }
  function showResults(squads,games,score){
-  results.hidden=false;results.replaceChildren();const names=new Map(squads.flat().map(c=>[c.id,c.name])),totals=new Map();
-  for(const game of games)for(const f of game.fighters){const t=totals.get(f.id)??{...f,damage:0,healing:0,kills:0,deaths:0,ccSeconds:0};for(const k of ['damage','healing','kills','deaths','ccSeconds'])t[k]+=f[k];totals.set(f.id,t);}
+  results.hidden=false;results.replaceChildren();const objective=!!games.at(-1).objective,names=new Map(squads.flat().map(c=>[c.id,c.name])),totals=new Map();
+  for(const game of games)for(const f of game.fighters){const t=totals.get(f.id)??{...f,damage:0,healing:0,kills:0,deaths:0,ccSeconds:0,objectiveDamage:0,downSeconds:0};for(const k of ['damage','healing','kills','deaths','ccSeconds','objectiveDamage','downSeconds'])t[k]+=f[k]??0;totals.set(f.id,t);}
+  if(games.at(-1).objective)results.append(el('p',`Final Core health: Blue ${games.at(-1).objective.coreHp[0]}% · Red ${games.at(-1).objective.coreHp[1]}%`,'muted'));
   const last=games.at(-1),summary=el('div','','team-score');summary.append(el('span',String(score[0]),'blue'),el('span','–'),el('span',String(score[1]),'red'));
   const caption=el('p',`${games.length} game${games.length===1?'':'s'} · last: ${last.reason} after ${last.seconds}s`,'muted');
-  const wrap=el('div','','table-scroll'),table=el('table'),thead=el('thead'),hr=el('tr');for(const h of ['Fighter','Role','DMG','Heal','KO','Down','CC s'])hr.append(el('th',h));thead.append(hr);const body=el('tbody');
-  for(const f of totals.values()){const tr=el('tr','',f.team?'red':'blue');tr.append(el('td',names.get(f.id)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',String(f.damage)),el('td',String(f.healing)),el('td',String(f.kills)),el('td',String(f.deaths)),el('td',String(Math.round(f.ccSeconds*10)/10)));body.append(tr);}
+  const wrap=el('div','','table-scroll'),table=el('table'),thead=el('thead'),hr=el('tr');for(const h of ['Fighter','Role','DMG','Heal','KO','Down','CC s',...(objective?['Objective','Down s']:[])])hr.append(el('th',h));thead.append(hr);const body=el('tbody');
+  for(const f of totals.values()){const tr=el('tr','',f.team?'red':'blue');tr.append(el('td',names.get(f.id)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',String(f.damage)),el('td',String(f.healing)),el('td',String(f.kills)),el('td',String(f.deaths)),el('td',String(Math.round(f.ccSeconds*10)/10)));if(objective)tr.append(el('td',String(f.objectiveDamage)),el('td',String(Math.round(f.downSeconds))));body.append(tr);}
   table.append(thead,body);wrap.append(table);results.append(el('h3','Battle report'),summary,caption,wrap);
  }
  watch.onclick=()=>play(true).catch(e=>say(e.message,true));quick.onclick=()=>play(false).catch(e=>say(e.message,true));
- return {show(next){if(next!==size){size=next;for(const side of sides)side.ids=side.ids.slice(0,size);results.hidden=true;}heading.textContent=`${size}v${size} exhibition`;renderBoard();}};
+ return {show(next){if(next!==size){size=next;rulesLabel.hidden=size===2;for(const side of sides)side.ids=side.ids.slice(0,size);results.hidden=true;}heading.textContent=`${size}v${size} exhibition`;renderBoard();}};
 }

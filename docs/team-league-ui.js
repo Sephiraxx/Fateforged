@@ -16,7 +16,7 @@ const wire=f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{w
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,patchesOpen=false,unsavedGame=null;
+ let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,patchesOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
@@ -29,7 +29,7 @@ export function mountTeamLeague(host,hooks){
   return data;
  }
  const accept=data=>{world=data.world;revision=data.revision;};
- async function load(){try{accept(await api('GET'));render();}catch(e){say(e.message,true);}}
+ async function load(){const request=++loadRequest,format=size;try{const data=await api('GET');if(request!==loadRequest||format!==size)return;accept(data);render();}catch(e){say(e.message,true);}}
  // A command owns the busy state unless a longer run (simulation batches) already holds it.
  async function command(payload,inRun=false){
   if(busy&&!inRun)return;const owner=!busy;if(owner){busy=true;hooks.busy(true);render();}
@@ -37,14 +37,14 @@ export function mountTeamLeague(host,hooks){
   catch(e){if(e.status===409){await load();say(e.message,true);if(inRun)throw e;}else throw e;}
   finally{if(owner){busy=false;hooks.busy(false);}render();}
  }
- async function found(teams){
+ async function found(teams,battleMode='teamfight'){
   if(busy||hooks.blocked())return;busy=true;hooks.busy(true);render();
   try{
    const kit=await generator(),seed=crypto.getRandomValues(new Uint32Array(1))[0],plan=LEAGUE.poolPlan(size,teams,seed),fighters=[];
    // Generate in small chunks so the page keeps painting the scouting progress.
    for(let i=0;i<plan.length;i++){fighters.push(poolFighter(kit.pools,kit.luck,plan[i],i,seed,kit.name));if(i%6===5){say(`Scouting fighters… ${i+1} / ${plan.length}`);await new Promise(r=>setTimeout(r,0));}}
    say('Founding the league…');busy=false;
-   await command({action:'start',worldId:crypto.randomUUID(),teams,seed,fighters:fighters.map(wire)});
+   await command({action:'start',worldId:crypto.randomUUID(),teams,seed,battleMode,fighters:fighters.map(wire)});
    say(`${teams}-team ${size}v${size} league founded with ${plan.length} fighters. The coaches are ready to draft.`);
   }catch(e){say(e.message,true);}finally{busy=false;hooks.busy(false);render();}
  }
@@ -129,7 +129,8 @@ export function mountTeamLeague(host,hooks){
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');
   card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of S and A tier fighters (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
-  for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
+  const rules=el('select'),rulesLabel=el('label','Battle rules');rules.setAttribute('aria-label','League battle rules');for(const [value,text]of [['teamfight','Team battle'],...(size===2?[]:[['core','Core siege (preview)']])]){const o=el('option',text);o.value=value;rules.append(o);}rules.value='teamfight';rules.disabled=busy;rulesLabel.append(rules);card.append(rulesLabel);
+  for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams,rules.value);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
   card.append(pick);body.append(card);
  }
  function teamCard(team){
@@ -331,7 +332,7 @@ export function mountTeamLeague(host,hooks){
   if(!world){renderSetup();return;}
   const phaseLabel={draft:'Draft day',ready:'Rosters set',season:'Regular season',playoffs:'Playoffs',complete:'Season complete',offseason:'Offseason'}[world.phase];
   const head=el('div','','team-league-head'),info=el('div');info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3',phaseLabel));
-  const meta=el('p',`Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
+  const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
   const side=el('div','','team-league-side');side.append(coachControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);champions.append(wins.length?table(['Season','Team'],wins.map(t=>{const row=el('tr');row.append(el('td',String(t.season)),el('td',t.championName??name(t.champion)));return row;})):el('p','No champions yet.','muted'));body.append(champions);renderPatches();
   if(world.phase==='draft'){renderDraft();renderTeams();return;}

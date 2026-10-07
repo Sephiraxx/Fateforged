@@ -479,3 +479,13 @@ Team 2.3 also keeps Bulwark knockback on the wide team field, including shared h
 The 5v5 check now warms up both engines and alternates eight identical seeded workloads against the frozen team-2 reference in the same run. It limits both whole-match cost and cost per simulated second to 2.5× reference, rather than a machine-dependent 750 ms deadline. The current measurement is 1.25× / 1.42× respectively.
 
 A 100-game, side-alternating neutral-patch comparison after the new kits found Hold the line at 51% wins and 3% timeouts. A shorter opening hold produced identical results. No tactic change is applied on that evidence; repeat the review with long-season save data.
+
+## Core siege preview (objective phase 1)
+
+Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.
+
+The field is 1280×600 with reachable mirrored bases, pit and two flank routes on every map. Cores have 6,000 / 9,000 HP. Two living defenders within 160 reduce incoming Core damage by 75%; each Core pulses the nearest enemy within 140 for 2% max HP every two seconds. Cores are static projectile targets, cannot be healed or hit by allies, and destruction ends the current step.
+
+Downed fighters return at their base after 8–20 seconds, increasing linearly until 5:00. Resources, control and cooldowns reset; statistics and once-per-game revival flags persist. Resurrection cancels the pending respawn. At 6:00 respawns stop and Core damage doubles. At 6:30 Core health %, total damage, then a seeded coin toss decides. Results keep objective damage and time spent down. Impact adds 0.4× objective damage and 300 per monster last hit, preparing phase two.
+
+Core leagues pin their own engine each season, preserve patch snapshots, validate objective results and use Core health for standings health margin. Quick exhibitions and leagues simulate in workers. Canvas crystals show health rings; the HUD shows Guarded and respawn countdowns. Measurements live in validation/team-objectives-core.json. Early AI is intentionally simple; full length and strategic balance targets require the later team brain.
