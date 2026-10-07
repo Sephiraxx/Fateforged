@@ -473,3 +473,9 @@ Evidence compares games where one side fields more of a role, weapon type or kit
 The collapsed League patches panel shows plain-language changes and a per-save switch. Turning it off freezes the current patch. Every match describes its engine and patch snapshot; watched replays retain those options, and saved results retain their patch. A result reporting a different patch ID is rejected. Changes happen between phases, never between games of a series.
 
 Team 2.3 also keeps Bulwark knockback on the wide team field, including shared hits, and preserves an active kit stun when shared damage lands.
+
+## Performance and 2v2 review
+
+The 5v5 check now warms up both engines and alternates eight identical seeded workloads against the frozen team-2 reference in the same run. It limits both whole-match cost and cost per simulated second to 2.5× reference, rather than a machine-dependent 750 ms deadline. The current measurement is 1.25× / 1.42× respectively.
+
+A 100-game, side-alternating neutral-patch comparison after the new kits found Hold the line at 51% wins and 3% timeouts. A shorter opening hold produced identical results. No tactic change is applied on that evidence; repeat the review with long-season save data.
