@@ -27,14 +27,16 @@ const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charC
 const fake=(teams,seed,options)=>{const h=hash(teams.map(t=>t.map(f=>f.traits.power+f.role).join('|')).join('#')+seed+JSON.stringify(options.balance.multipliers)),tanks=teams.map(t=>t.filter(f=>f.role==='tank').length),win=(tanks[0]-tanks[1])*.3+(h%1000)/1000-.5>0?0:1;return {winnerTeam:win,hp:win?[0,h%60+10]:[h%60+10,0]};};
 function reference({world,plan,key},run){let replayed=0;const counted=(t,s,o)=>{replayed++;return run(t,s,o);};const row=simulateBalanceCandidate({world,plan,key},counted);return {row,replayed};}
 const seed=283,pool=L.poolPlan(3,16,seed),fighters=pool.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`)),world=L.create({id:'perf',format:3,teams:16,seed,fighters,battleMode:'core'});L.draftPicks(world,1000);
-const plan=balanceAuditPlan(world,'preseason');let tested=0,games=0;const rows=[];
+const plan=balanceAuditPlan(world,'preseason');let tested=0,skipped=0,games=0;const rows=[];
+assert.equal(plan.pairs,16);assert.equal(balanceAuditPlan(world,'halfway').pairs,12,'midseason audits play fewer pairs');
 for(const c of plan.candidates){
  const {row,replayed}=reference({world,plan,key:c.key},fake);games+=replayed;rows.push(row);
  const batched=await simulateBalanceCandidateAsync({world,plan,key:c.key},async batch=>batch.map(g=>auditGameResult(fake(g.teams,g.seed,g.options))),plan);
  assert.deepEqual(batched,row,c.key);
+ if(row.status==='limited'&&row.pairs===0){skipped++;assert.equal(replayed,0,`${c.key}: a candidate that can never be tested plays no fights`);}
  if(row.status==='tested'){tested++;const protocol=plan.screenPairs*2+plan.pairs*2*(row.feedback.length?2+row.feedback.length:1);assert.equal(replayed,protocol-plan.screenPairs*2,`${c.key}: discovery reuses the ${plan.screenPairs} screened pairs`);}
 }
-assert(tested>3,'the fixture exercises tested candidates');
+assert(tested>3,'the fixture exercises tested candidates');assert(skipped>0,'the fixture exercises never-testable candidates');
 const report={version:plan.version,token:plan.token,rows,bundles:[]},bundle=nextAuditBundle(world,'preseason',report);
 if(!bundle.complete)for(const key of bundle.keys)assert.deepEqual(await simulateBalanceCandidateAsync({world,plan,key,mode:'bundle',bundle},async batch=>batch.map(g=>auditGameResult(fake(g.teams,g.seed,g.options))),plan),simulateBalanceCandidate({world,plan,key,mode:'bundle',bundle},fake),'bundle '+key);
 // The team worker's audit game is the real simulation, reduced to what the audit reads.
@@ -50,4 +52,4 @@ assert.equal(poolSize(1),1);assert.equal(poolSize(4),3);assert.equal(poolSize(64
  const t=Date.now(),values=await Promise.all(tasks);assert.deepEqual(values,[0,1,2,3,4,5,6,7,8,9]);assert(await failed,'a failed task rejects on its own');
  assert.equal(started.length,3);assert(peak<=3);assert(Date.now()-t<700,'short tasks run beside a long one instead of queueing behind it');
  const closed=p.simulate({ms:50,value:1});p.close();await assert.rejects(closed,/closed/);delete globalThis.Worker;}
-console.log(`Team performance paths: ${Object.keys(recorded.fingerprints).length} recorded engine games unchanged, batched audit identical over ${plan.candidates.length} candidates (${tested} tested, screened pairs reused), audit game results, and a shared-queue simulation pool passed.`);
+console.log(`Team performance paths: ${Object.keys(recorded.fingerprints).length} recorded engine games unchanged, batched audit identical over ${plan.candidates.length} candidates (${tested} tested with screened pairs reused, ${skipped} never-testable skipped), audit game results, and a shared-queue simulation pool passed.`);

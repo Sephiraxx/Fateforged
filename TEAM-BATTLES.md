@@ -505,6 +505,12 @@ Patch audits were the slow part of a team league. A preseason audit (and the mid
   - The pool uses all cores but one (up to 8), instead of half of them (up to 4).
   - This speeds up season weeks and cups too.
 
+**Audit rules v4 (lighter audit).** In a 32-team 3v3 Core siege league, a preseason audit still took about 7 minutes on an 8-core desktop, so the audit itself plays fewer fights:
+- **Fewer pairs:** full comparisons play 16 pairs at preseason and 12 at midseason, down from 28. A simulated edge alone now needs to be stronger to count (about 78% at 16 pairs and 83% at 12, Wilson z=2.5). Season evidence still drives patches whenever the simulations agree on direction, and the 10% / 1.5% caps are unchanged.
+- **No fights for untestable candidates:** a candidate without two distinct carriers and two distinct controls could never be tested, so it is reported as limited without playing its screen.
+- **Bigger pool:** up to 15 workers on a 16-thread CPU (8 before).
+- Older patch history entries keep their recorded audit version and numbers.
+
 ## Core siege preview (objective phase 1)
 
 Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.

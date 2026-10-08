@@ -39,8 +39,11 @@ function* candidateBatches({world,plan,key,mode='candidate',bundle},current=bala
   const salt=(0x85ebca6b^Math.imul(bundle.index+1,0xc2b2ae35))>>>0,baseline=games(plan.profile,salt),results=yield [...baseline,...games(bundle.profile,salt)];
   return comparison(tally(results.slice(0,baseline.length)),tally(results.slice(baseline.length)));
  }
- const pairs=Math.min(plan.pairs,plan.screenPairs),screenResults=yield games(plan.profile,0,0,pairs),screen=tally(screenResults),limited=controls.size<2||usedCarriers.size<2;
- const confirm=!limited&&(plan.pairs<28||baseKey.startsWith('role:')||baseKey.startsWith('stat:')||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
+ // Without two distinct carriers and controls the candidate can never be tested, so it plays no fights.
+ if(controls.size<2||usedCarriers.size<2)return {key,status:'limited',pairs:0,controls:Math.min(controls.size,plan.pairs),carriers:Math.min(usedCarriers.size,plan.pairs),feedback:[]};
+ const pairs=Math.min(plan.pairs,plan.screenPairs),screenResults=yield games(plan.profile,0,0,pairs),screen=tally(screenResults);
+ // A plan no longer than the screen has already played every pair, so it is always confirmed.
+ const confirm=(plan.pairs<=plan.screenPairs||baseKey.startsWith('role:')||baseKey.startsWith('stat:')||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
  if(!confirm){const screenedControls=new Set(cases.slice(0,pairs).map(c=>c.controlId)).size,screenedCarriers=new Set(cases.slice(0,pairs).map(c=>c.carrierId)).size;return {key,status:screenedControls<2||screenedCarriers<2?'limited':'screened',pairs,wins:screen.wins,controls:screenedControls,carriers:screenedCarriers,feedback:[]};}
  // Discovery plays every case with the screen's seeds, so the screened pairs are reused rather than replayed.
  const discovery=tally([...screenResults,...(pairs<plan.pairs?yield games(plan.profile,0,pairs):[])]),proposals=auditCandidateProposals(plan,key,discovery.wins),feedback=[];

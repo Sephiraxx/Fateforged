@@ -1,7 +1,8 @@
 // Reuse warm workers and spread independent tasks (league/cup series, audit games) across a pool. Tasks wait in one
 // queue and each worker takes the next as soon as it is free, so a few long tasks never leave other workers idle.
 // Games within a series stay ordered and use their original seeds, so results do not depend on the pool.
-export const POOL_LIMIT=8;
+// Up to 15 workers, so a 16-thread CPU keeps one thread free for the page.
+export const POOL_LIMIT=15;
 export function poolSize(cores=globalThis.navigator?.hardwareConcurrency||4){return Math.max(1,Math.min(POOL_LIMIT,cores-1));}
 export function createSimulationPool(workerUrl=new URL('./league-sim-worker.js',import.meta.url),{size=poolSize()}={}){
  const lanes=[],queue=[];let serial=0;
