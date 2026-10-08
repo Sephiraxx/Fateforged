@@ -9,7 +9,7 @@ These prompts produce sprites for team battles and the coming objective mode (`O
 2. Generate one asset per message. When one looks right, say "Perfect. Now make the next one with exactly the same style, size, angle and lighting" and paste the next prompt.
 3. Ask for a **transparent background PNG** every time. If ChatGPT adds a background, reply: "Remove the background completely; transparent PNG, nothing behind the character."
 4. Check each image at small size: shrink it to 48×48 px. If you can't tell the class at that size, ask for "a bolder silhouette, larger head and props, fewer small details".
-5. Save files with the names in the checklist, then put them in `public/sprites/` when the renderer is ready (phase 5–6 of `OBJECTIVE-MODE.md`).
+5. Save files with the names in the checklist and keep them for the sprite pass (phase 6 of `OBJECTIVE-MODE.md`). The PixiJS renderer for team battles (phase 5) is in place; phase 6 teaches it to load `public/sprites/` and fall back to today's class icons when a sprite is missing.
 
 ## Shared style preamble (paste at the start of every prompt)
 ```

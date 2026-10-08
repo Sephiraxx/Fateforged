@@ -662,3 +662,21 @@ The design target is 35–65%. Balanced is currently the strongest siege style. 
 | Siege not before 3:00 | 37% | 40% |
 
 Every style and dial value is a real choice: none wins or loses more than about two games in three. Delaying the siege is still the weakest option in 3v3, because Core damage accumulates. Forgefire matters more again now that the Titan dies.
+
+## Enhanced renderer (PixiJS, objective phase 5)
+
+Team battles (2v2, 3v3, 5v5, classic teamfight and Core siege) draw with a WebGL renderer, `public/pixi-arena.js`. Duels and tournaments keep the 2D canvas for now. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded battles with the renderer's per-frame reads and compares the results.
+
+- **Field:** the floor and grid, terrain rocks with shadows, environment zones, summons and weather. It uses the same `effects.webp` / `weapons.webp` sprite sheets as the canvas.
+- **Objectives:**
+  - Cores are glowing crystals with a health ring and a guard area.
+  - The Forge Titan has a rotating rune ring, health bar and label, and its slam telegraph fills in as the slam lands.
+  - Forgefire holders pulse gold, with a thicker ring while their shield is up.
+- **Fighters:**
+  - team-coloured bodies with a soft glow, hit flash, weapon swings, class icons, role glyphs, mini health bars and aim and target lines;
+  - positions are eased toward the simulation for smooth motion at any speed, and respawns and teleports snap.
+- **Particles** come from what changed between frames: hit sparks in the attacker's colour, rising green heal motes, death bursts, light columns for revives and respawns, Core shards, a gold burst for a Titan kill, and a shockwave with screen shake for a slam.
+- **Camera:** shows the full field by default. **Camera: Follow** frames the fighters who are in combat (and the Titan while someone is hitting it), zooming up to 2.2× and never leaving the field. Phones keep the portrait field from the canvas renderer, with labels and bars upright.
+- **Controls:** under the arena, next to Speed, during team battles. *Graphics* picks Enhanced or Classic, and the Camera button sits next to it. Both are saved in this browser.
+- **Fallback:** if WebGL or the PixiJS module can't start, the arena switches to the classic canvas for the session and says so under the controls.
+- **Packaging:** PixiJS is pinned (`pixi.js` 8.22.0 in `package.json`) and vendored, never loaded from a CDN. The worker serves `node_modules/pixi.js/dist/pixi.min.mjs` at `/vendor/pixi.min.js`, and the Pages build copies it, with its licence, to `vendor/`. It loads lazily on the first team battle.

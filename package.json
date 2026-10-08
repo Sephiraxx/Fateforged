@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
+    "pixi.js": "8.22.0",
     "sql.js": "1.14.1"
   },
   "devDependencies": {
