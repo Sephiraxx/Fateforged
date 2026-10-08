@@ -1,0 +1,101 @@
+{
+  "phase": "brain",
+  "engine": "team-3.5",
+  "note": "Core siege with the team brain (team-3.5). Seeded balanced mirrors alternate sides on all weighted maps; summary rows only.",
+  "rows": [
+    {
+      "size": 3,
+      "games": 40,
+      "medianSeconds": 300,
+      "averageSeconds": 287,
+      "suddenDeathRate": 10,
+      "timeLimitRate": 2.5,
+      "titanIgnoredRate": 0,
+      "monsterKills": 36,
+      "stealRate": 38.9,
+      "forgefireWinRate": 50,
+      "averageMs": 2572,
+      "planShare": {
+        "contest": 23.4,
+        "hold": 2.1,
+        "flank": 7.2,
+        "steal": 2.5,
+        "siege": 41.1,
+        "defend": 19.4,
+        "regroup": 4.3
+      }
+    },
+    {
+      "size": 5,
+      "games": 40,
+      "medianSeconds": 308.5,
+      "averageSeconds": 296,
+      "suddenDeathRate": 15,
+      "timeLimitRate": 2.5,
+      "titanIgnoredRate": 0,
+      "monsterKills": 27,
+      "stealRate": 29.6,
+      "forgefireWinRate": 81.5,
+      "averageMs": 3638,
+      "planShare": {
+        "contest": 24,
+        "hold": 5.2,
+        "flank": 7.9,
+        "steal": 2.4,
+        "siege": 35.6,
+        "defend": 17.4,
+        "regroup": 7.5
+      }
+    }
+  ],
+  "tactics": [
+    {
+      "size": 3,
+      "tactic": "defensive",
+      "games": 30,
+      "winRate": 36.7
+    },
+    {
+      "size": 3,
+      "tactic": "aggressive",
+      "games": 30,
+      "winRate": 56.7
+    },
+    {
+      "size": 3,
+      "tactic": "focus-healer",
+      "games": 30,
+      "winRate": 33.3
+    },
+    {
+      "size": 3,
+      "tactic": "protect-carry",
+      "games": 30,
+      "winRate": 30
+    },
+    {
+      "size": 5,
+      "tactic": "defensive",
+      "games": 30,
+      "winRate": 30
+    },
+    {
+      "size": 5,
+      "tactic": "aggressive",
+      "games": 30,
+      "winRate": 63.3
+    },
+    {
+      "size": 5,
+      "tactic": "focus-healer",
+      "games": 30,
+      "winRate": 36.7
+    },
+    {
+      "size": 5,
+      "tactic": "protect-carry",
+      "games": 30,
+      "winRate": 30
+    }
+  ]
+}

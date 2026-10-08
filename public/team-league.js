@@ -96,9 +96,9 @@ export function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Support damage rules (team-2.7 / team-3.4): leagues on the previous current engine move up from their next
+// Current rules (team-2.7 / team-3.5 with the siege team brain): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.4'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.5','team-3.4':'team-3.5'});
 export function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 export function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}

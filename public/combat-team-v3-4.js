@@ -16,7 +16,7 @@ export const SIEGE_TITAN_RULES=freeze({
  5:{...TITAN_RULES,hp:{5:7500},attackDamage:.035,slamDamage:.1,forgefire:40,damage:1.07,shield:.06,coreDamage:1.15,forgefireFight:160}
 });
 class SiegeBattle extends Previous{
- constructor(teams,seed,options={}){const size=teams?.[0]?.length;super(teams,seed,{...options,objectiveRules:SIEGE_RULES[size]??OBJECTIVE_RULES,titanRules:SIEGE_TITAN_RULES[size]??TITAN_RULES});}
+ constructor(teams,seed,options={}){const size=teams?.[0]?.length;super(teams,seed,{...options,objectiveRules:options.objectiveRules??SIEGE_RULES[size]??OBJECTIVE_RULES,titanRules:options.titanRules??SIEGE_TITAN_RULES[size]??TITAN_RULES});}
  empowered(f){return f.hp>0&&(f.forgefireUntil??0)>this.time;}
  hasForgefire(team){return !!this.combatants?.some(f=>f.team===team&&this.empowered(f));}
  // Fallen fighters drop the buff; respawns and revives come back without it.
