@@ -7,8 +7,8 @@ export {OBJECTIVE_RULES,TITAN_RULES} from './combat-team-v3-2.js';
 export const TEAM_ENGINE_VERSION='team-3.4';
 const freeze=o=>Object.freeze(Object.fromEntries(Object.entries(o).map(([k,v])=>[k,Object.freeze(v)])));
 export const SIEGE_RULES=freeze({
- 3:{...OBJECTIVE_RULES,coreHp:{3:8000},pulseDamage:.015,forgefireGuard:.75},
- 5:{...OBJECTIVE_RULES,coreHp:{5:9500},forgefireGuard:.75}
+ 3:{...OBJECTIVE_RULES,coreHp:{3:7000},pulseDamage:.015,forgefireGuard:.75},
+ 5:{...OBJECTIVE_RULES,coreHp:{5:7500},forgefireGuard:.75}
 });
 export const SIEGE_TITAN_RULES=freeze({
  3:{...TITAN_RULES,hp:{3:3600},attackDamage:.025,slamDamage:.07,forgefire:35,damage:1.05,shield:.05,coreDamage:1.1,forgefireFight:160,claimShare:.45},

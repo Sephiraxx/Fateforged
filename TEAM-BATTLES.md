@@ -508,34 +508,46 @@ Forgefire lasts 60 seconds: +15% outgoing fighter damage, +50% additional Core d
 The phase-two AI contests a living Titan when no enemy is very close, allows mobile fighters to try a low-health steal, and pushes the Core with Forgefire. It respects taunts. This is the simple phase-two rule set, not the later coach brain. Median length, sudden death, time limits, monster participation, steals and Forgefire correlation are measured in validation/team-objectives-titan.json. Correlation with winning is observational and is not a causal measurement of buff strength. The full brain's length/steal/comeback/buff targets remain to be met before default replacement.
 
 
-## Supports, healer kits and tuned Core siege (team-2.7 / team-3.4)
+## Role damage, healer kits and tuned Core siege (team-2.7 / team-3.4)
 
-**Supports support.** Before this change, a healer dealt about 66% of a damage dealer's damage in 5v5 (293 against 442 per game), and controllers matched damage dealers (445). In Core siege, healers dealt more Core damage than anyone. Now every hit a healer or controller lands on an enemy fighter, Core or the Titan is scaled: healers ×0.35, controllers ×0.6 (`public/role-output-combat.js`). Healing and control are unchanged. Measured on the same 20-game 5v5 sample with the final rules: healer 98, controller 308, damage dealer 486 per game. Healers now deal about 20% of a damage dealer's damage, and controllers about 69% of what they dealt before. Weaker supports make even fights longer, so classic teamfight adds +2% damage per second after the 75 s overtime mark (the 3v3 balanced mirror timed out 27.5% of the time without it, and 15% with it).
+**Only damage dealers deal full damage.**
+- **Before:** in 5v5 teamfight, healers dealt about 66% of a damage dealer's damage (293 against 442 per game). Controllers matched damage dealers (445), and tanks reached about 94%. In Core siege, healers dealt more Core damage than anyone.
+- **Now:** every hit a tank, healer or controller lands on an enemy fighter, Core or the Titan is scaled (`public/role-output-combat.js`):
+  - tanks ×0.5;
+  - healers ×0.35;
+  - controllers ×0.5.
+- Healing and control are unchanged. Tanks trade their damage for toughness: Fortified is 30% stronger (about 45% less damage taken instead of 35%), which keeps balanced lineups ahead of all-damage lineups (5v5: 60%, 3v3: 62.5%).
+- **Measured** (20-game 5v5 sample, per game): damage dealer 592, tank 354 (60%), controller 366 (62%), healer 128 (22%). Matches run longer, so per-game totals rise. Per second of fighting, controllers deal about 70% of their old damage.
+- **Late game:** weaker non-damage roles make even fights last longer. Classic teamfight therefore adds +5% damage per second from 60 s, on top of the existing overtime rules from 75 s. Every evaluation row now times out at 8.3% or less (`validation/team-combat.json`).
 
 **Healer kits.** See `ROLLED-SUPPORT-ABILITIES.md`: about 60% of newly generated healers carry Mending wave, Chain heal, Resurrection, Cleanse or Barrier in their second slot, on top of a sustained heal.
 
-**Core siege is the default** for 3v3/5v5 exhibitions and new leagues ("Classic teamfight" stays selectable). Existing leagues switch with *Battle rules* in the league header between seasons (`setBattleMode`, worker action `rules`). Existing leagues on team-2.6 / team-3.3 move to team-2.7 / team-3.4 from their next series (`prepareRoleRules`); a series already in progress finishes on its old engine.
+**Core siege is the default for 3v3/5v5** exhibitions and new leagues; "Classic teamfight" stays selectable.
+- **Switching:** existing leagues switch with *Battle rules* in the league header between seasons (`setBattleMode`, worker action `rules`).
+- **Engine upgrade:** existing leagues on team-2.6 / team-3.3 move to team-2.7 / team-3.4 from their next series (`prepareRoleRules`). A series already in progress finishes on its old engine.
 
-**Tuned siege rules (team-3.4, per format).** Earlier engines keep their rules; team-3.4 passes its own through `options.objectiveRules` / `options.titanRules`.
+**Tuned siege rules (team-3.4, per format).** Earlier engines keep their rules. team-3.4 passes its own through `options.objectiveRules` / `options.titanRules`.
 
 | | 3v3 | 5v5 |
 | --- | --- | --- |
-| Core HP | 8,000 | 9,500 |
+| Core HP | 7,000 | 7,500 |
 | Core pulse | 1.5% max HP | 2% max HP |
 | Titan HP | 3,600 | 7,500 |
 | Titan hit / slam | 2.5% / 7% max HP | 3.5% / 10% max HP |
 | Forgefire | 35 s, +5% damage, 5% shield, +10% Core damage | 40 s, +7% damage, 6% shield, +15% Core damage |
 | Guarded against Forgefire | 75% of its protection still applies | same |
 
-With Forgefire, a fighter keeps fighting enemies within 160 instead of rushing the Core. The last hit claims Forgefire only if its team dealt at least 45% of the Titan's damage in its current life; otherwise the other team claims it.
+- With Forgefire, a fighter keeps fighting enemies within 160 instead of rushing the Core.
+- The last hit claims Forgefire only if its team dealt at least 45% of the Titan's damage in its current life. Otherwise the other team claims it.
 
-Measured with 40 seeded balanced mirrors per size (`validation/team-objectives-siege.json`; before → after):
+**Measured** with 40 seeded balanced mirrors per size (`validation/team-objectives-siege.json`; before → after):
 
 | | 3v3 | 5v5 |
 | --- | --- | --- |
-| Median length | 137 s → 273 s | 145 s → 285 s |
-| Sudden death | 0% → 10% | 5% → 17.5% |
-| Steals | 41% → 20% | 51% → 21% |
-| Forgefire holder wins | 97% → 88% | 100% → 93% |
+| Median length | 137 s → 256 s | 145 s → 197 s (average 233 s) |
+| Sudden death | 0% → 12.5% | 5% → 17.5% |
+| Steals | 41% → 11% | 51% → 17% |
+| Forgefire holder wins | 97% → 89% | 100% → 100% |
 
-The Forgefire number is mostly correlation: with every Forgefire bonus switched off, the team holding it longer still wins 73% (3v3) and 81% (5v5), because the team that wins the pit fight is usually the stronger team. Lowering it further needs the team brain (contest, flank, regroup), objective phase 3. A 5v5 match costs about 4 s to simulate in node.
+- **5v5 length:** 5v5 swings between quick stomps and long games, so its median is shorter than its average.
+- **Forgefire:** the win rate is mostly correlation. With every Forgefire bonus switched off, the team holding it longer still won 73% (3v3) and 81% (5v5) in an earlier measurement, because the team that wins the pit fight is usually the stronger team. Both this and the 5v5 stomps need the team brain (contest, flank, regroup), objective phase 3.
