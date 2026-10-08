@@ -538,16 +538,18 @@ The phase-two AI contests a living Titan when no enemy is very close, allows mob
 | Guarded against Forgefire | 75% of its protection still applies | same |
 
 - With Forgefire, a fighter keeps fighting enemies within 160 instead of rushing the Core.
-- The last hit claims Forgefire only if its team dealt at least 45% of the Titan's damage in its current life. Otherwise the other team claims it.
+- The killing blow claims Forgefire, and steals count. A team taking the Titan has to protect it or beat the other team first.
+- Forgefire belongs to each fighter alive when it is claimed. A holder who falls loses it, and fighters who respawn or are revived come back without it. The team has Forgefire while at least one holder is alive (`empowered(f)` / `hasForgefire(team)` in `combat-team-v3-4.js`).
 
 **Measured** with 40 seeded balanced mirrors per size (`validation/team-objectives-siege.json`; before → after):
 
 | | 3v3 | 5v5 |
 | --- | --- | --- |
-| Median length | 137 s → 256 s | 145 s → 197 s (average 233 s) |
-| Sudden death | 0% → 12.5% | 5% → 17.5% |
-| Steals | 41% → 11% | 51% → 17% |
-| Forgefire holder wins | 97% → 89% | 100% → 100% |
+| Median length | 137 s → 284 s | 145 s → 202 s (average 247 s) |
+| Sudden death | 0% → 15% | 5% → 15% |
+| Steals | 41% → 54% | 51% → 46% |
+| Forgefire holder wins | 97% → 84% | 100% → 88% |
 
+- **Steals:** a steal is a killing blow by the team that dealt less of the Titan's damage. With the last hit deciding, contested Titan fights split close to evenly, so protecting the Titan, or beating the other team first, matters.
 - **5v5 length:** 5v5 swings between quick stomps and long games, so its median is shorter than its average.
 - **Forgefire:** the win rate is mostly correlation. With every Forgefire bonus switched off, the team holding it longer still won 73% (3v3) and 81% (5v5) in an earlier measurement, because the team that wins the pit fight is usually the stronger team. Both this and the 5v5 stomps need the team brain (contest, flank, regroup), objective phase 3.

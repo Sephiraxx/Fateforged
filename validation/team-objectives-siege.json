@@ -6,28 +6,28 @@
     {
       "size": 3,
       "games": 40,
-      "medianSeconds": 256.1,
-      "averageSeconds": 264,
-      "suddenDeathRate": 12.5,
-      "timeLimitRate": 12.5,
+      "medianSeconds": 284,
+      "averageSeconds": 273,
+      "suddenDeathRate": 15,
+      "timeLimitRate": 15,
       "titanIgnoredRate": 0,
-      "monsterKills": 64,
-      "stealRate": 10.9,
-      "forgefireWinRate": 88.6,
-      "averageMs": 1841
+      "monsterKills": 67,
+      "stealRate": 53.7,
+      "forgefireWinRate": 84.4,
+      "averageMs": 1935
     },
     {
       "size": 5,
       "games": 40,
-      "medianSeconds": 197.4,
-      "averageSeconds": 233,
-      "suddenDeathRate": 17.5,
+      "medianSeconds": 202.1,
+      "averageSeconds": 247,
+      "suddenDeathRate": 15,
       "timeLimitRate": 10,
       "titanIgnoredRate": 0,
-      "monsterKills": 53,
-      "stealRate": 17,
-      "forgefireWinRate": 100,
-      "averageMs": 2481
+      "monsterKills": 57,
+      "stealRate": 45.6,
+      "forgefireWinRate": 87.9,
+      "averageMs": 2581
     }
   ]
 }

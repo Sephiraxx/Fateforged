@@ -29,7 +29,9 @@ export class TeamBattle extends PreviousTeamBattle{
  heal(f,amount){return f.isObjective?0:super.heal(f,amount);}
  guardCount(core){return this.combatants.filter(f=>f.team===core.team&&f.hp>0&&d(f,core)<=this.objectiveRules.guardRadius).length;}
  hasForgefire(team){return this.forgefireUntil[team]>this.time;}
- hurt(t,f,amount,type='physical',canDodge=true){if(this.done)return false;if(t.isObjective){if(!f||t.team===f.team||t.hp<=0)return false;let factor=1;if(this.cores.includes(t)){if(this.guardCount(t)>=2)factor*=1-this.objectiveRules.guarded*(this.hasForgefire(f.team)?this.objectiveRules.forgefireGuard??0:1);if(this.suddenDeath)factor*=2;}const dealt=Math.min(t.hp,Math.max(0,amount*factor));t.hp-=dealt;f.objectiveDamage=(f.objectiveDamage??0)+dealt;t.hitFlash=.1;this.effect(4,t.x,t.y,30);if(t.hp<=0&&this.cores.includes(t)){this.done=true;this.winnerTeam=this.winner=f.team;this.reason='Enemy Core destroyed';this.log(`${f.team?'Red':'Blue'} team destroys the enemy Core.`);}return dealt>0;}
+ // Whether this fighter carries the buff; per team here, per fighter in later engines.
+ empowered(f){return this.hasForgefire(f.team);}
+ hurt(t,f,amount,type='physical',canDodge=true){if(this.done)return false;if(t.isObjective){if(!f||t.team===f.team||t.hp<=0)return false;let factor=1;if(this.cores.includes(t)){if(this.guardCount(t)>=2)factor*=1-this.objectiveRules.guarded*(this.empowered(f)?this.objectiveRules.forgefireGuard??0:1);if(this.suddenDeath)factor*=2;}const dealt=Math.min(t.hp,Math.max(0,amount*factor));t.hp-=dealt;f.objectiveDamage=(f.objectiveDamage??0)+dealt;t.hitFlash=.1;this.effect(4,t.x,t.y,30);if(t.hp<=0&&this.cores.includes(t)){this.done=true;this.winnerTeam=this.winner=f.team;this.reason='Enemy Core destroyed';this.log(`${f.team?'Red':'Blue'} team destroys the enemy Core.`);}return dealt>0;}
  const hit=this.fighterHit(t,f,amount,type,canDodge);for(const a of this.combatants)if(a.hp<=0&&!a.downed){a.downed=true;a.deaths++;a.action=null;a.respawnAt??=this.time+this.respawnDelay();}return hit;}
  settleShield(t,f,before,dealt){}
  fighterHit(t,f,amount,type='physical',canDodge=true){
