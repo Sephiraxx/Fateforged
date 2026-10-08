@@ -152,6 +152,7 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 .offseason-steps li::before{content:counter(step) ' · '}
 .offseason-steps li.active{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
 .offseason-steps li.done{color:var(--lime);border-color:#7dff8a44}
+.offseason-actions{display:grid;gap:8px;margin:0 0 14px}.offseason-actions .draft-actions{margin:0}.offseason-actions .offseason-pay{margin:0}
 .offseason-report{margin-bottom:14px}
 .offseason-report h4,.offseason-step h4{font:700 .85rem/1.2 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}
 .offseason-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-bottom:12px}

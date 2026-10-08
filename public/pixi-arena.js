@@ -130,6 +130,9 @@ export async function createPixiArena(frame,images,{onFail}={}){
    const t=b.titan,pit=b.pit?.()??{x:640,y:300};if(t){if(!art['pit-rim'])objG.circle(pit.x,pit.y,110).stroke({width:2,color:GOLD,alpha:.3});
     if(t.hp>0){lastTitan={x:t.x,y:t.y,radius:t.radius};
      if(b.slamAt!=null){const k=1-Math.max(0,(b.slamAt-b.time)/(b.titanRules?.telegraph??.8));objG.circle(t.x,t.y,(b.titanRules?.range??90)).fill({color:0xff784a,alpha:.12+.25*k}).circle(t.x,t.y,(b.titanRules?.range??90)*k).stroke({width:3,color:0xff784a,alpha:.8});}
+     // Fissure: the telegraphed line fills from the Titan outward until it splits.
+     if(b.fissure){const z=b.fissure,k=Math.min(1,Math.max(0,(b.time-z.start)/((z.at-z.start)||1))),ux=Math.cos(z.angle),uy=Math.sin(z.angle),nx=-uy*z.width/2,ny=ux*z.width/2,ex=z.x+ux*z.length,ey=z.y+uy*z.length;
+      objG.poly([z.x+nx,z.y+ny,ex+nx,ey+ny,ex-nx,ey-ny,z.x-nx,z.y-ny]).fill({color:0xff3b2f,alpha:.1+.25*k}).stroke({width:2,color:0xff784a,alpha:.8});objG.moveTo(z.x,z.y).lineTo(z.x+ux*z.length*k,z.y+uy*z.length*k).stroke({width:5,color:0xffc45c,alpha:.9});}
      glowAt(t.x,t.y,t.radius*5,0xff9a3c,.45+.15*Math.sin(clock*4));
      for(let i=0;i<6;i++){const a=clock*.6+i*Math.PI/3;objG.moveTo(t.x+Math.cos(a)*(t.radius+6),t.y+Math.sin(a)*(t.radius+6)).arc(t.x,t.y,t.radius+6,a,a+.6);}objG.stroke({width:2,color:0xffc45c,alpha:.7});
      const titanArt=!!art['titan-idle'],[ax,ay]=up(t.x,t.y,t.radius*.3);
@@ -145,7 +148,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
    for(const f of b.fighters)for(const p of f.trail??[])trailG.circle(p.x,p.y,7).fill({color:colorOf(f),alpha:p.life/.16*.16});
    for(const e of b.effects??[]){if(e.kind==='swing')trailG.moveTo(e.x+Math.cos(e.angle-.9)*e.range,e.y+Math.sin(e.angle-.9)*e.range).arc(e.x,e.y,e.range,e.angle-.9,e.angle+.9).stroke({width:3,color:0xffe27a,alpha:e.life/e.max});else sheetSprite('effects',e.sprite,e.x,e.y,e.size,0,e.life/e.max);}
    sprites.end();
-   shots.begin();for(const p of b.projectiles??[]){const owner=b.actorFor?.(p.owner)??b.fighters[p.owner],color=owner?colorOf(owner):0xffe27a;lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.06,p.y-p.vy*.06).stroke({width:3,color,alpha:.35});if(p.sprite>=0){const s=shots.get(),tex=frameTex('effects',p.sprite);if(tex)s.texture=tex;s.x=p.x;s.y=p.y;s.width=s.height=18;s.rotation=0;}}shots.end();
+   shots.begin();for(const p of b.projectiles??[]){if(p.molten){lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.08,p.y-p.vy*.08).stroke({width:6,color:0xff7a2a,alpha:.45});lineG.circle(p.x,p.y,13).fill({color:0xffb347,alpha:.3}).circle(p.x,p.y,7).fill({color:0xff6a1a,alpha:.95});continue;}const owner=b.actorFor?.(p.owner)??b.fighters[p.owner],color=owner?colorOf(owner):0xffe27a;lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.06,p.y-p.vy*.06).stroke({width:3,color,alpha:.35});if(p.sprite>=0){const s=shots.get(),tex=frameTex('effects',p.sprite);if(tex)s.texture=tex;s.x=p.x;s.y=p.y;s.width=s.height=18;s.rotation=0;}}shots.end();
    // Fighters, eased toward their simulated positions; respawns and teleports snap.
    bars.clear();const keys=new Set();
    b.fighters.forEach((f,i)=>{if(f.isObjective)return;const key=fighterKey(f,i);keys.add(key);const v=body(key),r=f.radius||9,color=colorOf(f),looks=fighterArt(f),charTex=art[looks.character],propTex=art[looks.prop];

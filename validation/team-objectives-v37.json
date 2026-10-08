@@ -1,0 +1,117 @@
+{
+  "phase": "v37",
+  "engine": "team-3.7",
+  "note": "Core siege team-3.7 (backdoor duty, no teleports onto Cores, Molten Hurl and Fissure, stronger Forgefire) against team-3.6 on the same seeds and squads; balanced mirrors every third game, mixed compositions otherwise; summary rows only.",
+  "rows": [
+    {
+      "engine": "team-3.6",
+      "size": 3,
+      "games": 40,
+      "medianSeconds": 224.4,
+      "averageSeconds": 233,
+      "suddenDeathRate": 2.5,
+      "timeLimitRate": 0,
+      "backdoorRate": 20,
+      "teleportsNearCore": 85,
+      "titanKillsPerGame": 1.6,
+      "forgefireWinRate": 80,
+      "hurlsPerGame": 0,
+      "fissureStunsPerGame": 0
+    },
+    {
+      "engine": "team-3.6",
+      "size": 5,
+      "games": 40,
+      "medianSeconds": 213.9,
+      "averageSeconds": 210,
+      "suddenDeathRate": 5,
+      "timeLimitRate": 0,
+      "backdoorRate": 15,
+      "teleportsNearCore": 29,
+      "titanKillsPerGame": 1.4,
+      "forgefireWinRate": 73.5,
+      "hurlsPerGame": 0,
+      "fissureStunsPerGame": 0
+    },
+    {
+      "engine": "team-3.7",
+      "size": 3,
+      "games": 40,
+      "medianSeconds": 275.9,
+      "averageSeconds": 266,
+      "suddenDeathRate": 2.5,
+      "timeLimitRate": 0,
+      "backdoorRate": 7.5,
+      "teleportsNearCore": 0,
+      "titanKillsPerGame": 1.9,
+      "forgefireWinRate": 75,
+      "hurlsPerGame": 17,
+      "fissureStunsPerGame": 6.1
+    },
+    {
+      "engine": "team-3.7",
+      "size": 5,
+      "games": 40,
+      "medianSeconds": 274.6,
+      "averageSeconds": 275,
+      "suddenDeathRate": 7.5,
+      "timeLimitRate": 2.5,
+      "backdoorRate": 7.5,
+      "teleportsNearCore": 0,
+      "titanKillsPerGame": 1.8,
+      "forgefireWinRate": 69.7,
+      "hurlsPerGame": 20.7,
+      "fissureStunsPerGame": 9.8
+    }
+  ],
+  "tactics": [
+    {
+      "size": 3,
+      "tactic": "defensive",
+      "games": 20,
+      "winRate": 50
+    },
+    {
+      "size": 3,
+      "tactic": "aggressive",
+      "games": 20,
+      "winRate": 60
+    },
+    {
+      "size": 3,
+      "tactic": "focus-healer",
+      "games": 20,
+      "winRate": 55
+    },
+    {
+      "size": 3,
+      "tactic": "protect-carry",
+      "games": 20,
+      "winRate": 40
+    },
+    {
+      "size": 5,
+      "tactic": "defensive",
+      "games": 20,
+      "winRate": 35
+    },
+    {
+      "size": 5,
+      "tactic": "aggressive",
+      "games": 20,
+      "winRate": 45
+    },
+    {
+      "size": 5,
+      "tactic": "focus-healer",
+      "games": 20,
+      "winRate": 55
+    },
+    {
+      "size": 5,
+      "tactic": "protect-carry",
+      "games": 20,
+      "winRate": 55
+    }
+  ]
+}

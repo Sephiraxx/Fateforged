@@ -223,7 +223,7 @@ export function mountTeamLeague(host,hooks){
   }
   return section;
  }
- function renderDraft(){
+ function renderDraft(top=null){
   const d=world.draft,total=LEAGUE.totalPicks(world),made=d.picks.length,panel=el('section','','team-draft'),coach=mine();let myTurn=false,eligibleIds=new Set();
   if(world.phase==='offseason')panel.append(el('h3',`Season ${world.season+1} draft · rookies and free agents`,'offseason-title'));
   if(!d.complete){
@@ -238,7 +238,7 @@ export function mountTeamLeague(host,hooks){
     const waiting=!!coach&&(d.slots?d.slots.slice(made).some(s=>s.team===coach.id):coach.roster.length<world.settings.rosterSize);
     for(const [text,count,cls]of [['Sim next pick',1,'button primary'],['Sim round',roundLeft,'button secondary'],[waiting?'Sim to your pick':'Sim full draft',total-made,'quiet']]){const b=button(text,cls);b.disabled=busy||hooks.blocked();b.onclick=()=>draft(count);actions.append(b);}
    }
-   panel.append(clock,actions);
+   (top??panel).append(clock,actions);
   }
   const recent=d.picks.slice(-10).reverse().map(p=>{const f=world.fighters[p.fighter],tr=el('tr','',`role-${f.role}`);tr.append(el('td',`${p.round}.${p.pick}${p.exception?' · min. exception':''}`),el('td',LEAGUE.teamById(world,p.team).name),cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',String(f.ovr),'ovr'),el('td',money(f.salary)));return tr;});
   // The whole pool, filterable by role and sortable, so every fighter can be scouted.
@@ -343,7 +343,7 @@ export function mountTeamLeague(host,hooks){
   if(grid.childNodes.length)box.append(grid);
   return box;
  }
- function renderDecisions(){
+ function renderDecisions(top){
   const team=mine(),wrap=el('div','','offseason-step'),boxes=[];
   wrap.append(el('h4','Keep or release'),el('p','Kept fighters cost their new salary. Released fighters become free agents; open roster spots are filled in the draft.','muted'));
   const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>b.ovr-a.ovr).map(f=>{const box=check(`Release ${f.name}`);box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[box],delta(f));});
@@ -351,9 +351,10 @@ export function mountTeamLeague(host,hooks){
   const update=()=>{const out=boxes.filter(b=>b.checked).map(b=>b.value),pay=LEAGUE.payroll(world,team)-out.reduce((n,id)=>n+world.fighters[id].salary,0),over=pay>world.settings.salaryCap+1e-9;payLine.textContent=`Payroll ${money(pay)} / ${money(world.settings.salaryCap)} cap · ${team.roster.length-out.length} kept, ${out.length} released${over?' · over the cap: release more':''}`;payLine.classList.toggle('over',over);confirmButton.disabled=busy||over;};
   for(const b of boxes)b.onchange=update;update();
   confirmButton.onclick=()=>{const release=boxes.filter(b=>b.checked).map(b=>b.value);command({action:'decide',release}).then(()=>say(`${release.length?`Released ${release.length}.`:'Everyone stays.'} The trade window is open.`)).catch(e=>say(e.message,true));};
-  wrap.append(table(['Fighter','Role','Tier','OVR (Δ)','New salary','Release'],rows),payLine,confirmButton);return wrap;
+  const row=el('div','','draft-actions');row.append(confirmButton);top.append(payLine,row);
+  wrap.append(table(['Fighter','Role','Tier','OVR (Δ)','New salary','Release'],rows));return wrap;
  }
- function renderMarket(){
+ function renderMarket(top){
   const team=mine(),wrap=el('div','','offseason-step'),others=world.teams.filter(t=>t.id!==team.id);if(!others.some(t=>t.id===partner))partner=others[0].id;
   const rival=LEAGUE.teamById(world,partner);
   wrap.append(el('h4','Trade window'),el('p','Swap one or two fighters for the same number. AI coaches accept only deals that make their team better and keep both payrolls under the cap.','muted'));
@@ -367,14 +368,15 @@ export function mountTeamLeague(host,hooks){
   for(const b of [...give,...get])b.onchange=update;update();
   propose.onclick=()=>{const a=give.filter(b=>b.checked).map(b=>b.value),b=get.filter(x=>x.checked).map(x=>x.value);command({action:'trade',partner,give:a,get:b}).then(()=>say(`Deal! ${b.map(id=>world.fighters[id].name).join(' & ')} join the ${team.name}.`)).catch(e=>say(e.message,true));};
   const done=button('Close the trade window','quiet');done.disabled=busy;done.onclick=()=>command({action:'closeMarket'}).then(()=>{say(world.phase==='offseason'?'The draft is set: worst record picks first, the champion last.':`No open roster spots. Season ${world.season} rosters are set.`);afterDraft();}).catch(e=>say(e.message,true));
-  const row=el('div','','draft-actions');row.append(propose,done);wrap.append(choice,grid,summary,row);return wrap;
+  const row=el('div','','draft-actions'),skip=el('div','','draft-actions');row.append(propose);skip.append(done);top.append(skip);wrap.append(choice,grid,summary,row);return wrap;
  }
  function renderOffseason(){
   const o=world.offseason,panel=el('section','','team-draft offseason'),steps=el('ol','','offseason-steps'),order=['decisions','market','draft'];
   for(const [key,label]of [['decisions','Keep or release'],['market','Trade window'],['draft','Draft']]){const li=el('li',label);li.classList.toggle('active',o.step===key);li.classList.toggle('done',order.indexOf(key)<order.indexOf(o.step));steps.append(li);}
-  panel.append(steps,offseasonReport(o));
-  if(o.step==='decisions')panel.append(renderDecisions());else if(o.step==='market')panel.append(renderMarket());
-  body.append(panel);if(o.step==='draft')renderDraft();
+  // Each step's main actions (confirm, close the window, sim the draft) sit on top, above the steps.
+  const top=el('div','','offseason-actions');panel.append(top,steps,offseasonReport(o));
+  if(o.step==='decisions')panel.append(renderDecisions(top));else if(o.step==='market')panel.append(renderMarket(top));
+  body.append(panel);if(o.step==='draft')renderDraft(top);if(!top.childElementCount)top.remove?.();
  }
  // Re-rendering rebuilds the panel; keep the reader's scroll position (page or scrolling panel).
  const scroller=()=>{if(typeof getComputedStyle!=='function')return null;for(let n=host.parentElement;n;n=n.parentElement){const y=getComputedStyle(n).overflowY;if((y==='auto'||y==='scroll')&&n.scrollHeight>n.clientHeight)return n;}return null;};
