@@ -3,6 +3,7 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {moduleBundle} from './module-bundle.mjs';
 import {collectSprites} from './sprites.mjs';
+import {collectSounds} from './sounds.mjs';
 
 const output=process.argv[2]==='--output'?process.argv[3]:'_site';
 if(!['_site','docs'].includes(output))throw Error('Output must be _site or docs.');
@@ -51,6 +52,8 @@ for(const file of ['sql-wasm.js','sql-wasm.wasm'])await cp(`node_modules/sql.js/
 await cp('node_modules/sql.js/LICENSE',`${output}/vendor/sql.js-LICENSE.txt`);
 // Sprite art from public/sprites/ (optional) and the manifest module that lists it.
 const sprites=await collectSprites();await mkdir(`${output}/sprites`,{recursive:true});for(const sprite of sprites.files)await writeFile(`${output}/sprites/${sprite.file}`,sprite.data);await writeFile(`${output}/sprite-manifest.js`,sprites.module);
+// Optional sound files from public/sounds/ and the manifest module that lists them.
+const sounds=await collectSounds();await mkdir(`${output}/sounds`,{recursive:true});for(const sound of sounds.files)await writeFile(`${output}/sounds/${sound.file}`,sound.data);await writeFile(`${output}/sound-manifest.js`,sounds.module);
 await cp('node_modules/pixi.js/dist/pixi.min.mjs',`${output}/vendor/pixi.min.js`);await cp('node_modules/pixi.js/LICENSE',`${output}/vendor/pixi.js-LICENSE.txt`);
 await writeFile(`${output}/.nojekyll`,'');
 console.log(`Built GitHub Pages app in ${output} (browser storage; no server or account required).`);

@@ -3,6 +3,7 @@ import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {moduleBundle} from './module-bundle.mjs';
 import {collectSprites} from './sprites.mjs';
+import {collectSounds} from './sounds.mjs';
 const files={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/luck.js':'luck.js','/data.js':'data.js','/names.js':'names.js','/style.css':'style.css','/forge.css':'forge.css','/roster.css':'roster.css','/shell.js':'shell.js','/arena':'arena.html','/arena.html':'arena.html','/arena.js':'arena.js','/arena.css':'arena.css','/combat.js':'combat.js','/combat-v1.js':'combat-v1.js','/combat-v2.js':'combat-v2.js','/combat-v3.js':'combat-v3.js','/abilities.js':'abilities.js','/conditions.js':'conditions.js','/divisions.js':'divisions.js','/brackets.js':'brackets.js','/stage-recommendations.js':'stage-recommendations.js','/tournaments.js':'tournaments.js','/tournament-names.js':'tournament-names.js','/champion-history.js':'champion-history.js'};
 files['/combat-v4.js']='combat-v4.js';
 files['/combat-v5.js']='combat-v5.js';files['/combat-v6.js']='combat-v6.js';files['/combat-v7.js']='combat-v7.js';files['/combat-v8.js']='combat-v8.js';files['/combat-base-v6.js']='combat-base-v6.js';
@@ -13,7 +14,7 @@ for(const file of ['leagues.js','league-fixtures.js','league-ui.js','league-sim-
 for(const file of ['combat-v9.js','combat-v10-profile.js','combat-v10-contact.js','combat-v10-environment.js','combat-v10-powers.js','combat-engines.js'])files['/'+file]=file;
 for(const file of ['abilities-v11.js','combat-v10.js','combat-v11.js','combat-v11-profile.js','combat-v11-contact.js','combat-v11-environment.js','combat-v11-powers.js'])files['/'+file]=file;
 for(const file of ['class-abilities.js','abilities-v12.js','data-v2.js','luck-v2.js','combat-v12.js','combat-v12-base.js','combat-v12-profile.js','combat-v12-contact.js','combat-v12-environment.js','combat-v12-powers.js'])files['/'+file]=file;
-for(const file of ['support-catalog.js','support-abilities.js','luck-v4.js','abilities-v13.js','support-combat.js','combat-v13.js','combat-team-v2-4.js','combat-team-v3-1.js','team-engine-versions.js','role-output-combat.js','combat-team-v2-7.js','combat-team-v3-4.js','combat-team-v3-5.js','combat-team-v3-6.js','combat-team-v3-7.js','team-game-plan.js','game-plan-ui.js','pixi-arena.js','pixi-arena-model.js','sprite-art.js','sprite-manifest.js'])files['/'+file]=file;
+for(const file of ['support-catalog.js','support-abilities.js','luck-v4.js','abilities-v13.js','support-combat.js','combat-v13.js','combat-team-v2-4.js','combat-team-v3-1.js','team-engine-versions.js','role-output-combat.js','combat-team-v2-7.js','combat-team-v3-4.js','combat-team-v3-5.js','combat-team-v3-6.js','combat-team-v3-7.js','team-game-plan.js','game-plan-ui.js','pixi-arena.js','pixi-arena-model.js','sprite-art.js','sprite-manifest.js','sound.js','sound-model.js','sound-manifest.js'])files['/'+file]=file;
 const assets={};for(const [url,file] of Object.entries(files))assets[url]=await readFile(`public/${file}`,'utf8');
 // PixiJS for the enhanced team-battle renderer, vendored from npm (pinned in package.json).
 assets['/vendor/pixi.min.js']=await readFile('node_modules/pixi.js/dist/pixi.min.mjs','utf8');
@@ -22,6 +23,8 @@ const binary={};for(const name of ['weapons','effects'])binary['/assets/'+name+'
 binary['/assets/obsidian.webp']=(await readFile('public/obsidian.webp')).toString('base64');
 // Sprite art from public/sprites/ (optional); the manifest module tells the renderer which files exist.
 const sprites=await collectSprites();assets['/sprite-manifest.js']=sprites.module;for(const sprite of sprites.files)binary['/sprites/'+sprite.file]=sprite.data.toString('base64');
+// Optional sound files from public/sounds/; cues without one use their generated sound.
+const sounds=await collectSounds();assets['/sound-manifest.js']=sounds.module;for(const sound of sounds.files)binary['/sounds/'+sound.file]=sound.data.toString('base64');
 const context={};vm.createContext(context);vm.runInContext(assets['/class-abilities.js']+assets['/support-catalog.js']+assets['/data.js']+';this.generationPools=supportPools(WHEEL_DATA);this.catalog=this.generationPools.base',context);
 const catalog=Object.fromEntries(['power','power2','weakness'].map(slot=>[slot,context.catalog[slot]]));
 const reconciliation=(await readFile('public/catalog-repair.js','utf8')).replace('export function reconcileCharacter','function reconcileCharacter');
