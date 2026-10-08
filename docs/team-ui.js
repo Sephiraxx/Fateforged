@@ -4,7 +4,9 @@ import {randomTeam} from './team-generation.js';
 import {createSimulationPool} from './simulation-client.js';
 import {TEAM_TACTICS} from './combat-team.js';
 import {TEAM_MAPS} from './team-maps.js';
-import {engineForMode} from './team-engine-versions.js';
+import {engineForMode,GAME_PLAN_ENGINES} from './team-engine-versions.js';
+import {defaultGamePlan} from './team-game-plan.js';
+import {gamePlanFields} from './game-plan-ui.js';
 const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect the carry','focus-healer':'Focus their healer',aggressive:'All-out aggression',defensive:'Hold the line'};
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const scripts=new Map();
@@ -42,7 +44,7 @@ export function mountTeamBattles(host,hooks){
   board.replaceChildren();
   sides.forEach((side,team)=>{
    const section=el('section','',`team-side ${team?'red':'blue'}`),top=el('div','','team-side-head'),title=el('h3',team?'Red team':'Blue team'),roll=button(`Random S/A ${size}v${size}`),tactic=select(TEAM_TACTICS.map(t=>[t,TACTIC_LABELS[t]]),side.tactic);
-   tactic.setAttribute('aria-label',(team?'Red':'Blue')+' team tactic');tactic.onchange=()=>{side.tactic=tactic.value;};roll.onclick=()=>randomize(team);
+   tactic.setAttribute('aria-label',(team?'Red':'Blue')+' team tactic');roll.onclick=()=>randomize(team);
    top.append(title,roll);const tacticLabel=labelled('Tactic',tactic);tacticLabel.className='team-tactic';
    const list=el('ol','','team-slots');
    for(let i=0;i<size;i++){
@@ -52,7 +54,10 @@ export function mountTeamBattles(host,hooks){
     choice.onchange=()=>{side.ids[i]=choice.value||undefined;paint();};paint();
     slot.append(el('span',String(i+1),'team-slot-no'),choice,badge);list.append(slot);
    }
-   section.append(top,list,tacticLabel);board.append(section);
+   // Core siege dials start from the tactic's coach default and stop following it once changed by hand.
+   const plan=gamePlanFields(side.gamePlan??defaultGamePlan(side.tactic),{prefix:(team?'Red':'Blue')+' team ',onchange:p=>{side.gamePlan=p;}});plan.element.hidden=!siegeOn();plan.element.className+=' team-game-plan';side.planFields=plan;
+   tactic.onchange=()=>{side.tactic=tactic.value;if(!side.gamePlan)plan.set(defaultGamePlan(side.tactic));};
+   section.append(top,list,tacticLabel,plan.element);board.append(section);
   });
  }
  async function randomize(team){
@@ -68,7 +73,9 @@ export function mountTeamBattles(host,hooks){
   const all=ids.flat();if(new Set(all).size!==all.length)throw new Error('A fighter can only appear once per battle.');
   return Promise.all(ids.map(list=>Promise.all(list.map(lookup))));
  }
- function options(){return {engineVersion:engineForMode(size>2?battleMode.value:'teamfight'),conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
+ const siegeOn=()=>size>2&&battleMode.value==='core';
+ battleMode.addEventListener('change',()=>{for(const side of sides)if(side.planFields)side.planFields.element.hidden=!siegeOn();});
+ function options(){const engineVersion=engineForMode(size>2?battleMode.value:'teamfight');return {engineVersion,...(GAME_PLAN_ENGINES.includes(engineVersion)?{gamePlans:sides.map(s=>s.gamePlan??defaultGamePlan(s.tactic))}:{}),conditions:{time:time.value,weather:weather.value,ground:ground.value,map:map.value},tactics:sides.map(s=>s.tactic)};}
  async function play(watching){
   if(running||hooks.blocked())return;
   running=true;for(const control of [battleMode,format,time,weather,ground,map])control.disabled=true;hooks.busy(true);watch.disabled=quick.disabled=true;say(watching?'Battle in progress…':'Simulating…');

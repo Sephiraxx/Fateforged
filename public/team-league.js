@@ -7,7 +7,8 @@ import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
 import {teamRole,combatNumbers} from './team-roles.js';
 import {MAP_IDS} from './team-maps.js';
-import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,engineForMode} from './team-engine-versions.js';
+import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,GAME_PLAN_ENGINES,engineForMode} from './team-engine-versions.js';
+import {validGamePlan,personalityGamePlan} from './team-game-plan.js';
 export const TEAM_LEAGUE_VERSION=1;
 export const LEAGUE_SIZES=Object.freeze([8,16,32]);
 // mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
@@ -96,9 +97,9 @@ export function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.7 / team-3.5 with the siege team brain): leagues on an earlier current engine move up from their next
+// Current rules (team-2.7 / team-3.6: siege team brain with coach game plans): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.5','team-3.4':'team-3.5'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.6','team-3.4':'team-3.6','team-3.5':'team-3.6'});
 export function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 export function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
@@ -271,7 +272,7 @@ export function upcoming(w,limit=Infinity){
  else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push({...s,kind:'playoff'});}}
  if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit).map(m=>describe(w,m));
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,...(partial.gamePlans?{initialGamePlans:partial.gamePlans}:{}),completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)],...(GAME_PLAN_ENGINES.includes(w.teamEngine)?{gamePlans:[teamGamePlan(w,home),teamGamePlan(w,away)]}:{})};}
 export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:['team-2.2','team-2.3','team-3-core','team-3'].includes(match.engineVersion)?f.teamKit??f.legacyTeamKit:null,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
@@ -305,25 +306,26 @@ export function recordMatch(w,matchId,games){
  const winner=score[0]>score[1]?m.home:m.away;if(m.balance){w.balance??=neutralBalance();w.balance.seasonSamples??=structuredClone(w.balance.samples);w.balance.sampleGames??=w.balance.samples.length;w.balance.seasonSampleGames??=w.balance.seasonSamples.length;for(const g of accepted){const observations=balanceObservations(g.lineups.map(ids=>lineupEvidence(w,ids)),g.winnerTeam);if(w.balance.rulesVersion>=2){addBalanceObservations(w.balance.samples,observations);addBalanceObservations(w.balance.seasonSamples,observations);}else{w.balance.samples.push(observations);w.balance.seasonSamples.push(structuredClone(observations));}w.balance.sampleGames++;w.balance.seasonSampleGames++;}}for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
  const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),comps=countsFor(accepted[0].lineups);
  if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.objective?g.objective.coreHp.map(Math.round):g.hp,seconds:g.seconds,comps,objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,lineups:accepted[0].lineups});balanceCheckpoint(w,'halfway');if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,...(g.gamePlans?{gamePlans:g.gamePlans}:{}),objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
   if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
  return {id:m.id,winner,score};
 }
 function validateSeriesGame(w,m,g,previous){
- const plan=seriesGameOptions(m,previous),lineups=g.lineups??plan.lineups,tactics=g.tactics??plan.tactics;
+ const plan=seriesGameOptions(m,previous),lineups=g.lineups??plan.lineups,tactics=g.tactics??plan.tactics,gamePlans=plan.gamePlans?g.gamePlans??plan.gamePlans:null;
  if(!Array.isArray(lineups)||lineups.length!==2||!Array.isArray(tactics)||tactics.length!==2)throw new Error('Invalid game lineup or tactic.');
  for(const side of [0,1]){const team=teamById(w,side?m.away:m.home),ids=lineups[side];
   if(!Array.isArray(ids)||ids.length!==w.format||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id))||side!==m.userSide&&JSON.stringify(ids)!==JSON.stringify(plan.lineups[side]))throw new Error('Choose starters from the coached team roster only.');
   if(!SERIES_TACTICS.includes(tactics[side])||side!==m.userSide&&tactics[side]!==plan.tactics[side])throw new Error('The AI coach tactic must follow the series plan.');
  }
+ if(gamePlans&&(!Array.isArray(gamePlans)||gamePlans.length!==2||gamePlans.some((p,side)=>!validGamePlan(p)||side!==m.userSide&&JSON.stringify(p)!==JSON.stringify(plan.gamePlans[side]))))throw new Error('The game plans must follow the series plan.');
  if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
- return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics]};
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege}))}:{})};
 }
 export function recordSeriesGame(w,matchId,game){
  const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
  if(w.pendingSeries&&w.pendingSeries.matchId!==matchId)throw new Error('Finish the paused series first.');
- const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
+ const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],...(m.gamePlans?{gamePlans:structuredClone(m.gamePlans)}:{}),games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
  if(Math.max(...score)===Math.ceil(m.bestOf/2)){recordMatch(w,matchId,games);return {complete:true,score};}
  w.pendingSeries={...partial,games};return {complete:false,score};
 }
@@ -356,6 +358,9 @@ export function setLineup(w,ids){
  if(!Array.isArray(ids)||ids.length!==size||new Set(ids).size!==size||ids.some(id=>!team.roster.includes(id)))throw new Error(`Choose ${size} different fighters from your roster.`);
  team.lineup=[...ids];return w;
 }
+// Core siege game plan: the coached team's dials, otherwise the coach's personality.
+export function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
+export function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege};return w;}
 export function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 export function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.

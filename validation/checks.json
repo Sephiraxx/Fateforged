@@ -9,7 +9,7 @@
     {
       "file": "check-balance-v10.mjs",
       "passed": true,
-      "seconds": 8.1
+      "seconds": 7.9
     },
     {
       "file": "check-balance-v11.mjs",
@@ -19,27 +19,27 @@
     {
       "file": "check-bulk-characters.mjs",
       "passed": true,
-      "seconds": 1.2
+      "seconds": 1.3
     },
     {
       "file": "check-class-abilities.mjs",
       "passed": true,
-      "seconds": 14.9
+      "seconds": 15.2
     },
     {
       "file": "check-composition-balance.mjs",
       "passed": true,
-      "seconds": 3
+      "seconds": 2.9
     },
     {
       "file": "check-comprehensive-balance-api.mjs",
       "passed": true,
-      "seconds": 1.6
+      "seconds": 1.5
     },
     {
       "file": "check-comprehensive-balance.mjs",
       "passed": true,
-      "seconds": 4.9
+      "seconds": 5.2
     },
     {
       "file": "check-engine-lock-v12.mjs",
@@ -49,7 +49,7 @@
     {
       "file": "check-fighter-growth.mjs",
       "passed": true,
-      "seconds": 1.8
+      "seconds": 1.9
     },
     {
       "file": "check-group-scheduling.mjs",
@@ -64,27 +64,27 @@
     {
       "file": "check-league-combat.mjs",
       "passed": true,
-      "seconds": 46.1
+      "seconds": 48.6
     },
     {
       "file": "check-league-fixtures.mjs",
       "passed": true,
-      "seconds": 2.1
+      "seconds": 2.4
     },
     {
       "file": "check-league-pages.mjs",
       "passed": true,
-      "seconds": 2
+      "seconds": 1.9
     },
     {
       "file": "check-leagues.mjs",
       "passed": true,
-      "seconds": 5.8
+      "seconds": 6.2
     },
     {
       "file": "check-luck.mjs",
       "passed": true,
-      "seconds": 3.6
+      "seconds": 3.7
     },
     {
       "file": "check-match-records.mjs",
@@ -94,7 +94,7 @@
     {
       "file": "check-pages.mjs",
       "passed": true,
-      "seconds": 3.2
+      "seconds": 3.4
     },
     {
       "file": "check-player-intake.mjs",
@@ -109,17 +109,17 @@
     {
       "file": "check-rewind.mjs",
       "passed": true,
-      "seconds": 4.6
+      "seconds": 4.7
     },
     {
       "file": "check-rolled-support.mjs",
       "passed": true,
-      "seconds": 22
+      "seconds": 22.9
     },
     {
       "file": "check-roster-performance.mjs",
       "passed": true,
-      "seconds": 1
+      "seconds": 1.1
     },
     {
       "file": "check-roster-view.mjs",
@@ -129,27 +129,27 @@
     {
       "file": "check-save-size.mjs",
       "passed": true,
-      "seconds": 16.4
+      "seconds": 15.6
     },
     {
       "file": "check-series.mjs",
       "passed": true,
-      "seconds": 2.7
+      "seconds": 2.6
     },
     {
       "file": "check-singularity.mjs",
       "passed": true,
-      "seconds": 6.2
+      "seconds": 6
     },
     {
       "file": "check-stage-recommendations.mjs",
       "passed": true,
-      "seconds": 0.2
+      "seconds": 0.1
     },
     {
       "file": "check-support-roles.mjs",
       "passed": true,
-      "seconds": 10.4
+      "seconds": 10.3
     },
     {
       "file": "check-targeted-balance.mjs",
@@ -159,57 +159,62 @@
     {
       "file": "check-team-balance.mjs",
       "passed": true,
-      "seconds": 6.1
+      "seconds": 6.2
     },
     {
       "file": "check-team-brain.mjs",
       "passed": true,
-      "seconds": 8.4
+      "seconds": 7.8
     },
     {
       "file": "check-team-combat.mjs",
       "passed": true,
-      "seconds": 24.5
+      "seconds": 25.2
+    },
+    {
+      "file": "check-team-game-plan.mjs",
+      "passed": true,
+      "seconds": 16.3
     },
     {
       "file": "check-team-kits.mjs",
       "passed": true,
-      "seconds": 3.6
+      "seconds": 3.7
     },
     {
       "file": "check-team-league.mjs",
       "passed": true,
-      "seconds": 9.3
+      "seconds": 11.7
     },
     {
       "file": "check-team-objectives.mjs",
       "passed": true,
-      "seconds": 4.8
+      "seconds": 5.2
     },
     {
       "file": "check-team-offseason.mjs",
       "passed": true,
-      "seconds": 17.7
+      "seconds": 18.7
     },
     {
       "file": "check-team-performance.mjs",
       "passed": true,
-      "seconds": 9.9
+      "seconds": 10.7
     },
     {
       "file": "check-team-season.mjs",
       "passed": true,
-      "seconds": 12.9
+      "seconds": 13.4
     },
     {
       "file": "check-team-series.mjs",
       "passed": true,
-      "seconds": 3.3
+      "seconds": 3.5
     },
     {
       "file": "check-team-titan.mjs",
       "passed": true,
-      "seconds": 3.4
+      "seconds": 3.7
     },
     {
       "file": "check-tournament-names.mjs",

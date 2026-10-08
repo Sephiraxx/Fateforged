@@ -1,4 +1,4 @@
-> Phases 1–3 are built. Core siege is the default 3v3/5v5 mode, with the team brain (team-3.5; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. The coach game-plan UI, PixiJS renderer and sprites remain future phases.
+> Phases 1–4 are built. Core siege is the default 3v3/5v5 mode, with the team brain and coach game plans (team-3.6; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. The PixiJS renderer and sprites remain future phases.
 
 # Objective mode (design)
 

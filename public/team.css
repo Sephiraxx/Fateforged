@@ -37,6 +37,10 @@
 .team-slot-role[data-role="damage"]{color:#ffb070}
 .team-tactic{margin-top:10px}
 .team-tactic select{min-height:38px;font-size:.88rem}
+.game-plan-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+.game-plan-fields[hidden]{display:none}
+.game-plan-fields label{display:grid;gap:4px;font-size:.78rem}
+.game-plan-fields select{min-height:38px;font-size:.85rem;width:100%}
 #team-panel .conditions .field-row{grid-template-columns:repeat(2,minmax(0,1fr))}
 .team-actions{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:14px}
 .team-actions .start-button{margin:0}

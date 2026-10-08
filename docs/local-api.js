@@ -5217,9 +5217,40 @@ function teamRole(character){
 // Current team engines and every engine that carries a per-save balance profile. Older versions stay
 // registered in combat-team.js so saved results and replays keep the rules they were played under.
 const TEAM_COMBAT_VERSION='team-2.7';
-const OBJECTIVE_COMBAT_VERSION='team-3.5';
-const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5']);
+const OBJECTIVE_COMBAT_VERSION='team-3.6';
+const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5','team-3.6']);
 const engineForMode=battleMode=>battleMode==='core'?OBJECTIVE_COMBAT_VERSION:TEAM_COMBAT_VERSION;
+// Engines whose matches carry coach game plans.
+const GAME_PLAN_ENGINES=Object.freeze(['team-3.6']);
+
+// Core siege game plan: three coach dials that steer the team brain (team-3.6). Shared by the engine, the league
+// rules, the worker and the UI. AI coaches take their dials from their personality and adjust one after a loss.
+const GAME_PLAN_OPTIONS=Object.freeze({
+ titan:Object.freeze([['always','Always contest'],['ahead','Contest when ahead'],['never','Never (play around it)']]),
+ style:Object.freeze([['group','Group up'],['flank','Flank']]),
+ siege:Object.freeze([['forgefire','With Forgefire'],['numbers','On a numbers lead'],['late','Not before 3:00']])
+});
+const GAME_PLAN_LABELS=Object.freeze({titan:'Titan priority',style:'Style',siege:'Siege timing'});
+const DIALS=Object.keys(GAME_PLAN_OPTIONS);
+function validGamePlan(plan){return !!plan&&typeof plan==='object'&&!Array.isArray(plan)&&Object.keys(plan).length===DIALS.length&&DIALS.every(k=>GAME_PLAN_OPTIONS[k].some(([v])=>v===plan[k]));}
+const plan=(titan,style,siege)=>Object.freeze({titan,style,siege});
+// Coach personalities (team-league.js PERSONALITIES) and the tactics they map to.
+const PERSONALITY_PLANS=Object.freeze({
+ balanced:plan('always','group','numbers'),
+ fortress:plan('ahead','group','numbers'),
+ glass:plan('always','group','numbers'),
+ tactician:plan('ahead','flank','numbers'),
+ star:plan('always','group','numbers'),
+ bargain:plan('never','flank','numbers')
+});
+const TACTIC_PERSONALITY=Object.freeze({balanced:'balanced',defensive:'fortress',aggressive:'glass','focus-healer':'tactician','protect-carry':'star'});
+function defaultGamePlan(tactic){return {...PERSONALITY_PLANS[TACTIC_PERSONALITY[tactic]??'balanced']};}
+function personalityGamePlan(personality){return {...(PERSONALITY_PLANS[personality]??PERSONALITY_PLANS.balanced)};}
+// After a loss an AI coach changes one dial, chosen by personality; winners keep their plan. Deterministic.
+const ADAPT=Object.freeze({balanced:'titan',fortress:'siege',glass:'style',tactician:'style',star:'siege',bargain:'titan'});
+const NEXT=Object.freeze({titan:{always:'ahead',ahead:'always',never:'ahead'},style:{group:'flank',flank:'group'},siege:{forgefire:'numbers',numbers:'forgefire',late:'numbers'}});
+function adaptGamePlan(current,personality,lost){if(!lost)return {...current};const dial=ADAPT[personality]??'titan';return {...current,[dial]:NEXT[dial][current[dial]]};}
+function gamePlanSummary(p){return DIALS.map(k=>GAME_PLAN_OPTIONS[k].find(([v])=>v===p[k])?.[1]).join(' · ');}
 
 
 
@@ -5412,6 +5443,7 @@ function mapTerrain(id,seed){
 }
 
 // Shared by the worker, watched games and the authoritative league validator.
+
 const SERIES_TACTICS=['balanced','protect-carry','focus-healer','aggressive','defensive'];
 function seriesScore(games=[]){return games.reduce((score,g)=>{score[g.winnerTeam]++;return score;},[0,0]);}
 function seriesTactics(match,games=[]){
@@ -5429,10 +5461,15 @@ function seriesTactics(match,games=[]){
   return last==='balanced'?'protect-carry':'balanced';
  });
 }
+// Core siege game plans (team-3.6+): winners keep theirs, the user keeps theirs, AI losers adjust one dial.
+function seriesGamePlans(match,games=[]){
+ const initial=match.initialGamePlans??match.gamePlans;if(!initial)return null;const previous=games.at(-1);
+ return initial.map((base,side)=>{const last=previous?.gamePlans?.[side]??base;return !previous||side===match.userSide||previous.winnerTeam===side?{...last}:adaptGamePlan(last,match.coachStyles?.[side],true);});
+}
 function seriesGameOptions(match,games=[],choice=null){
- const tactics=seriesTactics(match,games),lineups=(games.at(-1)?.lineups??match.initialLineups??match.lineups).map(ids=>[...ids]);
- if(choice&&match.userSide>=0){if(choice.lineup)lineups[match.userSide]=[...choice.lineup];if(choice.tactic)tactics[match.userSide]=choice.tactic;}
- return {lineups,tactics};
+ const tactics=seriesTactics(match,games),lineups=(games.at(-1)?.lineups??match.initialLineups??match.lineups).map(ids=>[...ids]),gamePlans=seriesGamePlans(match,games);
+ if(choice&&match.userSide>=0){if(choice.lineup)lineups[match.userSide]=[...choice.lineup];if(choice.tactic)tactics[match.userSide]=choice.tactic;if(choice.gamePlan&&gamePlans)gamePlans[match.userSide]={...choice.gamePlan};}
+ return {lineups,tactics,...(gamePlans?{gamePlans}:{})};
 }
 
 
@@ -5442,6 +5479,7 @@ function seriesGameOptions(match,games=[],choice=null){
 
 // Team leagues (2v2 / 3v3 / 5v5): world creation, player ratings and salaries, AI head coaches and the draft.
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
+
 
 
 
@@ -5533,9 +5571,9 @@ function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.7 / team-3.5 with the siege team brain): leagues on an earlier current engine move up from their next
+// Current rules (team-2.7 / team-3.6: siege team brain with coach game plans): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.5','team-3.4':'team-3.5'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.6','team-3.4':'team-3.6','team-3.5':'team-3.6'});
 function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
@@ -5708,7 +5746,7 @@ function upcoming(w,limit=Infinity){
  else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push({...s,kind:'playoff'});}}
  if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit).map(m=>describe(w,m));
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)]};}
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,...(partial.gamePlans?{initialGamePlans:partial.gamePlans}:{}),completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)],...(GAME_PLAN_ENGINES.includes(w.teamEngine)?{gamePlans:[teamGamePlan(w,home),teamGamePlan(w,away)]}:{})};}
 const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map(ids=>ids.map(id=>{const f=w.fighters[id];return {id:f.id,name:f.name,teamKit:['team-2.2','team-2.3','team-3-core','team-3'].includes(match.engineVersion)?f.teamKit??f.legacyTeamKit:null,traits:f.traits,summary:f.summary};}));
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
@@ -5742,25 +5780,26 @@ function recordMatch(w,matchId,games){
  const winner=score[0]>score[1]?m.home:m.away;if(m.balance){w.balance??=neutralBalance();w.balance.seasonSamples??=structuredClone(w.balance.samples);w.balance.sampleGames??=w.balance.samples.length;w.balance.seasonSampleGames??=w.balance.seasonSamples.length;for(const g of accepted){const observations=balanceObservations(g.lineups.map(ids=>lineupEvidence(w,ids)),g.winnerTeam);if(w.balance.rulesVersion>=2){addBalanceObservations(w.balance.samples,observations);addBalanceObservations(w.balance.seasonSamples,observations);}else{w.balance.samples.push(observations);w.balance.seasonSamples.push(structuredClone(observations));}w.balance.sampleGames++;w.balance.seasonSampleGames++;}}for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
  const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),comps=countsFor(accepted[0].lineups);
  if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.objective?g.objective.coreHp.map(Math.round):g.hp,seconds:g.seconds,comps,objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,lineups:accepted[0].lineups});balanceCheckpoint(w,'halfway');if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
+ else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,...(g.gamePlans?{gamePlans:g.gamePlans}:{}),objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
   if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
  return {id:m.id,winner,score};
 }
 function validateSeriesGame(w,m,g,previous){
- const plan=seriesGameOptions(m,previous),lineups=g.lineups??plan.lineups,tactics=g.tactics??plan.tactics;
+ const plan=seriesGameOptions(m,previous),lineups=g.lineups??plan.lineups,tactics=g.tactics??plan.tactics,gamePlans=plan.gamePlans?g.gamePlans??plan.gamePlans:null;
  if(!Array.isArray(lineups)||lineups.length!==2||!Array.isArray(tactics)||tactics.length!==2)throw new Error('Invalid game lineup or tactic.');
  for(const side of [0,1]){const team=teamById(w,side?m.away:m.home),ids=lineups[side];
   if(!Array.isArray(ids)||ids.length!==w.format||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id))||side!==m.userSide&&JSON.stringify(ids)!==JSON.stringify(plan.lineups[side]))throw new Error('Choose starters from the coached team roster only.');
   if(!SERIES_TACTICS.includes(tactics[side])||side!==m.userSide&&tactics[side]!==plan.tactics[side])throw new Error('The AI coach tactic must follow the series plan.');
  }
+ if(gamePlans&&(!Array.isArray(gamePlans)||gamePlans.length!==2||gamePlans.some((p,side)=>!validGamePlan(p)||side!==m.userSide&&JSON.stringify(p)!==JSON.stringify(plan.gamePlans[side]))))throw new Error('The game plans must follow the series plan.');
  if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
- return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics]};
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege}))}:{})};
 }
 function recordSeriesGame(w,matchId,game){
  const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
  if(w.pendingSeries&&w.pendingSeries.matchId!==matchId)throw new Error('Finish the paused series first.');
- const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
+ const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],...(m.gamePlans?{gamePlans:structuredClone(m.gamePlans)}:{}),games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
  if(Math.max(...score)===Math.ceil(m.bestOf/2)){recordMatch(w,matchId,games);return {complete:true,score};}
  w.pendingSeries={...partial,games};return {complete:false,score};
 }
@@ -5793,6 +5832,9 @@ function setLineup(w,ids){
  if(!Array.isArray(ids)||ids.length!==size||new Set(ids).size!==size||ids.some(id=>!team.roster.includes(id)))throw new Error(`Choose ${size} different fighters from your roster.`);
  team.lineup=[...ids];return w;
 }
+// Core siege game plan: the coached team's dials, otherwise the coach's personality.
+function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
+function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege};return w;}
 function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
@@ -5933,7 +5975,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,engineForMode,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,balanceAuditPlan,auditSuggestion,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,balanceAuditPlan,auditSuggestion,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -5947,7 +5989,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','balanceAudit','balance','rules','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','balanceAudit','balance','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
@@ -5980,6 +6022,7 @@ async function teamApi(request,env,url){
   }catch(e){fail(e.message);}
  }
  else if(input.action==='balanceAudit'){try{TEAM_LEAGUE.recordBalanceAudit(world,input.phase,input.audit);}catch(e){fail(e.message);}}
+ else if(input.action==='gamePlan'){try{TEAM_LEAGUE.setGamePlan(world,input.plan);}catch(e){fail(e.message);}}
  else if(input.action==='rules'){try{TEAM_LEAGUE.setBattleMode(world,input.mode);}catch(e){fail(e.message);}}
  else if(input.action==='balance'){try{TEAM_LEAGUE.setAutoBalance(world,input.enabled);}catch(e){fail(e.message);}}
  else if(input.action==='seriesGame'){try{TEAM_LEAGUE.recordSeriesGame(world,input.matchId,input.game);}catch(e){fail(e.message);}}
