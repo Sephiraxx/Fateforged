@@ -54,6 +54,9 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
+        with:
+          # The default also asks for the long-removed 'tools' package, which current SDK managers reject.
+          packages: platform-tools
       - name: Install the Android NDK and platform
         run: sdkmanager "ndk;${NDK_VERSION}" "platforms;android-34" "build-tools;34.0.0"
       - uses: dtolnay/rust-toolchain@stable
