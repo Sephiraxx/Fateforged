@@ -1,0 +1,50 @@
+{
+ "note": "Hash of result() and final fighter positions for one seeded game per team engine and squad (scripts/check-team-performance-paths.mjs). Recorded before the simulation speed-up; frozen engines must keep matching.",
+ "seed": 4242,
+ "map": "ruins",
+ "tactics": [
+  "focus-healer",
+  "defensive"
+ ],
+ "balance": {
+  "id": "fp",
+  "multipliers": {
+   "stat:STR": 1.05,
+   "role:healer:stat:DUR": 0.95
+  }
+ },
+ "fingerprints": {
+  "team-2 healer2": "9dbf53353bbc38090d731e5d",
+  "team-2 balanced3": "2e45a86a357f41e4f2236fcc",
+  "team-2.1 healer2": "252672b6203bc74151e0e5de",
+  "team-2.1 balanced3": "c777dd7fd8a4efe0cfac27c4",
+  "team-2.2 healer2": "c621cdc92e94de9aad4364f0",
+  "team-2.2 balanced3": "47fe0e78586050ed37d6ec3d",
+  "team-2.3 healer2": "6c7636ce9d9f7d8ee969a3f6",
+  "team-2.3 balanced3": "f2c8ac7942ba7151defc78ec",
+  "team-2.4 healer2": "505eda6ecb75123aa4344759",
+  "team-2.4 balanced3": "ece765f4bfe0a215c15e1dfb",
+  "team-2.5 healer2": "fa553c541a87cb179485c17f",
+  "team-2.5 balanced3": "ae428ea326c16f0971ba93b1",
+  "team-2.6 healer2": "c423ae4b2377832279708a62",
+  "team-2.6 balanced3": "46f40a8ee225686d2cad0b6d",
+  "team-2.7 healer2": "025bc876c49e223678d2bae4",
+  "team-2.7 balanced3": "8ce0771161b38879e48a4924",
+  "team-3 balanced3": "01f9d6cacdaa7290c46694fc",
+  "team-3 healer3": "ca6661e6c74e207973c19902",
+  "team-3-core balanced3": "40eb6e0f6fc48ef976d4be2c",
+  "team-3-core healer3": "a4c2a99687b7a2cf5598a59e",
+  "team-3.1 balanced3": "56a897a6c0b914d192061b64",
+  "team-3.1 healer3": "6f2bad5183bd1a2e3b3d3898",
+  "team-3.2 balanced3": "73d5477eb5300d79e0bb8c16",
+  "team-3.2 healer3": "fe94237f9856c50353e6fc24",
+  "team-3.3 balanced3": "890258edf657160220e98201",
+  "team-3.3 healer3": "fb9e3d28dd249981fb515c5c",
+  "team-3.4 balanced3": "e81aa2382b321295d602e2bd",
+  "team-3.4 healer3": "42db2ca53037dc733713a28c",
+  "team-3.5 balanced3": "803e42aa23dc20eb64b992a2",
+  "team-3.5 healer3": "589b0d46993c224842e906fc",
+  "team-3.6 balanced3": "052a048da75b3221a82bf9ff",
+  "team-3.6 healer3": "10aca19d6a53c5118c86779d"
+ }
+}

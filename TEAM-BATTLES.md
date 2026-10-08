@@ -488,6 +488,23 @@ The 5v5 check now warms up both engines and alternates eight identical seeded wo
 
 A 100-game, side-alternating neutral-patch comparison after the new kits found Hold the line at 51% wins and 3% timeouts. A shorter opening hold produced identical results. No tactic change is applied on that evidence; repeat the review with long-season save data.
 
+### Faster simulation and patch audits
+
+Patch audits were the slow part of a team league. A preseason audit (and the midseason one) plays 1,500–2,500 test fights. Core siege fights last about 4–5 simulated minutes and took 2–3 s each, and the work was spread badly across the browser's workers. The following changes made it faster without changing any outcome (`scripts/check-team-performance-paths.mjs`):
+
+- **Engine:**
+  - Healers move toward their support spot through a stand-in target that reads through to the real fighter, instead of copying all ~150 of its fields every step.
+  - The per-step timers are updated field by field, and trails age in place.
+  - Every engine gives the same results as before: one recorded game per engine and squad in `validation/team-engine-fingerprints.json`, and 192 seeded games across all 16 engines during development. Overall it is about 1.36× faster, with 3v3 teamfight about 2×.
+- **Audit:**
+  - Each candidate's comparisons are batches of independent games, and the browser spreads every game across the pool instead of running one candidate's 100–250 fights on a single worker.
+  - Discovery reuses the screen's eight pairs (same cases and seeds) instead of replaying them, which is about 14% fewer fights.
+  - The reports, and so the patches, are identical. A 16-team 2v2 preseason audit went from 11.6 to 2.7 minutes on a 4-core machine.
+- **Pool:**
+  - Simulation tasks wait in one queue, and each worker takes the next as soon as it is free.
+  - The pool uses all cores but one (up to 8), instead of half of them (up to 4).
+  - This speeds up season weeks and cups too.
+
 ## Core siege preview (objective phase 1)
 
 Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.
@@ -665,18 +682,36 @@ Every style and dial value is a real choice: none wins or loses more than about 
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 
-Team battles (2v2, 3v3, 5v5, classic teamfight and Core siege) draw with a WebGL renderer, `public/pixi-arena.js`. Duels and tournaments keep the 2D canvas for now. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded battles with the renderer's per-frame reads and compares the results.
+Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.
 
-- **Field:** the floor and grid, terrain rocks with shadows, environment zones, summons and weather. It uses the same `effects.webp` / `weapons.webp` sprite sheets as the canvas.
+- **Field:** the floor and grid, terrain rocks with shadows, environment zones, summons, wisps, food, the relic, soul links and weather. It uses the same `effects.webp` / `weapons.webp` sprite sheets as the canvas.
 - **Objectives:**
   - Cores are glowing crystals with a health ring and a guard area.
   - The Forge Titan has a rotating rune ring, health bar and label, and its slam telegraph fills in as the slam lands.
   - Forgefire holders pulse gold, with a thicker ring while their shield is up.
 - **Fighters:**
-  - team-coloured bodies with a soft glow, hit flash, weapon swings, class icons, role glyphs, mini health bars and aim and target lines;
+  - team-coloured bodies with a soft glow, hit flash, a facing dot, weapon swings, class icons and aim lines;
+  - team battles add role glyphs, mini health bars and target lines (duels show health in the HUD);
   - positions are eased toward the simulation for smooth motion at any speed, and respawns and teleports snap.
 - **Particles** come from what changed between frames: hit sparks in the attacker's colour, rising green heal motes, death bursts, light columns for revives and respawns, Core shards, a gold burst for a Titan kill, and a shockwave with screen shake for a slam.
 - **Camera:** shows the full field by default. **Camera: Follow** frames the fighters who are in combat (and the Titan while someone is hitting it), zooming up to 2.2× and never leaving the field. Phones keep the portrait field from the canvas renderer, with labels and bars upright.
-- **Controls:** under the arena, next to Speed, during team battles. *Graphics* picks Enhanced or Classic, and the Camera button sits next to it. Both are saved in this browser.
+- **Controls:** under the arena, next to Speed. *Graphics* picks Enhanced or Classic, and the Camera button sits next to it. Both are saved in this browser.
 - **Fallback:** if WebGL or the PixiJS module can't start, the arena switches to the classic canvas for the session and says so under the controls.
-- **Packaging:** PixiJS is pinned (`pixi.js` 8.22.0 in `package.json`) and vendored, never loaded from a CDN. The worker serves `node_modules/pixi.js/dist/pixi.min.mjs` at `/vendor/pixi.min.js`, and the Pages build copies it, with its licence, to `vendor/`. It loads lazily on the first team battle.
+- **Packaging:** PixiJS is pinned (`pixi.js` 8.22.0 in `package.json`) and vendored, never loaded from a CDN. The worker serves `node_modules/pixi.js/dist/pixi.min.mjs` at `/vendor/pixi.min.js`, and the Pages build copies it, with its licence, to `vendor/`. It loads lazily on the first fight.
+
+### Sprite art (objective phase 6)
+
+The renderer uses sprite art from `public/sprites/` wherever a file exists, and keeps the drawn look for anything missing. The names and prompts are in `ART-PROMPTS.md`, and `public/sprite-art.js` has the mapping.
+
+| Art | Used for | Without it |
+| --- | --- | --- |
+| 10 character archetypes (`char-*`) | each fighter, by class (all 56 classes map to one), mirrored to face its direction, on a team-coloured base ring | team-coloured disc with the class icon |
+| 12 weapon props (`prop-*`) | the fighter's weapon, by name (bare hands, claws and arcane gauntlets have none) | the `weapons.webp` sheet |
+| 4 Cores (`core-*`) | each Core, cracked below 50% health | drawn crystal |
+| 3 Titan poses (`titan-*`) | idle, raised fists during the slam warning, and kneeling for 3 seconds after it falls | drawn body |
+| Terrain (`rock-*`, `wall-stone`, `pit-rim`) | rocks by map (pillar hall → pillar, broken ruins → wall stone, crossroads → boulder, stone groves → cluster), and the Titan pit | shaded rocks and a gold ring |
+| Effects (`fx-*`) | the Forgefire aura; respawn and revive columns; slam shockwave; Core hits; Titan steals | glows, rings and particles |
+
+- **Adding art:** save files as `<name>.webp` (preferred) or `.png`, under 400 KB each (256 px, 512 px for the Titan and pit), then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
+- **Builds:** they list the files in a generated `sprite-manifest.js` (empty in source), serve them from `/sprites/` (the worker embeds them like the other images), and add content hashes so updated art isn't cached.
+- **Loading:** sprites load in the background, and a fight that starts first switches over as each one arrives.

@@ -1,11 +1,19 @@
-// Enhanced team-battle renderer (PixiJS): camera framing, particle events, rendering never changes a battle, and
-// both builds serve the vendored PixiJS module.
+// Enhanced renderer (PixiJS): camera framing, particle events, rendering never changes a battle (team battles and
+// duels), sprite art mapping and collection, and both builds serve the vendored PixiJS module and the sprite manifest.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
-import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease} from '../public/pixi-arena-model.js';
+import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey} from '../public/pixi-arena-model.js';
+import {Battle} from '../public/combat.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls} from '../public/sprite-art.js';
+import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
+import {collectSprites} from './sprites.mjs';
+import {MAP_IDS} from '../public/team-maps.js';
+import os from 'node:os';
+import path from 'node:path';
+import vm from 'node:vm';
 import worker from '../dist/server/index.js';
 
 // 1. Camera: the full field is the identity view; following frames the points and never leaves the field.
@@ -49,6 +57,36 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  assert(followed>0,`${version} ${comp}: the follow camera zooms in at some point`);
 }
 
+// Duels: fighters have a side instead of a team and no index; the reads still leave the result untouched.
+{const [a,b]=squad(COMPOSITIONS.balanced2,61),make=()=>new Battle(a,b,61,{});const plain=make();while(!plain.done)plain.step(1/60);
+ const watched=make();let prev=null,events=0;assert.deepEqual(watched.fighters.map(teamOf),[0,1]);assert.deepEqual(watched.fighters.map(fighterKey),[0,1]);
+ while(!watched.done){const s=snapshot(watched);events+=diffEvents(prev,s).length;prev=s;assert(inside(frameView(actionPoints(watched),600,600),600,600));watched.step(1/60);}
+ assert.deepEqual(watched.result(),plain.result(),'duel: rendering reads must not change the result');assert(events>10,`duel: the particle layer sees the fight (${events} events)`);}
+
+// Sprite art: every class and weapon in the game has a sprite or an explicit fallback, and names match ART-PROMPTS.md.
+{const context={};vm.createContext(context);vm.runInContext(fs.readFileSync('public/class-abilities.js','utf8')+fs.readFileSync('public/support-catalog.js','utf8')+fs.readFileSync('public/data.js','utf8')+';this.base=WHEEL_DATA.base',context);
+ const classes=context.base.class.map(c=>c.name),weapons=context.base.weapon.map(w=>w.name);
+ for(const name of classes)assert(characterArt(name),`class ${name} has a character sprite`);
+ assert.equal(Object.values(CHARACTER_ART).flat().length,classes.length,'each class is listed once');
+ const noProp=['Bare hands','Claws','Arcane gauntlets'];for(const name of weapons)assert(noProp.includes(name)||propArt(name),`weapon ${name} has a prop sprite`);
+ for(const list of [Object.values(CHARACTER_ART).flat(),Object.values(PROP_ART).flat()])assert.equal(new Set(list).size,list.length,'no name maps twice');
+ for(const name of Object.values(PROP_ART).flat())assert(weapons.includes(name),`prop weapon ${name} exists`);
+ for(const id of MAP_IDS.filter(id=>id!=='open'))assert(TERRAIN_ART[id],id);
+ const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SPRITE_NAMES.length,39);for(const name of SPRITE_NAMES)assert(prompts.includes('`'+name+'.png`'),`${name} is in ART-PROMPTS.md`);
+ assert.deepEqual(fighterArt({traits:{class:'Priest'},weapon:{name:'Mace'},original:{weapon:{name:'Blessed mace'}}}),{character:'char-holy',prop:'prop-heavy'});
+ assert.equal(coreArt({team:0,hp:900,maxHp:1000}),'core-blue');assert.equal(coreArt({team:1,hp:400,maxHp:1000}),'core-red-cracked');
+ assert.deepEqual(spriteUrls({'char-plate':'char-plate.webp?v=1',nope:'x.webp'},'https://example.test/Fateforged/pixi-arena.js'),{'char-plate':'https://example.test/Fateforged/sprites/char-plate.webp?v=1'});
+ assert.deepEqual(SPRITE_MANIFEST,{},'the source manifest is empty; builds generate it');}
+
+// Sprite collection: known names only, one file per name, size-capped.
+{const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sprites-'));const warn=console.warn;console.warn=()=>{};
+ try{fs.writeFileSync(path.join(dir,'char-plate.webp'),Buffer.alloc(100,1));fs.writeFileSync(path.join(dir,'char-plate.png'),Buffer.alloc(100,2));fs.writeFileSync(path.join(dir,'titan-idle.png'),Buffer.alloc(200,3));
+  fs.writeFileSync(path.join(dir,'hero.webp'),Buffer.alloc(10));fs.writeFileSync(path.join(dir,'core-red.gif'),Buffer.alloc(10));fs.writeFileSync(path.join(dir,'core-blue.webp'),Buffer.alloc(SPRITE_MAX_BYTES+1));fs.writeFileSync(path.join(dir,'README.md'),'notes');
+  const out=await collectSprites(dir);assert.deepEqual(out.files.map(f=>f.file),['char-plate.png','titan-idle.png']);assert.equal(out.skipped.length,4);assert.match(out.manifest['char-plate'],/^char-plate\.png\?v=[0-9a-f]{10}$/);
+  assert(out.module.includes('export const SPRITE_MANIFEST={'));
+  assert.deepEqual((await collectSprites(path.join(dir,'missing'))).manifest,{});}
+ finally{console.warn=warn;fs.rmSync(dir,{recursive:true,force:true});}}
+
 // 4. The renderer only reads the battle: no assignments to battle (b.) or fighter (f.) properties.
 const renderer=fs.readFileSync('public/pixi-arena.js','utf8');
 assert(!/\b[bf]\.[\w.]+\s*(?:[-+*/]?=(?!=)|\+\+|--)/.test(renderer),'pixi-arena.js must not write to the battle');
@@ -59,7 +97,9 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));assert.match(pkg.de
 const vendored=fs.readFileSync('node_modules/pixi.js/dist/pixi.min.mjs','utf8');
 const response=await worker.fetch(new Request('https://fateforge.test/vendor/pixi.min.js'),{});
 assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/javascript/);assert.equal(await response.text(),vendored);
-for(const file of ['pixi-arena.js','pixi-arena-model.js'])assert.equal((await worker.fetch(new Request('https://fateforge.test/'+file),{})).status,200,file);
-if(fs.existsSync('_site')){assert.equal(fs.readFileSync('_site/vendor/pixi.min.js','utf8'),vendored);assert(fs.existsSync('_site/vendor/pixi.js-LICENSE.txt'));for(const file of ['pixi-arena.js','pixi-arena-model.js'])assert(fs.existsSync('_site/'+file),file);}
+for(const file of ['pixi-arena.js','pixi-arena-model.js','sprite-art.js','sprite-manifest.js'])assert.equal((await worker.fetch(new Request('https://fateforge.test/'+file),{})).status,200,file);
+const built=await collectSprites();assert.match(await (await worker.fetch(new Request('https://fateforge.test/sprite-manifest.js'),{})).text(),new RegExp(JSON.stringify(built.manifest).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+for(const sprite of built.files){const r=await worker.fetch(new Request('https://fateforge.test/sprites/'+sprite.file),{});assert.equal(r.status,200,sprite.file);assert.equal(Buffer.from(await r.arrayBuffer()).length,sprite.data.length);}
+if(fs.existsSync('_site')){assert.equal(fs.readFileSync('_site/vendor/pixi.min.js','utf8'),vendored);assert(fs.existsSync('_site/vendor/pixi.js-LICENSE.txt'));for(const file of ['pixi-arena.js','pixi-arena-model.js','sprite-art.js'])assert(fs.existsSync('_site/'+file),file);assert(fs.readFileSync('_site/sprite-manifest.js','utf8').includes(JSON.stringify(built.manifest)));for(const sprite of built.files)assert(fs.existsSync('_site/sprites/'+sprite.file),sprite.file);}
 const html=fs.readFileSync('public/arena.html','utf8');for(const id of ['arena-renderer','arena-camera','renderer-note'])assert(html.includes(`id="${id}"`),id);
 console.log('Pixi arena checks passed.');

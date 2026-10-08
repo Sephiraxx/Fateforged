@@ -38,10 +38,10 @@ let champions=[],bracketStage=null,resultsStage=null,bracketFit=false;
 let roster=[],loaded=new Map(),config=[defaultStage('single')],tournament=null,tournamentId=null,activeFight=null,series=null,lastLeg=null,paused=false,resolving=false,saving=false,lastFrame=0,accumulator=0,saveChain=Promise.resolve();
 const ctx=$('arena').getContext('2d'),images={};for(const name of ['weapons','effects']){const img=new Image();img.src=`./assets/${name}.webp`;img.onload=()=>needsDraw=true;images[name]=img;}
 const arenaFloor=new Image();arenaFloor.src='./assets/obsidian.webp';arenaFloor.onload=()=>needsDraw=true;
-// Team battles use the enhanced PixiJS renderer when WebGL works; the 2D canvas is the fallback and the Classic option.
+// Every fight uses the enhanced PixiJS renderer when WebGL works; the 2D canvas is the fallback and the Classic option.
 const stored=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},store=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
 let rendererChoice=stored('fateforge-arena-renderer','enhanced')==='classic'?'classic':'enhanced',cameraChoice=stored('fateforge-arena-camera','full')==='follow'?'follow':'full',pixi=null,pixiLoading=false,pixiFailed=false;
-const usePixi=()=>rendererChoice==='enhanced'&&!pixiFailed&&activeFight?.mode==='team'&&!!activeFight.width;
+const usePixi=()=>rendererChoice==='enhanced'&&!pixiFailed&&!!activeFight;
 function loadPixi(){if(pixi||pixiLoading||pixiFailed)return;pixiLoading=true;import('./pixi-arena.js').then(m=>m.createPixiArena($('arena').parentElement,{...images,floor:arenaFloor},{onFail:pixiFail})).then(p=>{if(pixiFailed){p.destroy();return;}pixi=p;pixi.setMode(cameraChoice);}).catch(pixiFail).finally(()=>{pixiLoading=false;});}
 function pixiFail(error){if(pixiFailed)return;pixiFailed=true;console.warn('Enhanced renderer unavailable, using the classic renderer.',error);try{pixi?.destroy();}catch{}pixi=null;$('arena').style.visibility='';const note=$('renderer-note');note.textContent='Enhanced graphics could not start here (WebGL), so the classic renderer is used.';note.hidden=false;updateRendererControls();needsDraw=true;}
 function updateRendererControls(){const select=$('arena-renderer'),camera=$('arena-camera');select.value=pixiFailed?'classic':rendererChoice;select.disabled=pixiFailed;camera.hidden=pixiFailed||rendererChoice!=='enhanced';camera.textContent=cameraChoice==='follow'?'Camera: Follow':'Camera: Full field';camera.setAttribute('aria-pressed',String(cameraChoice==='follow'));}

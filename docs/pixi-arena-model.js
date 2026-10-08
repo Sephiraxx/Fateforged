@@ -4,10 +4,13 @@ export const CAMERA_RULES=Object.freeze({minZoom:1,maxZoom:2.2,padding:140,rate:
 export const ease=(current,target,dt,rate)=>current+(target-current)*(1-Math.exp(-dt*rate));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function fullView(W,H){return {zoom:1,cx:W/2,cy:H/2};}
+// Team battles number fighters and teams; duels use the fighter's position in the list and its side.
+export const teamOf=f=>f.team??f.side;
+export const fighterKey=(f,i)=>f.index??i;
 // Which points the follow camera keeps in view: fighters near an enemy, plus the Titan when someone is on it.
 export function actionPoints(b){
  const alive=(b.combatants??b.fighters).filter(f=>f.hp>0&&!f.isObjective),points=[];
- for(const f of alive)if(alive.some(e=>e.team!==f.team&&Math.hypot(e.x-f.x,e.y-f.y)<CAMERA_RULES.engageRange))points.push({x:f.x,y:f.y});
+ for(const f of alive)if(alive.some(e=>teamOf(e)!==teamOf(f)&&Math.hypot(e.x-f.x,e.y-f.y)<CAMERA_RULES.engageRange))points.push({x:f.x,y:f.y});
  if(b.titan?.hp>0&&b.titanHits?.some(h=>b.time-h.time<2))points.push({x:b.titan.x,y:b.titan.y});
  return points.length?points:alive.map(f=>({x:f.x,y:f.y}));
 }
@@ -24,8 +27,8 @@ export function stepCamera(camera,target,dt,W,H){
 }
 // A compact copy of what the particle layer compares from frame to frame.
 export function snapshot(b){
- return {time:b.time,fighters:(b.combatants??b.fighters).map(f=>({index:f.index,team:f.team,hp:f.hp,maxHp:f.maxHp,x:f.x,y:f.y})),
-  cores:(b.cores??[]).map(c=>({team:c.team,hp:c.hp,x:c.x,y:c.y})),titanDeaths:b.titanDeaths?.length??0,titan:b.titan?{x:b.titan.x,y:b.titan.y,hp:b.titan.hp}:null,slamAt:b.slamAt??null};
+ return {time:b.time,fighters:(b.combatants??b.fighters).map((f,i)=>({index:fighterKey(f,i),team:teamOf(f),hp:f.hp,maxHp:f.maxHp,x:f.x,y:f.y})),
+  cores:(b.cores??[]).map(c=>({team:c.team,hp:c.hp,x:c.x,y:c.y})),titanDeaths:b.titanDeaths?.length??0,titanStolen:!!b.titanDeaths?.at(-1)?.stolen,titan:b.titan?{x:b.titan.x,y:b.titan.y,hp:b.titan.hp}:null,slamAt:b.slamAt??null};
 }
 // Visual events between two snapshots: hits, heals, deaths, revives/respawns, Core hits, Titan kills and slams.
 export function diffEvents(prev,cur){
@@ -37,7 +40,7 @@ export function diffEvents(prev,cur){
   else if(delta<0)events.push({type:'hit',x:f.x,y:f.y,team:f.team,amount:-delta,share:-delta/f.maxHp});
   else if(delta>0&&f.hp>0)events.push({type:'heal',x:f.x,y:f.y,team:f.team,amount:delta,share:delta/f.maxHp});}
  cur.cores.forEach((c,i)=>{const p=prev.cores[i];if(p&&c.hp<p.hp)events.push({type:'coreHit',x:c.x,y:c.y,team:c.team,amount:p.hp-c.hp});});
- if(cur.titanDeaths>prev.titanDeaths&&prev.titan)events.push({type:'titanKill',x:prev.titan.x,y:prev.titan.y});
+ if(cur.titanDeaths>prev.titanDeaths&&prev.titan)events.push({type:'titanKill',x:prev.titan.x,y:prev.titan.y,stolen:!!cur.titanStolen});
  if(prev.slamAt!=null&&cur.slamAt==null&&cur.titan&&cur.titan.hp>0)events.push({type:'slam',x:cur.titan.x,y:cur.titan.y});
  return events;
 }

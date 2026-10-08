@@ -3,8 +3,10 @@ import {seededRandom} from './team-generation.js';
 import {auditControl,auditCarries,auditBaseKey,auditScope,auditCandidateProposals,auditConcern,balanceAuditPlan} from './balance-analysis.js';
 const auditTactics=['balanced','defensive','aggressive','focus-healer','protect-carry'];
 const auditMaps=['open','pillars','ruins','crossroads'];
-export function simulateBalanceCandidate({world,plan,key,mode='candidate',bundle},run=simulateTeam){
- const current=balanceAuditPlan(world,plan.phase);if(current.token!==plan.token||!plan.candidates.some(c=>c.key===key))throw Error('Balance simulation is stale.');
+// A candidate's simulations come in batches of independent games (a comparison, or the validation and every
+// proposal together). Each game result depends only on its own inputs, so a driver may run a batch in any order or
+// in parallel: simulateBalanceCandidate runs batches in place, simulateBalanceCandidateAsync hands them to a pool.
+function* candidateBatches({world,plan,key,mode='candidate',bundle},current=balanceAuditPlan(world,plan.phase)){if(current.token!==plan.token||!plan.candidates.some(c=>c.key===key))throw Error('Balance simulation is stale.');
  const descriptor=plan.candidates.find(c=>c.key===key),baseKey=auditBaseKey(key),scope=auditScope(key);
  const salt=key.split('').reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>0,0),random=seededRandom(plan.seed^salt),pick=list=>list[Math.floor(random()*list.length)],roster=Object.values(world.fighters).filter(f=>f.team),carriers=roster.filter(f=>auditCarries(f,key)),cases=[],controls=new Set(),usedCarriers=new Set(),roleKey=baseKey.startsWith('role:')||descriptor.method==='role-intervention',role=descriptor.method==='role-intervention'?scope:baseKey.split(':')[1],count=Number(baseKey.split(':')[3])||1;
  for(let attempt=0;attempt<plan.pairs*30&&cases.length<plan.pairs;attempt++){
@@ -27,19 +29,39 @@ export function simulateBalanceCandidate({world,plan,key,mode='candidate',bundle
  }
  if(cases.length!==plan.pairs)return {key,status:'unmatched'};
  const margin=(r,side)=>{const hp=r.objective?.coreHp??r.hp??[0,0];return (r.winnerTeam===side ? .5 : -.5)+(hp[side]-hp[1-side])/200;};
- const compare=(profile,salt=0,pairs=plan.pairs)=>{let wins=0;const margins=[];for(const c of cases.slice(0,pairs)){const seed=(c.seed^salt)>>>0,opts={engineVersion:plan.engine,balance:profile,conditions:c.conditions,tactics:c.tactics},a=run(c.teams,seed,opts),b=run([c.teams[1],c.teams[0]],seed,opts);wins+=((a.winnerTeam===0?1:0)+(b.winnerTeam===1?1:0))/2;margins.push((margin(a,0)+margin(b,1))/2);}return {wins,margins,mean:margins.reduce((a,b)=>a+b,0)/pairs};};
+ // The games of a comparison over cases [from,to): each case is played from both sides with the same seed.
+ const games=(profile,salt=0,from=0,to=plan.pairs)=>cases.slice(from,to).flatMap(c=>{const seed=(c.seed^salt)>>>0,options={engineVersion:plan.engine,balance:profile,conditions:c.conditions,tactics:c.tactics};return [{teams:c.teams,seed,options},{teams:[c.teams[1],c.teams[0]],seed,options}];});
+ const tally=(results,pairs=results.length/2)=>{let wins=0;const margins=[];for(let i=0;i<results.length;i+=2){const a=results[i],b=results[i+1];wins+=((a.winnerTeam===0?1:0)+(b.winnerTeam===1?1:0))/2;margins.push((margin(a,0)+margin(b,1))/2);}return {wins,margins,mean:margins.reduce((a,b)=>a+b,0)/pairs};};
  const comparison=(baseline,patched)=>({key,status:'tested',pairs:plan.pairs,wins:baseline.wins,patchedWins:patched.wins,validationMargin:baseline.mean,patchedMargin:patched.mean,marginDeltas:patched.margins.map((m,i)=>m-baseline.margins[i])});
  if(mode==='bundle'){
   if(!bundle||!bundle.keys.includes(key))throw Error('Invalid combined patch request.');
   if(controls.size<2||usedCarriers.size<2)return {key,status:'unmatched'};
-  const salt=(0x85ebca6b^Math.imul(bundle.index+1,0xc2b2ae35))>>>0;
-  return comparison(compare(plan.profile,salt),compare(bundle.profile,salt));
+  const salt=(0x85ebca6b^Math.imul(bundle.index+1,0xc2b2ae35))>>>0,baseline=games(plan.profile,salt),results=yield [...baseline,...games(bundle.profile,salt)];
+  return comparison(tally(results.slice(0,baseline.length)),tally(results.slice(baseline.length)));
  }
- const pairs=Math.min(plan.pairs,plan.screenPairs),screen=compare(plan.profile,0,pairs),limited=controls.size<2||usedCarriers.size<2;
+ const pairs=Math.min(plan.pairs,plan.screenPairs),screenResults=yield games(plan.profile,0,0,pairs),screen=tally(screenResults),limited=controls.size<2||usedCarriers.size<2;
  const confirm=!limited&&(plan.pairs<28||baseKey.startsWith('role:')||baseKey.startsWith('stat:')||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
  if(!confirm){const screenedControls=new Set(cases.slice(0,pairs).map(c=>c.controlId)).size,screenedCarriers=new Set(cases.slice(0,pairs).map(c=>c.carrierId)).size;return {key,status:screenedControls<2||screenedCarriers<2?'limited':'screened',pairs,wins:screen.wins,controls:screenedControls,carriers:screenedCarriers,feedback:[]};}
- const discovery=compare(plan.profile),proposals=auditCandidateProposals(plan,key,discovery.wins),validation=proposals.length?compare(plan.profile,0x9e3779b9):discovery,feedback=[];
- for(const {field,suggestion}of proposals){const profile=structuredClone(plan.profile);profile.multipliers[suggestion.lever]=suggestion.to;feedback.push({...comparison(validation,compare(profile,0x9e3779b9)),field});}
+ // Discovery plays every case with the screen's seeds, so the screened pairs are reused rather than replayed.
+ const discovery=tally([...screenResults,...(pairs<plan.pairs?yield games(plan.profile,0,pairs):[])]),proposals=auditCandidateProposals(plan,key,discovery.wins),feedback=[];
+ let validation=discovery;
+ if(proposals.length){
+  const profiles=proposals.map(({suggestion})=>{const profile=structuredClone(plan.profile);profile.multipliers[suggestion.lever]=suggestion.to;return profile;}),baseline=games(plan.profile,0x9e3779b9),patched=profiles.map(profile=>games(profile,0x9e3779b9));
+  const results=yield [...baseline,...patched.flat()];validation=tally(results.slice(0,baseline.length));
+  proposals.forEach(({field},i)=>{const from=baseline.length*(i+1);feedback.push({...comparison(validation,tally(results.slice(from,from+baseline.length))),field});});
+ }
  return {key,status:'tested',pairs:plan.pairs,wins:discovery.wins,validationWins:validation.wins,feedback,controls:Math.min(controls.size,plan.pairs),carriers:Math.min(usedCarriers.size,plan.pairs)};
 }
-if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=({data})=>{try{self.postMessage({id:data.dispatchId,results:simulateBalanceCandidate(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};
+export function simulateBalanceCandidate(input,run=simulateTeam){
+ const steps=candidateBatches(input);let step=steps.next();
+ while(!step.done)step=steps.next(step.value.map(g=>run(g.teams,g.seed,g.options)));
+ return step.value;
+}
+export async function simulateBalanceCandidateAsync(input,runBatch,current){
+ const steps=candidateBatches(input,current);let step=steps.next();
+ while(!step.done)step=steps.next(await runBatch(step.value));
+ return step.value;
+}
+// Only what the audit reads from a game: the winner and the health left (Cores in objective modes).
+export function auditGameResult(r){return {winnerTeam:r.winnerTeam,hp:r.hp,...(r.objective?{objective:{coreHp:r.objective.coreHp}}:{})};}
+if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=({data})=>{try{self.postMessage({id:data.dispatchId,results:data.game?auditGameResult(simulateTeam(data.teams,data.seed,data.options)):simulateBalanceCandidate(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};

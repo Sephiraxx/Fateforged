@@ -17,11 +17,21 @@ export const TEAM_RULES=Object.freeze({provokeRange:110,provokeScore:3.5,fortifi
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const segmentDistance=(px,py,ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,t=clamp(((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-ax-dx*t,py-ay-dy*t);};
+// A stand-in target that reads like a copy of t with some fields replaced. Movement only reads its targets, so a
+// prototype link gives the same answers as copying all of a fighter's ~150 fields every step.
+const lookAlike=(t,fields)=>Object.assign(Object.create(t),fields);
 const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
 // Timer lists mirror combat 12's environment and technique layers.
 const TIMERS=['exposed','wet','root','sleep','poison','bleed','regeneration','absorption','flight','invisible','insight','blind','amnesia','suppressed','disarmed','spiritArmor','shape','sizeTime','soul','chrono','deathMark','winded','illusionTime','portalTime','wardTime','futureTime','mindTime'];
 const TECHNIQUE_TIMERS=['guardTime','parryTime','perfectTime','counterTime','lastStandTime','crippled','brambleSlow'];
 const HARD_CONTROL=['sleep','root','amnesia','suppressed'];
+// The per-step timer updates, written out field by field: the same arithmetic in the same order as looping over the
+// lists above, without a keyed property lookup per timer per fighter per step.
+export function tickTimers(f,dt){f.exposed=Math.max(0,f.exposed-dt);f.wet=Math.max(0,f.wet-dt);f.root=Math.max(0,f.root-dt);f.sleep=Math.max(0,f.sleep-dt);f.poison=Math.max(0,f.poison-dt);f.bleed=Math.max(0,f.bleed-dt);f.regeneration=Math.max(0,f.regeneration-dt);f.absorption=Math.max(0,f.absorption-dt);f.flight=Math.max(0,f.flight-dt);f.invisible=Math.max(0,f.invisible-dt);f.insight=Math.max(0,f.insight-dt);f.blind=Math.max(0,f.blind-dt);f.amnesia=Math.max(0,f.amnesia-dt);f.suppressed=Math.max(0,f.suppressed-dt);f.disarmed=Math.max(0,f.disarmed-dt);f.spiritArmor=Math.max(0,f.spiritArmor-dt);f.shape=Math.max(0,f.shape-dt);f.sizeTime=Math.max(0,f.sizeTime-dt);f.soul=Math.max(0,f.soul-dt);f.chrono=Math.max(0,f.chrono-dt);f.deathMark=Math.max(0,f.deathMark-dt);f.winded=Math.max(0,f.winded-dt);f.illusionTime=Math.max(0,f.illusionTime-dt);f.portalTime=Math.max(0,f.portalTime-dt);f.wardTime=Math.max(0,f.wardTime-dt);f.futureTime=Math.max(0,f.futureTime-dt);f.mindTime=Math.max(0,f.mindTime-dt);}
+export function tickTechniqueTimers(f,dt){f.guardTime=Math.max(0,f.guardTime-dt);f.parryTime=Math.max(0,f.parryTime-dt);f.perfectTime=Math.max(0,f.perfectTime-dt);f.counterTime=Math.max(0,f.counterTime-dt);f.lastStandTime=Math.max(0,f.lastStandTime-dt);f.crippled=Math.max(0,f.crippled-dt);f.brambleSlow=Math.max(0,f.brambleSlow-dt);}
+export function tickCombatTimers(f,dt){f.swing=Math.max(0,f.swing-dt);f.slow=Math.max(0,f.slow-dt);f.shield=Math.max(0,f.shield-dt);f.evade=Math.max(0,f.evade-dt);f.hitFlash=Math.max(0,f.hitFlash-dt);f.stagger=Math.max(0,f.stagger-dt);}
+// Ages a fighter's movement trail in place (the same points survive as with a filtered copy).
+export function ageTrail(f,dt){const trail=f.trail;let kept=0;for(let i=0;i<trail.length;i++){const x=trail[i];if((x.life-=dt)>0)trail[kept++]=x;}trail.length=kept;}
 const ALLY_SUPPORT=new Set(['healing','regeneration','force','spiritArmor']);
 const ROLE_ORDER={tank:0,damage:1,controller:2,healer:3};
 const SPAWN_X={tank:250,damage:190,controller:165,healer:125};
@@ -166,7 +176,7 @@ export class TeamBattle extends DuelBattle{
   if(plan?.alone){this.moveFighter(f,t,dt);return;}// A last survivor fights freely.
   if(f.role==='healer'&&!f.raging&&!(f.shape>0)){
    const anchor=this.healerAnchor(f,t),weapon=f.weapon;f.weapon={...weapon,type:'melee',range:24};f.intent={support:true};
-   this.moveFighter(f,{...t,x:anchor.x,y:anchor.y,vx:0,vy:0,illusionTime:0,action:null,weapon:{...t.weapon,type:'melee'}},dt);f.weapon=weapon;
+   this.moveFighter(f,lookAlike(t,{x:anchor.x,y:anchor.y,vx:0,vy:0,illusionTime:0,action:null,weapon:{...t.weapon,type:'melee'}}),dt);f.weapon=weapon;
    f.angle=Math.atan2(t.y-f.y,t.x-f.x);if(!f.action)f.facing=f.angle;if(!['Asleep','Bound','Dodge','Seek food'].includes(f.actionLabel))f.actionLabel='Support';return;
   }
   if(plan&&!f.raging&&!(f.shape>0)){
@@ -188,7 +198,7 @@ export class TeamBattle extends DuelBattle{
   const move=f.move;if(f.crippled>0)f.move*=.7;else if(f.brambleSlow>0)f.move*=.75;
   if(f.sleep>0||f.root>0){f.vx=f.vy=0;f.actionLabel=f.sleep>0?'Asleep':'Bound';f.move=move;return;}
   let target=this.targetFor(f,t);const hungry=f.weakness==='needs constant food'&&f.nutrition<30;
-  if(hungry){const food=this.food.filter(x=>x.ready<=this.time).sort((a,b)=>Math.hypot(a.x-f.x,a.y-f.y)-Math.hypot(b.x-f.x,b.y-f.y))[0];if(food){target={...t,x:food.x,y:food.y};f.actionLabel='Seek food';f.intent=null;}}
+  if(hungry){const food=this.food.filter(x=>x.ready<=this.time).sort((a,b)=>Math.hypot(a.x-f.x,a.y-f.y)-Math.hypot(b.x-f.x,b.y-f.y))[0];if(food){target=lookAlike(t,{x:food.x,y:food.y});f.actionLabel='Seek food';f.intent=null;}}
   const weapon=f.weapon;if(f.raging||f.shape>0||hungry)f.weapon={...f.weapon,type:'melee',range:24};const old={x:f.x,y:f.y,roll:f.roll};this.steer(f,target,dt);f.weapon=weapon;
   if(f.roll>old.roll){if(f.energy<18){f.roll=0;f.x=old.x;f.y=old.y;}else{f.energy-=18;if(f.weakness==='exhaustion'){f.winded=.8;f.cooldown=Math.max(f.cooldown,.8);this.warn(f,'winded',`${f.name} is winded after the burst.`);}}}
   if(hungry)f.actionLabel='Seek food';this.pushOutOfTerrain(f);
@@ -331,7 +341,7 @@ export class TeamBattle extends DuelBattle{
  heal(f,amount){if(this.time>=TEAM_RULES.overtime)amount*=TEAM_RULES.overtimeHealing;const gained=super.heal(f,amount);if(gained>0)(this.healSource??f).healingDone+=gained;return gained;}
  environmentStep(dt){
   // Technique timers and second wind (combat 12 layer).
-  for(const f of this.fighters){for(const key of TECHNIQUE_TIMERS)f[key]=Math.max(0,f[key]-dt);if(f.guardTime<=0)f.guardReady=false;if(f.windRemaining>0){const period=Math.min(dt,f.windRemaining);this.heal(f,f.windHealing*period);f.windRemaining-=period;}}
+  for(const f of this.fighters){tickTechniqueTimers(f,dt);if(f.guardTime<=0)f.guardReady=false;if(f.windRemaining>0){const period=Math.min(dt,f.windRemaining);this.heal(f,f.windHealing*period);f.windRemaining-=period;}}
   for(const z of this.zones){const f=this.fighters[z.owner];if(!f||f.hp<=0)continue;for(const t of this.enemiesOf(f)){
    if(z.type==='seedburst'&&this.time+dt>=z.due&&dist(z,t)<z.radius)this.periodicHit(f,t,z.damage,'arcane');
    if(z.type==='bramble'&&dist(z,t)<z.radius&&t.flight<=0)t.brambleSlow=Math.max(t.brambleSlow,.10);if(z.type==='bramble'&&z.tick+dt>=.5&&dist(z,t)<z.radius)this.periodicHit(f,t,z.damage*.5,'arcane');}
@@ -361,7 +371,7 @@ export class TeamBattle extends DuelBattle{
  }
  upkeep(f,dt){
   // Per-fighter conditions, mirroring combat 12's environment layer with team-aware credit.
-  const base=f.original;for(const key of TIMERS)f[key]=Math.max(0,f[key]-dt);f.burn=Math.max(0,f.burn-dt);f.periodic+=dt;f.energy=Math.min(f.maxEnergy,f.energy+dt*(f.weakness==='limited stamina'?5:11));
+  const base=f.original;tickTimers(f,dt);f.burn=Math.max(0,f.burn-dt);f.periodic+=dt;f.energy=Math.min(f.maxEnergy,f.energy+dt*(f.weakness==='limited stamina'?5:11));
   if(f.weakness==='needs constant food')f.nutrition=Math.max(0,f.nutrition-dt*2.2);
   for(const food of this.food)if(food.ready<=this.time&&Math.hypot(f.x-food.x,f.y-food.y)<20){food.ready=this.time+10;f.nutrition=Math.min(100,f.nutrition+70);f.mana=Math.min(f.maxMana,f.mana+8);this.log(`${f.name} takes an arena ration.`);}
   if(this.environment.weather==='rain'||this.environment.weather==='storm'||this.environment.ground==='water'&&f.flight<=0)f.wet=Math.max(f.wet,.1);
@@ -381,7 +391,7 @@ export class TeamBattle extends DuelBattle{
    if(f.hp<=0){f.action=null;continue;}
    f.retarget-=dt;let t=f.target===null?null:this.fighters[f.target];
    if(!t||t.hp<=0||f.retarget<=0){t=this.chooseTarget(f);f.target=t?.index??null;f.retarget=.35;}
-   f.cooldown-=dt;f.cast-=dt;for(const k of ['swing','slow','shield','evade','hitFlash','stagger'])f[k]=Math.max(0,f[k]-dt);f.trail=f.trail.filter(x=>(x.life-=dt)>0);f.mana=Math.min(f.maxMana,f.mana+dt*(.6+f.magic/45));
+   f.cooldown-=dt;f.cast-=dt;tickCombatTimers(f,dt);ageTrail(f,dt);f.mana=Math.min(f.maxMana,f.mana+dt*(.6+f.magic/45));
    if(!t)continue;this.moveTeamFighter(f,t,dt);this.startAttack(f,t);this.updateAttack(f,t,dt);this.castPower(f,t);
   }
   const living=this.fighters.filter(f=>f.hp>0);

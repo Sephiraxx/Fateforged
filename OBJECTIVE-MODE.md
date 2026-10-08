@@ -1,4 +1,4 @@
-> Phases 1–5 are built. Core siege is the default 3v3/5v5 mode, with the team brain and coach game plans (team-3.6; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. Team battles draw with the PixiJS renderer (phase 5; duels and tournaments keep the canvas for now). Sprites remain a future phase.
+> Phases 1–5 are built. Core siege is the default 3v3/5v5 mode, with the team brain and coach game plans (team-3.6; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. Every fight draws with the PixiJS renderer (phase 5, now including duels and tournaments). The sprite loader (phase 6) is in place and uses any art added to `public/sprites/`; the art itself is still to be made.
 
 # Objective mode (design)
 
@@ -166,12 +166,12 @@ These become extra weights for the team brain. AI teams take them from their per
    - the Forgefire aura;
    - respawn countdowns in the HUD;
    - an objective timer bar.
-2. **PixiJS renderer (WebGL 2D, vendored from npm into `vendor/`, so it works offline on GitHub Pages and phones; built for team battles):**
+2. **PixiJS renderer (WebGL 2D, vendored from npm into `vendor/`, so it works offline on GitHub Pages and phones; used for every fight):**
    - It reads the same simulation state each frame and interpolates between steps.
    - The camera shows the full field by default; a toggle switches to following the action (it zooms out for teamfights and in on a skirmish).
    - Effects: particles for hits and spells, glow for buffs, screen shake on monster slams.
    - The canvas renderer stays as a fallback.
-3. **Sprite art pass:** layered sprites (body family + outfit + weapon prop) from `ART-PROMPTS.md`, loaded from `public/sprites/` with the icon renderer as fallback.
+3. **Sprite art pass:** whole-figure archetype sprites plus a weapon prop from `ART-PROMPTS.md`, loaded from `public/sprites/` with the icon renderer as fallback (the loader is built; see TEAM-BATTLES.md).
 
 ## 11. Phases (one PR each)
 1. **Field, bases, Cores, respawns, win condition, sudden death.** No monster and no brain: teams push straight for the Core with today's formation AI. Checks from sections 1–3 and 5.
@@ -182,5 +182,5 @@ These become extra weights for the team brain. AI teams take them from their per
    - The coach game plan UI.
    - `validGame` and MVP changes.
    - Docs and help.
-5. **PixiJS renderer.** Done for team battles (`public/pixi-arena.js`); duels and tournaments later.
-6. **Sprites.**
+5. **PixiJS renderer.** Done for every fight (`public/pixi-arena.js`).
+6. **Sprites.** The loader and fallbacks are done (`public/sprite-art.js`, `public/sprites/`); waiting on the art from `ART-PROMPTS.md`.
