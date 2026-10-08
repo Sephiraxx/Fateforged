@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Fateforge",
+  "version": "0.1.0",
+  "identifier": "com.fateforge.game",
+  "build": {
+    "frontendDist": "../../_site",
+    "beforeBuildCommand": { "script": "node scripts/build-pages.mjs", "cwd": "../.." }
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "Fateforge",
+        "url": "index.html",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 360,
+        "minHeight": 560,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "msi"],
+    "category": "Game",
+    "shortDescription": "Forge fighters, run cups and coach team leagues.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" }
+    }
+  }
+}

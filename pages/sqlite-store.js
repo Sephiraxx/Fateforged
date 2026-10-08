@@ -11,7 +11,7 @@ export function sqliteAdapter(database){
  };
 }
 
-export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseName}){
+export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseName,mirror=null}){
  const applicationId=0x46415445; // FATE: distinguish backups from arbitrary SQLite files.
  let connectionPromise,queue=Promise.resolve();
  function connection(){return connectionPromise??=new Promise((resolve,reject)=>{
@@ -21,11 +21,17 @@ export function createStorage({SQL,migrations,worker,indexedDB,locks,databaseNam
   request.onerror=()=>reject(request.error);
   request.onblocked=()=>reject(Error('Close other Fateforge tabs and try again.'));
  });}
- async function read(){const db=await connection();return new Promise((resolve,reject)=>{const tx=db.transaction('snapshots','readonly'),request=tx.objectStore('snapshots').get('current');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
+ // The desktop and Android apps also keep the save as a file (mirror.load/save, see desktop/). Browser storage stays
+ // the working copy; the file is refreshed after every save and restores the save if browser storage was cleared.
+ let restored=null,mirrorQueue=Promise.resolve();
+ function restore(){return restored??=(async()=>{if(!mirror)return;try{const current=await readSnapshot();if(current?.bytes?.length)return;const bytes=await mirror.load();if(bytes?.length)await write(bytes,current?.revision);}catch(error){console.warn('Could not restore the save file',error);}})();}
+ function mirrorSave(bytes){if(!mirror)return;mirrorQueue=mirrorQueue.then(()=>mirror.save(bytes)).catch(error=>console.warn('Could not update the save file',error));}
+ async function read(){await restore();return readSnapshot();}
+ async function readSnapshot(){const db=await connection();return new Promise((resolve,reject)=>{const tx=db.transaction('snapshots','readonly'),request=tx.objectStore('snapshots').get('current');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
  async function write(bytes,previous){const db=await connection();return new Promise((resolve,reject)=>{
   const tx=db.transaction('snapshots','readwrite'),store=tx.objectStore('snapshots'),request=store.get('current');let conflict=false;
   request.onsuccess=()=>{if(request.result?.revision!==previous){conflict=true;tx.abort();return;}store.put({revision:crypto.randomUUID(),bytes},'current');};
-  tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(conflict?Object.assign(Error('Save changed in another tab.'),{conflict:true}):tx.error||Error('Browser storage could not save.'));
+  tx.oncomplete=()=>{mirrorSave(bytes);resolve();};tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(conflict?Object.assign(Error('Save changed in another tab.'),{conflict:true}):tx.error||Error('Browser storage could not save.'));
  });}
  function migrate(db,backup=false){
   const id=db.exec('PRAGMA application_id')[0].values[0][0];
