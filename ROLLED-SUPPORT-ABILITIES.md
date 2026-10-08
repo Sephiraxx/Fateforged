@@ -17,6 +17,10 @@ Support abilities belong to the same two slots as every other fighter ability. T
 
 These are base values. Existing role scaling, control resistance, overtime and save-specific ability modifiers still apply. All moves share the normal casting action and cooldown, require legal targets, and respect cover. Area healers approach wounded teammates when their spell is ready and their rear formation slot is out of range. Techniques use stamina and retain a 12-stamina reserve; weapon techniques cannot execute while disarmed. Spells require mana and respect casting weaknesses and suppression.
 
+## Healer kits in team generation
+
+Without help, Resurrection (Legendary) almost never rolled: none of 320 generated fighters had it. Team generation (`roleFighter`) now gives about 60% of healers a team healing spell in their **second** slot: Mending wave 3, Chain heal 3, Resurrection 2.5, Cleanse 1 or Barrier 1, by weight. Their first slot still rolls a sustained heal (Healing touch, Life creation or Regeneration), so the kit adds to their healing rather than replacing it. In a 40-game 5v5 sample, kitted healers healed 632 per game against 536 for the rest. This applies to exhibitions, new league pools and rookie classes; fighters already in a league keep their rolls.
+
 ## Existing saves and replays
 
 Existing fighters keep both rolled abilities, their original stats and career progress. Their extra kit is removed from active play. A historical copy is retained only for old replays. Contracts keep their current price until the normal offseason update. A watched series already in progress finishes under its original rules before conversion. Migration is saved with the next normal league command.

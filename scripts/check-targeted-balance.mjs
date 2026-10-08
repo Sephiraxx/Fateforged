@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {TeamBattle,teamEngine} from '../public/combat-team.js';
 import {TeamBattle as Previous} from '../public/combat-team-v2-4.js';
+import {TeamBattle as Targeted} from '../public/combat-team-v2-5.js';
 import {neutralBalance,validateBalanceProfile} from '../public/team-balance.js';
 import {auditControl,auditSuggestion,balanceAuditPlan,applyBalanceAudit,AUDIT_RULES} from '../public/balance-analysis.js';
 import {simulateBalanceCandidate} from '../public/balance-sim-worker.js';
@@ -34,5 +35,5 @@ const duplicate=structuredClone(snapshot);L.recordBalanceAudit(duplicate,'presea
 // dispatch, with the smaller pair count used only for this smoke check.
 const shortPlan={...plan,pairs:4},beforeReal=structuredClone(snapshot),actual=simulateBalanceCandidate({world:snapshot,plan:shortPlan,key:'ability:fire'}),again=simulateBalanceCandidate({world:snapshot,plan:shortPlan,key:'ability:fire'});assert.equal(actual.status,'tested');assert.deepEqual(actual,again);assert.deepEqual(snapshot,beforeReal);
 // Every original baseline outcome survives the new wrapper with base rules.
-const run=Engine=>{const b=new Engine(teams,18,{headless:true,map:'open'});while(!b.done)b.step(1/60);const {combatVersion,...r}=b.result();return r;};assert.deepEqual(run(TeamBattle),run(Previous));
+const run=Engine=>{const b=new Engine(teams,18,{headless:true,map:'open'});while(!b.done)b.step(1/60);const {combatVersion,...r}=b.result();return r;};assert.deepEqual(run(Targeted),run(Previous));
 fs.writeFileSync('validation/targeted-balance.json',JSON.stringify({monteCarloPairs:AUDIT_RULES.pairs,maxCandidates:AUDIT_RULES.maxCandidates,preseasonMaximum:AUDIT_RULES.preseason,midseasonMaximum:AUDIT_RULES.halfway,realSmoke:actual,syntheticPatch:patch.changes,baseParity:true,savedRollsUnchanged:true},null,2)+'\n');console.log('Targeted balance passed: all five effective stats, individual shared/own cooldowns, fixed roles, immutable rolls, both current engines, mirrored deterministic real fights, controlled synthetic diagnostics, 10% / 1.5% caps, stale/foreign report rejection, disabled/unresponsive safeguards and base replay parity.');

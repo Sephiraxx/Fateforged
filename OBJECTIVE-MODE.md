@@ -1,4 +1,4 @@
-> Phases 1 and 2 are implemented as the Core siege preview for 3v3/5v5 exhibitions and new leagues. New preview seasons include Forge Titan and Forgefire; older active Core seasons retain their original engine. The full brain and default replacement remain separate future phases. Measured early-phase balance limitations are recorded in TEAM-BATTLES.md.
+> Phases 1 and 2 are built. Core siege is the default 3v3/5v5 mode (team-3.4, tuned per format; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. The team brain (phase 3), coach game plan, PixiJS renderer and sprites remain future phases.
 
 # Objective mode (design)
 

@@ -23,12 +23,20 @@ export const COMPOSITIONS=Object.freeze({2:['tank','damage'],3:['tank','healer',
 export function seededRandom(seed){let n=seed>>>0;return()=>{n+=0x6D2B79F5;let t=n;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
 // Seeded tier odds for team pools: about 70% A, 28% S and 2% SS.
 export function poolTier(random){const roll=random();return roll<.02?'SS':roll<.30?'S':'A';}
+// Healers on the expanded (generation 4) wheel usually arrive with a team healing spell in their second slot, so
+// area heals, chain heals and resurrection actually show up in team play instead of hiding behind wheel rarity.
+export const HEALER_KIT_CHANCE=.6;
+// The kit is an addition: the first slot still holds a sustained heal, so a kitted healer never heals less.
+export const HEALER_MAIN_HEALS=Object.freeze(['healing','life','regeneration']);
+export const HEALER_KITS=Object.freeze([['mendingWave',3],['chainHeal',3],['resurrection',2.5],['cleanse',1],['barrier',1]]);
+function healerKit(random){let roll=random()*HEALER_KITS.reduce((n,[,w])=>n+w,0);for(const [id,w]of HEALER_KITS){roll-=w;if(roll<0)return id;}return HEALER_KITS[0][0];}
 export function roleFighter(pools,luck,{role,tier,random,id,name}){
  const draw=n=>Math.floor(random()*n),classes=ROLE_CLASSES[role];let fallback=null;
+ const kit=role==='healer'&&(luck.generationVersion??0)>=4&&globalThis.SUPPORT_ABILITIES&&random()<HEALER_KIT_CHANCE?healerKit(random):null;
  for(let attempt=0;attempt<40;attempt++){
   let forceClass,options={};
   if(role==='damage'){const pick=damageClass(random);forceClass=pick.name;options={forceWeaponType:pick.weapon,...(pick.weapon==='melee'?{requirePower:MOBILITY_POWERS}:{})};}
-  else{forceClass=classes[Math.floor(random()*classes.length)];if(role==='tank')options={forceWeaponType:'melee'};}// Tanks always fight in melee.
+  else{forceClass=classes[Math.floor(random()*classes.length)];if(role==='tank')options={forceWeaponType:'melee'};if(kit&&attempt<20)options={requirePower:HEALER_MAIN_HEALS,requirePower2:[kit]};}// Tanks always fight in melee.
   const character=tierCharacter(pools,tier,{luck,draw,id,forceClass,...options});
   character.name=name?name(character.traits):character.name;
   if(teamRole(character).role===role)return character;fallback??=character;
