@@ -3,7 +3,9 @@ import './support-catalog.js';
 import {teamRole} from './team-roles.js';
 import {engineForMode} from './team-engine-versions.js';
 import {balanceRates,balanceEvidence,balanceLabel,balanceLever} from './team-balance.js';
-export const AUDIT_RULES=Object.freeze({version:3,pairs:28,screenPairs:8,maxCandidates:null,maxBundleAttempts:3,preseason:.10,halfway:.015});
+// Version 4 plays fewer test pairs (16 preseason, 12 midseason; version 3 played 28) and skips candidates that can never
+// be tested. Midseason changes are capped at 1.5%, so its smaller sample costs little.
+export const AUDIT_RULES=Object.freeze({version:4,pairs:Object.freeze({preseason:16,halfway:12}),screenPairs:8,maxCandidates:null,maxBundleAttempts:3,preseason:.10,halfway:.015});
 export const AUDIT_STATS=['STR','SPD','DUR','IQ','MAG'];
 const auditRoles=['tank','healer','controller','damage'];
 const healIds=new Set(['healing','life','regeneration','rewind','secondWind','mendingWave','chainHeal','resurrection']);
@@ -60,11 +62,11 @@ export function balanceAuditPlan(w,phase){
  const compositions=new Map();for(const t of w.teams){const counts=auditRoles.map(r=>t.lineup.filter(id=>w.fighters[id]?.role===r).length),key=counts.join('-'),row=compositions.get(key)??{key,counts,teams:0};row.teams++;compositions.set(key,row);}
  const census={fighters:roster.length,traits:Object.values(traits),compositions:[...compositions.values()]},engine=engineForMode(w.settings.battleMode),profile=w.balance?.profile??{id:'base',multipliers:{}};
  const snapshot={id:w.id,seed:w.seed,format:w.format,season:w.season,phase,engine,profile,roster:roster.map(f=>[f.id,f.traits,f.summary.stats,f.summary.tier,f.role,f.ovr]),teams:w.teams.map(t=>[t.id,t.lineup,t.roster,t.tactic,t.coach.personality]),candidates,census};
- return {version:AUDIT_RULES.version,token:auditHash(snapshot),season:w.season,phase,engine,profile:structuredClone(profile),pairs:AUDIT_RULES.pairs,screenPairs:AUDIT_RULES.screenPairs,candidates,census,seed:parseInt(auditHash([w.seed,w.season,phase]),16)};
+ return {version:AUDIT_RULES.version,token:auditHash(snapshot),season:w.season,phase,engine,profile:structuredClone(profile),pairs:AUDIT_RULES.pairs[phase],screenPairs:AUDIT_RULES.screenPairs,candidates,census,seed:parseInt(auditHash([w.seed,w.season,phase]),16)};
 }
 function auditPercent(from,to){const n=Math.round((to/from-1)*1000)/10;return (n>0?'+':'')+n+'%';}
 export function auditSuggestion(profile,key,wins,pairs,phase,field='cooldown'){
- const rate=wins/pairs,[lo,hi]=balanceEvidence({games:pairs,rate},2.5);if(pairs<AUDIT_RULES.pairs||rate>=.45&&rate<=.55||lo<=.5&&hi>=.5)return null;
+ const rate=wins/pairs,[lo,hi]=balanceEvidence({games:pairs,rate},2.5);if(pairs<AUDIT_RULES.pairs[phase]||rate>=.45&&rate<=.55||lo<=.5&&hi>=.5)return null;
  const lever=auditLever(key,field),before=auditCurrentValue(profile,lever),limit=phase==='preseason'?AUDIT_RULES.preseason:AUDIT_RULES.halfway,direction=(auditBaseKey(key).startsWith('ability:')&&field==='cooldown'?1:-1)*Math.sign(rate-.5),step=direction*Math.min(limit,Math.abs(rate-.5)*.4);
  const bounded=Math.max(.85,Math.min(1.15,before*(1+step))),after=(step<0?Math.ceil((bounded-1e-9)*10000):Math.floor((bounded+1e-9)*10000))/10000;return after===before?null:{lever,from:before,to:after};
 }
@@ -86,6 +88,8 @@ export function validateBalanceAudit(w,phase,report){
  const plan=balanceAuditPlan(w,phase);if(!report||report.token!==plan.token||report.version!==plan.version||!Array.isArray(report.rows)||report.rows.length!==plan.candidates.length)throw Error('Balance audit is stale or incomplete. Run it again.');
  return report.rows.map((r,i)=>{
   if(!r||r.key!==plan.candidates[i].key||!['tested','screened','limited','unmatched'].includes(r.status))throw Error('Invalid balance diagnostic.');if(r.status==='unmatched')return {key:r.key,status:r.status};
+  // Candidates that can never be tested (fewer than two distinct carriers or controls) play no fights at all.
+  if(r.status==='limited'&&r.pairs===0){if(r.wins!==undefined||![r.controls,r.carriers].every(n=>Number.isInteger(n)&&n>=1&&n<=plan.pairs)||Math.min(r.controls,r.carriers)>=2)throw Error('Invalid balance simulation results.');return {...r,feedback:[]};}
   const pairs=r.status==='tested'?plan.pairs:Math.min(plan.pairs,plan.screenPairs);
   if(r.pairs!==pairs||!Number.isFinite(r.wins)||r.wins<0||r.wins>pairs||!Number.isInteger(r.wins*2)||!Number.isInteger(r.controls)||r.controls<1||r.controls>pairs||!Number.isInteger(r.carriers)||r.carriers<1||r.carriers>pairs||r.status!=='limited'&&(r.controls<2||r.carriers<2))throw Error('Invalid balance simulation results.');
   if(r.status!=='tested')return {...r,feedback:[]};
@@ -148,7 +152,7 @@ export function applyBalanceAudit(w,phase,report){
  for(const c of selected)profile.multipliers[c.lever]=c.to;
  for(const d of diagnostics)if(d.status==='confirmed'){const change=selected.find(c=>c.key===d.key);d.status=change?'adjusted':'needs-assessment';d.note=change?change.note:proposal.deferred.some(c=>c.key===d.key)&&final.passed?'A narrower shared ability or stat adjustment improved this role in combined validation; no broad role modifier was added.':'The combined patch did not confirm this adjustment; held for assessment.';}
  const id=`${w.season}.${phase}.${balance.history.length+1}`;if(selected.length)profile.id=id;
- const simulationGames=proposal.rows.reduce((n,r)=>n+(r.status==='unmatched'?0:r.status==='tested'?proposal.plan.screenPairs*2+proposal.plan.pairs*2*(r.feedback.length?2+r.feedback.length:1):r.pairs*2),0)+(report.bundles??[]).reduce((n,b)=>n+b.rows.filter(r=>r.status==='tested').length*proposal.plan.pairs*4,0);
+ const simulationGames=proposal.rows.reduce((n,r)=>n+(r.status==='unmatched'?0:r.status==='tested'?proposal.plan.pairs*2*(r.feedback.length?2+r.feedback.length:1):r.pairs*2),0)+(report.bundles??[]).reduce((n,b)=>n+b.rows.filter(r=>r.status==='tested').length*proposal.plan.pairs*4,0);
  const coverage={candidates:diagnostics.length,abilities:proposal.plan.candidates.filter(c=>c.key.startsWith('ability:')).length,stats:5,roles:proposal.plan.candidates.filter(c=>/^role:\w+$/.test(c.key)).length,compositions:proposal.plan.candidates.filter(c=>c.key.includes(':count:')).length,weapons:proposal.plan.candidates.filter(c=>c.key.startsWith('weapon:')).length,focused:proposal.plan.candidates.filter(c=>c.key.startsWith('within:')).length};
  for(const d of diagnostics)if(d.feedback)d.feedback=d.feedback.map(({marginDeltas,...f})=>({...f,marginMean:marginDeltas.reduce((a,b)=>a+b,0)/marginDeltas.length}));
  const combined=(report.bundles??[]).map(b=>({...b,rows:b.rows.map(({marginDeltas,...r})=>r)}));
