@@ -42,6 +42,9 @@ body:not([data-mode="fight"]):not([data-mode="team2"]):not([data-mode="team3"]):
 .arena-frame::before{left:4px;top:4px;border-right:0;border-bottom:0;clip-path:polygon(0 0,100% 0,0 100%)}
 .arena-frame::after{right:4px;bottom:4px;border-left:0;border-top:0;clip-path:polygon(100% 0,100% 100%,0 100%)}
 #arena{display:block;width:100%;height:100%}
+/* Enhanced team-battle renderer (pixi-arena.js): a WebGL canvas laid over the 2D one inside the frame. */
+.arena-pixi{position:absolute;inset:6px;display:block;width:calc(100% - 12px);height:calc(100% - 12px)}
+.arena-pixi[hidden]{display:none}
 /* Team battles: a wide 8:5 field; phones show it in portrait (arena.js turns the canvas). */
 body.team-fight .arena-frame{aspect-ratio:8/5;max-width:min(100%,calc((100vh - 430px)*1.6))}
 body.team-fight.field-portrait .arena-frame{aspect-ratio:5/8;max-width:min(100%,calc((100vh - 180px)*.625))}
@@ -49,6 +52,9 @@ body.team-fight.field-portrait .arena-frame{aspect-ratio:5/8;max-width:min(100%,
 .playback{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 .playback .speed{display:flex;align-items:center;gap:8px;font:600 .72rem/1 var(--display);letter-spacing:.12em;text-transform:uppercase}
 .playback select{width:auto;margin:0;min-height:40px}
+body:not(.team-fight) .playback .renderer-control{display:none}
+.playback .renderer-control[hidden]{display:none}
+.renderer-note{flex-basis:100%;margin:0;text-align:center;font-size:.78rem;color:var(--muted)}
 #combat-log{margin:10px 14px 12px;padding-left:22px;max-height:240px;overflow:auto;font-size:.82rem;color:#c6cfdf}
 #combat-log li{padding:2px 0}
 
