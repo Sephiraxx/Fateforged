@@ -686,6 +686,57 @@ The design target is 35–65%. Balanced is currently the strongest siege style. 
 
 Every style and dial value is a real choice: none wins or loses more than about two games in three. Delaying the siege is still the weakest option in 3v3, because Core damage accumulates. Forgefire matters more again now that the Titan dies.
 
+## Backdoor defense, a tougher Titan and stronger Forgefire (team-3.7)
+
+In team-3.6, about one Core siege game in six was lost to a backdoor: a lone attacker took the Core while the rest of the team was elsewhere. Mages teleported straight onto Cores. `public/combat-team-v3-7.js` changes this; existing leagues move to it from their next series.
+
+- **No teleporting onto Cores:**
+  - teleport, charge, portal and space are never used against a Core;
+  - no teleport lands within 420 of the enemy Core.
+- **Backdoor duty:**
+  - Enemies within 300 of a Core are intruders. That radius stops short of the team's own choke (345), so holding the choke is not a backdoor.
+  - While the team plan is not Defend, the teammates closest to their Core go back, one per intruder and never the whole team. Ties go to the lower index.
+  - Two or more intruders make Defend score (55 + 10 per intruder) without waiting for a Core hit.
+- **Defenders pick the right target.** Defenders go for the intruder hitting their Core, otherwise the one closest to it. In team-3.6 they often fought the enemy tank at the back while its damage dealers took the Core.
+- **The Forge Titan fights back:**
+  - **Molten Hurl:** every 3.5 s, a fire projectile at the farthest attacker beyond melee reach (up to 420). It deals 3.5% (3v3) or 5% (5v5) of the target's max HP, and terrain blocks it.
+  - **Fissure:** every 9 s, a 300 × 46 line telegraph toward the most fighters. After 1 s it deals the same damage plus a 1.1 s stun, which respects crowd-control immunity. Fighters in the line step out when they can.
+- **Forgefire is a bit stronger:**
+  - 3v3: 40 s, ×1.08 damage, 7% shield, ×1.15 Core damage;
+  - 5v5: 45 s, ×1.10, 8%, ×1.20.
+- **Cores:**
+  - 3,600 HP (3v3) and 5,000 HP (5v5);
+  - from 3:00, Core damage grows by 1.2% per second, so defended matches don't stall into sudden death.
+- **Interface:**
+  - The arena draws the Fissure as a red line that fills from the Titan outward, and the Molten Hurl as glowing rock.
+  - The gold status box is always three lines (Cores; Titan and Forgefire; team plans), so the arena never moves.
+  - The fight clock has a fixed width.
+  - In the offseason, each step's main buttons (Confirm roster, Close the trade window, the draft's Sim buttons) sit above the steps.
+
+**Measured** (`validation/team-objectives-v37.json`, `scripts/evaluate-team-backdoor.mjs`; 40 games per size on the same seeds and squads, balanced mirrors every third game and mixed compositions otherwise).
+
+A backdoor loss is a game where the losing Core took most of its last 25% of damage while its defenders nearby were outnumbered and at least two teammates were alive elsewhere.
+
+| | 3v3 team-3.6 | 3v3 team-3.7 | 5v5 team-3.6 | 5v5 team-3.7 |
+| --- | --- | --- | --- | --- |
+| Backdoor losses | 20% | 7.5% | 15% | 7.5% |
+| Teleports near the enemy Core | 85 | 0 | 29 | 0 |
+| Median length | 224 s | 276 s | 214 s | 275 s |
+| Sudden death | 2.5% | 2.5% | 5% | 7.5% |
+| Time limit | 0% | 0% | 0% | 2.5% |
+| Titan kills per game | 1.6 | 1.9 | 1.4 | 1.8 |
+| Forgefire holder wins | 80% | 75% | 74% | 70% |
+| Molten Hurls / Fissure stuns per game | – | 17 / 6.1 | – | 20.7 / 9.8 |
+
+**Coach styles against Balanced on team-3.7** (20 games each):
+
+| Style | 3v3 | 5v5 |
+| --- | --- | --- |
+| Hold the line | 50% | 35% |
+| All-out aggression | 60% | 45% |
+| Focus their healer | 55% | 55% |
+| Protect the carry | 40% | 55% |
+
 ## Enhanced renderer (PixiJS, objective phase 5)
 
 Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.

@@ -52,7 +52,7 @@ const one=play(true);assert.deepEqual(one,play(true));assert.deepEqual(one,play(
 
 // 5. League: describe carries plans, user choices validate, AI plans must follow the series plan.
 {const seed=515,pool=L.poolPlan(3,8,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`)),w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed,fighters:pool,battleMode:'core'});L.draftPicks(w,1e6);L.startSeason(w);
- assert.equal(w.teamEngine,'team-3.6');let m=L.upcoming(w,1)[0];w.settings.userTeam=m.home;const mine=plan('never','flank','late');L.setGamePlan(w,mine);assert.throws(()=>L.setGamePlan(w,{titan:'x'}),/Titan priority/);
+ assert.equal(w.teamEngine,'team-3.7');let m=L.upcoming(w,1)[0];w.settings.userTeam=m.home;const mine=plan('never','flank','late');L.setGamePlan(w,mine);assert.throws(()=>L.setGamePlan(w,{titan:'x'}),/Titan priority/);
  m=L.upcoming(w,1)[0];assert.equal(m.userSide,0);assert.deepEqual(m.gamePlans[0],mine);assert.deepEqual(m.gamePlans[1],L.teamGamePlan(w,L.teamById(w,m.away)));
  const options=seriesGameOptions(m,[]),r=simulateTeam(L.squads(w,m),m.seed,{conditions:m.conditions,tactics:options.tactics,gamePlans:options.gamePlans,engineVersion:m.engineVersion,balance:m.balance}),game={...compactTeamResult(r),...options};
  assert.throws(()=>L.recordSeriesGame(structuredClone(w),m.id,{...game,gamePlans:[mine,plan('never','flank','late')]}),/series plan/,'the AI plan cannot be edited');
