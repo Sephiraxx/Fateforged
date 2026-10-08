@@ -553,3 +553,53 @@ The phase-two AI contests a living Titan when no enemy is very close, allows mob
 - **Steals:** a steal is a killing blow by the team that dealt less of the Titan's damage. With the last hit deciding, contested Titan fights split close to evenly, so protecting the Titan, or beating the other team first, matters.
 - **5v5 length:** 5v5 swings between quick stomps and long games, so its median is shorter than its average.
 - **Forgefire:** the win rate is mostly correlation. With every Forgefire bonus switched off, the team holding it longer still won 73% (3v3) and 81% (5v5) in an earlier measurement, because the team that wins the pit fight is usually the stronger team. Both this and the 5v5 stomps need the team brain (contest, flank, regroup), objective phase 3.
+
+
+## Core siege team brain (team-3.5, objective phase 3)
+
+**What it does.** Every 1.5 s each team scores seven plans and commits to the best one for at least 3 s. Defend and Regroup can interrupt, and a plan that stops making sense (Contest once the Titan is dead) is dropped at once. The formation layer still decides how to fight. The plan decides what is worth fighting (enemy fighters, the Titan or the enemy Core) and how far forward the team may push (`public/combat-team-v3-5.js`).
+
+| Plan | When | What the team does |
+| --- | --- | --- |
+| Contest the Titan | The Titan is up (or spawning within 12 s) and numbers are even or better | Attacks the Titan, switching to any enemy who comes close; waits at the pit edge before it spawns |
+| Hold the choke | The Titan is up and the team is behind | Holds a point between its base and the pit and fights whoever comes |
+| Flank the pit | The enemy is in the pit hitting a Titan below 60% | Attacks the enemies in the pit |
+| Steal the Titan | The Titan is below 20%, the enemy is hitting it, and the team has a shooter or diver in reach | Those fighters go for the last hit; the rest fight |
+| Siege the Core | Forgefire, a numbers advantage, no Titan soon, a low enemy Core, and more and more as the match goes on (from 2:30) | Hits the enemy Core; damage dealers in range keep hitting it even with defenders nearby |
+| Defend the Core | Two or more attackers near our Core while it is being hit | Fights the attackers near the Core and stays close to it |
+| Regroup | Two fighters down, or low health while outnumbered | Falls back to base |
+
+**Coach styles** come from the tactic and add points to plans:
+- Hold the line: Defend and Hold.
+- All-out aggression: Contest and Siege.
+- Focus their healer: Flank and Steal.
+- Protect the carry: Contest and a little Regroup.
+
+**Guarded by numbers.** In team-3.5 a Core is Guarded only while its defenders nearby are at least as many as the attackers there, so winning the fight at a Core opens it up.
+
+**Core HP.** Defended Cores fall more slowly than team-3.4's Core races, so Cores have 3,500 HP (3v3) and 5,000 HP (5v5). Everything else uses the team-3.4 rules.
+
+**Status line.** It shows both teams' current plans, and plan switches appear in the combat log.
+
+**Measured** (`validation/team-objectives-brain.json`; 40 balanced mirrors per size; team-3.4 → team-3.5):
+
+| | 3v3 | 5v5 |
+| --- | --- | --- |
+| Median length | 284 s → 300 s | 202 s → 308 s (average 296 s) |
+| Sudden death | 15% → 10% | 15% → 15% |
+| Time limit | 15% → 2.5% | 10% → 2.5% |
+| Forgefire holder wins | 84% → 50% | 88% → 81.5% |
+| Steals | 54% → 39% | 46% → 30% |
+
+Plan share in 3v3: Siege 41%, Contest 23%, Defend 19%, Flank 7%, Regroup 4%, Steal 2.5%, Hold 2%. 5v5 is similar.
+
+**Coach styles against Balanced** (30 games each, same squads, sides alternating):
+
+| Style | 3v3 | 5v5 |
+| --- | --- | --- |
+| Hold the line | 37% | 30% |
+| All-out aggression | 57% | 63% |
+| Focus their healer | 33% | 37% |
+| Protect the carry | 30% | 30% |
+
+The design target is 35–65%. Balanced is currently the strongest siege style. Tuning the brain's style weights barely moved these numbers, because the gap comes from the formation postures shared with classic teamfight, which stay frozen for replays. Making each style competitive in siege is follow-up work (coach intent, `AI-IMPROVEMENT-PLAN.md` stage A4).
