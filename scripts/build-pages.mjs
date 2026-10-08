@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,readdir,cp,rm} from 'node:fs/promises';
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {moduleBundle} from './module-bundle.mjs';
+import {collectSprites} from './sprites.mjs';
 
 const output=process.argv[2]==='--output'?process.argv[3]:'_site';
 if(!['_site','docs'].includes(output))throw Error('Output must be _site or docs.');
@@ -48,6 +49,8 @@ for(const name of ['weapons','effects','obsidian'])await cp(`public/${name}.webp
 for(const file of await readdir('pages'))await cp(`pages/${file}`,`${output}/${file}`);
 for(const file of ['sql-wasm.js','sql-wasm.wasm'])await cp(`node_modules/sql.js/dist/${file}`,`${output}/vendor/${file}`);
 await cp('node_modules/sql.js/LICENSE',`${output}/vendor/sql.js-LICENSE.txt`);
+// Sprite art from public/sprites/ (optional) and the manifest module that lists it.
+const sprites=await collectSprites();await mkdir(`${output}/sprites`,{recursive:true});for(const sprite of sprites.files)await writeFile(`${output}/sprites/${sprite.file}`,sprite.data);await writeFile(`${output}/sprite-manifest.js`,sprites.module);
 await cp('node_modules/pixi.js/dist/pixi.min.mjs',`${output}/vendor/pixi.min.js`);await cp('node_modules/pixi.js/LICENSE',`${output}/vendor/pixi.js-LICENSE.txt`);
 await writeFile(`${output}/.nojekyll`,'');
 console.log(`Built GitHub Pages app in ${output} (browser storage; no server or account required).`);
