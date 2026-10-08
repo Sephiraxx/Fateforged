@@ -1,6 +1,9 @@
 import {nextAuditBundle,auditBaseKey} from './balance-analysis.js';
 import {balanceLabel} from './team-balance.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
+import {gamePlanFields} from './game-plan-ui.js';
+import {engineForMode} from './team-engine-versions.js';
+import {gamePlanSummary} from './team-game-plan.js';
 // Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
 import {poolFighter} from './team-generation.js';
@@ -105,12 +108,12 @@ export function mountTeamLeague(host,hooks){
    await pendingAudit();[m]=LEAGUE.upcoming(world,1);
    while(m){
     const games=m.completedGames??[],plan=seriesGameOptions(m,games,choice),teams=plan.lineups.map(ids=>ids.map(id=>world.fighters[id])),label=m.kind==='regular'?`Week ${m.week}`:LEAGUE.ROUND_NAMES[m.round];
-    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,engineVersion:m.engineVersion,balance:m.balance,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
+    const result=await hooks.watch(teams,(m.seed+games.length*65537)>>>0,{conditions:m.conditions,tactics:plan.tactics,gamePlans:plan.gamePlans,engineVersion:m.engineVersion,balance:m.balance,caption:`${label} · game ${games.length+1} · ${name(m.home)} vs ${name(m.away)} · ${seriesScore(games).join('–')}`});
     unsavedGame={action:'seriesGame',format:size,revision,operationId:crypto.randomUUID(),matchId:m.id,game:{...compactTeamResult(result),...plan}};
     await saveWatchedGame();const partial=world.pendingSeries;
     if(!partial){await pendingAudit();say('Series complete and saved.');break;}
     const next=LEAGUE.upcoming(world,1)[0],me=mine(),side=next.userSide,nextPlan=seriesGameOptions(next,partial.games);
-    choice=await hooks.intermission({title:`Game ${partial.games.length} saved · ${name(m.home)} vs ${name(m.away)}`,score:seriesScore(partial.games),result,canCoach:side>=0,roster:me?me.roster.map(id=>world.fighters[id]):[],lineup:side>=0?nextPlan.lineups[side]:[],tactic:nextPlan.tactics[side]??'balanced',tactics:Object.entries(TACTIC_TEXT).map(([key,[label]])=>[key,label])});
+    choice=await hooks.intermission({title:`Game ${partial.games.length} saved · ${name(m.home)} vs ${name(m.away)}`,score:seriesScore(partial.games),result,canCoach:side>=0,roster:me?me.roster.map(id=>world.fighters[id]):[],lineup:side>=0?nextPlan.lineups[side]:[],tactic:nextPlan.tactics[side]??'balanced',gamePlan:side>=0?nextPlan.gamePlans?.[side]??null:null,tactics:Object.entries(TACTIC_TEXT).map(([key,[label]])=>[key,label])});
     if(choice===null){hooks.setup?.();say('Series paused and saved. Resume with Watch next series or simulate the remaining games.');break;}m=next;
    }
   }catch(e){say(e.message+(unsavedGame?' Your finished game is kept here; retry its save.':''),true);}
@@ -188,7 +191,7 @@ export function mountTeamLeague(host,hooks){
  function renderTeamDetail(){
   const team=LEAGUE.teamById(world,selected);if(!team)return el('div');const section=el('section','','team-detail'),starters=new Set(team.lineup.length?team.lineup:LEAGUE.bestLineup(world,team)),coached=world.settings.userTeam===team.id;
   const tactic=LEAGUE.teamTactic(world,team),plays=LEAGUE.compLabel(LEAGUE.roleCounts(world,{roster:[...starters]})),plan=LEAGUE.compLabel(LEAGUE.starterTargets(world,team));
-  section.append(el('h3',team.name+(coached?' · your team':'')),el('p',`${coached?'You are head coach':'Head coach '+team.coach.name+' · '+LEAGUE.PERSONALITIES[team.coach.personality].label} · ${team.conference} ${team.division} · cap space ${money(LEAGUE.capSpace(world,team))} · tactic: ${TACTIC_TEXT[tactic][0]}`,'muted'),el('p',`Plays: ${plays||'—'}${plays!==plan?` · coach's plan: ${plan}`:''}`,'team-comp'));
+  section.append(el('h3',team.name+(coached?' · your team':'')),el('p',`${coached?'You are head coach':'Head coach '+team.coach.name+' · '+LEAGUE.PERSONALITIES[team.coach.personality].label} · ${team.conference} ${team.division} · cap space ${money(LEAGUE.capSpace(world,team))} · tactic: ${TACTIC_TEXT[tactic][0]}`,'muted'),el('p',`Plays: ${plays||'—'}${plays!==plan?` · coach's plan: ${plan}`:''}`,'team-comp'));if(world.settings.battleMode==='core')section.append(el('p',`Game plan: ${gamePlanSummary(LEAGUE.teamGamePlan(world,team))}`,'team-comp'));
   const editing=coached&&['ready','season','playoffs'].includes(world.phase),size=LEAGUE.FORMATS[world.format].size,boxes=[];
   const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>starters.has(b.id)-starters.has(a.id)||b.ovr-a.ovr).map(f=>{if(!editing)return fighterRow(f,[starters.has(f.id)?'Starter':'Bench']);const box=check(`Start ${f.name}`,starters.has(f.id));box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[box]);});
   section.append(table(['Fighter','Role','Tier','OVR','Salary',editing?'Start':'Lineup'],rows,`Roster · team OVR ${LEAGUE.teamOverall(world,team)}`));
@@ -206,11 +209,12 @@ export function mountTeamLeague(host,hooks){
    for(const t of LEAGUE.TACTICS){const o=el('option',`${TACTIC_TEXT[t][0]} · ${TACTIC_TEXT[t][1]}`);o.value=t;o.selected=t===tactic;pickTactic.append(o);}
    pickTactic.onchange=()=>command({action:'tactic',tactic:pickTactic.value}).then(()=>say(`Tactic set: ${TACTIC_TEXT[pickTactic.value][0]}.`)).catch(e=>say(e.message,true));
    row.append(pickTactic);section.append(el('h4','Coaching'),row);
+   if(world.settings.battleMode==='core'){const fields=gamePlanFields(LEAGUE.teamGamePlan(world,team),{disabled:busy,onchange:plan=>command({action:'gamePlan',plan}).then(()=>say(`Game plan set: ${gamePlanSummary(plan)}.`)).catch(e=>say(e.message,true))});section.append(el('h4','Core siege game plan'),fields.element);}
   }
   if(world.draft.complete&&team.roster.length>=size){
    const opponents=world.teams.filter(t=>t.id!==team.id),choice=el('select');choice.setAttribute('aria-label','Scrimmage opponent');for(const t of opponents){const o=el('option',`${t.name} · OVR ${LEAGUE.teamOverall(world,t)}`);o.value=t.id;choice.append(o);}
    const watch=button('Watch scrimmage','button primary');watch.disabled=busy||hooks.blocked();
-   watch.onclick=async()=>{try{const rival=LEAGUE.teamById(world,choice.value),squads=[team,rival].map(t=>LEAGUE.starters(world,t)),result=await hooks.watch(squads,crypto.getRandomValues(new Uint32Array(1))[0],{conditions:{time:'random',weather:'random',ground:'random',map:'random'},tactics:[LEAGUE.teamTactic(world,team),LEAGUE.teamTactic(world,rival)],caption:`Scrimmage · ${team.name} vs ${rival.name}`});say(`${result.winnerTeam?rival.name:team.name} win the scrimmage (${result.reason}).`);}catch(e){say(e.message,true);}};
+   watch.onclick=async()=>{try{const rival=LEAGUE.teamById(world,choice.value),squads=[team,rival].map(t=>LEAGUE.starters(world,t)),result=await hooks.watch(squads,crypto.getRandomValues(new Uint32Array(1))[0],{conditions:{time:'random',weather:'random',ground:'random',map:'random'},tactics:[LEAGUE.teamTactic(world,team),LEAGUE.teamTactic(world,rival)],engineVersion:engineForMode(world.settings.battleMode),...(world.settings.battleMode==='core'?{gamePlans:[LEAGUE.teamGamePlan(world,team),LEAGUE.teamGamePlan(world,rival)]}:{}),caption:`Scrimmage · ${team.name} vs ${rival.name}`});say(`${result.winnerTeam?rival.name:team.name} win the scrimmage (${result.reason}).`);}catch(e){say(e.message,true);}};
    const row=el('div','','team-scrimmage');row.append(choice,watch);section.append(el('h4','Scrimmage'),row);
   }
   return section;

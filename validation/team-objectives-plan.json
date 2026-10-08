@@ -1,0 +1,173 @@
+{
+  "phase": "plan",
+  "engine": "team-3.6",
+  "note": "Core siege with coach game plans (team-3.6). Balanced mirrors, coach styles against Balanced and each dial value against the default plan; summary rows only.",
+  "rows": [
+    {
+      "size": 3,
+      "games": 40,
+      "medianSeconds": 249.6,
+      "averageSeconds": 266,
+      "suddenDeathRate": 12.5,
+      "timeLimitRate": 5,
+      "titanIgnoredRate": 0,
+      "monsterKills": 59,
+      "stealRate": 52.5,
+      "forgefireWinRate": 84.4,
+      "averageMs": 2299,
+      "planShare": {
+        "contest": 30.4,
+        "hold": 0.1,
+        "flank": 0,
+        "steal": 2.5,
+        "siege": 42.1,
+        "defend": 22,
+        "regroup": 2.9
+      }
+    },
+    {
+      "size": 5,
+      "games": 40,
+      "medianSeconds": 258.6,
+      "averageSeconds": 251,
+      "suddenDeathRate": 7.5,
+      "timeLimitRate": 0,
+      "titanIgnoredRate": 0,
+      "monsterKills": 56,
+      "stealRate": 42.9,
+      "forgefireWinRate": 75.8,
+      "averageMs": 3023,
+      "planShare": {
+        "contest": 29.5,
+        "hold": 0,
+        "flank": 0,
+        "steal": 2.9,
+        "siege": 40.9,
+        "defend": 20.7,
+        "regroup": 6
+      }
+    }
+  ],
+  "tactics": [
+    {
+      "size": 3,
+      "tactic": "defensive",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 3,
+      "tactic": "aggressive",
+      "games": 30,
+      "winRate": 56.7
+    },
+    {
+      "size": 3,
+      "tactic": "focus-healer",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 3,
+      "tactic": "protect-carry",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 5,
+      "tactic": "defensive",
+      "games": 30,
+      "winRate": 50
+    },
+    {
+      "size": 5,
+      "tactic": "aggressive",
+      "games": 30,
+      "winRate": 53.3
+    },
+    {
+      "size": 5,
+      "tactic": "focus-healer",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 5,
+      "tactic": "protect-carry",
+      "games": 30,
+      "winRate": 40
+    }
+  ],
+  "dials": [
+    {
+      "size": 3,
+      "dial": "titan",
+      "value": "ahead",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 3,
+      "dial": "titan",
+      "value": "never",
+      "games": 30,
+      "winRate": 63.3
+    },
+    {
+      "size": 3,
+      "dial": "style",
+      "value": "flank",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 3,
+      "dial": "siege",
+      "value": "forgefire",
+      "games": 30,
+      "winRate": 33.3
+    },
+    {
+      "size": 3,
+      "dial": "siege",
+      "value": "late",
+      "games": 30,
+      "winRate": 36.7
+    },
+    {
+      "size": 5,
+      "dial": "titan",
+      "value": "ahead",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 5,
+      "dial": "titan",
+      "value": "never",
+      "games": 30,
+      "winRate": 53.3
+    },
+    {
+      "size": 5,
+      "dial": "style",
+      "value": "flank",
+      "games": 30,
+      "winRate": 53.3
+    },
+    {
+      "size": 5,
+      "dial": "siege",
+      "value": "forgefire",
+      "games": 30,
+      "winRate": 43.3
+    },
+    {
+      "size": 5,
+      "dial": "siege",
+      "value": "late",
+      "games": 30,
+      "winRate": 40
+    }
+  ]
+}

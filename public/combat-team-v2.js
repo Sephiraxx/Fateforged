@@ -91,10 +91,12 @@ export class TeamBattle extends DuelBattle{
  // enemies inside our back line, and a slot for every fighter: tanks on F, ranged damage and controllers behind it,
  // healers at the back, melee damage dealers (skirmishers) on a flank.
  isSkirmisher(f){return f.role==='damage'&&f.weapon.type==='melee';}
+ // The formation posture for a team's tactic; later engines may adjust it per mode.
+ posture(team){return TEAM_POSTURES[this.tactics[team]];}
  updatePlans(){
   const previous=this.plans;this.plans=[0,1].map(team=>{
    const mine=this.fighters.filter(f=>f.team===team&&f.hp>0),foes=this.fighters.filter(f=>f.team!==team&&f.hp>0);if(!mine.length||!foes.length)return null;
-   const posture=TEAM_POSTURES[this.tactics[team]],c=this.centroid(mine),ec=this.centroid(foes),old=previous?.[team];
+   const posture=this.posture(team),c=this.centroid(mine),ec=this.centroid(foes),old=previous?.[team];
    let ux=ec.x-c.x,uy=ec.y-c.y,len=Math.hypot(ux,uy);if(len<1){ux=team?-1:1;uy=0;len=1;}ux/=len;uy/=len;
    if(old){ux=ux*.5+old.u.x*.5;uy=uy*.5+old.u.y*.5;const n=Math.hypot(ux,uy)||1;ux/=n;uy/=n;}
    const u={x:ux,y:uy},v={x:-uy,y:ux},along=f=>(f.x-c.x)*ux+(f.y-c.y)*uy;

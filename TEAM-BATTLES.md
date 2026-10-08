@@ -603,3 +603,62 @@ Plan share in 3v3: Siege 41%, Contest 23%, Defend 19%, Flank 7%, Regroup 4%, Ste
 | Protect the carry | 30% | 30% |
 
 The design target is 35–65%. Balanced is currently the strongest siege style. Tuning the brain's style weights barely moved these numbers, because the gap comes from the formation postures shared with classic teamfight, which stay frozen for replays. Making each style competitive in siege is follow-up work (coach intent, `AI-IMPROVEMENT-PLAN.md` stage A4).
+
+
+## Coach game plans (team-3.6, objective phase 4)
+
+**Three dials** steer the team brain in Core siege (`public/team-game-plan.js`, `public/combat-team-v3-6.js`):
+
+| Dial | Values | Effect on the plans |
+| --- | --- | --- |
+| Titan priority | Always contest / Contest when ahead / Never | Always: Contest +10. When ahead: no Contest unless the team has a numbers lead (or even numbers and more health); Hold instead. Never: no Contest or Steal, so the team plays around the Titan and punishes whoever takes it |
+| Style | Group up / Flank | Flank: Flank +15 and Steal +5, and when sieging, skirmishers and controllers take the top or bottom lane. Group up: Flank −10 |
+| Siege timing | With Forgefire / On a numbers lead / Not before 3:00 | With Forgefire: also sieges with a two-fighter lead or from 3:30. Numbers: sieges with a lead, Forgefire, late-game pressure, or no Titan soon. Not before 3:00: earlier only with Forgefire or a two-fighter lead. A team that waits spends the time on the Titan (Contest +15) |
+
+**Where the dials come from:**
+- **AI coaches:** from their personality:
+  - Balanced, Glass cannon and Star chaser: always contest, group up, siege on numbers.
+  - Fortress builder: contest when ahead, group up, siege on numbers.
+  - Tactician: contest when ahead, flank, siege on numbers.
+  - Bargain hunter: never contest, flank, siege on numbers.
+- **Your team:** set the dials on your team card in a Core siege league (worker action `gamePlan`).
+- **Exhibitions:** each side has dials, starting from its tactic's default.
+- **Between series games:** you can change yours. An AI coach that lost the last game changes one dial according to its personality, and winners keep theirs. Played games record both plans, and the league validates that AI plans follow the series rules.
+
+**Other team-3.6 changes** (all measured against the dials and styles):
+- **Siege postures:** Hold the line's leash goes 90 → 120 with a softer pull, and Protect the carry's leash goes 100 → 120 with dives allowed on exposed targets. Classic teamfight keeps its postures, through a `posture(team)` hook whose default is unchanged.
+- **The Titan has half the health and hits half as hard.** With only damage dealers at full damage, contesting a full-health Titan was a trap: teams spent about 130 s per game on it and killed it 0.3 times. Now they kill it about 1.5 times per game, and skipping it no longer wins outright.
+- **Smarter contesting:** teams don't start on the Titan while the enemy waits near the pit without hitting it.
+- **Defending:** any team answers a single attacker that is hitting its Core, and Core pulses deal twice the damage. Waiting to siege is a real option.
+- **Cores:** 4,000 HP in 3v3 and 5,000 HP in 5v5.
+
+**Measured** (`validation/team-objectives-plan.json`; 40 balanced mirrors per size, 30 games per style and dial row):
+
+| | 3v3 | 5v5 |
+| --- | --- | --- |
+| Median length | 250 s | 259 s |
+| Sudden death | 12.5% | 7.5% |
+| Time limit | 5% | 0% |
+| Titan kills per game | 1.5 | 1.4 |
+| Forgefire holder wins | 84% | 76% |
+
+**Coach styles against Balanced** (team-3.5 → team-3.6):
+
+| Style | 3v3 | 5v5 |
+| --- | --- | --- |
+| Hold the line | 37% → 43% | 30% → 50% |
+| All-out aggression | 57% → 57% | 63% → 53% |
+| Focus their healer | 33% → 43% | 37% → 43% |
+| Protect the carry | 30% → 43% | 30% → 40% |
+
+**Each dial value against the default plan** (Always contest · Group up · On a numbers lead):
+
+| Dial value | 3v3 | 5v5 |
+| --- | --- | --- |
+| Contest when ahead | 43% | 43% |
+| Never contest | 63% | 53% |
+| Flank | 43% | 53% |
+| Siege with Forgefire | 33% | 43% |
+| Siege not before 3:00 | 37% | 40% |
+
+Every style and dial value is a real choice: none wins or loses more than about two games in three. Delaying the siege is still the weakest option in 3v3, because Core damage accumulates. Forgefire matters more again now that the Titan dies.
