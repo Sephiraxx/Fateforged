@@ -1,4 +1,5 @@
 import {nextAuditBundle,auditBaseKey} from './balance-analysis.js';
+import {simulateBalanceCandidateAsync} from './balance-sim-worker.js';
 import {balanceLabel} from './team-balance.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
 import {gamePlanFields} from './game-plan-ui.js';
@@ -22,7 +23,7 @@ export function mountTeamLeague(host,hooks){
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
  let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,patchesOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
- const auditPool=createSimulationPool(new URL('./balance-sim-worker.js',import.meta.url)),patchSeasonsOpen=new Set(),championSeasonsOpen=new Set();
+ const patchSeasonsOpen=new Set(),championSeasonsOpen=new Set();
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
  dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
@@ -60,10 +61,13 @@ export function mountTeamLeague(host,hooks){
  const claim=team=>command({action:'claim',team}).then(()=>say(team?`You are now head coach of the ${name(team)}.`:'The AI coach is back in charge.')).catch(e=>say(e.message,true));
  async function simulateAudit(phase){
   const snapshot=structuredClone({id:world.id,seed:world.seed,season:world.season,format:world.format,settings:world.settings,teams:world.teams,fighters:world.fighters,balance:{profile:world.balance.profile,samples:world.balance.samples,previousSamples:world.balance.previousSamples,previousRoleRates:world.balance.previousRoleRates},lastOffseason:world.lastOffseason?{meta:{shift:world.lastOffseason.meta?.shift}}:null}),plan=LEAGUE.auditPlan(snapshot,phase);let finished=0;
-  say(`Checking ${phase==='preseason'?'preseason':'midseason'} balance… 0 / ${plan.candidates.length}`);
-  const rows=await Promise.all(plan.candidates.map(candidate=>auditPool.simulate({world:snapshot,plan,key:candidate.key}).then(row=>{say(`Checking balance… ${++finished} / ${plan.candidates.length}`);return row;})));
+  // Every candidate hands its games to the shared pool one batch at a time, so all workers stay busy until the end.
+  let games=0;const label=phase==='preseason'?'preseason':'midseason',progress=()=>say(`Checking ${label} balance… ${finished} / ${plan.candidates.length} checks · ${games} test fights`);
+  const runBatch=batch=>Promise.all(batch.map(g=>pool.simulate({auditGame:true,teams:g.teams,seed:g.seed,options:g.options}).then(r=>{games++;if(games%20===0)progress();return r;})));
+  progress();
+  const rows=await Promise.all(plan.candidates.map(candidate=>simulateBalanceCandidateAsync({world:snapshot,plan,key:candidate.key},runBatch,plan).then(row=>{finished++;progress();return row;})));
   const report={version:plan.version,token:plan.token,rows,bundles:[]};
-  for(;;){const bundle=nextAuditBundle(snapshot,phase,report);if(bundle.complete)break;say(`Validating combined patch… attempt ${bundle.index+1}`);const comparisons=await Promise.all(bundle.keys.map(key=>auditPool.simulate({world:snapshot,plan,key,mode:'bundle',bundle})));report.bundles.push({index:bundle.index,profileToken:bundle.profileToken,rows:comparisons});}
+  for(;;){const bundle=nextAuditBundle(snapshot,phase,report);if(bundle.complete)break;say(`Validating combined patch… attempt ${bundle.index+1}`);const comparisons=await Promise.all(bundle.keys.map(key=>simulateBalanceCandidateAsync({world:snapshot,plan,key,mode:'bundle',bundle},runBatch,plan)));report.bundles.push({index:bundle.index,profileToken:bundle.profileToken,rows:comparisons});}
   return report;
  }
  async function pendingAudit(){if(world.balance?.enabled&&world.balance.pendingAudit){const phase=world.balance.pendingAudit,audit=await simulateAudit(phase);await command({action:'balanceAudit',phase,audit},true);}}

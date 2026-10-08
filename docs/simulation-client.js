@@ -1,11 +1,24 @@
-// Reuse warm workers and spread independent league/cup series across a small
-// pool. Games within a series stay ordered and use their original seeds.
-export function createSimulationPool(workerUrl=new URL('./league-sim-worker.js',import.meta.url)){
- const lanes=[],limit=Math.min(4,Math.max(1,Math.floor((globalThis.navigator?.hardwareConcurrency||4)/2)));let serial=0,nextLane=0;
- function lane(index){return lanes[index]??= {worker:null,waiting:new Map()};}
+// Reuse warm workers and spread independent tasks (league/cup series, audit games) across a pool. Tasks wait in one
+// queue and each worker takes the next as soon as it is free, so a few long tasks never leave other workers idle.
+// Games within a series stay ordered and use their original seeds, so results do not depend on the pool.
+export const POOL_LIMIT=8;
+export function poolSize(cores=globalThis.navigator?.hardwareConcurrency||4){return Math.max(1,Math.min(POOL_LIMIT,cores-1));}
+export function createSimulationPool(workerUrl=new URL('./league-sim-worker.js',import.meta.url),{size=poolSize()}={}){
+ const lanes=[],queue=[];let serial=0;
  function start(slot){const worker=new Worker(workerUrl,{type:'module'});slot.worker=worker;
-  worker.onmessage=({data})=>{const task=slot.waiting.get(data.id);if(!task)return;slot.waiting.delete(data.id);data.error?task.reject(Error(data.error)):task.resolve(data.results);};
-  worker.onerror=event=>{worker.terminate();slot.worker=null;for(const task of slot.waiting.values())task.reject(Error(event.message||'Simulation failed. Retry the unsaved series.'));slot.waiting.clear();};
+  worker.onmessage=({data})=>{const task=slot.task;if(!task||data.id!==task.id)return;slot.task=null;data.error?task.reject(Error(data.error)):task.resolve(data.results);pump();};
+  worker.onerror=event=>{worker.terminate();slot.worker=null;const task=slot.task;slot.task=null;task?.reject(Error(event.message||'Simulation failed. Retry the unsaved series.'));pump();};
  }
- return {simulate(input){const slot=lane(nextLane++%limit);if(!slot.worker)start(slot);const dispatchId=++serial;return new Promise((resolve,reject)=>{slot.waiting.set(dispatchId,{resolve,reject});try{slot.worker.postMessage({...input,dispatchId});}catch(error){slot.waiting.delete(dispatchId);reject(error);}});},close(){for(const slot of lanes){slot.worker?.terminate();slot.worker=null;for(const task of slot.waiting.values())task.reject(Error('Simulation closed.'));slot.waiting.clear();}}};
+ function pump(){
+  while(queue.length){
+   let slot=lanes.find(s=>!s.task);if(!slot){if(lanes.length>=size)return;slot={worker:null,task:null};lanes.push(slot);}
+   if(!slot.worker)start(slot);const task=queue.shift();slot.task=task;
+   try{slot.worker.postMessage({...task.input,dispatchId:task.id});}catch(error){slot.task=null;task.reject(error);}
+  }
+ }
+ return {
+  size,
+  simulate(input){return new Promise((resolve,reject)=>{queue.push({id:++serial,input,resolve,reject});pump();});},
+  close(){for(const task of queue.splice(0))task.reject(Error('Simulation closed.'));for(const slot of lanes){slot.worker?.terminate();slot.worker=null;slot.task?.reject(Error('Simulation closed.'));slot.task=null;}}
+ };
 }

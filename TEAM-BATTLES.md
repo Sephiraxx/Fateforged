@@ -488,6 +488,23 @@ The 5v5 check now warms up both engines and alternates eight identical seeded wo
 
 A 100-game, side-alternating neutral-patch comparison after the new kits found Hold the line at 51% wins and 3% timeouts. A shorter opening hold produced identical results. No tactic change is applied on that evidence; repeat the review with long-season save data.
 
+### Faster simulation and patch audits
+
+Patch audits were the slow part of a team league. A preseason audit (and the midseason one) plays 1,500–2,500 test fights. Core siege fights last about 4–5 simulated minutes and took 2–3 s each, and the work was spread badly across the browser's workers. The following changes made it faster without changing any outcome (`scripts/check-team-performance-paths.mjs`):
+
+- **Engine:**
+  - Healers move toward their support spot through a stand-in target that reads through to the real fighter, instead of copying all ~150 of its fields every step.
+  - The per-step timers are updated field by field, and trails age in place.
+  - Every engine gives the same results as before: one recorded game per engine and squad in `validation/team-engine-fingerprints.json`, and 192 seeded games across all 16 engines during development. Overall it is about 1.36× faster, with 3v3 teamfight about 2×.
+- **Audit:**
+  - Each candidate's comparisons are batches of independent games, and the browser spreads every game across the pool instead of running one candidate's 100–250 fights on a single worker.
+  - Discovery reuses the screen's eight pairs (same cases and seeds) instead of replaying them, which is about 14% fewer fights.
+  - The reports, and so the patches, are identical. A 16-team 2v2 preseason audit went from 11.6 to 2.7 minutes on a 4-core machine.
+- **Pool:**
+  - Simulation tasks wait in one queue, and each worker takes the next as soon as it is free.
+  - The pool uses all cores but one (up to 8), instead of half of them (up to 4).
+  - This speeds up season weeks and cups too.
+
 ## Core siege preview (objective phase 1)
 
 Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.
