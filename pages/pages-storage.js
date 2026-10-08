@@ -22,5 +22,8 @@
    try{const {before,after}=await(await get()).importBackup(new Uint8Array(await file.arrayBuffer()));result.textContent=`Backup imported and compacted: ${mb(before)} → ${mb(after)}. Reloading…`;setTimeout(()=>location.reload(),1800);}catch(error){result.textContent='Import failed. Your existing saves were kept. '+error.message;}
   };
   if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
+  // In the desktop/Android app the save lives on this device, with a file copy in the app's data folder.
+  if(globalThis.__TAURI__){const label=document.querySelector('.storage-bar span');if(label)label.textContent='Saved on this device';
+   import(source.href).then(m=>m.appMirror?.location()).then(path=>{if(!path)return;const note=document.createElement('p');note.className='muted storage-location';note.textContent='The app also keeps your save at '+path+'.';(document.getElementById('storage-usage')??result).before(note);}).catch(()=>{});}
  });
 })();

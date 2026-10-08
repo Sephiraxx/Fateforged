@@ -1,0 +1,23 @@
+[package]
+name = "fateforge"
+version = "0.1.0"
+description = "Fateforge: forge fighters, run cups and coach team leagues."
+edition = "2021"
+publish = false
+
+# Android loads the app as a shared library; desktop links it into the executable.
+[lib]
+name = "fateforge_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
