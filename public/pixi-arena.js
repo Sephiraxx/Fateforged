@@ -46,7 +46,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
   glow.anchor.set(.5);glow.blendMode='add';character.anchor.set(.5,.62);weapon.anchor.set(.5);root.addChild(glow,disc,flash,character,weapon,icon);fighters.addChild(root);b={root,glow,disc,flash,character,weapon,icon,kind:null,radius:null};bodies.set(key,b);return b;};
  // A fighter is a team-coloured disc, or with character art a coloured base ring under the sprite.
  function drawBody(v,f,withArt){const r=f.radius||9,color=colorOf(f);if(v.radius===r&&v.color===color&&v.withArt===withArt)return;v.radius=r;v.color=color;v.withArt=withArt;
-  if(withArt){v.disc.clear().ellipse(0,r*.55,r*1.25,r*.55).fill({color,alpha:.35}).stroke({width:2,color});v.flash.clear();}
+  if(withArt){v.disc.clear().ellipse(0,r*1.3,r*1.7,r*.75).fill({color,alpha:.45}).stroke({width:2.5,color});v.flash.clear();}
   else{v.disc.clear().circle(0,0,r).fill({color}).circle(-r*.28,-r*.35,r*.45).fill({color:0xffffff,alpha:.35}).circle(0,0,r).stroke({width:1,color:0xeaf6ff});v.flash.clear().circle(0,0,r).fill({color:0xffffff});}
   v.glow.tint=color;v.glow.width=v.glow.height=r*5.2;}
  function drawIcon(g,kind){g.clear();const fill={color:0xf4fbff},line={width:3.2,color:0x05070d,join:'round',cap:'round'};
@@ -154,7 +154,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
     if(f.hp>0&&b.empowered?.(f)){const k=.6+.4*Math.sin(clock*6+key);if(!artAt('fx-forgefire',pos.x,pos.y,r*6,{alpha:.55+.35*k,rotation:clock*1.5,add:true})){glowAt(pos.x,pos.y,r*6,GOLD,.35*k+.2);objG.circle(pos.x,pos.y,r+7).stroke({width:f.forgeShield>0?3:1.5,color:0xffc45c,alpha:.85});}else if(f.forgeShield>0)objG.circle(pos.x,pos.y,r+7).stroke({width:2,color:0xffc45c,alpha:.7});}
     const facing=f.facing??f.angle??0,angle=facing+(f.swing>0?Math.sin(f.swing/.22*Math.PI)*.7:0);
     // Character art faces right; it is mirrored when the fighter faces left on screen and stays upright in portrait.
-    v.character.visible=!!charTex;if(charTex){v.character.texture=charTex;const size=r*4.4,left=view.portrait?Math.sin(facing)<0:Math.cos(facing)<0;v.character.width=v.character.height=size;v.character.scale.x=Math.abs(v.character.scale.x)*(left?-1:1);v.character.rotation=view.portrait?Math.PI/2:0;v.character.tint=f.hitFlash>0?0xff9a9a:0xffffff;}
+    v.character.visible=!!charTex;if(charTex){v.character.texture=charTex;const size=r*6,left=view.portrait?Math.sin(facing)<0:Math.cos(facing)<0;v.character.width=v.character.height=size;v.character.scale.x=Math.abs(v.character.scale.x)*(left?-1:1);v.character.rotation=view.portrait?Math.PI/2:0;v.character.tint=f.hitFlash>0?0xff9a9a:0xffffff;}
     const wt=propTex??(f.weapon?frameTex('weapons',f.weapon.sprite):null);
     if(wt){v.weapon.texture=wt;v.weapon.visible=true;v.weapon.width=v.weapon.height=propTex?24:27;v.weapon.x=Math.cos(angle)*16;v.weapon.y=Math.sin(angle)*16;v.weapon.rotation=angle+(!propTex&&f.weapon.sprite===5?Math.PI:0);}else v.weapon.visible=false;
     if(f.hp>0&&f.action&&!f.action.released&&f.action.angle!=null&&f.weapon)lineG.moveTo(pos.x,pos.y).lineTo(pos.x+Math.cos(f.action.angle)*Math.min(80,f.weapon.range),pos.y+Math.sin(f.action.angle)*Math.min(80,f.weapon.range)).stroke({width:1,color,alpha:.45});
@@ -162,7 +162,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
     const kind=classKind(f);if(v.kind!==kind){v.kind=kind;drawIcon(v.icon,kind);}v.icon.visible=f.hp>0&&!charTex;v.icon.rotation=view.portrait?Math.PI/2:0;
     // Team battles add target lines, a mini health bar and a role glyph (duels show health in the HUD).
     if(team&&f.hp>0){const target=b.actorFor?.(f.target)??b.fighters[f.target];if(target?.hp>0)lineG.moveTo(pos.x,pos.y).lineTo(target.x,target.y).stroke({width:1,color,alpha:.12});
-     const k=(view.portrait?1.35:1)/camera.zoom,lift=charTex?8:0,pct=Math.max(0,f.hp/f.maxHp),[bx,by]=view.portrait?[pos.x+(21+lift)*k,pos.y-13*k]:[pos.x-13*k,pos.y-(21+lift)*k],[bw,bh]=view.portrait?[4*k,26*k]:[26*k,4*k];
+     const k=(view.portrait?1.35:1)/camera.zoom,lift=charTex?14:0,pct=Math.max(0,f.hp/f.maxHp),[bx,by]=view.portrait?[pos.x+(21+lift)*k,pos.y-13*k]:[pos.x-13*k,pos.y-(21+lift)*k],[bw,bh]=view.portrait?[4*k,26*k]:[26*k,4*k];
      bars.rect(bx,by,bw,bh).fill({color:0x05070d,alpha:.8});if(view.portrait)bars.rect(bx,by,bw,bh*pct).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});else bars.rect(bx,by,bw*pct,bh).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});
      const glyph=labels.get();setLabel(glyph,ROLE_GLYPH[f.role]||'',color);const [gx,gy]=view.portrait?[pos.x+(27+lift)*k,pos.y]:[pos.x,pos.y-(27+lift)*k];glyph.x=gx;glyph.y=gy;upright(glyph);glyph.scale.set(glyph.scale.x*.5);}});
    for(const [key,v]of bodies)if(!keys.has(key)){v.root.destroy({children:true});bodies.delete(key);}
