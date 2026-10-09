@@ -1,3 +1,4 @@
+import {auditMidseasonProposal} from '../public/balance-analysis.js';
 import assert from 'node:assert/strict';import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';
 import {generation} from './team-fixtures.mjs';
 import * as L from '../public/team-league.js';
@@ -58,5 +59,5 @@ const week=L.upcoming(world,4);assert.equal((await call({action:'record',revisio
 assert.equal((await call({action:'record',revision,results:[{matchId:week[0].id,games:fake(week[0]).map(g=>({...g,combatVersion:12}))}]})).status,400,'Results from another engine are rejected.');
 while(world.phase!=='complete'){const matches=L.upcoming(world,world.phase==='season'?4:Infinity);({world,revision}=ok(await call({action:'record',revision,results:matches.map(m=>({matchId:m.id,games:fake(m)}))})));}
 assert.equal(world.titles.length,1);assert.equal((await call({action:'record',revision,results:[{matchId:'s1:w1:0',games:[]}]})).status,400,'Nothing to record after the final.');
-assert.equal(world.balance.pendingAudit,'halfway');const midPlan=L.auditPlan(world,'halfway'),midAudit={version:midPlan.version,token:midPlan.token,rows:midPlan.candidates.map(c=>({key:c.key,status:'unmatched'}))};({world,revision}=ok(await call({action:'balanceAudit',revision,phase:'halfway',audit:midAudit})));assert.equal(world.balance.pendingAudit,undefined);assert.equal(world.balance.halfwaySeason,1);assert.equal(world.titles[0].roster.length,world.settings.rosterSize);
+assert.equal(world.balance.pendingAudit,'halfway');const midPlan=L.auditPlan(world,'halfway'),midAudit={version:midPlan.version,token:midPlan.token,rows:midPlan.candidates.map(c=>({key:c.key,status:auditMidseasonProposal(midPlan,c.key)?'unmatched':'skipped'}))};({world,revision}=ok(await call({action:'balanceAudit',revision,phase:'halfway',audit:midAudit})));assert.equal(world.balance.pendingAudit,undefined);assert.equal(world.balance.halfwaySeason,1);assert.equal(world.titles[0].roster.length,world.settings.rosterSize);
 console.log(`Team season passed: perfect 10/14/17-week schedules, ${regular}-game 32-team season with tiebreak standings, 7-seed re-seeded playoffs to a Bo5 final, 16/8-team brackets, a real simulated series, result validation and server batches through the champion.`);

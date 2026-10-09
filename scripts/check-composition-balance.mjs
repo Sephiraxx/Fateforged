@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {squad,generation} from './team-fixtures.mjs';
 import {neutralBalance,balanceRates} from '../public/team-balance.js';
-import {balanceAuditPlan,applyBalanceAudit,auditSeasonRates,auditLever} from '../public/balance-analysis.js';
+import {balanceAuditPlan,applyBalanceAudit,auditSeasonRates,auditLever,auditMidseasonProposal} from '../public/balance-analysis.js';
 import {simulateBalanceCandidate} from '../public/balance-sim-worker.js';
 import * as L from '../public/team-league.js';
 import {completeAudit} from './balance-fixtures.mjs';
@@ -51,7 +51,7 @@ let gameCount=0,midCount=0;
 while(w.phase==='season'||w.phase==='playoffs'){
  const [m]=L.upcoming(w,1),side=m.seed%2,games=Array.from({length:Math.ceil(m.bestOf/2)},()=>({winnerTeam:side,seconds:30,reason:'Team eliminated',hp:side?[0,60]:[60,0],balanceId:m.balance.id,combatVersion:m.engineVersion,environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map(id=>({id,damage:100,healing:0,kills:0,deaths:0,ccSeconds:0}))}));
  L.recordMatch(w,m.id,games);gameCount+=games.length;
- if(w.balance.pendingAudit){midCount=w.balance.sampleGames;const p=balanceAuditPlan(w,'halfway');L.recordBalanceAudit(w,'halfway',{version:p.version,token:p.token,rows:p.candidates.map(c=>({key:c.key,status:'unmatched'}))});assert.equal(w.balance.samples.length,0);assert.equal(w.balance.seasonSampleGames,midCount);}
+ if(w.balance.pendingAudit){midCount=w.balance.sampleGames;const p=balanceAuditPlan(w,'halfway');L.recordBalanceAudit(w,'halfway',{version:p.version,token:p.token,rows:p.candidates.map(c=>({key:c.key,status:auditMidseasonProposal(p,c.key)?'unmatched':'skipped'}))});assert.equal(w.balance.samples.length,0);assert.equal(w.balance.seasonSampleGames,midCount);}
 }
 assert(midCount>0);assert.equal(w.balance.seasonSampleGames,gameCount);const full=L.seasonMeta(w),rookies=L.rookiePlan(w).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,917,()=>`R${i}`));L.startOffseason(w,rookies);assert.equal(w.balance.previousSampleGames,gameCount);assert.deepEqual(w.balance.previousRoleRates,full.roleRates);assert(balanceRates(w.balance.previousSamples).length>0);
 console.log('Composition balance passed: role priority despite crowded abilities, matched real kits, mirrored carriers and controls, useful margin gains without flipped winners, noise/no-response/cap guards, old-save evidence recovery and complete season retention across the midseason audit.');

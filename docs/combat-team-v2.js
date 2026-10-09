@@ -183,7 +183,8 @@ export class TeamBattle extends DuelBattle{
    const posture=plan.posture,slot=plan.slots[f.index];
    if(f.role==='tank')f.intent={slot,pull:.45*posture.pull,leash:plan.hold?{ref:this.holdPoint(f.team),max:0}:{ref:plan.B,max:posture.leash+20},u:plan.u,strafe:posture.strafe};
    else if(f.diving)f.intent={slot,pull:0,leash:null,u:plan.u,strafe:posture.strafe};
-   else f.intent={slot,pull:posture.pull*(this.isSkirmisher(f)?.8:1.1),leash:{ref:plan.F,max:50-slot.back},u:plan.u,strafe:posture.strafe};
+   // A fighter back on its feet before the next plan update (Phoenix rebirth) has no slot yet and moves freely.
+   else if(slot)f.intent={slot,pull:posture.pull*(this.isSkirmisher(f)?.8:1.1),leash:{ref:plan.F,max:50-slot.back},u:plan.u,strafe:posture.strafe};
   }
   this.moveFighter(f,t,dt);
  }
