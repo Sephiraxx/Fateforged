@@ -7,7 +7,7 @@ import {teamEngine} from '../public/combat-team.js';
 import {FORGE_TITAN_RULES,BACKDOOR_RULES,fissureReach} from '../public/combat-team-v3-7.js';
 import {OBJECTIVE_COMBAT_VERSION} from '../public/team-engine-versions.js';
 
-assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.8','team-3.8 builds on these team-3.7 rules');
+assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.9','team-3.9 builds on these team-3.7 rules');
 const Forge=teamEngine('team-3.7'),make=(size=3,seed=91)=>new Forge([squad(COMPOSITIONS['balanced'+size],seed),squad(COMPOSITIONS['balanced'+size],seed+1)],seed,{headless:true,map:'open'});
 const team=(b,t)=>b.combatants.filter(f=>f.team===t),place=(f,x,y)=>{f.x=x;f.y=y;f.vx=f.vy=0;};
 const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);

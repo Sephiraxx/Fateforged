@@ -482,6 +482,8 @@ The collapsed League patches panel shows plain-language changes and a per-save s
 
 Team 2.3 also keeps Bulwark knockback on the wide team field, including shared hits, and preserves an active kit stun when shared damage lands.
 
+**Showcase games while a patch is checked.** A patch check plays its test fights in the worker pool, so the page stays free. While it runs, the league screen offers *Watch preseason games while you wait* (*showcase games* at midseason). These are friendlies between league teams that have a full roster, played on the current rules with each team's starters, tactic and game plan. Your team plays first if you coach one. A bar over the arena shows the check's progress. The games are never recorded and the league stays locked until the check is done. The game on screen then plays out, and no new one starts. Watching takes one core, which the pool already leaves free (it uses cores − 1).
+
 ## Performance and 2v2 review
 
 The 5v5 check now warms up both engines and alternates eight identical seeded workloads against the frozen team-2 reference in the same run. It limits both whole-match cost and cost per simulated second to 2.5× reference, rather than a machine-dependent 750 ms deadline. The current measurement is 1.25× / 1.42× respectively.
@@ -784,6 +786,26 @@ Other roles are unchanged, and older engines keep their numbers for saved result
 | Core siege 5v5 | 36.3% → 41.3% | 40% → 60% | 31.3% → 47.5% |
 
 One healer is now worth taking in both modes, while a second healer still loses or breaks even, so the meta does not turn into a sustain battle. Core siege otherwise plays as in team-3.7 (median about 4.6 minutes, sudden death 2.5–7.5%).
+
+## No more fighters stuck on rocks (team-3.9)
+
+Fighters could wedge between rocks in Core siege. The Core siege field rearranges the classic maps (the classic centre pieces move next to the side pillars), which left open gaps of only 7–45 px between rocks on Pillars and Crossroads, while a fighter is 18 px wide. On Ruins, fighters also ground against the long rock walls, because routing around them only kicked in for melee fighters or blocked shots. Classic teamfight maps never go below 30 px and were not affected.
+
+- **Wider gaps** (`public/objective-maps.js`, `spreadTerrain`): every open gap between rocks is at least 50 px. Rocks touching within 4 px count as one wall and stay sealed. A lone rock that sits too close to another moves straight away from it, or is removed if there is no room. The left half is fixed and mirrored, so both teams keep the same layout. About 7% of rocks on Pillars and 15% on Crossroads are removed this way.
+- **Unsticking** (`public/combat-team-v3-9.js`): a fighter that wants to move but has moved less than 4 px in a second while touching a rock walks around that rock or wall for 1.2 s, using the same detour as melee fighters.
+- Older engines keep their terrain, so saved results and replays are unchanged; leagues move to team-3.9 from their next series.
+
+**Measured** (`validation/team-terrain.json`, `scripts/evaluate-team-terrain.mjs`): balanced 3v3 mirrors, 16 per map. Stuck means alive, free to act, touching a rock, no enemy in reach and moved under 6 px in 2.5 s.
+
+| Seconds stuck per game | team-3.8 | team-3.9 |
+| --- | --- | --- |
+| Ruins | 6.8 | 0.5 |
+| Crossroads | 1.2 | 0.4 |
+| Groves | 1.2 | 0 |
+| Pillars | 0.3 | 0 |
+| Open | 0 | 0 |
+
+Core siege plays as before: 80 games of 5v5 on the same seeds give the same median length (263 s against 269 s) and the same backdoor-loss rate (10%).
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 

@@ -20,7 +20,7 @@ assert(ROLE_OUTPUT.healer<=.4&&ROLE_OUTPUT.controller<1&&ROLE_OUTPUT.tank<1&&!RO
 {const fort=v=>{const b=new (teamEngine(v))(teams(),33,{headless:true,map:'open'});return b.fortified(b.fighters.find(x=>x.role==='tank'));};assert(Math.abs(fort('team-2.7')/fort('team-2.6')-FORTIFIED_BONUS)<1e-9);}
 // Classic teamfight ramps damage through overtime so even fights still finish.
 {const late=OVERTIME_RAMP.start+20,ratio=dealt('team-2.7','damage',late)/dealt('team-2.6','damage',late);assert(Math.abs(ratio-(1+20*OVERTIME_RAMP.perSecond))<1e-9,`overtime ramp ${ratio}`);}
-assert.equal(TEAM_COMBAT_VERSION,'team-2.8');assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.8');assert.equal(engineForMode('core'),'team-3.8');assert.equal(engineForMode('teamfight'),'team-2.8');
+assert.equal(TEAM_COMBAT_VERSION,'team-2.8');assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.9');assert.equal(engineForMode('core'),'team-3.9');assert.equal(engineForMode('teamfight'),'team-2.8');
 
 // 2. Core siege scales with the format; earlier siege engines keep their rules.
 const core=(version,size)=>new (teamEngine(version))([squad(COMPOSITIONS['balanced'+size],7201),squad(COMPOSITIONS['balanced'+size],7202)],12,{headless:true,map:'open'});
@@ -51,7 +51,7 @@ for(const c of kitted)assert.equal(teamRole(c).role,'healer');
 const sustained=kitted.filter(c=>HEALER_MAIN_HEALS.includes(catalog.abilityId(c.traits.power))).length;assert(sustained>=kitted.length*.8,`${sustained} of ${kitted.length} kitted healers keep a sustained heal`);
 
 // 4. Leagues: the support rules reach existing leagues outside a running series; battle rules change between seasons.
-for(const old of ['team-2.6','team-2.7'])assert.equal(L.prepareRoleRules({teamEngine:old}).teamEngine,'team-2.8');for(const old of ['team-3.3','team-3.4','team-3.5','team-3.6','team-3.7'])assert.equal(L.prepareRoleRules({teamEngine:old}).teamEngine,'team-3.8');assert.equal(L.prepareRoleRules({teamEngine:'team-3.6',pendingSeries:{}}).teamEngine,'team-3.6','a series in progress keeps its rules');
+for(const old of ['team-2.6','team-2.7'])assert.equal(L.prepareRoleRules({teamEngine:old}).teamEngine,'team-2.8');for(const old of ['team-3.3','team-3.4','team-3.5','team-3.6','team-3.7','team-3.8'])assert.equal(L.prepareRoleRules({teamEngine:old}).teamEngine,'team-3.9');assert.equal(L.prepareRoleRules({teamEngine:'team-3.6',pendingSeries:{}}).teamEngine,'team-3.6','a series in progress keeps its rules');
 assert.equal(L.prepareRoleRules({teamEngine:'team-2.6',pendingSeries:{games:[{}]}}).teamEngine,'team-2.6');assert.equal(L.prepareRoleRules({teamEngine:'team-2'}).teamEngine,'team-2');
 const w={format:3,phase:'ready',settings:{battleMode:'teamfight'}};L.setBattleMode(w,'core');assert.equal(w.settings.battleMode,'core');
 assert.throws(()=>L.setBattleMode({...w,phase:'season'},'teamfight'),/between seasons/);assert.throws(()=>L.setBattleMode({format:2,phase:'ready',settings:{}},'core'),/3v3 or 5v5/);assert.throws(()=>L.setBattleMode(w,'chaos'));

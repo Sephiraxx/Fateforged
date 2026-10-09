@@ -6,7 +6,7 @@ import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
 import {TEAM_PLANS,BRAIN_RULES,PLAN_STYLES} from '../public/combat-team-v3-5.js';
 import {OBJECTIVE_COMBAT_VERSION} from '../public/team-engine-versions.js';
-assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.8');
+assert.equal(OBJECTIVE_COMBAT_VERSION,'team-3.9');
 const Brain=teamEngine('team-3.5');
 const make=(tactics=['balanced','balanced'],size=3,seed=77)=>new Brain([squad(COMPOSITIONS['balanced'+size],seed),squad(COMPOSITIONS['balanced'+size],seed+1)],seed,{headless:true,map:'open',tactics});
 const titanUp=b=>{b.time=40;b.objectiveStep(1/60);assert(b.titan.hp>0);};

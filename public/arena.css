@@ -280,3 +280,8 @@ body.team-fight.objective-fight.field-portrait .arena-frame{aspect-ratio:15/32;m
 
 .objective-timer{display:block;width:100%;height:5px;accent-color:#f4c96b;}
 .objective-timer[hidden]{display:none;}
+.audit-progress{position:absolute;left:14px;right:14px;top:12px;z-index:4;display:flex;flex-direction:column;gap:5px;padding:6px 10px;background:#04060bd9;border:1px solid var(--line-2);border-radius:6px;font-size:12px;line-height:1.3;color:var(--text);pointer-events:none}
+.audit-progress b{display:block;height:4px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.audit-progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
+.team-showcase{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}
+.team-showcase .muted{font-size:13px}
