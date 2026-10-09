@@ -511,6 +511,21 @@ Patch audits were the slow part of a team league. A preseason audit (and the mid
 - **Bigger pool:** up to 15 workers on a 16-thread CPU (8 before).
 - Older patch history entries keep their recorded audit version and numbers.
 
+**Audit rules v5 (midseason: outliers only).** A 32-team 3v3 midseason audit played about 3,300 fights and changed nothing: changes were capped at 1.5%, too small to show up in 12 test pairs, and the few that did were dropped by the combined check. Now:
+- **Only outliers are tested.** A candidate needs its own season record of at least 30 games, outside 45–55%, with a 95% interval excluding 50%. At most 12 are tested, by priority; one that shares a lever or a role with a higher-priority outlier is covered by it. Everything else is listed under *Not tested* and plays no fights.
+- **The season sets the change:** |rate − 50%| × 0.4, up to **10%** (was 1.5%). Every lever can now move up to **30%** from base rules (was 15%).
+- **Test fights can only veto.** One comparison of 12 pairs per outlier holds the change back only if the matched fights clearly disagree with the season or the change leaves the carrier worse. One combined check replays just the patched side against the baseline already played and drops a change only if it hurts there.
+- **Preseason:** roles and stats are now fully tested only when their screen is extreme or last season flagged them.
+
+Measured on the same saved 32-team 3v3 Core siege league at its midseason checkpoint (real first half-season, 3 workers):
+
+| | v4 | v5 |
+| --- | --- | --- |
+| Fights | 3,336 | 792 |
+| Time | 24.4 min | 6.0 min |
+| Changes applied | 0 | 9 (damage dealer damage −10%, melee damage +7.5%, tank health +6.7%, healer healing +7.1%, MAG −6.9%, and four abilities) |
+| Held | all | 3 (made matched fights worse) |
+
 ## Core siege preview (objective phase 1)
 
 Choose Core siege when founding a new 3v3/5v5 league or in exhibition Battle rules. Normal leagues and 2v2 keep team battles. The future replacement step and full coach brain remain later objective phases; this preview gives the first two phases a playable testing surface.

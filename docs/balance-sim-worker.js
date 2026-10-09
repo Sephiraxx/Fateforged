@@ -1,12 +1,14 @@
 import {simulateTeam} from './combat-team.js';
 import {seededRandom} from './team-generation.js';
-import {auditControl,auditCarries,auditBaseKey,auditScope,auditCandidateProposals,auditConcern,balanceAuditPlan} from './balance-analysis.js';
+import {auditControl,auditCarries,auditBaseKey,auditScope,auditCandidateProposals,auditConcern,auditMidseasonProposal,balanceAuditPlan} from './balance-analysis.js';
 const auditTactics=['balanced','defensive','aggressive','focus-healer','protect-carry'];
 const auditMaps=['open','pillars','ruins','crossroads'];
 // A candidate's simulations come in batches of independent games (a comparison, or the validation and every
 // proposal together). Each game result depends only on its own inputs, so a driver may run a batch in any order or
 // in parallel: simulateBalanceCandidate runs batches in place, simulateBalanceCandidateAsync hands them to a pool.
 function* candidateBatches({world,plan,key,mode='candidate',bundle},current=balanceAuditPlan(world,plan.phase)){if(current.token!==plan.token||!plan.candidates.some(c=>c.key===key))throw Error('Balance simulation is stale.');
+ // Midseason plays only outliers that still have a change to make.
+ if(plan.phase==='halfway'&&mode!=='bundle'&&!auditMidseasonProposal(plan,key))return {key,status:'skipped'};
  const descriptor=plan.candidates.find(c=>c.key===key),baseKey=auditBaseKey(key),scope=auditScope(key);
  const salt=key.split('').reduce((n,c)=>(Math.imul(n,31)+c.charCodeAt(0))>>>0,0),random=seededRandom(plan.seed^salt),pick=list=>list[Math.floor(random()*list.length)],roster=Object.values(world.fighters).filter(f=>f.team),carriers=roster.filter(f=>auditCarries(f,key)),cases=[],controls=new Set(),usedCarriers=new Set(),roleKey=baseKey.startsWith('role:')||descriptor.method==='role-intervention',role=descriptor.method==='role-intervention'?scope:baseKey.split(':')[1],count=Number(baseKey.split(':')[3])||1;
  for(let attempt=0;attempt<plan.pairs*30&&cases.length<plan.pairs;attempt++){
@@ -33,6 +35,11 @@ function* candidateBatches({world,plan,key,mode='candidate',bundle},current=bala
  const games=(profile,salt=0,from=0,to=plan.pairs)=>cases.slice(from,to).flatMap(c=>{const seed=(c.seed^salt)>>>0,options={engineVersion:plan.engine,balance:profile,conditions:c.conditions,tactics:c.tactics};return [{teams:c.teams,seed,options},{teams:[c.teams[1],c.teams[0]],seed,options}];});
  const tally=(results,pairs=results.length/2)=>{let wins=0;const margins=[];for(let i=0;i<results.length;i+=2){const a=results[i],b=results[i+1];wins+=((a.winnerTeam===0?1:0)+(b.winnerTeam===1?1:0))/2;margins.push((margin(a,0)+margin(b,1))/2);}return {wins,margins,mean:margins.reduce((a,b)=>a+b,0)/pairs};};
  const comparison=(baseline,patched)=>({key,status:'tested',pairs:plan.pairs,wins:baseline.wins,patchedWins:patched.wins,validationMargin:baseline.mean,patchedMargin:patched.mean,marginDeltas:patched.margins.map((m,i)=>m-baseline.margins[i])});
+ // Midseason combined check: only the patched side, against the baseline this candidate already played (same seeds).
+ if(mode==='bundle'&&plan.phase==='halfway'){
+  const base=bundle?.baselines?.[key];if(!bundle?.keys.includes(key)||!base)throw Error('Invalid combined patch request.');
+  return comparison({wins:base.wins,margins:base.margins,mean:base.margins.reduce((a,b)=>a+b,0)/plan.pairs},tally(yield games(bundle.profile)));
+ }
  if(mode==='bundle'){
   if(!bundle||!bundle.keys.includes(key))throw Error('Invalid combined patch request.');
   if(controls.size<2||usedCarriers.size<2)return {key,status:'unmatched'};
@@ -41,9 +48,15 @@ function* candidateBatches({world,plan,key,mode='candidate',bundle},current=bala
  }
  // Without two distinct carriers and controls the candidate can never be tested, so it plays no fights.
  if(controls.size<2||usedCarriers.size<2)return {key,status:'limited',pairs:0,controls:Math.min(controls.size,plan.pairs),carriers:Math.min(usedCarriers.size,plan.pairs),feedback:[]};
+ // Midseason: one comparison of the current rules against the season-driven change, both sides of every pair.
+ if(plan.phase==='halfway'){
+  const {field,suggestion}=auditMidseasonProposal(plan,key),patched=structuredClone(plan.profile);patched.multipliers[suggestion.lever]=suggestion.to;
+  const baseline=games(plan.profile),results=yield [...baseline,...games(patched)],before=tally(results.slice(0,baseline.length));
+  return {...comparison(before,tally(results.slice(baseline.length))),field,margins:before.margins,controls:Math.min(controls.size,plan.pairs),carriers:Math.min(usedCarriers.size,plan.pairs)};
+ }
  const pairs=Math.min(plan.pairs,plan.screenPairs),screenResults=yield games(plan.profile,0,0,pairs),screen=tally(screenResults);
  // A plan no longer than the screen has already played every pair, so it is always confirmed.
- const confirm=(plan.pairs<=plan.screenPairs||baseKey.startsWith('role:')||baseKey.startsWith('stat:')||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
+ const confirm=(plan.pairs<=plan.screenPairs||auditConcern(descriptor.observed)||auditConcern(descriptor.parent)||screen.wins/pairs<=.25||screen.wins/pairs>=.75);
  if(!confirm){const screenedControls=new Set(cases.slice(0,pairs).map(c=>c.controlId)).size,screenedCarriers=new Set(cases.slice(0,pairs).map(c=>c.carrierId)).size;return {key,status:screenedControls<2||screenedCarriers<2?'limited':'screened',pairs,wins:screen.wins,controls:screenedControls,carriers:screenedCarriers,feedback:[]};}
  // Discovery plays every case with the screen's seeds, so the screened pairs are reused rather than replayed.
  const discovery=tally([...screenResults,...(pairs<plan.pairs?yield games(plan.profile,0,pairs):[])]),proposals=auditCandidateProposals(plan,key,discovery.wins),feedback=[];
