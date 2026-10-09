@@ -5,7 +5,7 @@
   },
   "maxCandidates": null,
   "preseasonMaximum": 0.1,
-  "midseasonMaximum": 0.015,
+  "midseasonMaximum": 0.1,
   "realSmoke": {
     "key": "ability:fire",
     "status": "tested",
