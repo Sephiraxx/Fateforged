@@ -33,8 +33,11 @@ for(const [version,rules]of [['team-2.8',CONTROLLER_RULES],['team-3.8',CONTROLLE
 }
 assert(CONTROLLER_RULES.damage<1&&CONTROLLER_SIEGE_RULES.damage<1,'controllers still deal less than a damage dealer to fighters');
 
-// 2b. Healers: a little more health, part of every cast refunded, faster cooldowns; other roles unchanged.
-for(const [now,before]of [['team-2.8','team-2.7'],['team-3.8','team-3.7']]){
+// 2b. Core siege healers: a little more health, part of every cast refunded, faster cooldowns; other roles unchanged.
+// Classic teamfight healers are untouched (more sustain made classic games time out).
+{const make=v=>new (teamEngine(v))(teams(),33,{headless:true,map:'open'}),a=make('team-2.8'),b=make('team-2.7'),h=a.fighters.find(f=>f.role==='healer');
+ assert.deepEqual(a.fighters.map(f=>f.maxHp),b.fighters.map(f=>f.maxHp),'classic health unchanged');h.mana=50;a.healerSpend(h,()=>{h.mana-=20;});assert.equal(h.mana,30,'classic healers pay full price');h.cast=3;a.upkeep(h,1);assert.equal(h.cast,3,'classic healer cooldowns unchanged');}
+for(const [now,before]of [['team-3.8','team-3.7']]){
  const make=v=>new (teamEngine(v))(teams(),33,{headless:true,map:'open'}),a=make(now),b=make(before),healers=x=>(x.combatants??x.fighters).filter(f=>f.role==='healer');
  healers(a).forEach((f,i)=>{assert(Math.abs(f.maxHp/healers(b)[i].maxHp-HEALER_RULES.health)<1e-9,`${now} healer health`);assert.equal(f.hp,f.maxHp);});
  for(const role of ['tank','damage','controller'])assert.deepEqual((a.combatants??a.fighters).filter(f=>f.role===role).map(f=>f.maxHp),(b.combatants??b.fighters).filter(f=>f.role===role).map(f=>f.maxHp),`${now} ${role} health`);

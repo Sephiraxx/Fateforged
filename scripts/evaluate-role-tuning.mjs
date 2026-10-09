@@ -2,7 +2,8 @@
 // - a controller against a damage dealer (vsDamage) or a second healer (vsHealer) in the same slot;
 // - one healer against a damage dealer in that slot (oneHealerVsDamage), and two healers against one healer and a
 //   damage dealer (twoHealersVsHealerDamage).
-// Writes validation/role-tuning.json. node scripts/evaluate-role-tuning.mjs [games=80] [workers=4]
+// Writes validation/role-tuning.json. node scripts/evaluate-role-tuning.mjs [games=80] [workers=4] [engines, e.g. team-2.8,team-3.8]
+// (with engines, only those rows are re-run and the rest of the file is kept).
 import fs from 'node:fs';
 import {Worker,isMainThread,parentPort,workerData} from 'node:worker_threads';
 const base=size=>size===3?['tank','healer']:['tank','healer','damage','damage'];
@@ -19,8 +20,9 @@ if(!isMainThread){
  row.oneHealerVsDamage=swapWin([...rest,'healer'],[...rest,'damage']);row.twoHealersVsHealerDamage=swapWin([...rest2,'healer','healer'],[...rest2,'healer','damage']);
  parentPort.postMessage(row);
 }else{
- const games=Number(process.argv[2]??80),workers=Number(process.argv[3]??4),jobs=[];for(const engine of ['team-2.7','team-2.8','team-3.7','team-3.8'])for(const size of [3,5])jobs.push({engine,size,games});
+ const games=Number(process.argv[2]??80),workers=Number(process.argv[3]??4),jobs=[],only=process.argv[4]?.split(',');for(const engine of only??['team-2.7','team-2.8','team-3.7','team-3.8'])for(const size of [3,5])jobs.push({engine,size,games});
  const rows=[];let next=0;await new Promise(done=>{let running=0;const start=()=>{if(next>=jobs.length){if(!running)done();return;}const job=jobs[next++];running++;const w=new Worker(new URL(import.meta.url),{workerData:job});w.on('message',row=>{rows.push(row);console.log(row);});w.on('exit',()=>{running--;start();});};for(let i=0;i<workers;i++)start();});
+ if(only)rows.push(...JSON.parse(fs.readFileSync('validation/role-tuning.json','utf8')).rows.filter(r=>!only.includes(r.engine)));
  rows.sort((a,b)=>a.engine.localeCompare(b.engine)||a.size-b.size);
  fs.writeFileSync('validation/role-tuning.json',JSON.stringify({note:'A controller in place of a damage dealer (vsDamage) or a second healer (vsHealer); one healer in place of a damage dealer (oneHealerVsDamage); two healers in place of a healer and a damage dealer (twoHealersVsHealerDamage). Identical squads and seeds, sides alternating. controllerOutput: the controller\'s damage to fighters plus objective damage per game; swappedDamageOutput: the same for all damage dealers of the other lineup combined (one in 3v3, three in 5v5).',rows},null,2)+'\n');
 }
