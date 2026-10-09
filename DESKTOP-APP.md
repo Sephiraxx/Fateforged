@@ -28,6 +28,9 @@ Fateforge runs as a standalone app: a Windows installer and an Android APK. Ther
   - The Backups dialog shows the path.
 - **Moving saves from the browser:** in the browser version, open Backups → Export a backup. In the app, open Backups → Import that `.sqlite` file.
 
+## Sound
+The apps play the same generated retro sound as the browser (see `SOUND.md`), through WebView2 on Windows and the Android System WebView. Sound starts after the first tap or click.
+
 ## Performance
 - **Same speed as Chrome today:** the app runs the same JavaScript simulation, and the browser was never the slow part.
 - **Multi-core:** simulations already use every core but one (see "Faster simulation and patch audits" in `TEAM-BATTLES.md`).
