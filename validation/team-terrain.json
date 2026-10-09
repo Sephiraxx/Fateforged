@@ -1,0 +1,85 @@
+{
+  "note": "Core siege, balanced 3v3 mirrors per map. Stuck: alive, free to act, touching a rock, no enemy in reach, moved under 6 px in 2.5 s.",
+  "rows": [
+    {
+      "engine": "team-3.8",
+      "map": "open",
+      "games": 16,
+      "stuckEpisodesPerGame": 0,
+      "stuckSecondsPerGame": 0,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.8",
+      "map": "pillars",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.38,
+      "stuckSecondsPerGame": 0.3,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.8",
+      "map": "ruins",
+      "games": 16,
+      "stuckEpisodesPerGame": 1.5,
+      "stuckSecondsPerGame": 6.8,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.8",
+      "map": "crossroads",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.5,
+      "stuckSecondsPerGame": 1.2,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.8",
+      "map": "groves",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.44,
+      "stuckSecondsPerGame": 1.2,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.9",
+      "map": "open",
+      "games": 16,
+      "stuckEpisodesPerGame": 0,
+      "stuckSecondsPerGame": 0,
+      "unsticksPerGame": 0
+    },
+    {
+      "engine": "team-3.9",
+      "map": "pillars",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.06,
+      "stuckSecondsPerGame": 0,
+      "unsticksPerGame": 0.1
+    },
+    {
+      "engine": "team-3.9",
+      "map": "ruins",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.69,
+      "stuckSecondsPerGame": 0.5,
+      "unsticksPerGame": 2.4
+    },
+    {
+      "engine": "team-3.9",
+      "map": "crossroads",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.13,
+      "stuckSecondsPerGame": 0.4,
+      "unsticksPerGame": 0.1
+    },
+    {
+      "engine": "team-3.9",
+      "map": "groves",
+      "games": 16,
+      "stuckEpisodesPerGame": 0.06,
+      "stuckSecondsPerGame": 0,
+      "unsticksPerGame": 0.4
+    }
+  ]
+}

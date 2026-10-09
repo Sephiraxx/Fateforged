@@ -785,6 +785,26 @@ Other roles are unchanged, and older engines keep their numbers for saved result
 
 One healer is now worth taking in both modes, while a second healer still loses or breaks even, so the meta does not turn into a sustain battle. Core siege otherwise plays as in team-3.7 (median about 4.6 minutes, sudden death 2.5–7.5%).
 
+## No more fighters stuck on rocks (team-3.9)
+
+Fighters could wedge between rocks in Core siege. The Core siege field rearranges the classic maps (the classic centre pieces move next to the side pillars), which left open gaps of only 7–45 px between rocks on Pillars and Crossroads, while a fighter is 18 px wide. On Ruins, fighters also ground against the long rock walls, because routing around them only kicked in for melee fighters or blocked shots. Classic teamfight maps never go below 30 px and were not affected.
+
+- **Wider gaps** (`public/objective-maps.js`, `spreadTerrain`): every open gap between rocks is at least 50 px. Rocks touching within 4 px count as one wall and stay sealed. A lone rock that sits too close to another moves straight away from it, or is removed if there is no room. The left half is fixed and mirrored, so both teams keep the same layout. About 7% of rocks on Pillars and 15% on Crossroads are removed this way.
+- **Unsticking** (`public/combat-team-v3-9.js`): a fighter that wants to move but has moved less than 4 px in a second while touching a rock walks around that rock or wall for 1.2 s, using the same detour as melee fighters.
+- Older engines keep their terrain, so saved results and replays are unchanged; leagues move to team-3.9 from their next series.
+
+**Measured** (`validation/team-terrain.json`, `scripts/evaluate-team-terrain.mjs`): balanced 3v3 mirrors, 16 per map. Stuck means alive, free to act, touching a rock, no enemy in reach and moved under 6 px in 2.5 s.
+
+| Seconds stuck per game | team-3.8 | team-3.9 |
+| --- | --- | --- |
+| Ruins | 6.8 | 0.5 |
+| Crossroads | 1.2 | 0.4 |
+| Groves | 1.2 | 0 |
+| Pillars | 0.3 | 0 |
+| Open | 0 | 0 |
+
+Core siege plays as before: 80 games of 5v5 on the same seeds give the same median length (263 s against 269 s) and the same backdoor-loss rate (10%).
+
 ## Enhanced renderer (PixiJS, objective phase 5)
 
 Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.

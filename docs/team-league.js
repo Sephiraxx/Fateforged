@@ -97,9 +97,9 @@ export function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.8 / team-3.8: stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
+// Current rules (team-2.8 / team-3.9: no fighters stuck on rocks; stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.8','team-2.7':'team-2.8','team-3.3':'team-3.8','team-3.4':'team-3.8','team-3.5':'team-3.8','team-3.6':'team-3.8','team-3.7':'team-3.8'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.8','team-2.7':'team-2.8','team-3.3':'team-3.9','team-3.4':'team-3.9','team-3.5':'team-3.9','team-3.6':'team-3.9','team-3.7':'team-3.9','team-3.8':'team-3.9'});
 export function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 export function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
