@@ -1,10 +1,10 @@
-// Stronger controllers (team-2.8 / team-3.8): more damage, faster cooldowns and longer effects, only for controllers,
-// determinism, and the recorded measurement against swapping a controller for a damage dealer or a healer.
+// Role tuning (team-2.8 / team-3.8): controllers get more damage, faster cooldowns and longer effects; healers a little
+// more health, cheaper casts and faster cooldowns. Only those roles change; determinism; the recorded measurements.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
-import {CONTROLLER_RULES,CONTROLLER_SIEGE_RULES} from '../public/controller-tuning.js';
+import {CONTROLLER_RULES,CONTROLLER_SIEGE_RULES,HEALER_RULES} from '../public/role-tuning.js';
 import {ROLE_OUTPUT} from '../public/role-output-combat.js';
 
 const teams=()=>[squad(COMPOSITIONS.balanced5,7101),squad(COMPOSITIONS.balanced5,7102)];
@@ -29,10 +29,25 @@ for(const [version,rules]of [['team-2.8',CONTROLLER_RULES],['team-3.8',CONTROLLE
 }
 assert(CONTROLLER_RULES.damage<1&&CONTROLLER_SIEGE_RULES.damage<1,'controllers still deal less than a damage dealer to fighters');
 
+// 2b. Healers: a little more health, part of every cast refunded, faster cooldowns; other roles unchanged.
+for(const [now,before]of [['team-2.8','team-2.7'],['team-3.8','team-3.7']]){
+ const make=v=>new (teamEngine(v))(teams(),33,{headless:true,map:'open'}),a=make(now),b=make(before),healers=x=>(x.combatants??x.fighters).filter(f=>f.role==='healer');
+ healers(a).forEach((f,i)=>{assert(Math.abs(f.maxHp/healers(b)[i].maxHp-HEALER_RULES.health)<1e-9,`${now} healer health`);assert.equal(f.hp,f.maxHp);});
+ for(const role of ['tank','damage','controller'])assert.deepEqual((a.combatants??a.fighters).filter(f=>f.role===role).map(f=>f.maxHp),(b.combatants??b.fighters).filter(f=>f.role===role).map(f=>f.maxHp),`${now} ${role} health`);
+ const h=healers(a)[0],d=(a.combatants??a.fighters).find(f=>f.role==='damage');h.mana=d.mana=50;a.healerSpend(h,()=>{h.mana-=20;});a.healerSpend(d,()=>{d.mana-=20;});
+ assert(Math.abs(h.mana-(50-20*HEALER_RULES.mana))<1e-9,'healer casts cost less');assert.equal(d.mana,30,'others pay full price');
+ h.cast=3;h.kitCooldown=3;a.upkeep(h,1);assert(Math.abs((3-h.cast)-(HEALER_RULES.cooldown-1))<1e-9,`${now} healer cooldown`);assert(Math.abs((3-h.kitCooldown)-HEALER_RULES.cooldown)<1e-9);
+}
+assert(HEALER_RULES.health<=1.15&&HEALER_RULES.mana>=.8&&HEALER_RULES.cooldown<=1.2,'healer changes stay small');
+
 // 3. Determinism and versions.
 for(const version of ['team-2.8','team-3.8']){const play=()=>{const b=new (teamEngine(version))([squad(COMPOSITIONS.control3,81),squad(COMPOSITIONS.balanced3,82)],81,{headless:true});while(!b.done)b.step(1/60);return b.result();};const r=play();assert.deepEqual(r,play());assert.equal(r.combatVersion,version);}
 
-// 4. Recorded measurement (scripts/evaluate-controllers.mjs): a controller in place of a damage dealer wins 40-60%.
-{const recorded=JSON.parse(fs.readFileSync('validation/controller-tuning.json','utf8'));for(const row of recorded.rows){if(['team-2.8','team-3.8'].includes(row.engine))assert(row.vsDamage>=40&&row.vsDamage<=60,`${row.engine} ${row.size}v${row.size} controller vs damage ${row.vsDamage}%`);}
- for(const size of [3,5])for(const engine of ['team-2.8','team-3.8']){const now=recorded.rows.find(r=>r.engine===engine&&r.size===size),before=recorded.rows.find(r=>r.engine===(engine==='team-2.8'?'team-2.7':'team-3.7')&&r.size===size);assert(now&&before&&now.vsDamage>=before.vsDamage,`${engine} ${size}v${size}`);}}
-console.log('Controller tuning checks passed.');
+// 4. Recorded measurements (scripts/evaluate-role-tuning.mjs): a controller in place of a damage dealer wins 40-60% and
+// no worse than before; one healer does no worse than before; stacking a second healer never wins more than 60%.
+{const recorded=JSON.parse(fs.readFileSync('validation/role-tuning.json','utf8')),find=(engine,size)=>recorded.rows.find(r=>r.engine===engine&&r.size===size);
+ for(const size of [3,5])for(const [now,before]of [['team-2.8','team-2.7'],['team-3.8','team-3.7']]){const n=find(now,size),b=find(before,size);assert(n&&b,`${now} ${size}v${size}`);
+  assert(n.vsDamage>=40&&n.vsDamage<=60&&n.vsDamage>=b.vsDamage,`${now} ${size}v${size} controller vs damage ${n.vsDamage}%`);
+  assert(n.oneHealerVsDamage>=b.oneHealerVsDamage-5,`${now} ${size}v${size} one healer ${n.oneHealerVsDamage}% (was ${b.oneHealerVsDamage}%)`);
+  assert(n.twoHealersVsHealerDamage<=60,`${now} ${size}v${size} two healers ${n.twoHealersVsHealerDamage}%`);}}
+console.log('Role tuning checks passed.');
