@@ -752,6 +752,30 @@ A backdoor loss is a game where the losing Core took most of its last 25% of dam
 | Focus their healer | 55% | 55% |
 | Protect the carry | 40% | 55% |
 
+## Stronger controllers (team-2.8 / team-3.8)
+
+A league showed controllers winning 21% of comparable games, and the midseason audit's controller lever (crowd-control duration) was not enough on its own. Measured directly, a lineup with a controller in place of a damage dealer won only 26–46%. `public/controller-tuning.js` gives controllers more of all three:
+
+| | Classic teamfight (team-2.8) | Core siege (team-3.8) |
+| --- | --- | --- |
+| Damage to enemy fighters | 80% of a damage dealer (was 50%) | 90% (was 50%) |
+| Damage to Cores and the Titan | 80% | 115%: damage dealers carry the Core damage in a siege, so a controller swapped in for one needs it |
+| Power and kit cooldowns | 25% faster | 30% faster |
+| Crowd control and timed effects on enemies | 25% longer | 30% longer |
+
+Other roles are unchanged, and older engines keep their numbers for saved results and replays; leagues move to the new engines from their next series.
+
+**Measured** (`validation/controller-tuning.json`, `scripts/evaluate-controllers.mjs`): a lineup with a controller against the same lineup with a damage dealer or a healer in that slot, identical squads and seeds, 80 games per row.
+
+| | vs damage dealer, before → after | vs healer, before → after |
+| --- | --- | --- |
+| Classic 3v3 | 33.8% → 45% | 45% → 60% |
+| Classic 5v5 | 46.3% → 55% | 40% → 51.3% |
+| Core siege 3v3 | 26.3% → 50% | 47.5% → 62.5% |
+| Core siege 5v5 | 36.3% → 46.3% | 51.3% → 57.5% |
+
+Core siege otherwise plays as in team-3.7 (40 mixed games per size: median about 4.6 minutes, sudden death 2.5–7.5%). Healers losing the healer swap more often now points at healers, not controllers.
+
 ## Enhanced renderer (PixiJS, objective phase 5)
 
 Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.

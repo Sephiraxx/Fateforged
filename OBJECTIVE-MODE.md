@@ -1,4 +1,4 @@
-> Phases 1–5 are built. Core siege is the default 3v3/5v5 mode, with the team brain, coach game plans, backdoor defense and the Titan's Molten Hurl and Fissure (team-3.7; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. Every fight draws with the PixiJS renderer (phase 5, now including duels and tournaments). The sprite loader (phase 6) is in place and uses any art added to `public/sprites/`; the art itself is still to be made.
+> Phases 1–5 are built. Core siege is the default 3v3/5v5 mode, with the team brain, coach game plans, backdoor defense and the Titan's Molten Hurl and Fissure (team-3.8; see TEAM-BATTLES.md). Classic teamfight stays selectable, and existing leagues switch between seasons. Every fight draws with the PixiJS renderer (phase 5, now including duels and tournaments). The sprite loader (phase 6) is in place and uses any art added to `public/sprites/`; the art itself is still to be made.
 
 # Objective mode (design)
 

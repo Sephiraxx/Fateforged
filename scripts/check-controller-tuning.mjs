@@ -1,0 +1,38 @@
+// Stronger controllers (team-2.8 / team-3.8): more damage, faster cooldowns and longer effects, only for controllers,
+// determinism, and the recorded measurement against swapping a controller for a damage dealer or a healer.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {squad,COMPOSITIONS} from './team-fixtures.mjs';
+import {teamEngine} from '../public/combat-team.js';
+import {CONTROLLER_RULES,CONTROLLER_SIEGE_RULES} from '../public/controller-tuning.js';
+import {ROLE_OUTPUT} from '../public/role-output-combat.js';
+
+const teams=()=>[squad(COMPOSITIONS.balanced5,7101),squad(COMPOSITIONS.balanced5,7102)];
+const setup=version=>{const b=new (teamEngine(version))(teams(),33,{headless:true,map:'open'});b.obstacles=[];const f=b.fighters.find(x=>x.team===0&&x.role==='controller'),t=b.fighters.find(x=>x.team===1&&x.role==='damage');t.x=f.x+40;t.y=f.y;for(const a of b.fighters)if(a!==t&&a.team===1){a.x=900;a.y=40+a.index*20;}return {b,f,t};};
+const dealt=(version,role='controller')=>{const {b,t}=setup(version),f=b.fighters.find(x=>x.team===0&&x.role===role);const before=f.damageDone;b.hurt(t,f,60,'physical',false);return f.damageDone-before;};
+
+// 1. Damage: controllers only, relative to the previous engine.
+for(const [now,before,rules]of [['team-2.8','team-2.7',CONTROLLER_RULES],['team-3.8','team-3.7',CONTROLLER_SIEGE_RULES]]){
+ assert(Math.abs(dealt(now)/dealt(before)-rules.damage/ROLE_OUTPUT.controller)<1e-9,`${now} controller damage`);
+ for(const role of ['damage','healer','tank'])assert.equal(dealt(now,role),dealt(before,role),`${now} ${role} damage is unchanged`);
+}
+// Core siege: controllers hit Cores at the objective rate.
+{const make=v=>{const b=new (teamEngine(v))([squad(COMPOSITIONS.balanced3,51),squad(COMPOSITIONS.control3,52)],51,{headless:true,map:'open'});const f=b.combatants.find(x=>x.role==='controller');return {b,f,core:b.cores[1-f.team]};};
+ const hit=v=>{const {b,f,core}=make(v),hp=core.hp;b.hurt(core,f,100,'physical',false);return hp-core.hp;};assert(Math.abs(hit('team-3.8')/hit('team-3.7')-CONTROLLER_SIEGE_RULES.objective/ROLE_OUTPUT.controller)<1e-9,'controller Core damage');}
+
+// 2. Cooldowns tick faster for controllers only; effects last longer.
+for(const [version,rules]of [['team-2.8',CONTROLLER_RULES],['team-3.8',CONTROLLER_SIEGE_RULES]]){
+ const {b,f,t}=setup(version),other=b.fighters.find(x=>x.team===0&&x.role==='damage');f.cast=other.cast=f.kitCooldown=other.kitCooldown=3;b.upkeep(f,1);b.upkeep(other,1);
+ assert(Math.abs((3-f.cast)-(rules.cooldown-1))<1e-9,`${version} cast cooldown`);assert(Math.abs((3-f.kitCooldown)-rules.cooldown)<1e-9,`${version} kit cooldown`);assert.equal(other.cast,3);assert.equal(other.kitCooldown,2);
+ const untuned=Object.getPrototypeOf(Object.getPrototypeOf(b));assert(Math.abs(b.duration(f,t,2)/untuned.duration.call(b,f,t,2)-rules.duration)<1e-9,`${version} effect duration`);assert.equal(b.duration(f,f,2),untuned.duration.call(b,f,f,2),'own buffs are unchanged');assert.equal(b.duration(other,t,2),untuned.duration.call(b,other,t,2),'other roles are unchanged');
+ t.ccImmune=0;t.sleep=0;assert(b.kitControl(f,t,'stunBolt',1));assert(Math.abs(t.kitStun-rules.duration)<1e-9,`${version} kit stun`);
+}
+assert(CONTROLLER_RULES.damage<1&&CONTROLLER_SIEGE_RULES.damage<1,'controllers still deal less than a damage dealer to fighters');
+
+// 3. Determinism and versions.
+for(const version of ['team-2.8','team-3.8']){const play=()=>{const b=new (teamEngine(version))([squad(COMPOSITIONS.control3,81),squad(COMPOSITIONS.balanced3,82)],81,{headless:true});while(!b.done)b.step(1/60);return b.result();};const r=play();assert.deepEqual(r,play());assert.equal(r.combatVersion,version);}
+
+// 4. Recorded measurement (scripts/evaluate-controllers.mjs): a controller in place of a damage dealer wins 40-60%.
+{const recorded=JSON.parse(fs.readFileSync('validation/controller-tuning.json','utf8'));for(const row of recorded.rows){if(['team-2.8','team-3.8'].includes(row.engine))assert(row.vsDamage>=40&&row.vsDamage<=60,`${row.engine} ${row.size}v${row.size} controller vs damage ${row.vsDamage}%`);}
+ for(const size of [3,5])for(const engine of ['team-2.8','team-3.8']){const now=recorded.rows.find(r=>r.engine===engine&&r.size===size),before=recorded.rows.find(r=>r.engine===(engine==='team-2.8'?'team-2.7':'team-3.7')&&r.size===size);assert(now&&before&&now.vsDamage>=before.vsDamage,`${engine} ${size}v${size}`);}}
+console.log('Controller tuning checks passed.');
