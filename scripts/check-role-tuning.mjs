@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
-import {CONTROLLER_RULES,CONTROLLER_SIEGE_RULES,HEALER_RULES} from '../public/role-tuning.js';
+import {CONTROLLER_RULES,CONTROLLER_SIEGE_RULES,HEALER_RULES,HEALER_SIEGE_RULES} from '../public/role-tuning.js';
 import {ROLE_OUTPUT} from '../public/role-output-combat.js';
 
 const teams=()=>[squad(COMPOSITIONS.balanced5,7101),squad(COMPOSITIONS.balanced5,7102)];
@@ -19,6 +19,10 @@ for(const [now,before,rules]of [['team-2.8','team-2.7',CONTROLLER_RULES],['team-
 // Core siege: controllers hit Cores at the objective rate.
 {const make=v=>{const b=new (teamEngine(v))([squad(COMPOSITIONS.balanced3,51),squad(COMPOSITIONS.control3,52)],51,{headless:true,map:'open'});const f=b.combatants.find(x=>x.role==='controller');return {b,f,core:b.cores[1-f.team]};};
  const hit=v=>{const {b,f,core}=make(v),hp=core.hp;b.hurt(core,f,100,'physical',false);return hp-core.hp;};assert(Math.abs(hit('team-3.8')/hit('team-3.7')-CONTROLLER_SIEGE_RULES.objective/ROLE_OUTPUT.controller)<1e-9,'controller Core damage');}
+// Core siege: healers hit Cores at HEALER_SIEGE_RULES.objective of a damage dealer; classic healers are unchanged there.
+{const hit=(v,role)=>{const b=new (teamEngine(v))([squad(COMPOSITIONS.balanced3,51),squad(COMPOSITIONS.balanced3,52)],51,{headless:true,map:'open'}),f=b.combatants.find(x=>x.role===role),core=b.cores[1-f.team],hp=core.hp;b.hurt(core,f,100,'physical',false);return hp-core.hp;};
+ assert(Math.abs(hit('team-3.8','healer')/hit('team-3.7','healer')-HEALER_SIEGE_RULES.objective/ROLE_OUTPUT.healer)<1e-9,'healer Core damage');assert.equal(hit('team-3.8','damage'),hit('team-3.7','damage'));
+ const {b,t}=setup('team-3.8'),h=b.fighters.find(x=>x.team===0&&x.role==='healer'),before=h.damageDone;b.hurt(t,h,60,'physical',false);const {b:old,t:t0}=setup('team-3.7'),h0=old.fighters.find(x=>x.team===0&&x.role==='healer'),before0=h0.damageDone;old.hurt(t0,h0,60,'physical',false);assert.equal(h.damageDone-before,h0.damageDone-before0,'healer damage to fighters is unchanged');}
 
 // 2. Cooldowns tick faster for controllers only; effects last longer.
 for(const [version,rules]of [['team-2.8',CONTROLLER_RULES],['team-3.8',CONTROLLER_SIEGE_RULES]]){
