@@ -482,6 +482,8 @@ The collapsed League patches panel shows plain-language changes and a per-save s
 
 Team 2.3 also keeps Bulwark knockback on the wide team field, including shared hits, and preserves an active kit stun when shared damage lands.
 
+**Showcase games while a patch is checked.** A patch check plays its test fights in the worker pool, so the page stays free. While it runs, the league screen offers *Watch preseason games while you wait* (*showcase games* at midseason). These are friendlies between league teams that have a full roster, played on the current rules with each team's starters, tactic and game plan. Your team plays first if you coach one. A bar over the arena shows the check's progress. The games are never recorded and the league stays locked until the check is done. The game on screen then plays out, and no new one starts. Watching takes one core, which the pool already leaves free (it uses cores − 1).
+
 ## Performance and 2v2 review
 
 The 5v5 check now warms up both engines and alternates eight identical seeded workloads against the frozen team-2 reference in the same run. It limits both whole-match cost and cost per simulated second to 2.5× reference, rather than a machine-dependent 750 ms deadline. The current measurement is 1.25× / 1.42× respectively.

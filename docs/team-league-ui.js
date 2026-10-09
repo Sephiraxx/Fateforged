@@ -3,7 +3,7 @@ import {simulateBalanceCandidateAsync} from './balance-sim-worker.js';
 import {balanceLabel} from './team-balance.js';
 import {seriesGameOptions,seriesScore} from './team-series.js';
 import {gamePlanFields} from './game-plan-ui.js';
-import {engineForMode} from './team-engine-versions.js';
+import {engineForMode,BALANCED_ENGINES} from './team-engine-versions.js';
 import {gamePlanSummary} from './team-game-plan.js';
 // Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
@@ -25,9 +25,34 @@ export function mountTeamLeague(host,hooks){
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const patchSeasonsOpen=new Set(),championSeasonsOpen=new Set();
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog');dialog.setAttribute('aria-label','Fighter details');host.append(status,body,dialog);
+ const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog'),showcaseBar=el('div','','team-showcase');dialog.setAttribute('aria-label','Fighter details');showcaseBar.hidden=true;host.append(status,showcaseBar,body,dialog);
  dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
  const say=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
+ // Showcase games: while a patch is checked in the worker pool, the player can watch friendlies between league teams
+ // on the current rules. They are never recorded; the league stays locked until the check is done.
+ let auditing=null,showcase=null;
+ const showcaseTeams=()=>world?.draft?.complete?world.teams.filter(t=>t.roster.length>=size):[];
+ function renderShowcase(){
+  const ready=!!auditing&&showcaseTeams().length>=2;showcaseBar.hidden=!ready;if(!ready){showcaseBar.replaceChildren();return;}
+  const games=auditing.phase==='preseason'?'preseason games':'showcase games',go=button(showcase?`Stop after this game`:`Watch ${games} while you wait`,showcase?'quiet':'button primary');
+  go.onclick=()=>{if(showcase){showcase=null;renderShowcase();}else runShowcase();};
+  showcaseBar.replaceChildren(go,el('span',showcase?`Watching ${games}. They do not count, and the patch is applied when the check is done.`:'Friendlies between league teams on the current rules. They do not count.','muted'));
+ }
+ function showcasePair(last){
+  const teams=showcaseTeams(),me=mine(),r=k=>crypto.getRandomValues(new Uint32Array(1))[0]%k,a=!last&&me&&teams.includes(me)?me:teams[r(teams.length)];
+  let b=a;for(let i=0;i<20&&(b===a||last&&teams.length>2&&last.includes(a.id)&&last.includes(b.id));i++)b=teams[r(teams.length)];
+  return b===a?[a,teams.find(t=>t!==a)]:[a,b];
+ }
+ async function runShowcase(){
+  if(showcase||!auditing)return;const token=showcase={last:null},phase=auditing.phase;renderShowcase();
+  try{
+   while(auditing&&showcase===token){
+    const [a,b]=showcasePair(token.last),sides=[a,b],engine=engineForMode(world.settings.battleMode);token.last=[a.id,b.id];
+    await hooks.watch(sides.map(t=>LEAGUE.starters(world,t)),crypto.getRandomValues(new Uint32Array(1))[0],{conditions:{time:'random',weather:'random',ground:'random',map:'random'},tactics:sides.map(t=>LEAGUE.teamTactic(world,t)),engineVersion:engine,...(world.settings.battleMode==='core'?{gamePlans:sides.map(t=>LEAGUE.teamGamePlan(world,t))}:{}),...(BALANCED_ENGINES.includes(engine)?{balance:structuredClone(world.balance.profile)}:{}),caption:`${phase==='preseason'?'Preseason showcase':'Showcase'} · ${a.name} vs ${b.name} · does not count`});
+    if(auditing&&showcase===token)await new Promise(r=>setTimeout(r,2500));
+   }
+  }catch(e){say(e.message,true);}finally{if(showcase===token)showcase=null;renderShowcase();}
+ }
  async function api(method,payload){
   const response=await globalThis.FATEFORGE_STORAGE.fetch('/api/teams'+(method==='GET'?'?format='+size:''),{method,credentials:'same-origin',headers:{'content-type':'application/json'},...(payload?{body:JSON.stringify(payload)}:{})});
   let data;try{data=await response.json();}catch{throw new Error('Storage did not respond. Try again.');}
@@ -62,13 +87,15 @@ export function mountTeamLeague(host,hooks){
  async function simulateAudit(phase){
   const snapshot=structuredClone({id:world.id,seed:world.seed,season:world.season,format:world.format,settings:world.settings,teams:world.teams,fighters:world.fighters,balance:{profile:world.balance.profile,samples:world.balance.samples,previousSamples:world.balance.previousSamples,previousRoleRates:world.balance.previousRoleRates},lastOffseason:world.lastOffseason?{meta:{shift:world.lastOffseason.meta?.shift}}:null}),plan=LEAGUE.auditPlan(snapshot,phase);let finished=0;
   // Every candidate hands its games to the shared pool one batch at a time, so all workers stay busy until the end.
-  let games=0;const label=phase==='preseason'?'preseason':'midseason',progress=()=>say(`Checking ${label} balance… ${finished} / ${plan.candidates.length} checks · ${games} test fights`);
+  let games=0;const label=phase==='preseason'?'preseason':'midseason',progress=()=>{const text=`Checking ${label} balance… ${finished} / ${plan.candidates.length} checks · ${games} test fights`;say(text);hooks.progress?.({text,share:.9*finished/Math.max(1,plan.candidates.length)});};
   const runBatch=batch=>Promise.all(batch.map(g=>pool.simulate({auditGame:true,teams:g.teams,seed:g.seed,options:g.options}).then(r=>{games++;if(games%20===0)progress();return r;})));
-  progress();
+  auditing={phase};renderShowcase();progress();
+  try{
   const rows=await Promise.all(plan.candidates.map(candidate=>simulateBalanceCandidateAsync({world:snapshot,plan,key:candidate.key},runBatch,plan).then(row=>{finished++;progress();return row;})));
   const report={version:plan.version,token:plan.token,rows,bundles:[]};
-  for(;;){const bundle=nextAuditBundle(snapshot,phase,report);if(bundle.complete)break;say(`Validating combined patch… attempt ${bundle.index+1}`);const comparisons=await Promise.all(bundle.keys.map(key=>simulateBalanceCandidateAsync({world:snapshot,plan,key,mode:'bundle',bundle},runBatch,plan)));report.bundles.push({index:bundle.index,profileToken:bundle.profileToken,rows:comparisons});}
+  for(;;){const bundle=nextAuditBundle(snapshot,phase,report);if(bundle.complete)break;say(`Validating combined patch… attempt ${bundle.index+1}`);hooks.progress?.({text:'Validating the combined patch…',share:.95});const comparisons=await Promise.all(bundle.keys.map(key=>simulateBalanceCandidateAsync({world:snapshot,plan,key,mode:'bundle',bundle},runBatch,plan)));report.bundles.push({index:bundle.index,profileToken:bundle.profileToken,rows:comparisons});}
   return report;
+  }finally{const watching=!!showcase;auditing=null;showcase=null;renderShowcase();hooks.progress?.(watching?{text:'Patch check done. The league is ready; showcase games do not count.',share:1,linger:6000}:null);}
  }
  async function pendingAudit(){if(world.balance?.enabled&&world.balance.pendingAudit){const phase=world.balance.pendingAudit,audit=await simulateAudit(phase);await command({action:'balanceAudit',phase,audit},true);}}
  async function beginSeason(){
