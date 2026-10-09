@@ -752,6 +752,39 @@ A backdoor loss is a game where the losing Core took most of its last 25% of dam
 | Focus their healer | 55% | 55% |
 | Protect the carry | 40% | 55% |
 
+## Stronger controllers and healers (team-2.8 / team-3.8)
+
+A league showed controllers winning 21% of comparable games, and the midseason audit's controller lever (crowd-control duration) was not enough on its own. Measured directly, a lineup with a controller in place of a damage dealer won only 26–46%. In Core siege, even a single healer lost to another damage dealer (26–40%), because sieges are decided by Core damage. `public/role-tuning.js` changes both roles:
+
+| Controllers | Classic teamfight (team-2.8) | Core siege (team-3.8) |
+| --- | --- | --- |
+| Damage to enemy fighters | 80% of a damage dealer (was 50%) | 90% (was 50%) |
+| Damage to Cores and the Titan | 80% | 115% |
+| Power and kit cooldowns | 25% faster | 30% faster |
+| Crowd control and timed effects on enemies | 25% longer | 30% longer |
+
+| Healers (Core siege only, small on purpose) | team-3.8 |
+| --- | --- |
+| Health | +10% |
+| Mana | 15% of every power or kit cost refunded |
+| Power and kit cooldowns | 15% faster |
+| Damage to Cores and the Titan | the same as a damage dealer (they still deal 35% to fighters) |
+
+Classic teamfight healers are unchanged: a single healer already won 59–63% there, and the extra sustain pushed classic 3v3 games over the 25% time-limit cap.
+
+Other roles are unchanged, and older engines keep their numbers for saved results and replays; leagues move to the new engines from their next series. An earlier idea, letting a heal give the ally extra Core damage for a few seconds, barely moved results (allies hitting a Core are rarely the ones being healed), so the healer's own objective damage carries the change.
+
+**Measured** (`validation/role-tuning.json`, `scripts/evaluate-role-tuning.mjs`): identical squads and seeds, sides alternating, 80 games per cell, before → after.
+
+| | Controller instead of a damage dealer | One healer instead of a damage dealer | Two healers instead of healer + damage dealer |
+| --- | --- | --- | --- |
+| Classic 3v3 | 33.8% → 45% | 62.5% → 62.5% | 30% → 30% |
+| Classic 5v5 | 46.3% → 55% | 58.8% → 61.3% | 58.8% → 55% |
+| Core siege 3v3 | 26.3% → 46.3% | 26.3% → 47.5% | 23.8% → 41.3% |
+| Core siege 5v5 | 36.3% → 41.3% | 40% → 60% | 31.3% → 47.5% |
+
+One healer is now worth taking in both modes, while a second healer still loses or breaks even, so the meta does not turn into a sustain battle. Core siege otherwise plays as in team-3.7 (median about 4.6 minutes, sudden death 2.5–7.5%).
+
 ## Enhanced renderer (PixiJS, objective phase 5)
 
 Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.

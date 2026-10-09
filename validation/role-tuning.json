@@ -1,0 +1,93 @@
+{
+  "note": "A controller in place of a damage dealer (vsDamage) or a second healer (vsHealer); one healer in place of a damage dealer (oneHealerVsDamage); two healers in place of a healer and a damage dealer (twoHealersVsHealerDamage). Identical squads and seeds, sides alternating. controllerOutput: the controller's damage to fighters plus objective damage per game; swappedDamageOutput: the same for all damage dealers of the other lineup combined (one in 3v3, three in 5v5).",
+  "rows": [
+    {
+      "engine": "team-2.7",
+      "size": 3,
+      "games": 80,
+      "vsDamage": 33.8,
+      "controllerOutput": 495,
+      "swappedDamageOutput": 864,
+      "vsHealer": 45,
+      "oneHealerVsDamage": 62.5,
+      "twoHealersVsHealerDamage": 30
+    },
+    {
+      "engine": "team-2.7",
+      "size": 5,
+      "games": 80,
+      "vsDamage": 46.3,
+      "controllerOutput": 316,
+      "swappedDamageOutput": 1788,
+      "vsHealer": 40,
+      "oneHealerVsDamage": 58.8,
+      "twoHealersVsHealerDamage": 58.8
+    },
+    {
+      "engine": "team-2.8",
+      "size": 3,
+      "games": 80,
+      "vsDamage": 45,
+      "controllerOutput": 674,
+      "swappedDamageOutput": 811,
+      "vsHealer": 60,
+      "oneHealerVsDamage": 62.5,
+      "twoHealersVsHealerDamage": 30
+    },
+    {
+      "engine": "team-2.8",
+      "size": 5,
+      "games": 80,
+      "vsDamage": 55,
+      "controllerOutput": 513,
+      "swappedDamageOutput": 1629,
+      "vsHealer": 51.3,
+      "oneHealerVsDamage": 61.3,
+      "twoHealersVsHealerDamage": 55
+    },
+    {
+      "engine": "team-3.7",
+      "size": 3,
+      "games": 80,
+      "vsDamage": 26.3,
+      "controllerOutput": 2250,
+      "swappedDamageOutput": 5343,
+      "vsHealer": 47.5,
+      "oneHealerVsDamage": 26.3,
+      "twoHealersVsHealerDamage": 23.8
+    },
+    {
+      "engine": "team-3.7",
+      "size": 5,
+      "games": 80,
+      "vsDamage": 36.3,
+      "controllerOutput": 1737,
+      "swappedDamageOutput": 12359,
+      "vsHealer": 51.3,
+      "oneHealerVsDamage": 40,
+      "twoHealersVsHealerDamage": 31.3
+    },
+    {
+      "engine": "team-3.8",
+      "size": 3,
+      "games": 80,
+      "vsDamage": 46.3,
+      "controllerOutput": 3466,
+      "swappedDamageOutput": 3624,
+      "vsHealer": 53.8,
+      "oneHealerVsDamage": 47.5,
+      "twoHealersVsHealerDamage": 41.3
+    },
+    {
+      "engine": "team-3.8",
+      "size": 5,
+      "games": 80,
+      "vsDamage": 41.3,
+      "controllerOutput": 3354,
+      "swappedDamageOutput": 10243,
+      "vsHealer": 53.8,
+      "oneHealerVsDamage": 60,
+      "twoHealersVsHealerDamage": 47.5
+    }
+  ]
+}

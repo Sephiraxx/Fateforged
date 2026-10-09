@@ -5216,12 +5216,12 @@ function teamRole(character){
 
 // Current team engines and every engine that carries a per-save balance profile. Older versions stay
 // registered in combat-team.js so saved results and replays keep the rules they were played under.
-const TEAM_COMBAT_VERSION='team-2.7';
-const OBJECTIVE_COMBAT_VERSION='team-3.7';
-const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5','team-3.6','team-3.7']);
+const TEAM_COMBAT_VERSION='team-2.8';
+const OBJECTIVE_COMBAT_VERSION='team-3.8';
+const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5','team-3.6','team-3.7','team-2.8','team-3.8']);
 const engineForMode=battleMode=>battleMode==='core'?OBJECTIVE_COMBAT_VERSION:TEAM_COMBAT_VERSION;
 // Engines whose matches carry coach game plans.
-const GAME_PLAN_ENGINES=Object.freeze(['team-3.6','team-3.7']);
+const GAME_PLAN_ENGINES=Object.freeze(['team-3.6','team-3.7','team-3.8']);
 
 // Core siege game plan: three coach dials that steer the team brain (team-3.6). Shared by the engine, the league
 // rules, the worker and the UI. AI coaches take their dials from their personality and adjust one after a loss.
@@ -5640,9 +5640,9 @@ function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.7 / team-3.7: siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
+// Current rules (team-2.8 / team-3.8: stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.7','team-3.3':'team-3.7','team-3.4':'team-3.7','team-3.5':'team-3.7','team-3.6':'team-3.7'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.8','team-2.7':'team-2.8','team-3.3':'team-3.8','team-3.4':'team-3.8','team-3.5':'team-3.8','team-3.6':'team-3.8','team-3.7':'team-3.8'});
 function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
