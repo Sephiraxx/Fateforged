@@ -3,7 +3,8 @@
 //
 // Export (JSON): fighters, Cores and the Titan are "entities", listed by their `index` and referenced as {"$e":index};
 // numbers that JSON cannot carry exactly (−0, NaN, ±Infinity) are written as {"$f":"<16 hex digits of the bits>"};
-// missing and undefined fields are left out, null stays null. A field the schema does not know throws, so gaps show.
+// missing and undefined fields are left out, null stays null, functions (never state) are skipped. A field the schema
+// does not know throws, so gaps show.
 // Digest: FNV-1a 64 over a binary walk of the same fields in schema order (tag byte, then the value), which
 // core/src/team/digest.rs reproduces from the Rust structs.
 import fs from 'node:fs';
@@ -51,7 +52,7 @@ function exportValue(type,v,entities,path){
 function exportObject(kind,o,entities,path){
  const spec=kinds[kind];if(!spec)throw new Error(`${path}: unknown kind ${kind}`);
  const out={},skip=SKIP[kind];
- for(const key of Object.keys(o)){if(skip?.has(key))continue;const f=spec.fields[key];if(!f)throw new Error(`${path}.${key}: not in the schema (kind ${kind})`);const v=o[key];if(v===undefined)continue;
+ for(const key of Object.keys(o)){if(skip?.has(key)||typeof o[key]==='function')continue;const f=spec.fields[key];if(!f)throw new Error(`${path}.${key}: not in the schema (kind ${kind})`);const v=o[key];if(v===undefined)continue;
   if(v===null&&!f.nullable)throw new Error(`${path}.${key}: null in a non-nullable field`);out[key]=exportValue(f.type,v,entities,`${path}.${key}`);}
  return out;
 }

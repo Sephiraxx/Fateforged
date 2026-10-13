@@ -10,13 +10,14 @@ import {pathToFileURL} from 'node:url';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {tierCharacter} from '../public/tier-generation.js';
 import {seededRandom} from '../public/team-generation.js';
-import {teamEngine} from '../public/combat-team.js';
+import {teamEngine,TEAM_TACTICS} from '../public/combat-team.js';
 import {TEAM_MAPS} from '../public/team-maps.js';
 
 export const ENGINE='team-4.0';
 // Objects whose keys are data (ability ids, team sizes, slot numbers, plan names), not fields.
 export const MAP_KINDS=new Set(['entity.abilityUseCounts','entity.powerUsed','battle.plans[].slots','battle.balance.multipliers','battle.titanRules.hp','battle.objectiveRules.coreHp','battle.objectiveRules.coreRamp','battle.brain[].scores','battle.planSeconds[]']);
 // Never part of the state: closures rebuilt from other fields, and the battle's random generator (exported separately).
+export const TRANSIENT=['healSource','balanceCast','balanceEnvironment','selectingFight','targetFilter','hitContext'];
 export const SKIP=new Set(['battle.rng','battle.__rngCalls','battle.plans[].along','battle.plans[].exposed']);
 
 const args=process.argv.slice(2),perCell=Number(args[args.indexOf('--games-per-cell')+1])||1;
@@ -25,7 +26,9 @@ export function entitiesOf(b){return new Set([...(b.combatants??[]),...(b.fighte
 export function buildSchema(games){
  const kinds=new Map(),parent=new Map(),objects=new Map(),present=new Map();
  const find=k=>{while(parent.get(k)&&parent.get(k)!==k)k=parent.get(k);return k;};
- const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent.set(b,a);};
+ // Aliased kinds keep the name of the one seen first, whatever order later samples meet them in.
+ const order=new Map(),rank=k=>order.get(k)??order.set(k,order.size).get(k);
+ const union=(a,b)=>{a=find(a);b=find(b);if(a===b)return;if(rank(b)<rank(a))[a,b]=[b,a];parent.set(b,a);};
  const field=(kind,key)=>{const k=kinds.get(kind)??kinds.set(kind,new Map()).get(kind);return k.get(key)??k.set(key,new Set()).get(key);};
  const typeOf=(v,path,entities,seen,kindOfObject)=>{
   if(v===null||v===undefined)return 'null';
@@ -40,15 +43,24 @@ export function buildSchema(games){
   return MAP_KINDS.has(path)?`map<${path}>`:`obj<${path}>`;
  };
  const walk=(o,kind,entities,seen,kindOfObject)=>{
-  if(!kinds.has(kind))kinds.set(kind,new Map());
+  if(!kinds.has(kind))kinds.set(kind,new Map());rank(kind);
   objects.set(kind,(objects.get(kind)??0)+1);if(!MAP_KINDS.has(kind))for(const key of Object.keys(o))present.set(`${kind}\u0000${key}`,(present.get(`${kind}\u0000${key}`)??0)+1);
-  for(const key of Object.keys(o)){const path=`${kind}.${key}`;if(SKIP.has(path))continue;const v=o[key];
+  for(const key of Object.keys(o)){const path=`${kind}.${key}`;if(SKIP.has(path))continue;const v=o[key];if(typeof v==='function')continue;
    const t=typeOf(v,MAP_KINDS.has(kind)?`${kind}{}`:path,entities,seen,kindOfObject);field(MAP_KINDS.has(kind)?kind:kind,MAP_KINDS.has(kind)?'{}':key).add(t);}
  };
  const sample=b=>{const entities=entitiesOf(b),seen=new Set(),kindOfObject=new Map();
   for(const e of entities){seen.add(e);walk(e,'entity',entities,seen,kindOfObject);}
   walk(b,'battle',entities,seen,kindOfObject);};
- for(const g of games){const b=g();sample(b);let n=0;while(!b.done){b.step(1/60);if(++n%10===0)sample(b);}sample(b);}
+ // Also sample inside steps, at method-call boundaries (every 1500th call and every power use), so values that only exist while a step
+ // runs (a power being weighed, a cast payload, ...) are typed too: the Rust parity tests replay single calls.
+ for(const g of games){const b=g();sample(b);let n=0,calls=0;
+  const names=new Set();for(let p=Object.getPrototypeOf(b);p&&p!==Object.prototype;p=Object.getPrototypeOf(p))for(const k of Object.getOwnPropertyNames(p))if(k!=='constructor'&&k!=='step'&&k!=='result'&&typeof p[k]==='function')names.add(k);
+  // Within-step battle fields (scripts/rust-calls.mjs: TRANSIENT) are passed to Rust separately, so they stay null here.
+  const midStep=b=>{const saved=TRANSIENT.filter(k=>Object.hasOwn(b,k)&&b[k]!=null).map(k=>{const v=b[k];b[k]=null;return [k,v];});try{sample(b);}finally{for(const [k,v] of saved)b[k]=v;}};
+  // Every power use is sampled too: some fields (a teleport's landing) only exist while a power resolves.
+  for(const k of names){const fn=b[k],always=k==='usePower';b[k]=function(...a){if(always||++calls%1500===0)midStep(this);return fn.apply(this,a);};}
+  while(!b.done){b.step(1/60);if(++n%10===0)sample(b);}sample(b);
+  for(const k of names)delete b[k];}
  // Merge aliased kinds, resolve obj<path> to the merged kind name.
  const merged=new Map(),mergedObjects=new Map(),mergedPresent=new Map();
  for(const [kind,fields] of kinds){const root=find(kind),m=merged.get(root)??merged.set(root,new Map()).get(root);mergedObjects.set(root,(mergedObjects.get(root)??0)+(objects.get(kind)??0));
@@ -69,7 +81,11 @@ export function gameList(perCell=1,engine=ENGINE){
  const list=[];
  for(const map of TEAM_MAPS.map(m=>m.id))for(const size of [3,5])for(const comp of Object.keys(COMPOSITIONS).filter(c=>c.endsWith(String(size))))for(let k=0;k<perCell;k++){
   const seed=1000+list.length*7,other=Object.keys(COMPOSITIONS).filter(c=>c.endsWith(String(size)));
-  list.push({map,size,comp,seed,make:()=>new (teamEngine(engine))([squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[other[(list.length+k)%other.length]],seed+1)],seed,{headless:true,map})});
+  // Every tactic plays on each side (game plans follow the tactic), so flanks, holds and dives all show up.
+  const tactics=[TEAM_TACTICS[list.length%TEAM_TACTICS.length],TEAM_TACTICS[(list.length*3+1)%TEAM_TACTICS.length]];
+  // Every third game, both sides play a flank game plan (side-lane sieges set laneWaypoint).
+  const gamePlans=list.length%3===0?[{titan:'always',style:'flank',siege:'numbers'},{titan:'ahead',style:'flank',siege:'late'}]:undefined;
+  list.push({map,size,comp,seed,tactics,make:()=>new (teamEngine(engine))([squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[other[(list.length+k)%other.length]],seed+1)],seed,{headless:true,map,tactics,...(gamePlans?{gamePlans}:{})})});
  }
  return list;
 }
@@ -87,7 +103,8 @@ export function coverageGames(engine=ENGINE){
   // Every other game runs under a league patch that touches abilities, roles and stats (balance-driven state).
   const known=new Set(Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).map(a=>a.id)),patched=ids.slice(i,i+6).filter(id=>known.has(id));
   const balance=(i/6)%2?{id:'cover',multipliers:Object.fromEntries([...patched.map(id=>`ability:${id}:potency`),'ability:healing:healing','role:tank:health','role:controller:control','stat:MAG','stat:STR'].map((k,j)=>[k,j%2?1.08:.94]))}:undefined;
-  list.push({map,size:3,comp:'coverage',seed,make:()=>new (teamEngine(engine))([structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,...(balance?{balance}:{})})});}
+  const tactics=[TEAM_TACTICS[(i/6)%TEAM_TACTICS.length],TEAM_TACTICS[(i/6+2)%TEAM_TACTICS.length]];
+  list.push({map,size:3,comp:'coverage',seed,tactics,make:()=>new (teamEngine(engine))([structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,tactics,...(balance?{balance}:{})})});}
  return {ids,list};
 }
 

@@ -115,11 +115,12 @@ export class TeamBattle extends DuelBattle{
    // Back line: everyone who is neither a tank nor a skirmisher on a dive.
    const back=mine.filter(f=>f.role!=='tank'&&!f.diving),B=back.length?this.centroid(back):F;
    const threats=new Set(foes.filter(e=>back.some(a=>a.role!=='damage'||a.weapon.type!=='melee'?dist(e,a)<130:false)).map(e=>e.index));
+   // enemyTanks is also kept on the plan (as indexes) so the Rust core can rebuild exposed() from a snapshot.
    const enemyTanks=foes.filter(e=>e.role==='tank'),exposed=e=>e.role!=='tank'&&!enemyTanks.some(t=>dist(t,e)<110);
    let called=null,best=-Infinity;
    for(const e of foes){let score=(1-e.hp/e.maxHp)*2.2+{healer:1.5,damage:1.2,controller:.9,tank:0}[e.role]-dist(e,F)/170;if(!exposed(e)&&e.role!=='tank')score-=.6;if(posture.call==='healer'&&e.role==='healer')score+=1.6;if(threats.has(e.index))score+=1.5;if(e.index===old?.called)score+=.5;if(score>best){best=score;called=e.index;}}
    const slots={},spread=mine.length>3?1.2:1,place=(f,back,lateral)=>{slots[f.index]={x:this.clampX(F.x-u.x*back+v.x*lateral*spread),y:this.clampY(F.y-u.y*back+v.y*lateral*spread),back};};
-   if(mine.length===1)return {u,v,F,B,engaged,hold:false,called,threats,slots:{},posture,exposed,hurt:null,along,alone:true};
+   if(mine.length===1)return {u,v,F,B,engaged,hold:false,called,threats,slots:{},posture,exposed,enemyTanks:enemyTanks.map(e=>e.index),hurt:null,along,alone:true};
    const groups={tank:[],ranged:[],controller:[],healer:[],skirmisher:[]};for(const f of mine)groups[f.role==='tank'?'tank':f.role==='healer'?'healer':f.role==='controller'?'controller':this.isSkirmisher(f)?'skirmisher':'ranged'].push(f);
    const fan=(list,width)=>list.map((f,i)=>[f,list.length>1?(i/(list.length-1)-.5)*width:0]);
    for(const [f,l]of fan(groups.tank,80))place(f,0,l);
@@ -135,7 +136,7 @@ export class TeamBattle extends DuelBattle{
     const mobile=f.powers.some(p=>MOBILITY.has(p.id))&&f.cast<=0&&dist(f,prey)<300;
     if(posture.dive==='all'||exposed(prey)||mobile){f.diving=true;f.diveStart=this.time;f.diveTarget=prey.index;}
    }
-   return {u,v,F,B,engaged,hold,called,threats,slots,posture,exposed,hurt:mine.filter(f=>f.hp<f.maxHp*.6).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0]?.index??null,along};
+   return {u,v,F,B,engaged,hold,called,threats,slots,posture,exposed,enemyTanks:enemyTanks.map(e=>e.index),hurt:mine.filter(f=>f.hp<f.maxHp*.6).sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0]?.index??null,along};
   });
  }
  // Who is f fighting? Re-scored every 0.35 s, never every step.

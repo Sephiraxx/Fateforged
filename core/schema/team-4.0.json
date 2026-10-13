@@ -676,11 +676,15 @@
      "nullable": true
     },
     "B": {
-     "type": "obj<entity.intent.leash.ref>",
+     "type": "obj<battle.plans[].F>",
      "nullable": false
     },
     "called": {
      "type": "f64",
+     "nullable": false
+    },
+    "enemyTanks": {
+     "type": "arr<f64>",
      "nullable": false
     },
     "engaged": {
@@ -688,7 +692,7 @@
      "nullable": false
     },
     "F": {
-     "type": "obj<entity.intent.leash.ref>",
+     "type": "obj<battle.plans[].F>",
      "nullable": false
     },
     "hold": {
@@ -712,7 +716,7 @@
      "nullable": false
     },
     "u": {
-     "type": "obj<entity.intent.u>",
+     "type": "obj<battle.plans[].u>",
      "nullable": false
     },
     "v": {
@@ -721,12 +725,33 @@
     }
    }
   },
+  "battle.plans[].F": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
   "battle.plans[].posture": {
    "map": false,
    "fields": {
+    "call": {
+     "type": "str",
+     "nullable": true
+    },
     "dive": {
      "type": "str",
      "nullable": false
+    },
+    "hold": {
+     "type": "f64",
+     "nullable": true
     },
     "leash": {
      "type": "f64",
@@ -750,7 +775,37 @@
    "map": true,
    "fields": {
     "{}": {
-     "type": "obj<entity.intent.slot>",
+     "type": "obj<battle.plans[].slots{}>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].slots{}": {
+   "map": false,
+   "fields": {
+    "back": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].u": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
      "nullable": false
     }
    }
@@ -1282,7 +1337,7 @@
      "nullable": false
     },
     "castPayload": {
-     "type": "null",
+     "type": "obj<entity.castPayload>",
      "nullable": true
     },
     "ccImmune": {
@@ -1494,7 +1549,7 @@
      "nullable": false
     },
     "laneWaypoint": {
-     "type": "null",
+     "type": "obj<entity.laneWaypoint>",
      "nullable": true
     },
     "lastAttacker": {
@@ -1694,7 +1749,7 @@
      "nullable": false
     },
     "selectedPower": {
-     "type": "null",
+     "type": "obj<entity.powers[]>",
      "nullable": true
     },
     "shape": {
@@ -1762,7 +1817,7 @@
      "nullable": true
     },
     "supportTarget": {
-     "type": "null",
+     "type": "f64",
      "nullable": true
     },
     "suppressed": {
@@ -1798,7 +1853,7 @@
      "nullable": true
     },
     "teleportPlan": {
-     "type": "null",
+     "type": "obj<entity.teleportPlan>",
      "nullable": true
     },
     "think": {
@@ -1987,6 +2042,23 @@
     }
    }
   },
+  "entity.castPayload": {
+   "map": false,
+   "fields": {
+    "power": {
+     "type": "obj<entity.powers[]>",
+     "nullable": true
+    },
+    "priority": {
+     "type": "f64",
+     "nullable": false
+    },
+    "weapon": {
+     "type": "bool",
+     "nullable": true
+    }
+   }
+  },
   "entity.decoy": {
    "map": false,
    "fields": {
@@ -2029,7 +2101,7 @@
      "nullable": true
     },
     "slot": {
-     "type": "obj<entity.intent.slot>",
+     "type": "obj<battle.plans[].slots{}>",
      "nullable": true
     },
     "strafe": {
@@ -2041,7 +2113,7 @@
      "nullable": true
     },
     "u": {
-     "type": "obj<entity.intent.u>",
+     "type": "obj<battle.plans[].u>",
      "nullable": true
     }
    }
@@ -2054,42 +2126,12 @@
      "nullable": false
     },
     "ref": {
-     "type": "entity|obj<entity.intent.leash.ref>",
+     "type": "entity|obj<battle.plans[].F>",
      "nullable": false
     }
    }
   },
-  "entity.intent.leash.ref": {
-   "map": false,
-   "fields": {
-    "x": {
-     "type": "f64",
-     "nullable": false
-    },
-    "y": {
-     "type": "f64",
-     "nullable": false
-    }
-   }
-  },
-  "entity.intent.slot": {
-   "map": false,
-   "fields": {
-    "back": {
-     "type": "f64",
-     "nullable": false
-    },
-    "x": {
-     "type": "f64",
-     "nullable": false
-    },
-    "y": {
-     "type": "f64",
-     "nullable": false
-    }
-   }
-  },
-  "entity.intent.u": {
+  "entity.laneWaypoint": {
    "map": false,
    "fields": {
     "x": {
@@ -2245,6 +2287,19 @@
      "type": "f64",
      "nullable": false
     },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.teleportPlan": {
+   "map": false,
+   "fields": {
     "x": {
      "type": "f64",
      "nullable": false

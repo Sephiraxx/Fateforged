@@ -601,13 +601,15 @@ pub struct BattlePlans {
     #[serde(rename = "alone", default)]
     pub alone: Option<bool>,
     #[serde(rename = "B")]
-    pub b_upper: EntityIntentLeashRef,
+    pub b_upper: BattlePlansF,
     #[serde(rename = "called", deserialize_with = "jsnum::f64")]
     pub called: f64,
+    #[serde(rename = "enemyTanks", deserialize_with = "jsnum::vec_f64")]
+    pub enemy_tanks: Vec<f64>,
     #[serde(rename = "engaged")]
     pub engaged: bool,
     #[serde(rename = "F")]
-    pub f_upper: EntityIntentLeashRef,
+    pub f_upper: BattlePlansF,
     #[serde(rename = "hold", default)]
     pub hold: Option<bool>,
     #[serde(rename = "hurt", default, deserialize_with = "jsnum::opt_f64")]
@@ -615,11 +617,11 @@ pub struct BattlePlans {
     #[serde(rename = "posture")]
     pub posture: BattlePlansPosture,
     #[serde(rename = "slots")]
-    pub slots: JsMap<EntityIntentSlot>,
+    pub slots: JsMap<BattlePlansSlots>,
     #[serde(rename = "threats", deserialize_with = "jsnum::vec_f64")]
     pub threats: Vec<f64>,
     #[serde(rename = "u")]
-    pub u: EntityIntentU,
+    pub u: BattlePlansU,
     #[serde(rename = "v")]
     pub v: BattlePlansV,
 }
@@ -630,6 +632,7 @@ impl Digest for BattlePlans {
         match &self.alone { None => h.nil(), Some(v) => { h.bool((*v)); } }
         self.b_upper.digest(h);
         h.f64(self.called);
+        h.arr(self.enemy_tanks.len()); for x in self.enemy_tanks.iter() { h.f64((*x)); }
         h.bool(self.engaged);
         self.f_upper.digest(h);
         match &self.hold { None => h.nil(), Some(v) => { h.bool((*v)); } }
@@ -642,12 +645,34 @@ impl Digest for BattlePlans {
     }
 }
 
+/// `battle.plans[].F`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansF {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansF {}
+impl Digest for BattlePlansF {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
 /// `battle.plans[].posture`
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BattlePlansPosture {
+    #[serde(rename = "call", default)]
+    pub call: Option<String>,
     #[serde(rename = "dive")]
     pub dive: String,
+    #[serde(rename = "hold", default, deserialize_with = "jsnum::opt_f64")]
+    pub hold: Option<f64>,
     #[serde(rename = "leash", deserialize_with = "jsnum::f64")]
     pub leash: f64,
     #[serde(rename = "peel", deserialize_with = "jsnum::f64")]
@@ -661,11 +686,52 @@ impl JsDe for BattlePlansPosture {}
 impl Digest for BattlePlansPosture {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
+        match &self.call { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.str(&self.dive);
+        match &self.hold { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.leash);
         h.f64(self.peel);
         h.f64(self.pull);
         h.f64(self.strafe);
+    }
+}
+
+/// `battle.plans[].slots{}`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansSlots {
+    #[serde(rename = "back", deserialize_with = "jsnum::f64")]
+    pub back: f64,
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansSlots {}
+impl Digest for BattlePlansSlots {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.back);
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
+/// `battle.plans[].u`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansU {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansU {}
+impl Digest for BattlePlansU {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
     }
 }
 
@@ -1110,7 +1176,7 @@ pub struct Entity {
     #[serde(rename = "castCount", deserialize_with = "jsnum::f64")]
     pub cast_count: f64,
     #[serde(rename = "castPayload", default)]
-    pub cast_payload: Option<Never>,
+    pub cast_payload: Option<EntityCastPayload>,
     #[serde(rename = "ccImmune", deserialize_with = "jsnum::f64")]
     pub cc_immune: f64,
     #[serde(rename = "ccSeconds", deserialize_with = "jsnum::f64")]
@@ -1216,7 +1282,7 @@ pub struct Entity {
     #[serde(rename = "kitStun", deserialize_with = "jsnum::f64")]
     pub kit_stun: f64,
     #[serde(rename = "laneWaypoint", default)]
-    pub lane_waypoint: Option<Never>,
+    pub lane_waypoint: Option<EntityLaneWaypoint>,
     #[serde(rename = "lastAttacker", default, deserialize_with = "jsnum::opt_f64")]
     pub last_attacker: Option<f64>,
     #[serde(rename = "lastCastId", default)]
@@ -1316,7 +1382,7 @@ pub struct Entity {
     #[serde(rename = "secondWindUsed")]
     pub second_wind_used: bool,
     #[serde(rename = "selectedPower", default)]
-    pub selected_power: Option<Never>,
+    pub selected_power: Option<EntityPowers>,
     #[serde(rename = "shape", deserialize_with = "jsnum::f64")]
     pub shape: f64,
     #[serde(rename = "shield", deserialize_with = "jsnum::f64")]
@@ -1349,8 +1415,8 @@ pub struct Entity {
     pub support_revived: Option<bool>,
     #[serde(rename = "supportReviveSpent", default)]
     pub support_revive_spent: Option<bool>,
-    #[serde(rename = "supportTarget", default)]
-    pub support_target: Option<Never>,
+    #[serde(rename = "supportTarget", default, deserialize_with = "jsnum::opt_f64")]
+    pub support_target: Option<f64>,
     #[serde(rename = "suppressed", deserialize_with = "jsnum::f64")]
     pub suppressed: f64,
     #[serde(rename = "swing", deserialize_with = "jsnum::f64")]
@@ -1368,7 +1434,7 @@ pub struct Entity {
     #[serde(rename = "teamKit", default)]
     pub team_kit: Option<Never>,
     #[serde(rename = "teleportPlan", default)]
-    pub teleport_plan: Option<Never>,
+    pub teleport_plan: Option<EntityTeleportPlan>,
     #[serde(rename = "think", deserialize_with = "jsnum::f64")]
     pub think: f64,
     #[serde(rename = "trail")]
@@ -1429,7 +1495,7 @@ impl Digest for Entity {
         h.f64(self.burn_damage);
         h.f64(self.cast);
         h.f64(self.cast_count);
-        match &self.cast_payload { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.cast_payload { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.cc_immune);
         h.f64(self.cc_seconds);
         h.f64(self.chrono);
@@ -1482,7 +1548,7 @@ impl Digest for Entity {
         h.f64(self.kit_cooldown);
         h.f64(self.kit_shield);
         h.f64(self.kit_stun);
-        match &self.lane_waypoint { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.lane_waypoint { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.last_attacker { None => h.nil(), Some(v) => { h.f64((*v)); } }
         match &self.last_cast_id { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.f64(self.last_stand_time);
@@ -1532,7 +1598,7 @@ impl Digest for Entity {
         h.f64(self.roll_y);
         h.f64(self.root);
         h.bool(self.second_wind_used);
-        match &self.selected_power { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.selected_power { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.shape);
         h.f64(self.shield);
         h.f64(self.side);
@@ -1549,7 +1615,7 @@ impl Digest for Entity {
         match &self.still_since { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.support_revived { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.support_revive_spent { None => h.nil(), Some(v) => { h.bool((*v)); } }
-        match &self.support_target { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.support_target { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.suppressed);
         h.f64(self.swing);
         h.f64(self.tactics);
@@ -1558,7 +1624,7 @@ impl Digest for Entity {
         h.f64(self.taunt_time);
         h.f64(self.team);
         match &self.team_kit { None => h.nil(), Some(v) => { h.nil(); } }
-        match &self.teleport_plan { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.teleport_plan { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.think);
         h.arr(self.trail.len()); for x in self.trail.iter() { h.nil(); }
         self.traits.digest(h);
@@ -1680,6 +1746,27 @@ impl Digest for EntityAnchor {
     }
 }
 
+/// `entity.castPayload`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityCastPayload {
+    #[serde(rename = "power", default)]
+    pub power: Option<EntityPowers>,
+    #[serde(rename = "priority", deserialize_with = "jsnum::f64")]
+    pub priority: f64,
+    #[serde(rename = "weapon", default)]
+    pub weapon: Option<bool>,
+}
+impl JsDe for EntityCastPayload {}
+impl Digest for EntityCastPayload {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        match &self.power { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        h.f64(self.priority);
+        match &self.weapon { None => h.nil(), Some(v) => { h.bool((*v)); } }
+    }
+}
+
 /// `entity.decoy`
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -1728,13 +1815,13 @@ pub struct EntityIntent {
     #[serde(rename = "pull", default, deserialize_with = "jsnum::opt_f64")]
     pub pull: Option<f64>,
     #[serde(rename = "slot", default)]
-    pub slot: Option<EntityIntentSlot>,
+    pub slot: Option<BattlePlansSlots>,
     #[serde(rename = "strafe", default, deserialize_with = "jsnum::opt_f64")]
     pub strafe: Option<f64>,
     #[serde(rename = "support", default)]
     pub support: Option<bool>,
     #[serde(rename = "u", default)]
-    pub u: Option<EntityIntentU>,
+    pub u: Option<BattlePlansU>,
 }
 impl JsDe for EntityIntent {}
 impl Digest for EntityIntent {
@@ -1756,7 +1843,7 @@ pub struct EntityIntentLeash {
     #[serde(rename = "max", deserialize_with = "jsnum::f64")]
     pub max: f64,
     #[serde(rename = "ref")]
-    pub ref_: EntOrEntityIntentLeashRef,
+    pub ref_: EntOrBattlePlansF,
 }
 impl JsDe for EntityIntentLeash {}
 impl Digest for EntityIntentLeash {
@@ -1767,56 +1854,17 @@ impl Digest for EntityIntentLeash {
     }
 }
 
-/// `entity.intent.leash.ref`
+/// `entity.laneWaypoint`
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct EntityIntentLeashRef {
+pub struct EntityLaneWaypoint {
     #[serde(rename = "x", deserialize_with = "jsnum::f64")]
     pub x: f64,
     #[serde(rename = "y", deserialize_with = "jsnum::f64")]
     pub y: f64,
 }
-impl JsDe for EntityIntentLeashRef {}
-impl Digest for EntityIntentLeashRef {
-    fn digest(&self, h: &mut Fnv) {
-        h.obj();
-        h.f64(self.x);
-        h.f64(self.y);
-    }
-}
-
-/// `entity.intent.slot`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct EntityIntentSlot {
-    #[serde(rename = "back", deserialize_with = "jsnum::f64")]
-    pub back: f64,
-    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
-    pub x: f64,
-    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
-    pub y: f64,
-}
-impl JsDe for EntityIntentSlot {}
-impl Digest for EntityIntentSlot {
-    fn digest(&self, h: &mut Fnv) {
-        h.obj();
-        h.f64(self.back);
-        h.f64(self.x);
-        h.f64(self.y);
-    }
-}
-
-/// `entity.intent.u`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct EntityIntentU {
-    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
-    pub x: f64,
-    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
-    pub y: f64,
-}
-impl JsDe for EntityIntentU {}
-impl Digest for EntityIntentU {
+impl JsDe for EntityLaneWaypoint {}
+impl Digest for EntityLaneWaypoint {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
         h.f64(self.x);
@@ -1960,6 +2008,24 @@ impl Digest for EntityStillSince {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
         h.f64(self.time);
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
+/// `entity.teleportPlan`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityTeleportPlan {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for EntityTeleportPlan {}
+impl Digest for EntityTeleportPlan {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
         h.f64(self.x);
         h.f64(self.y);
     }
@@ -2153,25 +2219,25 @@ impl Digest for NumOrStr {
     }
 }
 
-/// One of: entity | obj<entity.intent.leash.ref>
+/// One of: entity | obj<battle.plans[].F>
 #[derive(Debug, Clone)]
-pub enum EntOrEntityIntentLeashRef {
+pub enum EntOrBattlePlansF {
     Ent(Ent),
-    Obj(EntityIntentLeashRef),
+    Obj(BattlePlansF),
 }
-impl<'de> Deserialize<'de> for EntOrEntityIntentLeashRef {
+impl<'de> Deserialize<'de> for EntOrBattlePlansF {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let v = serde_json::Value::deserialize(d)?;
-        if let Some(e) = jsnum::value_ent(&v) { return Ok(EntOrEntityIntentLeashRef::Ent(e)); }
-        if v.is_object() { return EntityIntentLeashRef::deserialize(v).map(EntOrEntityIntentLeashRef::Obj).map_err(serde::de::Error::custom); }
-        Err(serde::de::Error::custom("EntOrEntityIntentLeashRef: unexpected value"))
+        if let Some(e) = jsnum::value_ent(&v) { return Ok(EntOrBattlePlansF::Ent(e)); }
+        if v.is_object() { return BattlePlansF::deserialize(v).map(EntOrBattlePlansF::Obj).map_err(serde::de::Error::custom); }
+        Err(serde::de::Error::custom("EntOrBattlePlansF: unexpected value"))
     }
 }
-impl Digest for EntOrEntityIntentLeashRef {
+impl Digest for EntOrBattlePlansF {
     fn digest(&self, h: &mut Fnv) {
         match self {
-            EntOrEntityIntentLeashRef::Ent(x) => { h.ent(*x); }
-            EntOrEntityIntentLeashRef::Obj(x) => { x.digest(h); }
+            EntOrBattlePlansF::Ent(x) => { h.ent(*x); }
+            EntOrBattlePlansF::Obj(x) => { x.digest(h); }
         }
     }
 }

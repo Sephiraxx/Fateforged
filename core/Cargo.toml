@@ -21,6 +21,10 @@ path = "src/bin/team_state.rs"
 name = "team-helpers"
 path = "src/bin/team_helpers.rs"
 
+[[bin]]
+name = "team-calls"
+path = "src/bin/team_calls.rs"
+
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 # float_roundtrip: exact number parsing; preserve_order: JavaScript key order in maps.
