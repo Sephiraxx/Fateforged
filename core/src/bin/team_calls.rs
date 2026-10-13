@@ -46,6 +46,8 @@ fn same(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Number(x), Value::Number(y)) => x.as_f64().map(f64::to_bits) == y.as_f64().map(f64::to_bits),
         (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q)),
+        // A returned power is compared by id.
+        (Value::Object(x), Value::Object(y)) if x.contains_key("$power") && y.contains_key("$power") => x["$power"]["id"] == y["$power"]["id"],
         (Value::Object(x), Value::Object(y)) => x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w))),
         _ => a == b,
     }
@@ -507,6 +509,43 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
             let targets = c.ent_list(2);
             c.eng.apply_support_ability(c.ent(0), &p, &targets);
             UNDEFINED()
+        }
+        "powerUtility" => {
+            let t = c.tgt(1);
+            let p = c.power(2);
+            let copied = c.bool(3);
+            num(c.eng.power_utility(c.ent(0), &t, &p, copied))
+        }
+        "powerPriority" => {
+            let t = c.tgt(1);
+            let p = c.power(2);
+            num(c.eng.power_priority(c.ent(0), &t, &p))
+        }
+        "copyChoice" => {
+            let t = c.tgt(1);
+            match c.eng.copy_choice(c.ent(0), &t) {
+                None => Value::Null,
+                Some(ch) => match ch.power {
+                    Some(p) => obj(vec![("power", json!({"$power": {"id": p.id}})), ("priority", num(ch.priority))]),
+                    None => obj(vec![("priority", num(ch.priority)), ("weapon", json!(true))]),
+                },
+            }
+        }
+        "castPower" => {
+            let t = c.tgt(1);
+            c.eng.cast_power(c.ent(0), &t);
+            UNDEFINED()
+        }
+        "startAttack" => {
+            let t = c.tgt(1);
+            c.eng.start_attack(c.ent(0), &t);
+            UNDEFINED()
+        }
+        "usePower" => {
+            let t = c.tgt(1);
+            let p = c.power(2);
+            let copied = c.bool(3);
+            hit_result(c.eng.use_power(c.ent(0), &t, &p, copied))
         }
         other => panic!("method {other} is not ported"),
     }

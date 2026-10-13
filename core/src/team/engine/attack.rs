@@ -448,6 +448,119 @@ impl Engine {
         released
     }
 
+    /// `startAttack(f, t)`: d12/d8 (disarmed fighters only cast) → d7 (abilities first; hold fire behind cover) → d6
+    /// → d5 → d2 (decoys; energy) → d1 (wind up a swing or aim a shot).
+    pub fn start_attack(&mut self, f: Ent, t: &Tgt) {
+        if self.f(f).disarmed > 0.0 {
+            self.cast_power(f, t);
+            return;
+        }
+        // d7
+        let fe = self.f(f);
+        if fe.action.is_some() || fe.sleep > 0.0 || fe.amnesia > 0.0 || fe.stagger > 0.0 || fe.roll > 0.0 {
+            return;
+        }
+        let casts = fe.cast_count;
+        self.cast_power(f, t);
+        if self.f(f).cast_count != casts || self.f(f).action.is_some() {
+            return;
+        }
+        let fe = self.f(f);
+        let free = fe.weapon.type_ == "melee" || fe.raging == Some(true) || fe.shape > 0.0;
+        if !free {
+            let (fx, fy) = (fe.x, fe.y);
+            let angle = self.aim(fx, fy, f, t, 290.0);
+            if !self.shot_clear(f, t, angle) {
+                return;
+            }
+        }
+        let energy = self.f(f).energy;
+        self.start_attack_d6(f, t);
+        let index = self.f(t.ent).index;
+        let e = self.fm(f);
+        let spent = max(0.0, energy - e.energy);
+        if let Some(a) = e.action.as_mut().filter(|a| a.released != Some(true)) {
+            a.refund_energy = Some(spent);
+            a.target_index = Some(index);
+        }
+    }
+
+    fn start_attack_d6(&mut self, f: Ent, t: &Tgt) {
+        let fe = self.f(f);
+        let free = fe.weapon.type_ == "melee" || fe.raging == Some(true) || fe.shape > 0.0;
+        if !free && !self.clear_shot(fe.x, fe.y, self.tx(t), self.ty(t)) {
+            return;
+        }
+        // d5
+        let fe = self.f(f);
+        if fe.sleep > 0.0 || fe.amnesia > 0.0 || fe.stagger > 0.0 || fe.roll > 0.0 || fe.action.is_some() {
+            return;
+        }
+        let count = fe.cast_count;
+        self.cast_power(f, t);
+        if self.f(f).cast_count != count || self.f(f).action.is_some() {
+            return;
+        }
+        // d2
+        let fe = self.f(f);
+        let arcane = fe.weapon.type_ == "arcane";
+        if fe.sleep > 0.0 || fe.amnesia > 0.0 || fe.energy < 6.0 || fe.suppressed > 0.0 && arcane || fe.disarmed > 0.0 && super::combat::weapon_tags(fe).metal || fe.weakness == "silenced casting" && arcane {
+            return;
+        }
+        let target = self.target_for(f, t);
+        let before = self.f(f).action.is_some();
+        self.start_attack_d1(f, &target);
+        if !before && self.f(f).action.is_some() {
+            self.fm(f).energy -= 6.0;
+        }
+    }
+
+    /// d1: start a swing or a shot when the target is in reach.
+    fn start_attack_d1(&mut self, f: Ent, t: &Tgt) {
+        let fe = self.f(f);
+        if fe.cooldown > 0.0 || fe.action.is_some() || fe.roll > 0.0 || fe.stagger > 0.0 {
+            return;
+        }
+        let d = hypot2(self.tx(t) - fe.x, self.ty(t) - fe.y);
+        if d > fe.weapon.range + 8.0 {
+            return;
+        }
+        let melee = fe.weapon.type_ == "melee";
+        let heavy = fe.weapon.interval >= 1.25;
+        let windup = if melee { if heavy { 0.23 } else { 0.14 } } else { 0.22 };
+        let angle = if melee {
+            fe.angle
+        } else {
+            let (fx, fy) = (fe.x, fe.y);
+            self.aim(fx, fy, f, t, 290.0)
+        };
+        let e = self.fm(f);
+        e.action = Some(crate::team::state::EntityAction {
+            type_: if melee { "melee" } else { "shot" }.into(),
+            angle: Some(angle),
+            elapsed: 0.0,
+            windup: windup * (0.95 - 0.2 * e.tactics),
+            recovery: Some(if melee { if heavy { 0.27 } else { 0.19 } } else { 0.14 }),
+            released: Some(false),
+            heavy: Some(heavy),
+            cost: None,
+            origin: None,
+            power: None,
+            refund_energy: None,
+            refund_mana: None,
+            target_index: None,
+            targets: None,
+            travel: None,
+        });
+        e.cooldown = e.interval + windup;
+        e.action_label = if melee { "Wind up" } else { "Aim" }.into();
+        if melee {
+            self.b.metrics.swings += 1.0;
+        } else {
+            self.b.metrics.shots += 1.0;
+        }
+    }
+
     /// `applySupportAbility(f, p, targets)`: d14 (a patched ability's context; Resurrection's healing patch) → d12.
     pub fn apply_support_ability(&mut self, f: Ent, p: &EntityPowers, targets: &[Ent]) {
         let before: Vec<(Ent, f64)> = targets.iter().map(|&a| (a, self.f(a).hp)).collect();
