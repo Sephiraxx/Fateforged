@@ -42,6 +42,12 @@ function encode(v,ctx){
  const out={};for(const k of Object.keys(v).sort())out[k]=encode(v[k],ctx);return {$obj:out};
 }
 class Skip extends Error{}
+// `this.hitContext`: a record or the projectile that hit; only these fields are ever read from it.
+const HIT_FIELDS=['payload','duration','periodic','technique','weaponHit','sprite','ordinaryArcane','balanceAbility'];
+function hitContext(c){
+ if(!c)return null;const out={};for(const k of HIT_FIELDS)out[k]=c[k]===undefined?null:typeof c[k]==='number'?num(c[k]):c[k];
+ out.tags=c.tags?Object.fromEntries(Object.entries(c.tags).map(([k,v])=>[k,!!v])):null;return out;
+}
 
 // --- recording ------------------------------------------------------------------------------------------------
 // Within-step fields are recorded separately (tr) and blanked for the export; fields that do not exist stay absent.
@@ -64,7 +70,7 @@ for(const [gi,g] of games.entries()){
    try{
     if(this.targetFilter)throw new Skip('target filter installed');
     const ents=entitiesOf(this),ctx={entities:new Set(ents),byId:new Map(ents.map(e=>[e.id,e]))};
-    const tr={healSource:this.healSource?.index??null,balanceCast:this.balanceCast?{fighter:this.balanceCast.fighter.index,id:this.balanceCast.id}:null,balanceEnvironment:!!this.balanceEnvironment,selectingFight:!!this.selectingFight};
+    const tr={healSource:this.healSource?.index??null,balanceCast:this.balanceCast?{fighter:this.balanceCast.fighter.index,id:this.balanceCast.id}:null,balanceEnvironment:!!this.balanceEnvironment,selectingFight:!!this.selectingFight,hitContext:hitContext(this.hitContext)};
     const saved=blank(this);let state;try{state=exportState(this);}finally{restore(this,saved);}
     caseData={method:name,game:gi,call:seen[name],tr,args:a.map(x=>encode(x,ctx)),state};
    }catch(e){if(!(e instanceof Skip))throw e;counts[name].skipped[e.message]=(counts[name].skipped[e.message]??0)+1;}
