@@ -1,0 +1,2424 @@
+{
+ "engine": "team-4.0",
+ "games": 48,
+ "kinds": {
+  "battle": {
+   "map": false,
+   "fields": {
+    "actors": {
+     "type": "arr<entity>",
+     "nullable": false
+    },
+    "backdoorRules": {
+     "type": "obj<battle.backdoorRules>",
+     "nullable": false
+    },
+    "balance": {
+     "type": "obj<battle.balance>",
+     "nullable": false
+    },
+    "balanceCast": {
+     "type": "null",
+     "nullable": true
+    },
+    "brain": {
+     "type": "arr<obj<battle.brain[]>>",
+     "nullable": false
+    },
+    "center": {
+     "type": "obj<battle.center>",
+     "nullable": false
+    },
+    "combatants": {
+     "type": "arr<entity>",
+     "nullable": false
+    },
+    "controllerRules": {
+     "type": "obj<battle.controllerRules>",
+     "nullable": false
+    },
+    "coreAt180": {
+     "type": "arr<f64>",
+     "nullable": true
+    },
+    "coreHitAt": {
+     "type": "arr<f64>",
+     "nullable": true
+    },
+    "cores": {
+     "type": "arr<entity>",
+     "nullable": false
+    },
+    "done": {
+     "type": "bool",
+     "nullable": false
+    },
+    "duty": {
+     "type": "arr<set<f64>>",
+     "nullable": false
+    },
+    "dutySeconds": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "effectAbilityIds": {
+     "type": "set<str>",
+     "nullable": false
+    },
+    "effects": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "environment": {
+     "type": "obj<battle.environment>",
+     "nullable": false
+    },
+    "events": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "fighters": {
+     "type": "arr<entity>",
+     "nullable": false
+    },
+    "fissure": {
+     "type": "obj<battle.fissure>",
+     "nullable": true
+    },
+    "fissures": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureStuns": {
+     "type": "f64",
+     "nullable": false
+    },
+    "food": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "forgefireSeconds": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "forgefireUntil": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "gamePlans": {
+     "type": "arr<obj<battle.gamePlans[]>>",
+     "nullable": false
+    },
+    "headless": {
+     "type": "bool",
+     "nullable": false
+    },
+    "healerRules": {
+     "type": "obj<battle.healerRules>",
+     "nullable": false
+    },
+    "healSource": {
+     "type": "null",
+     "nullable": true
+    },
+    "height": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hitContext": {
+     "type": "null",
+     "nullable": true
+    },
+    "hurls": {
+     "type": "f64",
+     "nullable": false
+    },
+    "lightningPulses": {
+     "type": "arr<obj<battle.lightningPulses[]>>",
+     "nullable": false
+    },
+    "metrics": {
+     "type": "obj<battle.metrics>",
+     "nullable": false
+    },
+    "mode": {
+     "type": "str",
+     "nullable": false
+    },
+    "monsterKills": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "nextBrain": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextFissure": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextHurl": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextPulse": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "nextShield": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "nextSlam": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextThunder": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextTitan": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nextTitanAttack": {
+     "type": "f64",
+     "nullable": false
+    },
+    "night": {
+     "type": "bool",
+     "nullable": false
+    },
+    "objectiveMode": {
+     "type": "bool",
+     "nullable": false
+    },
+    "objectiveRules": {
+     "type": "obj<battle.objectiveRules>",
+     "nullable": false
+    },
+    "obstacles": {
+     "type": "arr<obj<battle.obstacles[]>>",
+     "nullable": false
+    },
+    "plans": {
+     "type": "arr<obj<battle.plans[]>?>",
+     "nullable": false
+    },
+    "planSeconds": {
+     "type": "arr<map<battle.planSeconds[]>>",
+     "nullable": false
+    },
+    "planSwitches": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "planTimer": {
+     "type": "f64",
+     "nullable": false
+    },
+    "portals": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "projectiles": {
+     "type": "arr<obj<battle.projectiles[]>>",
+     "nullable": false
+    },
+    "reason": {
+     "type": "str",
+     "nullable": true
+    },
+    "relic": {
+     "type": "obj<battle.relic>",
+     "nullable": false
+    },
+    "rules": {
+     "type": "obj<battle.rules>",
+     "nullable": false
+    },
+    "seed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "seenResets": {
+     "type": "f64",
+     "nullable": false
+    },
+    "selectingFight": {
+     "type": "null",
+     "nullable": true
+    },
+    "size": {
+     "type": "f64",
+     "nullable": false
+    },
+    "slamAt": {
+     "type": "f64",
+     "nullable": true
+    },
+    "steals": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "suddenDeath": {
+     "type": "bool",
+     "nullable": false
+    },
+    "summons": {
+     "type": "arr<obj<battle.summons[]>>",
+     "nullable": false
+    },
+    "tactics": {
+     "type": "arr<str>",
+     "nullable": false
+    },
+    "targetFilter": {
+     "type": "null",
+     "nullable": true
+    },
+    "time": {
+     "type": "f64",
+     "nullable": false
+    },
+    "timeLimit": {
+     "type": "f64",
+     "nullable": false
+    },
+    "titan": {
+     "type": "entity",
+     "nullable": false
+    },
+    "titanDamage": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "titanDeaths": {
+     "type": "arr<obj<battle.titanDeaths[]>>",
+     "nullable": false
+    },
+    "titanEverDamaged": {
+     "type": "bool",
+     "nullable": false
+    },
+    "titanHits": {
+     "type": "arr<obj<battle.titanHits[]>>",
+     "nullable": false
+    },
+    "titanLastHit": {
+     "type": "f64",
+     "nullable": false
+    },
+    "titanResets": {
+     "type": "f64",
+     "nullable": false
+    },
+    "titanRules": {
+     "type": "obj<battle.titanRules>",
+     "nullable": false
+    },
+    "titanUp": {
+     "type": "bool",
+     "nullable": false
+    },
+    "unsticks": {
+     "type": "f64",
+     "nullable": false
+    },
+    "width": {
+     "type": "f64",
+     "nullable": false
+    },
+    "winner": {
+     "type": "f64",
+     "nullable": true
+    },
+    "winnerTeam": {
+     "type": "f64",
+     "nullable": true
+    },
+    "wisps": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "zones": {
+     "type": "arr<obj<battle.zones[]>>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.backdoorRules": {
+   "map": false,
+   "fields": {
+    "defendBase": {
+     "type": "f64",
+     "nullable": false
+    },
+    "defendPerIntruder": {
+     "type": "f64",
+     "nullable": false
+    },
+    "intrusion": {
+     "type": "f64",
+     "nullable": false
+    },
+    "noBlink": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.balance": {
+   "map": false,
+   "fields": {
+    "id": {
+     "type": "str",
+     "nullable": false
+    },
+    "multipliers": {
+     "type": "map<battle.balance.multipliers>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.balance.multipliers": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.brain[]": {
+   "map": false,
+   "fields": {
+    "plan": {
+     "type": "str",
+     "nullable": false
+    },
+    "scores": {
+     "type": "map<battle.brain[].scores>",
+     "nullable": false
+    },
+    "since": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.brain[].scores": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.center": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.controllerRules": {
+   "map": false,
+   "fields": {
+    "cooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "duration": {
+     "type": "f64",
+     "nullable": false
+    },
+    "objective": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.environment": {
+   "map": false,
+   "fields": {
+    "ground": {
+     "type": "str",
+     "nullable": false
+    },
+    "map": {
+     "type": "str",
+     "nullable": false
+    },
+    "time": {
+     "type": "str",
+     "nullable": false
+    },
+    "weather": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "battle.fissure": {
+   "map": false,
+   "fields": {
+    "angle": {
+     "type": "f64",
+     "nullable": false
+    },
+    "at": {
+     "type": "f64",
+     "nullable": false
+    },
+    "length": {
+     "type": "f64",
+     "nullable": false
+    },
+    "start": {
+     "type": "f64",
+     "nullable": false
+    },
+    "width": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.gamePlans[]": {
+   "map": false,
+   "fields": {
+    "siege": {
+     "type": "str",
+     "nullable": false
+    },
+    "style": {
+     "type": "str",
+     "nullable": false
+    },
+    "titan": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "battle.healerRules": {
+   "map": false,
+   "fields": {
+    "cooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "health": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mana": {
+     "type": "f64",
+     "nullable": false
+    },
+    "objective": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.lightningPulses[]": {
+   "map": false,
+   "fields": {
+    "due": {
+     "type": "f64",
+     "nullable": false
+    },
+    "opening": {
+     "type": "bool",
+     "nullable": false
+    },
+    "owner": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.metrics": {
+   "map": false,
+   "fields": {
+    "dashes": {
+     "type": "f64",
+     "nullable": false
+    },
+    "dodges": {
+     "type": "f64",
+     "nullable": false
+    },
+    "shots": {
+     "type": "f64",
+     "nullable": false
+    },
+    "swings": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.objectiveRules": {
+   "map": false,
+   "fields": {
+    "coreHp": {
+     "type": "map<battle.objectiveRules.coreHp>",
+     "nullable": false
+    },
+    "coreRamp": {
+     "type": "map<battle.objectiveRules.coreRamp>",
+     "nullable": false
+    },
+    "forgefireGuard": {
+     "type": "f64",
+     "nullable": false
+    },
+    "guarded": {
+     "type": "f64",
+     "nullable": false
+    },
+    "guardRadius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pulseDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pulseInterval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pulseRange": {
+     "type": "f64",
+     "nullable": false
+    },
+    "suddenDeath": {
+     "type": "f64",
+     "nullable": false
+    },
+    "timeLimit": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.objectiveRules.coreHp": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.objectiveRules.coreRamp": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.obstacles[]": {
+   "map": false,
+   "fields": {
+    "life": {
+     "type": "f64",
+     "nullable": false
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "terrain": {
+     "type": "bool",
+     "nullable": true
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[]": {
+   "map": false,
+   "fields": {
+    "alone": {
+     "type": "bool",
+     "nullable": true
+    },
+    "B": {
+     "type": "obj<entity.intent.leash.ref>",
+     "nullable": false
+    },
+    "called": {
+     "type": "f64",
+     "nullable": false
+    },
+    "engaged": {
+     "type": "bool",
+     "nullable": false
+    },
+    "F": {
+     "type": "obj<entity.intent.leash.ref>",
+     "nullable": false
+    },
+    "hold": {
+     "type": "bool",
+     "nullable": true
+    },
+    "hurt": {
+     "type": "f64",
+     "nullable": true
+    },
+    "posture": {
+     "type": "obj<battle.plans[].posture>",
+     "nullable": false
+    },
+    "slots": {
+     "type": "map<battle.plans[].slots>",
+     "nullable": false
+    },
+    "threats": {
+     "type": "set<f64>",
+     "nullable": false
+    },
+    "u": {
+     "type": "obj<entity.intent.u>",
+     "nullable": false
+    },
+    "v": {
+     "type": "obj<battle.plans[].v>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].posture": {
+   "map": false,
+   "fields": {
+    "dive": {
+     "type": "str",
+     "nullable": false
+    },
+    "leash": {
+     "type": "f64",
+     "nullable": false
+    },
+    "peel": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pull": {
+     "type": "f64",
+     "nullable": false
+    },
+    "strafe": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].slots": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "obj<entity.intent.slot>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].v": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.planSeconds[]": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.projectiles[]": {
+   "map": false,
+   "fields": {
+    "balanceAbility": {
+     "type": "str",
+     "nullable": true
+    },
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "duration": {
+     "type": "f64",
+     "nullable": true
+    },
+    "life": {
+     "type": "f64",
+     "nullable": false
+    },
+    "molten": {
+     "type": "bool",
+     "nullable": true
+    },
+    "ordinaryArcane": {
+     "type": "bool",
+     "nullable": true
+    },
+    "owner": {
+     "type": "f64",
+     "nullable": false
+    },
+    "payload": {
+     "type": "str",
+     "nullable": true
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sprite": {
+     "type": "f64",
+     "nullable": false
+    },
+    "tags": {
+     "type": "obj<entity.weapon.properties>",
+     "nullable": true
+    },
+    "technique": {
+     "type": "bool",
+     "nullable": true
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    },
+    "vx": {
+     "type": "f64",
+     "nullable": false
+    },
+    "vy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "weaponHit": {
+     "type": "bool",
+     "nullable": true
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.relic": {
+   "map": false,
+   "fields": {
+    "active": {
+     "type": "bool",
+     "nullable": false
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.rules": {
+   "map": false,
+   "fields": {
+    "absorptionUseful": {
+     "type": "bool",
+     "nullable": false
+    },
+    "alternation": {
+     "type": "bool",
+     "nullable": false
+    },
+    "arcaneArmor": {
+     "type": "f64",
+     "nullable": false
+    },
+    "arcaneRange": {
+     "type": "f64",
+     "nullable": false
+    },
+    "arcaneSpell": {
+     "type": "f64",
+     "nullable": false
+    },
+    "beastDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "copyUseful": {
+     "type": "bool",
+     "nullable": false
+    },
+    "dreamDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "memoryCost": {
+     "type": "f64",
+     "nullable": false
+    },
+    "memoryCounterplay": {
+     "type": "bool",
+     "nullable": false
+    },
+    "memoryDuration": {
+     "type": "f64",
+     "nullable": false
+    },
+    "metalImpact": {
+     "type": "bool",
+     "nullable": false
+    },
+    "mindBuff": {
+     "type": "bool",
+     "nullable": false
+    },
+    "mindUseful": {
+     "type": "bool",
+     "nullable": false
+    },
+    "phoenixHealth": {
+     "type": "f64",
+     "nullable": false
+    },
+    "portalExit": {
+     "type": "bool",
+     "nullable": false
+    },
+    "pursuitArcane": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sizeBuff": {
+     "type": "bool",
+     "nullable": false
+    },
+    "spiritArmorUseful": {
+     "type": "bool",
+     "nullable": false
+    },
+    "teleportFast": {
+     "type": "bool",
+     "nullable": false
+    },
+    "teleportUseful": {
+     "type": "bool",
+     "nullable": false
+    }
+   }
+  },
+  "battle.summons[]": {
+   "map": false,
+   "fields": {
+    "angle": {
+     "type": "f64",
+     "nullable": true
+    },
+    "cooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "life": {
+     "type": "f64",
+     "nullable": false
+    },
+    "owner": {
+     "type": "f64",
+     "nullable": false
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.titanDeaths[]": {
+   "map": false,
+   "fields": {
+    "damage": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "stolen": {
+     "type": "bool",
+     "nullable": false
+    },
+    "team": {
+     "type": "f64",
+     "nullable": false
+    },
+    "time": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.titanHits[]": {
+   "map": false,
+   "fields": {
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "index": {
+     "type": "f64",
+     "nullable": false
+    },
+    "time": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.titanRules": {
+   "map": false,
+   "fields": {
+    "attackDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "coreDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureFirst": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureInterval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureLength": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureStun": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureTelegraph": {
+     "type": "f64",
+     "nullable": false
+    },
+    "fissureWidth": {
+     "type": "f64",
+     "nullable": false
+    },
+    "forgefire": {
+     "type": "f64",
+     "nullable": false
+    },
+    "forgefireFight": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hp": {
+     "type": "map<battle.titanRules.hp>",
+     "nullable": false
+    },
+    "hurlDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hurlInterval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hurlMin": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hurlRange": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hurlSpeed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "range": {
+     "type": "f64",
+     "nullable": false
+    },
+    "reset": {
+     "type": "f64",
+     "nullable": false
+    },
+    "respawn": {
+     "type": "f64",
+     "nullable": false
+    },
+    "shield": {
+     "type": "f64",
+     "nullable": false
+    },
+    "shieldInterval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "slam": {
+     "type": "f64",
+     "nullable": false
+    },
+    "slamDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "spawn": {
+     "type": "f64",
+     "nullable": false
+    },
+    "telegraph": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.titanRules.hp": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.zones[]": {
+   "map": false,
+   "fields": {
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "due": {
+     "type": "f64",
+     "nullable": true
+    },
+    "life": {
+     "type": "f64",
+     "nullable": false
+    },
+    "owner": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pull": {
+     "type": "f64",
+     "nullable": true
+    },
+    "pulse": {
+     "type": "f64",
+     "nullable": true
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "singularity": {
+     "type": "bool",
+     "nullable": true
+    },
+    "tick": {
+     "type": "f64",
+     "nullable": false
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity": {
+   "map": false,
+   "fields": {
+    "abilityUseCounts": {
+     "type": "map<entity.abilityUseCounts>",
+     "nullable": false
+    },
+    "absorption": {
+     "type": "f64",
+     "nullable": false
+    },
+    "accuracy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "action": {
+     "type": "obj<entity.action>",
+     "nullable": true
+    },
+    "actionLabel": {
+     "type": "str",
+     "nullable": false
+    },
+    "amnesia": {
+     "type": "f64",
+     "nullable": false
+    },
+    "anchor": {
+     "type": "obj<entity.anchor>",
+     "nullable": true
+    },
+    "angle": {
+     "type": "f64",
+     "nullable": false
+    },
+    "armor": {
+     "type": "f64",
+     "nullable": false
+    },
+    "bleed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "bleedDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "blind": {
+     "type": "f64",
+     "nullable": false
+    },
+    "brambleSlow": {
+     "type": "f64",
+     "nullable": false
+    },
+    "burn": {
+     "type": "f64",
+     "nullable": false
+    },
+    "burnDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "cast": {
+     "type": "f64",
+     "nullable": false
+    },
+    "castCount": {
+     "type": "f64",
+     "nullable": false
+    },
+    "castPayload": {
+     "type": "null",
+     "nullable": true
+    },
+    "ccImmune": {
+     "type": "f64",
+     "nullable": false
+    },
+    "ccSeconds": {
+     "type": "f64",
+     "nullable": false
+    },
+    "chrono": {
+     "type": "f64",
+     "nullable": false
+    },
+    "cooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "counterScale": {
+     "type": "f64",
+     "nullable": false
+    },
+    "counterTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "creditedDown": {
+     "type": "bool",
+     "nullable": false
+    },
+    "crippled": {
+     "type": "f64",
+     "nullable": false
+    },
+    "crit": {
+     "type": "f64",
+     "nullable": false
+    },
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "damageDone": {
+     "type": "f64",
+     "nullable": false
+    },
+    "deathMark": {
+     "type": "f64",
+     "nullable": false
+    },
+    "deaths": {
+     "type": "f64",
+     "nullable": false
+    },
+    "decoy": {
+     "type": "obj<entity.decoy>",
+     "nullable": true
+    },
+    "detourSide": {
+     "type": "f64",
+     "nullable": true
+    },
+    "disarmed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "diveRest": {
+     "type": "f64",
+     "nullable": true
+    },
+    "diveStart": {
+     "type": "f64",
+     "nullable": true
+    },
+    "diveTarget": {
+     "type": "f64",
+     "nullable": true
+    },
+    "diving": {
+     "type": "bool",
+     "nullable": true
+    },
+    "dodge": {
+     "type": "f64",
+     "nullable": false
+    },
+    "downed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "downSeconds": {
+     "type": "f64",
+     "nullable": true
+    },
+    "energy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "evade": {
+     "type": "f64",
+     "nullable": false
+    },
+    "exposed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "facing": {
+     "type": "f64",
+     "nullable": false
+    },
+    "flight": {
+     "type": "f64",
+     "nullable": false
+    },
+    "foreseen": {
+     "type": "f64",
+     "nullable": false
+    },
+    "forgefireUntil": {
+     "type": "f64",
+     "nullable": true
+    },
+    "forgeShield": {
+     "type": "f64",
+     "nullable": true
+    },
+    "futureTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "gates": {
+     "type": "arr<obj<entity.gates[]>>",
+     "nullable": true
+    },
+    "generationVersion": {
+     "type": "f64",
+     "nullable": false
+    },
+    "guardReady": {
+     "type": "bool",
+     "nullable": false
+    },
+    "guardTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "healingDone": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hitFlash": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hp": {
+     "type": "f64",
+     "nullable": false
+    },
+    "id": {
+     "type": "str",
+     "nullable": false
+    },
+    "illusionTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "index": {
+     "type": "f64",
+     "nullable": false
+    },
+    "insight": {
+     "type": "f64",
+     "nullable": false
+    },
+    "intent": {
+     "type": "obj<entity.intent>",
+     "nullable": true
+    },
+    "interval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "invisible": {
+     "type": "f64",
+     "nullable": false
+    },
+    "isObjective": {
+     "type": "bool",
+     "nullable": true
+    },
+    "kills": {
+     "type": "f64",
+     "nullable": false
+    },
+    "kitCasts": {
+     "type": "f64",
+     "nullable": false
+    },
+    "kitCooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "kitShield": {
+     "type": "f64",
+     "nullable": false
+    },
+    "kitStun": {
+     "type": "f64",
+     "nullable": false
+    },
+    "laneWaypoint": {
+     "type": "null",
+     "nullable": true
+    },
+    "lastAttacker": {
+     "type": "f64",
+     "nullable": true
+    },
+    "lastCastId": {
+     "type": "str",
+     "nullable": true
+    },
+    "lastStandTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "lastStandUsed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "magic": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mana": {
+     "type": "f64",
+     "nullable": false
+    },
+    "maxEnergy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "maxHp": {
+     "type": "f64",
+     "nullable": false
+    },
+    "maxMana": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mindTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mirrorHits": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mirrorTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "monsterLastHits": {
+     "type": "f64",
+     "nullable": true
+    },
+    "move": {
+     "type": "f64",
+     "nullable": false
+    },
+    "name": {
+     "type": "str",
+     "nullable": false
+    },
+    "nextSelection": {
+     "type": "f64",
+     "nullable": false
+    },
+    "nutrition": {
+     "type": "f64",
+     "nullable": false
+    },
+    "objectiveDamage": {
+     "type": "f64",
+     "nullable": true
+    },
+    "orbit": {
+     "type": "f64",
+     "nullable": false
+    },
+    "original": {
+     "type": "obj<entity.original>",
+     "nullable": false
+    },
+    "parryTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "perfectTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "perfectUsed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "periodic": {
+     "type": "f64",
+     "nullable": false
+    },
+    "phoenixArmed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "phoenixSpent": {
+     "type": "bool",
+     "nullable": false
+    },
+    "poison": {
+     "type": "f64",
+     "nullable": false
+    },
+    "poisonDamage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "portalTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "portalUsed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "powerIndex": {
+     "type": "f64",
+     "nullable": false
+    },
+    "powers": {
+     "type": "arr<obj<entity.powers[]>>",
+     "nullable": false
+    },
+    "powerUsed": {
+     "type": "map<entity.powerUsed>",
+     "nullable": false
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    },
+    "raging": {
+     "type": "bool",
+     "nullable": true
+    },
+    "regeneration": {
+     "type": "f64",
+     "nullable": false
+    },
+    "regenPower": {
+     "type": "f64",
+     "nullable": true
+    },
+    "regenSource": {
+     "type": "f64",
+     "nullable": true
+    },
+    "respawnAt": {
+     "type": "f64",
+     "nullable": true
+    },
+    "retarget": {
+     "type": "f64",
+     "nullable": false
+    },
+    "revivedByKit": {
+     "type": "bool",
+     "nullable": false
+    },
+    "reviveSpent": {
+     "type": "bool",
+     "nullable": false
+    },
+    "role": {
+     "type": "str",
+     "nullable": false
+    },
+    "roll": {
+     "type": "f64",
+     "nullable": false
+    },
+    "rollCooldown": {
+     "type": "f64",
+     "nullable": false
+    },
+    "rollX": {
+     "type": "f64",
+     "nullable": false
+    },
+    "rollY": {
+     "type": "f64",
+     "nullable": false
+    },
+    "root": {
+     "type": "f64",
+     "nullable": false
+    },
+    "secondWindUsed": {
+     "type": "bool",
+     "nullable": false
+    },
+    "selectedPower": {
+     "type": "null",
+     "nullable": true
+    },
+    "shape": {
+     "type": "f64",
+     "nullable": false
+    },
+    "shield": {
+     "type": "f64",
+     "nullable": false
+    },
+    "side": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sizeSmall": {
+     "type": "bool",
+     "nullable": false
+    },
+    "sizeTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sleep": {
+     "type": "f64",
+     "nullable": false
+    },
+    "slow": {
+     "type": "f64",
+     "nullable": false
+    },
+    "soul": {
+     "type": "f64",
+     "nullable": false
+    },
+    "soulOwner": {
+     "type": "f64",
+     "nullable": true
+    },
+    "spell": {
+     "type": "f64",
+     "nullable": false
+    },
+    "spiritArmor": {
+     "type": "f64",
+     "nullable": false
+    },
+    "stagger": {
+     "type": "f64",
+     "nullable": false
+    },
+    "stats": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
+    "stillSince": {
+     "type": "obj<entity.stillSince>",
+     "nullable": true
+    },
+    "supportRevived": {
+     "type": "bool",
+     "nullable": true
+    },
+    "supportReviveSpent": {
+     "type": "bool",
+     "nullable": true
+    },
+    "supportTarget": {
+     "type": "null",
+     "nullable": true
+    },
+    "suppressed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "swing": {
+     "type": "f64",
+     "nullable": false
+    },
+    "tactics": {
+     "type": "f64",
+     "nullable": false
+    },
+    "target": {
+     "type": "f64|str",
+     "nullable": true
+    },
+    "tauntSource": {
+     "type": "f64",
+     "nullable": true
+    },
+    "tauntTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "team": {
+     "type": "f64",
+     "nullable": false
+    },
+    "teamKit": {
+     "type": "null",
+     "nullable": true
+    },
+    "teleportPlan": {
+     "type": "null",
+     "nullable": true
+    },
+    "think": {
+     "type": "f64",
+     "nullable": false
+    },
+    "trail": {
+     "type": "arr<?>",
+     "nullable": false
+    },
+    "traits": {
+     "type": "obj<entity.traits>",
+     "nullable": false
+    },
+    "unstickTo": {
+     "type": "obj<entity.unstickTo>",
+     "nullable": true
+    },
+    "unstickUntil": {
+     "type": "f64",
+     "nullable": true
+    },
+    "vx": {
+     "type": "f64",
+     "nullable": false
+    },
+    "vy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "wardHits": {
+     "type": "f64",
+     "nullable": false
+    },
+    "wardTime": {
+     "type": "f64",
+     "nullable": false
+    },
+    "warnings": {
+     "type": "obj<entity.warnings>",
+     "nullable": false
+    },
+    "wasHard": {
+     "type": "bool",
+     "nullable": false
+    },
+    "weakness": {
+     "type": "str",
+     "nullable": false
+    },
+    "weapon": {
+     "type": "obj<entity.weapon>",
+     "nullable": false
+    },
+    "wet": {
+     "type": "f64",
+     "nullable": false
+    },
+    "winded": {
+     "type": "f64",
+     "nullable": false
+    },
+    "windHealing": {
+     "type": "f64",
+     "nullable": false
+    },
+    "windRemaining": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.abilityUseCounts": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.action": {
+   "map": false,
+   "fields": {
+    "angle": {
+     "type": "f64",
+     "nullable": true
+    },
+    "cost": {
+     "type": "f64",
+     "nullable": true
+    },
+    "elapsed": {
+     "type": "f64",
+     "nullable": false
+    },
+    "heavy": {
+     "type": "bool",
+     "nullable": true
+    },
+    "origin": {
+     "type": "obj<entity.action.origin>",
+     "nullable": true
+    },
+    "power": {
+     "type": "obj<entity.powers[]>",
+     "nullable": true
+    },
+    "recovery": {
+     "type": "f64",
+     "nullable": true
+    },
+    "refundEnergy": {
+     "type": "f64",
+     "nullable": true
+    },
+    "refundMana": {
+     "type": "f64",
+     "nullable": true
+    },
+    "released": {
+     "type": "bool",
+     "nullable": true
+    },
+    "targetIndex": {
+     "type": "f64",
+     "nullable": true
+    },
+    "targets": {
+     "type": "arr<f64>",
+     "nullable": true
+    },
+    "travel": {
+     "type": "f64",
+     "nullable": true
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    },
+    "windup": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.action.origin": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.anchor": {
+   "map": false,
+   "fields": {
+    "hp": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mana": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.decoy": {
+   "map": false,
+   "fields": {
+    "hp": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.gates[]": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.intent": {
+   "map": false,
+   "fields": {
+    "leash": {
+     "type": "obj<entity.intent.leash>",
+     "nullable": true
+    },
+    "pull": {
+     "type": "f64",
+     "nullable": true
+    },
+    "slot": {
+     "type": "obj<entity.intent.slot>",
+     "nullable": true
+    },
+    "strafe": {
+     "type": "f64",
+     "nullable": true
+    },
+    "support": {
+     "type": "bool",
+     "nullable": true
+    },
+    "u": {
+     "type": "obj<entity.intent.u>",
+     "nullable": true
+    }
+   }
+  },
+  "entity.intent.leash": {
+   "map": false,
+   "fields": {
+    "max": {
+     "type": "f64",
+     "nullable": false
+    },
+    "ref": {
+     "type": "entity|obj<entity.intent.leash.ref>",
+     "nullable": false
+    }
+   }
+  },
+  "entity.intent.leash.ref": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.intent.slot": {
+   "map": false,
+   "fields": {
+    "back": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.intent.u": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.original": {
+   "map": false,
+   "fields": {
+    "accuracy": {
+     "type": "f64",
+     "nullable": false
+    },
+    "armor": {
+     "type": "f64",
+     "nullable": false
+    },
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "dodge": {
+     "type": "f64",
+     "nullable": false
+    },
+    "interval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "move": {
+     "type": "f64",
+     "nullable": false
+    },
+    "weapon": {
+     "type": "obj<entity.original.weapon>",
+     "nullable": false
+    }
+   }
+  },
+  "entity.original.weapon": {
+   "map": false,
+   "fields": {
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "interval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "name": {
+     "type": "str",
+     "nullable": false
+    },
+    "properties": {
+     "type": "obj<entity.weapon.properties>",
+     "nullable": false
+    },
+    "range": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sprite": {
+     "type": "f64",
+     "nullable": false
+    },
+    "tags": {
+     "type": "arr<str>",
+     "nullable": false
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[]": {
+   "map": false,
+   "fields": {
+    "cooldown": {
+     "type": "f64",
+     "nullable": true
+    },
+    "cost": {
+     "type": "f64",
+     "nullable": false
+    },
+    "description": {
+     "type": "str",
+     "nullable": false
+    },
+    "group": {
+     "type": "str",
+     "nullable": true
+    },
+    "id": {
+     "type": "str",
+     "nullable": false
+    },
+    "kind": {
+     "type": "str",
+     "nullable": false
+    },
+    "name": {
+     "type": "str",
+     "nullable": false
+    },
+    "rarity": {
+     "type": "str",
+     "nullable": false
+    },
+    "sprite": {
+     "type": "f64",
+     "nullable": false
+    },
+    "stats": {
+     "type": "arr<f64>",
+     "nullable": true
+    },
+    "tags": {
+     "type": "arr<str>",
+     "nullable": false
+    },
+    "voice": {
+     "type": "bool",
+     "nullable": false
+    },
+    "windup": {
+     "type": "f64",
+     "nullable": true
+    }
+   }
+  },
+  "entity.powerUsed": {
+   "map": true,
+   "fields": {
+    "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.stillSince": {
+   "map": false,
+   "fields": {
+    "time": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.traits": {
+   "map": false,
+   "fields": {
+    "class": {
+     "type": "str",
+     "nullable": false
+    },
+    "durability": {
+     "type": "str",
+     "nullable": false
+    },
+    "iq": {
+     "type": "str",
+     "nullable": false
+    },
+    "magic": {
+     "type": "str",
+     "nullable": false
+    },
+    "mastery": {
+     "type": "str",
+     "nullable": false
+    },
+    "power": {
+     "type": "str",
+     "nullable": false
+    },
+    "power2": {
+     "type": "str",
+     "nullable": false
+    },
+    "race": {
+     "type": "str",
+     "nullable": false
+    },
+    "speed": {
+     "type": "str",
+     "nullable": false
+    },
+    "strength": {
+     "type": "str",
+     "nullable": false
+    },
+    "subclass": {
+     "type": "str",
+     "nullable": false
+    },
+    "subrace": {
+     "type": "str",
+     "nullable": false
+    },
+    "weakness": {
+     "type": "str",
+     "nullable": false
+    },
+    "weapon": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "entity.unstickTo": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.warnings": {
+   "map": false,
+   "fields": {
+    "sound": {
+     "type": "f64",
+     "nullable": true
+    },
+    "sunlight": {
+     "type": "f64",
+     "nullable": true
+    },
+    "winded": {
+     "type": "f64",
+     "nullable": true
+    }
+   }
+  },
+  "entity.weapon": {
+   "map": false,
+   "fields": {
+    "damage": {
+     "type": "f64",
+     "nullable": false
+    },
+    "interval": {
+     "type": "f64",
+     "nullable": false
+    },
+    "name": {
+     "type": "str",
+     "nullable": false
+    },
+    "properties": {
+     "type": "obj<entity.weapon.properties>",
+     "nullable": true
+    },
+    "range": {
+     "type": "f64",
+     "nullable": false
+    },
+    "sprite": {
+     "type": "f64",
+     "nullable": false
+    },
+    "tags": {
+     "type": "arr<str>",
+     "nullable": true
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "entity.weapon.properties": {
+   "map": false,
+   "fields": {
+    "blunt": {
+     "type": "bool",
+     "nullable": true
+    },
+    "coldIron": {
+     "type": "bool",
+     "nullable": true
+    },
+    "heavy": {
+     "type": "bool",
+     "nullable": true
+    },
+    "holy": {
+     "type": "bool",
+     "nullable": true
+    },
+    "loud": {
+     "type": "bool",
+     "nullable": true
+    },
+    "metal": {
+     "type": "bool",
+     "nullable": true
+    },
+    "poison": {
+     "type": "bool",
+     "nullable": true
+    },
+    "silver": {
+     "type": "bool",
+     "nullable": true
+    }
+   }
+  }
+ }
+}

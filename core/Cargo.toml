@@ -13,5 +13,18 @@ path = "src/lib.rs"
 name = "math-parity"
 path = "src/bin/math_parity.rs"
 
+[[bin]]
+name = "team-state"
+path = "src/bin/team_state.rs"
+
+[[bin]]
+name = "team-helpers"
+path = "src/bin/team_helpers.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+# float_roundtrip: exact number parsing; preserve_order: JavaScript key order in maps.
+serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
+
 [profile.release]
 debug = false
