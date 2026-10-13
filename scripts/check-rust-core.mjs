@@ -36,7 +36,7 @@ for(const engine of ['team-3.9','team-2.8']){const e=inventory.find(x=>x.engine=
 
 // Phase B2: every ported engine method was replayed in Rust from recorded team-4.0 calls and matched (return value and
 // the battle state afterwards). A method never called in the recorded games has to be listed here.
-const NEVER_CALLED=new Set(['holdPoint']);
+const NEVER_CALLED=new Set(['holdPoint','connectControl']);
 {const calls=JSON.parse(fs.readFileSync('validation/rust-calls.json','utf8'));assert.equal(calls.engine,'team-4.0');
  assert.deepEqual(Object.keys(calls.methods).sort(),[...PORTED].sort(),'record every ported method');
  for(const [m,r] of Object.entries(calls.methods)){assert(!r.error,`${m}: ${r.error}`);assert.equal(r.matching??0,r.cases,`${m}: every recorded call matches`);

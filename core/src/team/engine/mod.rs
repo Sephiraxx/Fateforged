@@ -17,6 +17,7 @@ pub mod movement;
 pub mod objective;
 pub mod queries;
 pub mod effects;
+pub mod combat;
 
 pub use view::Tgt;
 
@@ -40,6 +41,8 @@ pub struct Transient {
     pub balance_environment: bool,
     pub selecting_fight: bool,
     pub target_filter: Option<TargetFilter>,
+    /// `this.hitContext` while a hit resolves.
+    pub hit_context: Option<combat::HitContext>,
 }
 
 /// The filters `fight()` installs while a fighter picks a target.

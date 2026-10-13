@@ -1,6 +1,7 @@
 //! Replays method calls recorded by `scripts/rust-calls.mjs`: for each case, load the battle state from before the
 //! call, make the same call in Rust, and compare the return value and the state digest afterwards.
 //! Usage: `team-calls <method>.jsonl`. Prints a JSON summary; exits with status 1 on any mismatch.
+use fateforge_core::team::engine::combat::{HitContext, Tags};
 use fateforge_core::team::engine::movement::Kind;
 use fateforge_core::team::engine::queries::Pt;
 use fateforge_core::team::engine::{Engine, Tgt};
@@ -146,6 +147,36 @@ fn tgt_value(eng: &Engine, t: &Tgt) -> Value {
     let o = t.over.as_ref().unwrap();
     json!({"$view": t.ent.0, "x": num(eng.tx(t)), "y": num(eng.ty(t)), "vx": num(eng.tvx(t)), "vy": num(eng.tvy(t)), "hp": num(eng.thp(t)),
         "decoy": o.decoy, "objective": eng.t_is_objective(t), "action": eng.t_has_action(t), "melee": eng.t_weapon_type(t) == "melee", "illusion": num(eng.t_illusion(t))})
+}
+
+fn tags(v: &Value) -> Tags {
+    let b = |k: &str| v.get(k).and_then(Value::as_bool).unwrap_or(false);
+    Tags { metal: b("metal"), silver: b("silver"), cold_iron: b("coldIron"), poison: b("poison"), holy: b("holy"), loud: b("loud"), blunt: b("blunt"), heavy: b("heavy"), sunlight: b("sunlight") }
+}
+
+/// The recorded `this.hitContext` (scripts/rust-calls.mjs `hitContext()`).
+fn hit_context(v: &Value) -> Option<HitContext> {
+    if v.is_null() {
+        return None;
+    }
+    let s = |k: &str| v[k].as_str().map(str::to_string);
+    let b = |k: &str| v[k].as_bool().unwrap_or(false);
+    Some(HitContext {
+        payload: s("payload"),
+        tags: v.get("tags").filter(|t| !t.is_null()).map(tags),
+        duration: value_f64(&v["duration"]),
+        periodic: b("periodic"),
+        technique: b("technique"),
+        weapon_hit: b("weaponHit"),
+        sprite: value_f64(&v["sprite"]),
+        ordinary_arcane: b("ordinaryArcane"),
+        balance_ability: s("balanceAbility"),
+    })
+}
+
+/// `hurt`'s result: `true`, `false` or `undefined`.
+fn hit_result(r: Option<bool>) -> Value {
+    r.map(Value::Bool).unwrap_or_else(UNDEFINED)
 }
 
 fn dispatch(method: &str, c: &mut Call) -> Value {
@@ -440,6 +471,32 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
             None => Value::Null,
             Some((p, _count)) => pt(p),
         },
+        "hit" => {
+            let t = c.tgt(1);
+            let payload = c.arg(4).and_then(Value::as_str).map(str::to_string);
+            let tg = c.arg(5).map(|v| tags(v.get("$obj").unwrap_or(v))).unwrap_or_default();
+            let kind = c.string(3);
+            c.eng.hit(c.ent(0), &t, c.f64(2), &kind, payload, tg);
+            UNDEFINED()
+        }
+        "periodicHit" => {
+            let t = c.tgt(1);
+            let kind = c.string(3);
+            hit_result(c.eng.periodic_hit(c.ent(0), &t, c.f64(2), &kind))
+        }
+        "connectControl" => json!(c.eng.connect_control(c.ent(0), c.ent(1))),
+        "applyImpact" => {
+            let id = c.arg(0).and_then(Value::as_str).map(str::to_string);
+            hit_result(c.eng.apply_impact(id.as_deref(), c.ent(1), c.ent(2), c.f64(3), c.f64(4)))
+        }
+        "hurt" | "fighterHit" => {
+            let t = c.tgt(0);
+            let f = c.opt_ent(1);
+            let kind = c.arg(3).and_then(Value::as_str).unwrap_or("physical").to_string();
+            let can_dodge = c.arg(4).and_then(Value::as_bool).unwrap_or(true);
+            let amount = c.f64(2);
+            hit_result(if method == "hurt" { c.eng.hurt(&t, f, amount, &kind, can_dodge) } else { c.eng.fighter_hit(&t, f, amount, &kind, can_dodge) })
+        }
         other => panic!("method {other} is not ported"),
     }
 }
@@ -469,6 +526,7 @@ fn main() {
         eng.tr.balance_cast = tr["balanceCast"].as_object().map(|o| (Ent(o["fighter"].as_u64().unwrap() as u32), o["id"].as_str().unwrap().to_string()));
         eng.tr.balance_environment = tr["balanceEnvironment"].as_bool().unwrap_or(false);
         eng.tr.selecting_fight = tr["selectingFight"].as_bool().unwrap_or(false);
+        eng.tr.hit_context = hit_context(&tr["hitContext"]);
         let method = case["method"].as_str().unwrap().to_string();
         let args = case["args"].as_array().cloned().unwrap_or_default();
         let ret = {

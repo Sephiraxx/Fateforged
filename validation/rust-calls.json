@@ -379,6 +379,35 @@
    "cases": 51,
    "matching": 51,
    "failures": []
+  },
+  "hit": {
+   "cases": 78,
+   "matching": 78,
+   "failures": []
+  },
+  "periodicHit": {
+   "cases": 56,
+   "matching": 56,
+   "failures": []
+  },
+  "connectControl": {
+   "cases": 0,
+   "skipped": {}
+  },
+  "applyImpact": {
+   "cases": 51,
+   "matching": 51,
+   "failures": []
+  },
+  "hurt": {
+   "cases": 693,
+   "matching": 693,
+   "failures": []
+  },
+  "fighterHit": {
+   "cases": 573,
+   "matching": 573,
+   "failures": []
   }
  }
 }
