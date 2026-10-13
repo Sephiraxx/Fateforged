@@ -1,0 +1,56 @@
+{
+ "pairs": 1000000,
+ "rngSeeds": 2000,
+ "rngSteps": 64,
+ "runtimes": [
+  {
+   "runtime": "node",
+   "flavor": "fdlibm",
+   "pairs": 1000000,
+   "rngSeeds": 2000,
+   "rngSteps": 64,
+   "mismatches": {
+    "sin": 0,
+    "cos": 0,
+    "atan2": 0,
+    "hypot": 0,
+    "round": 0,
+    "max": 0,
+    "min": 0,
+    "toInt32": 0,
+    "toUint32": 0,
+    "rng": 0
+   },
+   "total": 0,
+   "examples": [],
+   "version": "node 22.22.0 (V8 12.4.254.21-node.33)"
+  },
+  {
+   "runtime": "chromium",
+   "flavor": "glibc",
+   "pairs": 1000000,
+   "rngSeeds": 2000,
+   "rngSteps": 64,
+   "mismatches": {
+    "sin": 0,
+    "cos": 0,
+    "atan2": 0,
+    "hypot": 0,
+    "round": 0,
+    "max": 0,
+    "min": 0,
+    "toInt32": 0,
+    "toUint32": 0,
+    "rng": 0
+   },
+   "total": 0,
+   "examples": [],
+   "version": "Chromium 141.0.7390.37"
+  }
+ ],
+ "nodeVsChromium": {
+  "sin": 22003,
+  "cos": 23364,
+  "other": 0
+ }
+}

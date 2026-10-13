@@ -4,3 +4,4 @@ validation/screenshots/
 validation/check-output/
 *.zip
 validation/browser-fixtures/
+validation/rust-math-vectors/
