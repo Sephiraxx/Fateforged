@@ -676,7 +676,7 @@
      "nullable": true
     },
     "B": {
-     "type": "obj<entity.intent.leash.ref>",
+     "type": "obj<battle.plans[].F>",
      "nullable": false
     },
     "called": {
@@ -692,7 +692,7 @@
      "nullable": false
     },
     "F": {
-     "type": "obj<entity.intent.leash.ref>",
+     "type": "obj<battle.plans[].F>",
      "nullable": false
     },
     "hold": {
@@ -716,11 +716,24 @@
      "nullable": false
     },
     "u": {
-     "type": "obj<entity.intent.u>",
+     "type": "obj<battle.plans[].u>",
      "nullable": false
     },
     "v": {
      "type": "obj<battle.plans[].v>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].F": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
      "nullable": false
     }
    }
@@ -762,7 +775,37 @@
    "map": true,
    "fields": {
     "{}": {
-     "type": "obj<entity.intent.slot>",
+     "type": "obj<battle.plans[].slots{}>",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].slots{}": {
+   "map": false,
+   "fields": {
+    "back": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.plans[].u": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
      "nullable": false
     }
    }
@@ -1810,7 +1853,7 @@
      "nullable": true
     },
     "teleportPlan": {
-     "type": "null",
+     "type": "obj<entity.teleportPlan>",
      "nullable": true
     },
     "think": {
@@ -2058,7 +2101,7 @@
      "nullable": true
     },
     "slot": {
-     "type": "obj<entity.intent.slot>",
+     "type": "obj<battle.plans[].slots{}>",
      "nullable": true
     },
     "strafe": {
@@ -2070,7 +2113,7 @@
      "nullable": true
     },
     "u": {
-     "type": "obj<entity.intent.u>",
+     "type": "obj<battle.plans[].u>",
      "nullable": true
     }
    }
@@ -2083,50 +2126,7 @@
      "nullable": false
     },
     "ref": {
-     "type": "entity|obj<entity.intent.leash.ref>",
-     "nullable": false
-    }
-   }
-  },
-  "entity.intent.leash.ref": {
-   "map": false,
-   "fields": {
-    "x": {
-     "type": "f64",
-     "nullable": false
-    },
-    "y": {
-     "type": "f64",
-     "nullable": false
-    }
-   }
-  },
-  "entity.intent.slot": {
-   "map": false,
-   "fields": {
-    "back": {
-     "type": "f64",
-     "nullable": false
-    },
-    "x": {
-     "type": "f64",
-     "nullable": false
-    },
-    "y": {
-     "type": "f64",
-     "nullable": false
-    }
-   }
-  },
-  "entity.intent.u": {
-   "map": false,
-   "fields": {
-    "x": {
-     "type": "f64",
-     "nullable": false
-    },
-    "y": {
-     "type": "f64",
+     "type": "entity|obj<battle.plans[].F>",
      "nullable": false
     }
    }
@@ -2297,6 +2297,19 @@
     }
    }
   },
+  "entity.teleportPlan": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
   "entity.traits": {
    "map": false,
    "fields": {
@@ -2457,10 +2470,6 @@
      "nullable": true
     },
     "silver": {
-     "type": "bool",
-     "nullable": true
-    },
-    "sunlight": {
      "type": "bool",
      "nullable": true
     }

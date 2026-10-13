@@ -6,7 +6,7 @@ use super::{Engine, Tgt};
 use crate::jsmath::{self, hypot2, max, min};
 use crate::team::geometry::{clamp, segment_distance};
 use crate::team::jsnum::Ent;
-use crate::team::state::{EntOrEntityIntentLeashRef, EntityIntent, EntityIntentLeash, EntityIntentLeashRef, EntityIntentU};
+use crate::team::state::{EntOrBattlePlansF, EntityIntent, EntityIntentLeash, BattlePlansF, BattlePlansU};
 
 /// JavaScript truthiness of a number.
 #[inline]
@@ -532,10 +532,10 @@ impl Engine {
     }
 
     /// The point a leash `ref` stands for (an entity's live position, or a fixed point).
-    pub fn leash_ref_xy(&self, r: &EntOrEntityIntentLeashRef) -> (f64, f64) {
+    pub fn leash_ref_xy(&self, r: &EntOrBattlePlansF) -> (f64, f64) {
         match r {
-            EntOrEntityIntentLeashRef::Ent(e) => (self.f(*e).x, self.f(*e).y),
-            EntOrEntityIntentLeashRef::Obj(p) => (p.x, p.y),
+            EntOrBattlePlansF::Ent(e) => (self.f(*e).x, self.f(*e).y),
+            EntOrBattlePlansF::Obj(p) => (p.x, p.y),
         }
     }
 
@@ -594,17 +594,17 @@ impl Engine {
         if wants_leash {
             if let Some(leash) = self.plan_leash(f) {
                 let team = self.f(f).team;
-                let plan_u = self.b.plans.get(team as usize).and_then(|p| p.as_ref()).map(|p| EntityIntentU { x: p.u.x, y: p.u.y });
+                let plan_u = self.b.plans.get(team as usize).and_then(|p| p.as_ref()).map(|p| BattlePlansU { x: p.u.x, y: p.u.y });
                 let intent = self.fm(f).intent.as_mut().unwrap();
                 intent.leash = Some(EntityIntentLeash {
                     max: leash.max,
                     ref_: match leash.r {
-                        LeashRef::Ent(e) => EntOrEntityIntentLeashRef::Ent(e),
-                        LeashRef::Pt(p) => EntOrEntityIntentLeashRef::Obj(EntityIntentLeashRef { x: p.x, y: p.y }),
+                        LeashRef::Ent(e) => EntOrBattlePlansF::Ent(e),
+                        LeashRef::Pt(p) => EntOrBattlePlansF::Obj(BattlePlansF { x: p.x, y: p.y }),
                     },
                 });
                 if intent.u.is_none() {
-                    intent.u = Some(plan_u.unwrap_or(EntityIntentU { x: if team != 0.0 { -1.0 } else { 1.0 }, y: 0.0 }));
+                    intent.u = Some(plan_u.unwrap_or(BattlePlansU { x: if team != 0.0 { -1.0 } else { 1.0 }, y: 0.0 }));
                 }
             }
         }
@@ -858,13 +858,13 @@ impl Engine {
             let posture = &plan.posture;
             let fe = self.f(f);
             let slot = plan.slots.get(&js_key(fe.index)).cloned();
-            let u = Some(EntityIntentU { x: plan.u.x, y: plan.u.y });
+            let u = Some(BattlePlansU { x: plan.u.x, y: plan.u.y });
             if fe.role == "tank" {
                 let leash = if plan.hold == Some(true) {
                     let hp = self.hold_point(fe.team);
-                    EntityIntentLeash { max: 0.0, ref_: EntOrEntityIntentLeashRef::Obj(EntityIntentLeashRef { x: hp.x, y: hp.y }) }
+                    EntityIntentLeash { max: 0.0, ref_: EntOrBattlePlansF::Obj(BattlePlansF { x: hp.x, y: hp.y }) }
                 } else {
-                    EntityIntentLeash { max: posture.leash + 20.0, ref_: EntOrEntityIntentLeashRef::Obj(plan.b_upper.clone()) }
+                    EntityIntentLeash { max: posture.leash + 20.0, ref_: EntOrBattlePlansF::Obj(plan.b_upper.clone()) }
                 };
                 self.fm(f).intent = Some(EntityIntent { slot, pull: Some(0.45 * posture.pull), leash: Some(leash), u, strafe: Some(posture.strafe), support: None });
             } else if fe.diving == Some(true) {
@@ -872,7 +872,7 @@ impl Engine {
             } else if let Some(slot) = slot {
                 let pull = posture.pull * if self.is_skirmisher(&Tgt::of(f)) { 0.8 } else { 1.1 };
                 let max = 50.0 - slot.back;
-                self.fm(f).intent = Some(EntityIntent { slot: Some(slot), pull: Some(pull), leash: Some(EntityIntentLeash { max, ref_: EntOrEntityIntentLeashRef::Obj(plan.f_upper.clone()) }), u, strafe: Some(posture.strafe), support: None });
+                self.fm(f).intent = Some(EntityIntent { slot: Some(slot), pull: Some(pull), leash: Some(EntityIntentLeash { max, ref_: EntOrBattlePlansF::Obj(plan.f_upper.clone()) }), u, strafe: Some(posture.strafe), support: None });
             }
         }
         self.move_fighter(f, t, dt);

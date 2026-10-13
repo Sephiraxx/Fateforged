@@ -6,7 +6,7 @@ use super::queries::{d, de, Pt};
 use super::{Engine, Tgt};
 use crate::jsmath::{self, hypot2, max, min, JsRandom};
 use crate::team::jsnum::{Ent, JsMap};
-use crate::team::state::{BattleFissure, BattlePlans, BattlePlansPosture, BattlePlansV, BattleProjectiles, EntityIntentLeashRef, EntityIntentSlot, EntityIntentU};
+use crate::team::state::{BattleFissure, BattlePlans, BattlePlansPosture, BattlePlansV, BattleProjectiles, BattlePlansF, BattlePlansSlots, BattlePlansU};
 
 /// `situation(team)` (d5): what the team brain looks at.
 #[derive(Clone, Debug)]
@@ -499,7 +499,7 @@ impl Engine {
             ux /= n;
             uy /= n;
         }
-        let u = EntityIntentU { x: ux, y: uy };
+        let u = BattlePlansU { x: ux, y: uy };
         let v = BattlePlansV { x: -uy, y: ux };
         let tanks: Vec<Ent> = mine.iter().copied().filter(|&f| self.f(f).role == "tank").collect();
         let tc = self.centroid(&tanks);
@@ -547,11 +547,11 @@ impl Engine {
         }
         let posture_state = BattlePlansPosture::from_posture(&posture);
         let enemy_tank_indexes: Vec<f64> = enemy_tanks.iter().map(|&t| self.f(t).index).collect();
-        let base = |slots: JsMap<EntityIntentSlot>, hold: Option<bool>, hurt: Option<f64>, alone: Option<bool>| BattlePlans {
+        let base = |slots: JsMap<BattlePlansSlots>, hold: Option<bool>, hurt: Option<f64>, alone: Option<bool>| BattlePlans {
             u: u.clone(),
             v: v.clone(),
-            f_upper: EntityIntentLeashRef { x: ff.x, y: ff.y },
-            b_upper: EntityIntentLeashRef { x: bb.x, y: bb.y },
+            f_upper: BattlePlansF { x: ff.x, y: ff.y },
+            b_upper: BattlePlansF { x: bb.x, y: bb.y },
             engaged,
             hold,
             called: called.unwrap_or(f64::NAN),
@@ -565,10 +565,10 @@ impl Engine {
         if mine.len() == 1 {
             return Some(base(JsMap(Vec::new()), Some(false), None, Some(true)));
         }
-        let mut slots: Vec<(f64, EntityIntentSlot)> = Vec::new();
+        let mut slots: Vec<(f64, BattlePlansSlots)> = Vec::new();
         let spread = if mine.len() > 3 { 1.2 } else { 1.0 };
-        let place = |eng: &Engine, slots: &mut Vec<(f64, EntityIntentSlot)>, f: Ent, back: f64, lateral: f64| {
-            let s = EntityIntentSlot { x: eng.clamp_x(ff.x - u.x * back + v.x * lateral * spread), y: eng.clamp_y(ff.y - u.y * back + v.y * lateral * spread), back };
+        let place = |eng: &Engine, slots: &mut Vec<(f64, BattlePlansSlots)>, f: Ent, back: f64, lateral: f64| {
+            let s = BattlePlansSlots { x: eng.clamp_x(ff.x - u.x * back + v.x * lateral * spread), y: eng.clamp_y(ff.y - u.y * back + v.y * lateral * spread), back };
             let idx = eng.f(f).index;
             if let Some(slot) = slots.iter_mut().find(|(k, _)| *k == idx) {
                 slot.1 = s;

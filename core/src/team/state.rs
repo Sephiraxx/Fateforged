@@ -601,7 +601,7 @@ pub struct BattlePlans {
     #[serde(rename = "alone", default)]
     pub alone: Option<bool>,
     #[serde(rename = "B")]
-    pub b_upper: EntityIntentLeashRef,
+    pub b_upper: BattlePlansF,
     #[serde(rename = "called", deserialize_with = "jsnum::f64")]
     pub called: f64,
     #[serde(rename = "enemyTanks", deserialize_with = "jsnum::vec_f64")]
@@ -609,7 +609,7 @@ pub struct BattlePlans {
     #[serde(rename = "engaged")]
     pub engaged: bool,
     #[serde(rename = "F")]
-    pub f_upper: EntityIntentLeashRef,
+    pub f_upper: BattlePlansF,
     #[serde(rename = "hold", default)]
     pub hold: Option<bool>,
     #[serde(rename = "hurt", default, deserialize_with = "jsnum::opt_f64")]
@@ -617,11 +617,11 @@ pub struct BattlePlans {
     #[serde(rename = "posture")]
     pub posture: BattlePlansPosture,
     #[serde(rename = "slots")]
-    pub slots: JsMap<EntityIntentSlot>,
+    pub slots: JsMap<BattlePlansSlots>,
     #[serde(rename = "threats", deserialize_with = "jsnum::vec_f64")]
     pub threats: Vec<f64>,
     #[serde(rename = "u")]
-    pub u: EntityIntentU,
+    pub u: BattlePlansU,
     #[serde(rename = "v")]
     pub v: BattlePlansV,
 }
@@ -642,6 +642,24 @@ impl Digest for BattlePlans {
         h.arr(self.threats.len()); for x in self.threats.iter() { h.f64((*x)); }
         self.u.digest(h);
         self.v.digest(h);
+    }
+}
+
+/// `battle.plans[].F`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansF {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansF {}
+impl Digest for BattlePlansF {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
     }
 }
 
@@ -675,6 +693,45 @@ impl Digest for BattlePlansPosture {
         h.f64(self.peel);
         h.f64(self.pull);
         h.f64(self.strafe);
+    }
+}
+
+/// `battle.plans[].slots{}`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansSlots {
+    #[serde(rename = "back", deserialize_with = "jsnum::f64")]
+    pub back: f64,
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansSlots {}
+impl Digest for BattlePlansSlots {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.back);
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
+/// `battle.plans[].u`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct BattlePlansU {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for BattlePlansU {}
+impl Digest for BattlePlansU {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
     }
 }
 
@@ -1377,7 +1434,7 @@ pub struct Entity {
     #[serde(rename = "teamKit", default)]
     pub team_kit: Option<Never>,
     #[serde(rename = "teleportPlan", default)]
-    pub teleport_plan: Option<Never>,
+    pub teleport_plan: Option<EntityTeleportPlan>,
     #[serde(rename = "think", deserialize_with = "jsnum::f64")]
     pub think: f64,
     #[serde(rename = "trail")]
@@ -1567,7 +1624,7 @@ impl Digest for Entity {
         h.f64(self.taunt_time);
         h.f64(self.team);
         match &self.team_kit { None => h.nil(), Some(v) => { h.nil(); } }
-        match &self.teleport_plan { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.teleport_plan { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.think);
         h.arr(self.trail.len()); for x in self.trail.iter() { h.nil(); }
         self.traits.digest(h);
@@ -1758,13 +1815,13 @@ pub struct EntityIntent {
     #[serde(rename = "pull", default, deserialize_with = "jsnum::opt_f64")]
     pub pull: Option<f64>,
     #[serde(rename = "slot", default)]
-    pub slot: Option<EntityIntentSlot>,
+    pub slot: Option<BattlePlansSlots>,
     #[serde(rename = "strafe", default, deserialize_with = "jsnum::opt_f64")]
     pub strafe: Option<f64>,
     #[serde(rename = "support", default)]
     pub support: Option<bool>,
     #[serde(rename = "u", default)]
-    pub u: Option<EntityIntentU>,
+    pub u: Option<BattlePlansU>,
 }
 impl JsDe for EntityIntent {}
 impl Digest for EntityIntent {
@@ -1786,7 +1843,7 @@ pub struct EntityIntentLeash {
     #[serde(rename = "max", deserialize_with = "jsnum::f64")]
     pub max: f64,
     #[serde(rename = "ref")]
-    pub ref_: EntOrEntityIntentLeashRef,
+    pub ref_: EntOrBattlePlansF,
 }
 impl JsDe for EntityIntentLeash {}
 impl Digest for EntityIntentLeash {
@@ -1794,63 +1851,6 @@ impl Digest for EntityIntentLeash {
         h.obj();
         h.f64(self.max);
         self.ref_.digest(h);
-    }
-}
-
-/// `entity.intent.leash.ref`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct EntityIntentLeashRef {
-    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
-    pub x: f64,
-    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
-    pub y: f64,
-}
-impl JsDe for EntityIntentLeashRef {}
-impl Digest for EntityIntentLeashRef {
-    fn digest(&self, h: &mut Fnv) {
-        h.obj();
-        h.f64(self.x);
-        h.f64(self.y);
-    }
-}
-
-/// `entity.intent.slot`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct EntityIntentSlot {
-    #[serde(rename = "back", deserialize_with = "jsnum::f64")]
-    pub back: f64,
-    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
-    pub x: f64,
-    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
-    pub y: f64,
-}
-impl JsDe for EntityIntentSlot {}
-impl Digest for EntityIntentSlot {
-    fn digest(&self, h: &mut Fnv) {
-        h.obj();
-        h.f64(self.back);
-        h.f64(self.x);
-        h.f64(self.y);
-    }
-}
-
-/// `entity.intent.u`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct EntityIntentU {
-    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
-    pub x: f64,
-    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
-    pub y: f64,
-}
-impl JsDe for EntityIntentU {}
-impl Digest for EntityIntentU {
-    fn digest(&self, h: &mut Fnv) {
-        h.obj();
-        h.f64(self.x);
-        h.f64(self.y);
     }
 }
 
@@ -2013,6 +2013,24 @@ impl Digest for EntityStillSince {
     }
 }
 
+/// `entity.teleportPlan`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityTeleportPlan {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for EntityTeleportPlan {}
+impl Digest for EntityTeleportPlan {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
 /// `entity.traits`
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -2162,8 +2180,6 @@ pub struct EntityWeaponProperties {
     pub poison: Option<bool>,
     #[serde(rename = "silver", default)]
     pub silver: Option<bool>,
-    #[serde(rename = "sunlight", default)]
-    pub sunlight: Option<bool>,
 }
 impl JsDe for EntityWeaponProperties {}
 impl Digest for EntityWeaponProperties {
@@ -2177,7 +2193,6 @@ impl Digest for EntityWeaponProperties {
         match &self.metal { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.poison { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.silver { None => h.nil(), Some(v) => { h.bool((*v)); } }
-        match &self.sunlight { None => h.nil(), Some(v) => { h.bool((*v)); } }
     }
 }
 
@@ -2204,25 +2219,25 @@ impl Digest for NumOrStr {
     }
 }
 
-/// One of: entity | obj<entity.intent.leash.ref>
+/// One of: entity | obj<battle.plans[].F>
 #[derive(Debug, Clone)]
-pub enum EntOrEntityIntentLeashRef {
+pub enum EntOrBattlePlansF {
     Ent(Ent),
-    Obj(EntityIntentLeashRef),
+    Obj(BattlePlansF),
 }
-impl<'de> Deserialize<'de> for EntOrEntityIntentLeashRef {
+impl<'de> Deserialize<'de> for EntOrBattlePlansF {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let v = serde_json::Value::deserialize(d)?;
-        if let Some(e) = jsnum::value_ent(&v) { return Ok(EntOrEntityIntentLeashRef::Ent(e)); }
-        if v.is_object() { return EntityIntentLeashRef::deserialize(v).map(EntOrEntityIntentLeashRef::Obj).map_err(serde::de::Error::custom); }
-        Err(serde::de::Error::custom("EntOrEntityIntentLeashRef: unexpected value"))
+        if let Some(e) = jsnum::value_ent(&v) { return Ok(EntOrBattlePlansF::Ent(e)); }
+        if v.is_object() { return BattlePlansF::deserialize(v).map(EntOrBattlePlansF::Obj).map_err(serde::de::Error::custom); }
+        Err(serde::de::Error::custom("EntOrBattlePlansF: unexpected value"))
     }
 }
-impl Digest for EntOrEntityIntentLeashRef {
+impl Digest for EntOrBattlePlansF {
     fn digest(&self, h: &mut Fnv) {
         match self {
-            EntOrEntityIntentLeashRef::Ent(x) => { h.ent(*x); }
-            EntOrEntityIntentLeashRef::Obj(x) => { x.digest(h); }
+            EntOrBattlePlansF::Ent(x) => { h.ent(*x); }
+            EntOrBattlePlansF::Obj(x) => { x.digest(h); }
         }
     }
 }
