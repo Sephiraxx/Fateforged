@@ -66,8 +66,8 @@ impl Engine {
         }
     }
 
-    pub(crate) fn target_filter_accepts(&self, filter: &super::TargetFilter, _e: Ent) -> bool {
-        match *filter {}
+    pub(crate) fn target_filter_accepts(&self, filter: &super::TargetFilter, e: Ent) -> bool {
+        self.filter_accepts(filter, e)
     }
 
     /// d16 `ownerTeam(object)`: `this.fighters[object.owner]?.team`.

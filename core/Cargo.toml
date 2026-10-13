@@ -32,3 +32,7 @@ serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
 
 [profile.release]
 debug = false
+
+[[bin]]
+name = "team-games"
+path = "src/bin/team_games.rs"

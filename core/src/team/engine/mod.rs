@@ -20,6 +20,9 @@ pub mod effects;
 pub mod combat;
 pub mod attack;
 pub mod powers;
+pub mod target;
+pub mod step;
+pub mod result;
 
 pub use view::Tgt;
 
@@ -47,9 +50,13 @@ pub struct Transient {
     pub hit_context: Option<combat::HitContext>,
 }
 
-/// The filters `fight()` installs while a fighter picks a target.
+/// The filters `fight()` installs while a fighter picks a target (d17): enemy fighters near our Core (Defend), or
+/// near the Titan's pit (Flank).
 #[derive(Clone, Debug, PartialEq)]
-pub enum TargetFilter {}
+pub enum TargetFilter {
+    NearCore(Ent),
+    NearPit,
+}
 
 impl Engine {
     pub fn from_snapshot(s: Snapshot) -> Engine {

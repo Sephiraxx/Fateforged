@@ -1,4 +1,4 @@
-// Rust simulation core: JavaScript math, state and engine-method parity (RUST-CORE.md).
+// Rust simulation core: JavaScript math, state, engine-method and whole-game parity (RUST-CORE.md).
 // Always: the recorded parity run (1M inputs, node and Chromium) has no mismatches and identical results in both
 // runtimes, the portable sin/cos is what node's Math gives and is only swapped in while an engine runs, and the
 // battle-state inventory exists. With cargo installed: the crate's unit tests pass and a fresh 200k-input run in this
@@ -37,10 +37,17 @@ for(const engine of ['team-3.9','team-2.8']){const e=inventory.find(x=>x.engine=
 // Phase B2: every ported engine method was replayed in Rust from recorded team-4.0 calls and matched (return value and
 // the battle state afterwards). A method never called in the recorded games has to be listed here.
 const NEVER_CALLED=new Set(['holdPoint','connectControl']);
+// Only games that reach the time limit call these.
+const RARE=new Set(['finishAtLimit']);
 {const calls=JSON.parse(fs.readFileSync('validation/rust-calls.json','utf8'));assert.equal(calls.engine,'team-4.0');
  assert.deepEqual(Object.keys(calls.methods).sort(),[...PORTED].sort(),'record every ported method');
  for(const [m,r] of Object.entries(calls.methods)){assert(!r.error,`${m}: ${r.error}`);assert.equal(r.matching??0,r.cases,`${m}: every recorded call matches`);
-  if(NEVER_CALLED.has(m))assert.equal(r.cases,0,`${m} is now called; remove it from NEVER_CALLED`);else assert(r.cases>=10,`${m}: record at least 10 calls`);}}
+  if(NEVER_CALLED.has(m))assert.equal(r.cases,0,`${m} is now called; remove it from NEVER_CALLED`);else assert(r.cases>=(RARE.has(m)?1:10),`${m}: record at least ${RARE.has(m)?1:10} calls`);}}
+
+// Phase B3: whole games played in Rust from the starting state stay bit-identical to JavaScript (digest every 60
+// steps and at the end), and Rust is faster on the same games.
+{const games=JSON.parse(fs.readFileSync('validation/rust-games.json','utf8'));assert.equal(games.engine,'team-4.0');assert(games.games>=150,'record a full game run');
+ assert.equal(games.matching,games.games,'every game matches JavaScript to the end');assert(games.speedup>1,'Rust is faster than JavaScript');}
 
 const cargo=spawnSync('cargo',['--version'],{encoding:'utf8'});
 if(cargo.status!==0){console.log('Rust core: recorded parity holds (1M inputs × 9 functions, identical in node and Chromium); portable trig swapped in only while team-4.0 / team-2.9 run; cargo not installed, live run skipped.');process.exit(0);}
@@ -52,4 +59,5 @@ finally{fs.rmSync(dir,{recursive:true,force:true});}
 const quick=spawnSync(process.execPath,['scripts/rust-parity.mjs','--quick'],{encoding:'utf8'});assert.equal(quick.status,0,quick.stdout+quick.stderr);
 {const r=JSON.parse(quick.stdout.trim().split('\n').at(-1));assert.equal(r.state.matching,r.snapshots);assert.equal(r.helpers.total,0);}
 const calls=spawnSync(process.execPath,['scripts/rust-calls.mjs','--quick'],{encoding:'utf8',maxBuffer:64<<20});assert.equal(calls.status,0,calls.stdout.slice(-3000)+calls.stderr);
-console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; team-4.0 snapshots, helpers and ported engine methods match (quick run); recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);
+const games=spawnSync(process.execPath,['scripts/rust-games.mjs','--quick'],{encoding:'utf8',maxBuffer:64<<20});assert.equal(games.status,0,games.stdout.slice(-3000)+games.stderr);
+console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; team-4.0 snapshots, helpers, ported engine methods and whole games match (quick runs); recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);
