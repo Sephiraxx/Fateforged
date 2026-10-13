@@ -550,6 +550,27 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
         "chooseTarget" => opt_ent(c.eng.choose_target(c.ent(0))),
         // fight(f) without a filter (calls with one pass a function and are not recorded).
         "fight" => opt_ent(c.eng.fight(c.ent(0), None)),
+        "step" => {
+            let dt = if c.arg(0).is_some() { c.f64(0) } else { 1.0 / 60.0 };
+            c.eng.step(dt);
+            UNDEFINED()
+        }
+        "upkeep" => {
+            c.eng.upkeep(c.ent(0), c.f64(1));
+            UNDEFINED()
+        }
+        "objectiveStep" => {
+            c.eng.objective_step(c.f64(0));
+            UNDEFINED()
+        }
+        "releaseFissure" => {
+            c.eng.release_fissure();
+            UNDEFINED()
+        }
+        "finishAtLimit" => {
+            c.eng.finish_at_limit();
+            UNDEFINED()
+        }
         other => panic!("method {other} is not ported"),
     }
 }

@@ -35,6 +35,7 @@ jobs:
           node scripts/rust-math-vectors.mjs core/target/vectors --pairs 200000 --compare
           node scripts/rust-parity.mjs --quick
           node scripts/rust-calls.mjs --quick
+          node scripts/rust-games.mjs --quick
       - name: Install the Tauri CLI
         run: npm ci
         working-directory: desktop

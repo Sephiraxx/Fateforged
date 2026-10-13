@@ -21,6 +21,7 @@ pub mod combat;
 pub mod attack;
 pub mod powers;
 pub mod target;
+pub mod step;
 
 pub use view::Tgt;
 
