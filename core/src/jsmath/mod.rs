@@ -152,6 +152,16 @@ impl JsRandom {
     pub fn new(seed: f64) -> JsRandom {
         JsRandom { n: to_uint32(seed) as f64 }
     }
+    /// The generator after `calls` draws: `n` grows by 0x6D2B79F5 per draw (exact while below 2^53).
+    pub fn resume(seed: f64, calls: f64) -> JsRandom {
+        let mut r = JsRandom::new(seed);
+        let mut k = 0.0;
+        while k < calls {
+            r.n += 1831565813.0;
+            k += 1.0;
+        }
+        r
+    }
     pub fn next(&mut self) -> f64 {
         self.n += 1831565813.0; // 0x6D2B79F5
         let n = to_uint32(self.n);

@@ -604,6 +604,8 @@ pub struct BattlePlans {
     pub b_upper: EntityIntentLeashRef,
     #[serde(rename = "called", deserialize_with = "jsnum::f64")]
     pub called: f64,
+    #[serde(rename = "enemyTanks", deserialize_with = "jsnum::vec_f64")]
+    pub enemy_tanks: Vec<f64>,
     #[serde(rename = "engaged")]
     pub engaged: bool,
     #[serde(rename = "F")]
@@ -630,6 +632,7 @@ impl Digest for BattlePlans {
         match &self.alone { None => h.nil(), Some(v) => { h.bool((*v)); } }
         self.b_upper.digest(h);
         h.f64(self.called);
+        h.arr(self.enemy_tanks.len()); for x in self.enemy_tanks.iter() { h.f64((*x)); }
         h.bool(self.engaged);
         self.f_upper.digest(h);
         match &self.hold { None => h.nil(), Some(v) => { h.bool((*v)); } }
@@ -646,8 +649,12 @@ impl Digest for BattlePlans {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BattlePlansPosture {
+    #[serde(rename = "call", default)]
+    pub call: Option<String>,
     #[serde(rename = "dive")]
     pub dive: String,
+    #[serde(rename = "hold", default, deserialize_with = "jsnum::opt_f64")]
+    pub hold: Option<f64>,
     #[serde(rename = "leash", deserialize_with = "jsnum::f64")]
     pub leash: f64,
     #[serde(rename = "peel", deserialize_with = "jsnum::f64")]
@@ -661,7 +668,9 @@ impl JsDe for BattlePlansPosture {}
 impl Digest for BattlePlansPosture {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
+        match &self.call { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.str(&self.dive);
+        match &self.hold { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.leash);
         h.f64(self.peel);
         h.f64(self.pull);
@@ -1216,7 +1225,7 @@ pub struct Entity {
     #[serde(rename = "kitStun", deserialize_with = "jsnum::f64")]
     pub kit_stun: f64,
     #[serde(rename = "laneWaypoint", default)]
-    pub lane_waypoint: Option<Never>,
+    pub lane_waypoint: Option<EntityLaneWaypoint>,
     #[serde(rename = "lastAttacker", default, deserialize_with = "jsnum::opt_f64")]
     pub last_attacker: Option<f64>,
     #[serde(rename = "lastCastId", default)]
@@ -1482,7 +1491,7 @@ impl Digest for Entity {
         h.f64(self.kit_cooldown);
         h.f64(self.kit_shield);
         h.f64(self.kit_stun);
-        match &self.lane_waypoint { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.lane_waypoint { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.last_attacker { None => h.nil(), Some(v) => { h.f64((*v)); } }
         match &self.last_cast_id { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.f64(self.last_stand_time);
@@ -1817,6 +1826,24 @@ pub struct EntityIntentU {
 }
 impl JsDe for EntityIntentU {}
 impl Digest for EntityIntentU {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.x);
+        h.f64(self.y);
+    }
+}
+
+/// `entity.laneWaypoint`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityLaneWaypoint {
+    #[serde(rename = "x", deserialize_with = "jsnum::f64")]
+    pub x: f64,
+    #[serde(rename = "y", deserialize_with = "jsnum::f64")]
+    pub y: f64,
+}
+impl JsDe for EntityLaneWaypoint {}
+impl Digest for EntityLaneWaypoint {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
         h.f64(self.x);

@@ -683,6 +683,10 @@
      "type": "f64",
      "nullable": false
     },
+    "enemyTanks": {
+     "type": "arr<f64>",
+     "nullable": false
+    },
     "engaged": {
      "type": "bool",
      "nullable": false
@@ -724,9 +728,17 @@
   "battle.plans[].posture": {
    "map": false,
    "fields": {
+    "call": {
+     "type": "str",
+     "nullable": true
+    },
     "dive": {
      "type": "str",
      "nullable": false
+    },
+    "hold": {
+     "type": "f64",
+     "nullable": true
     },
     "leash": {
      "type": "f64",
@@ -1494,7 +1506,7 @@
      "nullable": false
     },
     "laneWaypoint": {
-     "type": "null",
+     "type": "obj<entity.laneWaypoint>",
      "nullable": true
     },
     "lastAttacker": {
@@ -2090,6 +2102,19 @@
    }
   },
   "entity.intent.u": {
+   "map": false,
+   "fields": {
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.laneWaypoint": {
    "map": false,
    "fields": {
     "x": {
