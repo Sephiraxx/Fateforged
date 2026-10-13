@@ -26,7 +26,9 @@ export function entitiesOf(b){return new Set([...(b.combatants??[]),...(b.fighte
 export function buildSchema(games){
  const kinds=new Map(),parent=new Map(),objects=new Map(),present=new Map();
  const find=k=>{while(parent.get(k)&&parent.get(k)!==k)k=parent.get(k);return k;};
- const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent.set(b,a);};
+ // Aliased kinds keep the name of the one seen first, whatever order later samples meet them in.
+ const order=new Map(),rank=k=>order.get(k)??order.set(k,order.size).get(k);
+ const union=(a,b)=>{a=find(a);b=find(b);if(a===b)return;if(rank(b)<rank(a))[a,b]=[b,a];parent.set(b,a);};
  const field=(kind,key)=>{const k=kinds.get(kind)??kinds.set(kind,new Map()).get(kind);return k.get(key)??k.set(key,new Set()).get(key);};
  const typeOf=(v,path,entities,seen,kindOfObject)=>{
   if(v===null||v===undefined)return 'null';
@@ -41,7 +43,7 @@ export function buildSchema(games){
   return MAP_KINDS.has(path)?`map<${path}>`:`obj<${path}>`;
  };
  const walk=(o,kind,entities,seen,kindOfObject)=>{
-  if(!kinds.has(kind))kinds.set(kind,new Map());
+  if(!kinds.has(kind))kinds.set(kind,new Map());rank(kind);
   objects.set(kind,(objects.get(kind)??0)+1);if(!MAP_KINDS.has(kind))for(const key of Object.keys(o))present.set(`${kind}\u0000${key}`,(present.get(`${kind}\u0000${key}`)??0)+1);
   for(const key of Object.keys(o)){const path=`${kind}.${key}`;if(SKIP.has(path))continue;const v=o[key];if(typeof v==='function')continue;
    const t=typeOf(v,MAP_KINDS.has(kind)?`${kind}{}`:path,entities,seen,kindOfObject);field(MAP_KINDS.has(kind)?kind:kind,MAP_KINDS.has(kind)?'{}':key).add(t);}

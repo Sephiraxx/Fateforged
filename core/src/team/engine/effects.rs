@@ -313,7 +313,7 @@ impl Engine {
             "ice" | "fire" | "water" | "blood" | "sound" | "void" => p.id.clone(),
             _ => "arcane".into(),
         };
-        let tags = EntityWeaponProperties { blunt: None, cold_iron: None, heavy: None, holy: None, loud: None, metal: if p.id == "metal" { Some(true) } else { None }, poison: None, silver: None, sunlight: None };
+        let tags = EntityWeaponProperties { blunt: None, cold_iron: None, heavy: None, holy: None, loud: None, metal: if p.id == "metal" { Some(true) } else { None }, poison: None, silver: None };
         let proj = BattleProjectiles {
             x: fe.x,
             y: fe.y,
