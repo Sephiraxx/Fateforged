@@ -16,7 +16,7 @@ Season simulations and patch audits spend almost all of their time in the team e
 | B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
 | B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 8.9× faster per core |
 | B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
-| D | Wiring: a native batch command in the app (all cores), the pool falls back to JavaScript for anything else; later WebAssembly for the web version | 1–2 PRs |
+| D | Wiring: the core runs as WebAssembly inside the simulation workers (web and apps); JavaScript for anything else | **Done**: about 3–5× faster in the browser |
 | E | Duel engine (optional) | Later |
 
 **Go:** the riskiest part, transcendental math, matches exactly (below). Nothing found in phase A blocks the port.
@@ -166,11 +166,30 @@ Every later phase is proven against JavaScript with these tools.
 
 B2 and B3 ported every group and proved each method call by call, then whole games with a **trace diff**: both languages hash the battle state every 60 steps, and a mismatch names the first differing step.
 
-### Wiring (phase D)
-- **Native batches:** a Tauri command `simulate_batch(games)` runs games on all cores (rayon).
-- **Pool routing:** `public/simulation-client.js` sends a batch to Rust only when it runs inside the app, the engine version is in the core's verified list, and a short startup self-test against the WebView's own results passes. Everything else, including every older engine, keeps using the JavaScript pool.
-- **Web:** WebAssembly comes after the app, from the same crate.
-- **Maintenance rule:** new engine versions ship in JavaScript first and work immediately through the fallback. The Rust core catches up afterwards, and only then do those games run natively.
+## Phase D: the core in the game (WebAssembly)
+
+- **Where it runs:**
+  - Headless Core siege games (team-4.0) run on the core. That covers season series, exhibitions and patch-audit games, all of which run in the simulation workers.
+  - The core is `public/fateforge-core.wasm`, built from `core/` by `scripts/build-rust-wasm.mjs` and committed, so the web and app builds need no Rust toolchain.
+  - `src/wasm.rs` is a plain C ABI over linear memory: state JSON in, `result()` JSON out.
+  - The same file serves the web version, the Windows app (WebView2) and the Android app (Android WebView).
+- **How a game gets there** (`public/rust-core.js`):
+  - The worker builds the battle in JavaScript, as before, so every fighter, ability, map and patch is set up by the same code. It also builds a twin battle to read the generator's position.
+  - It exports the battle with `public/battle-state.js` (schema in `public/team-state-schema.js`, generated with `state.rs`).
+  - The core plays the game to the end and returns the same `result()`.
+  - Workers load the core once at startup, and `simulateTeam` (`public/combat-team.js`) hands it supported games.
+- **What stays in JavaScript:**
+  - every other engine version (classic team-2.9 and older Core siege engines);
+  - watched games and replays, which step on the page;
+  - everything when the player turns off **Fast simulation** in the Combat rules help (stored as `fateforge-rust-core`).
+- **Safety:**
+  - Each worker also plays its first two core games in JavaScript and compares the results as JSON.
+  - A difference, a load failure or an error turns the core off for that worker, and the JavaScript result is used.
+- **Measured:**
+  - **Node:** about 5.4× faster per core than the JavaScript engine (`validation/rust-wasm.json`).
+  - **Chromium, 3 workers, 83 games:** JavaScript 63 s, the core 19 s, about 3.4× including each worker's self-test and the time to compile the module. Long seasons approach the per-game figure.
+- **Staleness check:** `validation/rust-wasm-source.json` holds the hash of the core's sources. `check-rust-wasm` fails when the sources change without a rebuild; with the wasm32 target installed, it also plays games on a fresh build.
+- **Maintenance rule:** new engine versions ship in JavaScript first and work at once through the fallback. The core catches up afterwards (extend `CORE_ENGINES` in `public/rust-core.js` once a version is ported and proven).
 
 ## Commands
 - `node scripts/check-rust-core.mjs`, part of `check-all`:
@@ -180,6 +199,7 @@ B2 and B3 ported every group and proved each method call by call, then whole gam
 - `node scripts/inspect-battle-state.mjs` regenerates the state inventory.
 - `node scripts/rust-schema.mjs` rebuilds the schema (about 25 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
 - `node scripts/rust-parity.mjs [--quick] [--record]` checks snapshots and helpers against Rust. `--quick` (7 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-parity.json`.
+- `node scripts/build-rust-wasm.mjs` rebuilds `public/fateforge-core.wasm` (needs `rustup target add wasm32-unknown-unknown`); `node scripts/check-rust-wasm.mjs [--record]` (in `check-all`) compares it with JavaScript through `simulateTeam`.
 - `node scripts/rust-games.mjs [--quick] [--record]` plays whole games in both languages and compares them, and times both. `--quick` (8 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-games.json`.
 - `node scripts/rust-calls.mjs [--quick] [--methods a,b] [--record]` replays recorded engine-method calls in Rust. `--quick` (8 games, 6 calls per method per game) runs in `check-rust-core` and CI; `--record` writes `validation/rust-calls.json`. Add each newly ported method to `scripts/lib/rust-ported.mjs` and to the dispatch in `core/src/bin/team_calls.rs`.
 - **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state, call and game parity runs on Windows, and builds the crate for Android.

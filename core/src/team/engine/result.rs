@@ -93,7 +93,7 @@ impl Engine {
         out.insert("combatVersion".into(), json!("team-4.0"));
         out.insert("balanceId".into(), json!(b.balance.id));
         out.insert("tactics".into(), json!(b.tactics));
-        out.insert("environment".into(), json!({"ground": env.ground, "map": env.map, "time": env.time, "weather": env.weather}));
+        out.insert("environment".into(), json!({"time": env.time, "weather": env.weather, "ground": env.ground, "map": env.map}));
         out.insert("objective".into(), Value::Object(objective));
         out.insert("fighters".into(), Value::Array(fighters));
         // d18

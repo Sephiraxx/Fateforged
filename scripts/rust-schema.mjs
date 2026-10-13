@@ -85,7 +85,9 @@ export function gameList(perCell=1,engine=ENGINE){
   const tactics=[TEAM_TACTICS[list.length%TEAM_TACTICS.length],TEAM_TACTICS[(list.length*3+1)%TEAM_TACTICS.length]];
   // Every third game, both sides play a flank game plan (side-lane sieges set laneWaypoint).
   const gamePlans=list.length%3===0?[{titan:'always',style:'flank',siege:'numbers'},{titan:'ahead',style:'flank',siege:'late'}]:undefined;
-  list.push({map,size,comp,seed,tactics,make:()=>new (teamEngine(engine))([squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[other[(list.length+k)%other.length]],seed+1)],seed,{headless:true,map,tactics,...(gamePlans?{gamePlans}:{})})});
+  // args(): what simulateTeam(teams, seed, options) is given for this game; make() builds the same battle.
+  const opponent=other[(list.length+k)%other.length],args=()=>[[squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[opponent],seed+1)],seed,{headless:true,map,tactics,engineVersion:engine,...(gamePlans?{gamePlans}:{})}];
+  list.push({map,size,comp,seed,tactics,args,make:()=>new (teamEngine(engine))(...args())});
  }
  return list;
 }
@@ -104,7 +106,8 @@ export function coverageGames(engine=ENGINE){
   const known=new Set(Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).map(a=>a.id)),patched=ids.slice(i,i+6).filter(id=>known.has(id));
   const balance=(i/6)%2?{id:'cover',multipliers:Object.fromEntries([...patched.map(id=>`ability:${id}:potency`),'ability:healing:healing','role:tank:health','role:controller:control','stat:MAG','stat:STR'].map((k,j)=>[k,j%2?1.08:.94]))}:undefined;
   const tactics=[TEAM_TACTICS[(i/6)%TEAM_TACTICS.length],TEAM_TACTICS[(i/6+2)%TEAM_TACTICS.length]];
-  list.push({map,size:3,comp:'coverage',seed,tactics,make:()=>new (teamEngine(engine))([structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,tactics,...(balance?{balance}:{})})});}
+  const args=()=>[[structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,tactics,engineVersion:engine,...(balance?{balance}:{})}];
+  list.push({map,size:3,comp:'coverage',seed,tactics,args,make:()=>new (teamEngine(engine))(...args())});}
  return {ids,list};
 }
 

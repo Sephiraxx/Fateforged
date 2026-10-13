@@ -1,6 +1,6 @@
 import {drawCores,drawObjectiveLabels,objectiveStatus,drawMolten} from './objective-render.js';
 import {showSeriesBreak} from './series-break-ui.js';
-import {createSimulationPool} from './simulation-client.js';
+import {createSimulationPool,nativeCoreEnabled,setNativeCore} from './simulation-client.js';
 import {mountLeagues} from './league-ui.js';
 import {openTraitDetails} from './trait-detail-ui.js';
 import {traitContributions,STAT_KEYS} from './trait-details.js';
@@ -291,3 +291,5 @@ BULK_CHARACTERS.mount($('collection-bulk'),{
 });
 
 const leagueUI=mountLeagues($('league-panel'),{blocked:()=>!!series||resolving||bulkBusy||saving,busy:value=>{leagueBusy=value;updateButtons();},trophies:c=>ROSTER_VIEW.championshipDetails(c,championRecords),refresh:refreshRoster,watch:async(a,b,format,conditions,environments)=>{await loadReplayEngine(format.engineVersion??13);return new Promise((resolve,reject)=>{try{beginSeries(a,b,format,format.seed,conditions,!environments&&!format.allowDraw,'League series',resolve,format.engineVersion??13,environments);}catch(e){reject(e);}});}});
+// Fast simulation (the Rust core in the simulation workers): on unless the player turned it off.
+{const toggle=document.getElementById('rust-core-toggle');if(toggle){toggle.checked=nativeCoreEnabled();toggle.addEventListener('change',()=>setNativeCore(toggle.checked));}}
