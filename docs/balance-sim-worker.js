@@ -1,4 +1,5 @@
-import {simulateTeam} from './combat-team.js';
+import {simulateTeam,useNativeSimulator} from './combat-team.js';
+import {loadRustCore,nativeSimulate} from './rust-core.js';
 import {seededRandom} from './team-generation.js';
 import {auditControl,auditCarries,auditBaseKey,auditScope,auditCandidateProposals,auditConcern,auditMidseasonProposal,balanceAuditPlan} from './balance-analysis.js';
 const auditTactics=['balanced','defensive','aggressive','focus-healer','protect-carry'];
@@ -80,4 +81,4 @@ export async function simulateBalanceCandidateAsync(input,runBatch,current){
 }
 // Only what the audit reads from a game: the winner and the health left (Cores in objective modes).
 export function auditGameResult(r){return {winnerTeam:r.winnerTeam,hp:r.hp,...(r.objective?{objective:{coreHp:r.objective.coreHp}}:{})};}
-if(typeof self!=='undefined'&&typeof document==='undefined')self.onmessage=({data})=>{try{self.postMessage({id:data.dispatchId,results:data.game?auditGameResult(simulateTeam(data.teams,data.seed,data.options)):simulateBalanceCandidate(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};
+if(typeof self!=='undefined'&&typeof document==='undefined'){const core=loadRustCore();self.onmessage=async({data})=>{await core;useNativeSimulator(data.nativeCore===false?null:nativeSimulate);try{self.postMessage({id:data.dispatchId,results:data.game?auditGameResult(simulateTeam(data.teams,data.seed,data.options)):simulateBalanceCandidate(data)});}catch(e){self.postMessage({id:data.dispatchId,error:e.message});}};}
