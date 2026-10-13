@@ -27,6 +27,12 @@ assert.deepEqual(recorded.nodeVsChromium,{sin:0,cos:0,other:0},'portable math gi
 const inventory=JSON.parse(fs.readFileSync('validation/rust-state-inventory.json','utf8'));
 for(const engine of ['team-3.9','team-2.8']){const e=inventory.find(x=>x.engine===engine);assert(e&&e.games>=10&&e.fields.fighter,`${engine} inventory`);assert.deepEqual(Object.keys(e.functions).sort(),['battle.plans[].along','battle.plans[].exposed','battle.rng'],`${engine}: only these functions live in battle state`);}
 
+// Phase B1: the generated state model is current, and the recorded parity run (team-4.0 snapshots and helpers) is clean.
+{const gen=spawnSync(process.execPath,['scripts/gen-rust-state.mjs','--check'],{encoding:'utf8'});assert.equal(gen.status,0,gen.stderr);
+ const parity=JSON.parse(fs.readFileSync('validation/rust-parity.json','utf8'));assert.equal(parity.engine,'team-4.0');assert(parity.games>=20&&parity.snapshots>=150,'record a full parity run');
+ assert.equal(parity.state.matching,parity.snapshots,'every snapshot digests the same in Rust');assert.equal(parity.helpers.total,0,'helpers match bit for bit');
+ for(const name of ['clamp','dist','segmentDistance','segment','angleGap','tickTimers'])assert(parity.helpers[name].cases>100,name);}
+
 const cargo=spawnSync('cargo',['--version'],{encoding:'utf8'});
 if(cargo.status!==0){console.log('Rust core: recorded parity holds (1M inputs × 9 functions, identical in node and Chromium); portable trig swapped in only while team-4.0 / team-2.9 run; cargo not installed, live run skipped.');process.exit(0);}
 const manifest=['--manifest-path','core/Cargo.toml'];
@@ -34,4 +40,6 @@ const test=spawnSync('cargo',['test','--quiet',...manifest],{encoding:'utf8'});a
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'fateforge-math-'));
 try{const run=spawnSync(process.execPath,['scripts/rust-math-vectors.mjs',dir,'--pairs','200000','--compare'],{encoding:'utf8'});assert.equal(run.status,0,run.stdout+run.stderr);assert.match(run.stdout,/node \(.*\): 0 mismatches/);}
 finally{fs.rmSync(dir,{recursive:true,force:true});}
-console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);
+const quick=spawnSync(process.execPath,['scripts/rust-parity.mjs','--quick'],{encoding:'utf8'});assert.equal(quick.status,0,quick.stdout+quick.stderr);
+{const r=JSON.parse(quick.stdout.trim().split('\n').at(-1));assert.equal(r.state.matching,r.snapshots);assert.equal(r.helpers.total,0);}
+console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; team-4.0 snapshots and helpers match (quick run); recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);

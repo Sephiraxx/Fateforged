@@ -1,0 +1,37 @@
+{
+ "engine": "team-4.0",
+ "games": 25,
+ "snapshots": 171,
+ "state": {
+  "snapshots": 171,
+  "matching": 171,
+  "failures": []
+ },
+ "helpers": {
+  "clamp": {
+   "cases": 6815,
+   "mismatches": 0
+  },
+  "dist": {
+   "cases": 6810,
+   "mismatches": 0
+  },
+  "segmentDistance": {
+   "cases": 31145,
+   "mismatches": 0
+  },
+  "segment": {
+   "cases": 31145,
+   "mismatches": 0
+  },
+  "angleGap": {
+   "cases": 6816,
+   "mismatches": 0
+  },
+  "tickTimers": {
+   "cases": 684,
+   "mismatches": 0
+  },
+  "total": 0
+ }
+}

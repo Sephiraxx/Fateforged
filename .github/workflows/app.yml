@@ -32,6 +32,7 @@ jobs:
         run: |
           cargo test --manifest-path core/Cargo.toml
           node scripts/rust-math-vectors.mjs core/target/vectors --pairs 200000 --compare
+          node scripts/rust-parity.mjs --quick
       - name: Install the Tauri CLI
         run: npm ci
         working-directory: desktop

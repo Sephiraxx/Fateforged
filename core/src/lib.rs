@@ -1,5 +1,6 @@
 //! Fateforge simulation core.
 //!
-//! Phase A of the Rust port (see RUST-CORE.md): `jsmath` reproduces every JavaScript math operation the team engines
-//! use, bit for bit, so a later Rust engine can give the same results as the JavaScript engines it replaces.
+//! See RUST-CORE.md. `jsmath` reproduces every JavaScript math operation the team engines use, bit for bit;
+//! `team` holds the battle state (generated from the schema) and, phase by phase, the engine that steps it.
 pub mod jsmath;
+pub mod team;

@@ -14,13 +14,13 @@ export const TEAM_TACTICS=Object.freeze(['balanced','protect-carry','focus-heale
 export const CC_IMMUNITY=2.5;
 // Team-only role mechanics (see TEAM-BATTLES.md).
 export const TEAM_RULES=Object.freeze({provokeRange:110,provokeScore:3.5,fortified:.35,bulwarkRange:80,bulwarkShare:.25,exposedTime:3,exposedBonus:.15,overtime:75,overtimeHealing:.5,overtimeDamage:1.2});
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-const segmentDistance=(px,py,ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,t=clamp(((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-ax-dx*t,py-ay-dy*t);};
+export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+export const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+export const segmentDistance=(px,py,ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,t=clamp(((px-ax)*dx+(py-ay)*dy)/(dx*dx+dy*dy||1),0,1);return Math.hypot(px-ax-dx*t,py-ay-dy*t);};
 // A stand-in target that reads like a copy of t with some fields replaced. Movement only reads its targets, so a
 // prototype link gives the same answers as copying all of a fighter's ~150 fields every step.
 const lookAlike=(t,fields)=>Object.assign(Object.create(t),fields);
-const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+export const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
 // Timer lists mirror combat 12's environment and technique layers.
 const TIMERS=['exposed','wet','root','sleep','poison','bleed','regeneration','absorption','flight','invisible','insight','blind','amnesia','suppressed','disarmed','spiritArmor','shape','sizeTime','soul','chrono','deathMark','winded','illusionTime','portalTime','wardTime','futureTime','mindTime'];
 const TECHNIQUE_TIMERS=['guardTime','parryTime','perfectTime','counterTime','lastStandTime','crippled','brambleSlow'];

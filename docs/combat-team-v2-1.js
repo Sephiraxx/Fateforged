@@ -4,7 +4,7 @@ export {TEAM_TIME_LIMIT,TEAM_SIZES,TEAM_TACTICS,CC_IMMUNITY,TEAM_RULES,TEAM_POST
 export const TEAM_ENGINE_VERSION='team-2.1';
 const bolts=new Set(['fire','ice','water','dream','blood','void','custom','metal','crystal','sound','ember','venom','thornBolt','roots']);
 const small=new Set(['crystal','ember','venom','thornBolt','roots']);
-const segment=(o,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((o.x-a.x)*dx+(o.y-a.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(o.x-a.x-dx*t,o.y-a.y-dy*t);};
+export const segment=(o,a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((o.x-a.x)*dx+(o.y-a.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(o.x-a.x-dx*t,o.y-a.y-dy*t);};
 export class TeamBattle extends PreviousTeamBattle{
  pathClear(f,t,angle,radius=3,speed=290){const d=Math.hypot(t.x-f.x,t.y-f.y),time=d/speed*(.45+.5*(f.tactics??.5)),distance=Math.hypot(t.x+(t.vx??0)*time-f.x,t.y+(t.vy??0)*time-f.y),lead={x:f.x+Math.cos(angle)*distance,y:f.y+Math.sin(angle)*distance};return !this.obstacles.some(o=>segment(o,f,lead)<=o.radius+radius||segment(o,f,t)<=o.radius+radius);}
  shotClear(f,t,angle){const origin=f.portalTime>0&&f.gates?{...f,...f.gates[1]}:f;return this.pathClear(origin,t,origin===f?angle:this.aim(origin,t,290),3);}
