@@ -14,7 +14,7 @@ Season simulations and patch audits spend almost all of their time in the team e
 | A2 | Portable sin/cos/atan2 in JavaScript; engines team-2.9 and team-4.0 use them, so every device plays the same game | **Done** |
 | B1 | Parity harness: the battle-state schema, JavaScript export and digest, the generated Rust state model, per-step helpers | **Done** |
 | B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
-| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | In progress: the damage path is done |
+| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | In progress: damage, attacks and powers are done |
 | B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
 | D | Wiring: a native batch command in the app (all cores), the pool falls back to JavaScript for anything else; later WebAssembly for the web version | 1–2 PRs |
 | E | Duel engine (optional) | Later |
@@ -115,7 +115,7 @@ Every later phase is proven against JavaScript with these tools.
 
 ## Phase B3: the combat core (in progress)
 
-- **Damage path** (`core/src/team/engine/combat.rs`), proven call by call like B2:
+- **Damage path** (`core/src/team/engine/combat.rs`), proven call by call like B2, as is everything below:
   - `hit`, `periodicHit`, `connectControl` and `applyImpact` (every spell payload, kit and support control, and a patched ability's context);
   - `hurt` and `fighterHit`.
 - **The `hurt` chain:** for team-4.0 it runs d20 → d19 → d17 → d16 → d15 → d12 → d11 → d10:
@@ -125,7 +125,15 @@ Every later phase is proven against JavaScript with these tools.
 - **Fighters:** they go through `fighterHit`: dives, overtime, exposure, the Bulwark guard's share, Forgefire's shield and kill credit. That calls the duel `hurt` directly (d5 parries and counters, d3 Phoenix rebirth, d2 armor, weaknesses, the dodge and critical rolls, absorption, shields, knockback and the payload). So the d9, d8 and d6 versions never run.
 - **`hitContext`:** a record or the projectile that hit. Rust keeps one `HitContext`, and the call recorder passes it with the other within-step fields.
 - **Not yet called:** `connectControl` only runs for Memory, which the recorded games never cast; full-step parity covers it.
-- **Next:** attacks (`startAttack`, `updateAttack`), targeting (`chooseTarget`, `fight`), powers (`powerUtility`, `castPower`, `usePower`, support and kit abilities), then the environment and objective steps and `step` itself, with full-step parity and the benchmark.
+- **Attacks** (`core/src/team/engine/attack.rs`):
+  - `startAttack`: abilities first, hold fire behind cover, wind up a swing or aim a shot.
+  - `updateAttack` (d20 → d14 → d12 → d8 → d7 → d6 → d5 → d4 → d2 → d1): support abilities resolving, held shots, Cleave's arc, techniques, spell casts, swings and shots, decoys, loud weapons and portal shots.
+  - `applySupportAbility`.
+- **Powers** (`core/src/team/engine/powers.rs`):
+  - `powerUtility`, `powerPriority`, `copyChoice`, `castPower`;
+  - `usePower`, for every power a team-4.0 fighter can roll.
+- **Dead for team-4.0:** team kits (`teamKit` is always null; rolled support abilities replaced them). Neutral wisps never exist, so `powerUnsafe` and `innocentRisk` are always false.
+- **Next:** targeting (`chooseTarget`, `fight`), then the per-step layers (`upkeep`, the environment and objective steps, `step` and `result`), with full-step parity and the benchmark.
 
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
 1. **Duel base the team engines inherit:**

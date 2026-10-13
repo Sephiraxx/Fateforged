@@ -408,6 +408,49 @@
    "cases": 573,
    "matching": 573,
    "failures": []
+  },
+  "updateAttack": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "applySupportAbility": {
+   "cases": 29,
+   "matching": 29,
+   "failures": []
+  },
+  "powerUtility": {
+   "cases": 775,
+   "matching": 775,
+   "failures": [],
+   "skipped": {
+    "stand-in replaces powers": 4
+   }
+  },
+  "powerPriority": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "copyChoice": {
+   "cases": 28,
+   "matching": 28,
+   "failures": []
+  },
+  "castPower": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "startAttack": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "usePower": {
+   "cases": 267,
+   "matching": 267,
+   "failures": []
   }
  }
 }

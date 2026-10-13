@@ -13,7 +13,7 @@ use crate::team::state::{BattleProjectiles, BattleZones, EntityPowers, EntityWea
 const BOLTS: [&str; 14] = ["fire", "ice", "water", "dream", "blood", "void", "custom", "metal", "crystal", "sound", "ember", "venom", "thornBolt", "roots"];
 const SMALL: [&str; 5] = ["crystal", "ember", "venom", "thornBolt", "roots"];
 /// `harmful` of the combat-12 layers (Phoenix rebirth clears these).
-const HARMFUL_V12: [&str; 12] = ["burn", "poison", "bleed", "sleep", "root", "chrono", "slow", "blind", "amnesia", "suppressed", "disarmed", "soul"];
+pub(crate) const HARMFUL_V12: [&str; 12] = ["burn", "poison", "bleed", "sleep", "root", "chrono", "slow", "blind", "amnesia", "suppressed", "disarmed", "soul"];
 /// `harmful` of the team layers (Cleanse looks for these).
 pub const HARMFUL_TEAM: [&str; 16] = ["burn", "poison", "bleed", "sleep", "root", "chrono", "slow", "blind", "amnesia", "suppressed", "disarmed", "soul", "crippled", "brambleSlow", "tauntTime", "kitStun"];
 
@@ -483,7 +483,7 @@ impl Engine {
 }
 
 /// The timer field of a harmful effect (for clearing it).
-fn harmful_mut<'a>(e: &'a mut crate::team::state::Entity, key: &str) -> &'a mut f64 {
+pub(crate) fn harmful_mut<'a>(e: &'a mut crate::team::state::Entity, key: &str) -> &'a mut f64 {
     match key {
         "burn" => &mut e.burn,
         "poison" => &mut e.poison,
