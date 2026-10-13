@@ -27,12 +27,14 @@ jobs:
             core
       - name: Install game dependencies
         run: npm ci
-      # The Rust simulation core must reproduce JavaScript math bit for bit (RUST-CORE.md); check it on Windows too.
-      - name: Rust core math parity
+      # The Rust simulation core must reproduce JavaScript math, state and engine methods bit for bit (RUST-CORE.md);
+      # check it on Windows too.
+      - name: Rust core parity
         run: |
           cargo test --manifest-path core/Cargo.toml
           node scripts/rust-math-vectors.mjs core/target/vectors --pairs 200000 --compare
           node scripts/rust-parity.mjs --quick
+          node scripts/rust-calls.mjs --quick
       - name: Install the Tauri CLI
         run: npm ci
         working-directory: desktop

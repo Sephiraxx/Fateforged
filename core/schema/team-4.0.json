@@ -1294,7 +1294,7 @@
      "nullable": false
     },
     "castPayload": {
-     "type": "null",
+     "type": "obj<entity.castPayload>",
      "nullable": true
     },
     "ccImmune": {
@@ -1706,7 +1706,7 @@
      "nullable": false
     },
     "selectedPower": {
-     "type": "null",
+     "type": "obj<entity.powers[]>",
      "nullable": true
     },
     "shape": {
@@ -1774,7 +1774,7 @@
      "nullable": true
     },
     "supportTarget": {
-     "type": "null",
+     "type": "f64",
      "nullable": true
     },
     "suppressed": {
@@ -1996,6 +1996,23 @@
     "y": {
      "type": "f64",
      "nullable": false
+    }
+   }
+  },
+  "entity.castPayload": {
+   "map": false,
+   "fields": {
+    "power": {
+     "type": "obj<entity.powers[]>",
+     "nullable": true
+    },
+    "priority": {
+     "type": "f64",
+     "nullable": false
+    },
+    "weapon": {
+     "type": "bool",
+     "nullable": true
     }
    }
   },
@@ -2440,6 +2457,10 @@
      "nullable": true
     },
     "silver": {
+     "type": "bool",
+     "nullable": true
+    },
+    "sunlight": {
      "type": "bool",
      "nullable": true
     }

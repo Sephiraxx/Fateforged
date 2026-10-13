@@ -150,7 +150,11 @@ fn tgt_value(eng: &Engine, t: &Tgt) -> Value {
 
 fn dispatch(method: &str, c: &mut Call) -> Value {
     match method {
-        "actorFor" => opt_ent(c.eng.actor_for(c.f64(0))),
+        // actorFor(index): undefined when nothing has that index (including a null index).
+        "actorFor" => match c.arg(0).filter(|v| !v.is_null()) {
+            None => UNDEFINED(),
+            Some(_) => c.eng.actor_for(c.f64(0)).map(ent).unwrap_or_else(UNDEFINED),
+        },
         "alliesOf" => ents(c.eng.allies_of(c.ent(0), c.bool(1))),
         "enemiesOf" => ents(c.eng.enemies_of(c.ent(0))),
         "ownerTeam" => {
@@ -409,7 +413,7 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
         }
         "projectileClear" => {
             let t = c.tgt(1);
-            json!(c.eng.projectile_clear(c.ent(0), &t, &c.string(2)))
+            json!(c.eng.projectile_clear(c.ent(0), &t, &c.power(2).id))
         }
         "launch" => {
             let t = c.tgt(1);

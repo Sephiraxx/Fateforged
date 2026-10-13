@@ -1119,7 +1119,7 @@ pub struct Entity {
     #[serde(rename = "castCount", deserialize_with = "jsnum::f64")]
     pub cast_count: f64,
     #[serde(rename = "castPayload", default)]
-    pub cast_payload: Option<Never>,
+    pub cast_payload: Option<EntityCastPayload>,
     #[serde(rename = "ccImmune", deserialize_with = "jsnum::f64")]
     pub cc_immune: f64,
     #[serde(rename = "ccSeconds", deserialize_with = "jsnum::f64")]
@@ -1325,7 +1325,7 @@ pub struct Entity {
     #[serde(rename = "secondWindUsed")]
     pub second_wind_used: bool,
     #[serde(rename = "selectedPower", default)]
-    pub selected_power: Option<Never>,
+    pub selected_power: Option<EntityPowers>,
     #[serde(rename = "shape", deserialize_with = "jsnum::f64")]
     pub shape: f64,
     #[serde(rename = "shield", deserialize_with = "jsnum::f64")]
@@ -1358,8 +1358,8 @@ pub struct Entity {
     pub support_revived: Option<bool>,
     #[serde(rename = "supportReviveSpent", default)]
     pub support_revive_spent: Option<bool>,
-    #[serde(rename = "supportTarget", default)]
-    pub support_target: Option<Never>,
+    #[serde(rename = "supportTarget", default, deserialize_with = "jsnum::opt_f64")]
+    pub support_target: Option<f64>,
     #[serde(rename = "suppressed", deserialize_with = "jsnum::f64")]
     pub suppressed: f64,
     #[serde(rename = "swing", deserialize_with = "jsnum::f64")]
@@ -1438,7 +1438,7 @@ impl Digest for Entity {
         h.f64(self.burn_damage);
         h.f64(self.cast);
         h.f64(self.cast_count);
-        match &self.cast_payload { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.cast_payload { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.cc_immune);
         h.f64(self.cc_seconds);
         h.f64(self.chrono);
@@ -1541,7 +1541,7 @@ impl Digest for Entity {
         h.f64(self.roll_y);
         h.f64(self.root);
         h.bool(self.second_wind_used);
-        match &self.selected_power { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.selected_power { None => h.nil(), Some(v) => { (*v).digest(h); } }
         h.f64(self.shape);
         h.f64(self.shield);
         h.f64(self.side);
@@ -1558,7 +1558,7 @@ impl Digest for Entity {
         match &self.still_since { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.support_revived { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.support_revive_spent { None => h.nil(), Some(v) => { h.bool((*v)); } }
-        match &self.support_target { None => h.nil(), Some(v) => { h.nil(); } }
+        match &self.support_target { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.suppressed);
         h.f64(self.swing);
         h.f64(self.tactics);
@@ -1686,6 +1686,27 @@ impl Digest for EntityAnchor {
         h.f64(self.mana);
         h.f64(self.x);
         h.f64(self.y);
+    }
+}
+
+/// `entity.castPayload`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityCastPayload {
+    #[serde(rename = "power", default)]
+    pub power: Option<EntityPowers>,
+    #[serde(rename = "priority", deserialize_with = "jsnum::f64")]
+    pub priority: f64,
+    #[serde(rename = "weapon", default)]
+    pub weapon: Option<bool>,
+}
+impl JsDe for EntityCastPayload {}
+impl Digest for EntityCastPayload {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        match &self.power { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        h.f64(self.priority);
+        match &self.weapon { None => h.nil(), Some(v) => { h.bool((*v)); } }
     }
 }
 
@@ -2141,6 +2162,8 @@ pub struct EntityWeaponProperties {
     pub poison: Option<bool>,
     #[serde(rename = "silver", default)]
     pub silver: Option<bool>,
+    #[serde(rename = "sunlight", default)]
+    pub sunlight: Option<bool>,
 }
 impl JsDe for EntityWeaponProperties {}
 impl Digest for EntityWeaponProperties {
@@ -2154,6 +2177,7 @@ impl Digest for EntityWeaponProperties {
         match &self.metal { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.poison { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.silver { None => h.nil(), Some(v) => { h.bool((*v)); } }
+        match &self.sunlight { None => h.nil(), Some(v) => { h.bool((*v)); } }
     }
 }
 

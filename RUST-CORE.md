@@ -13,9 +13,9 @@ Season simulations and patch audits spend almost all of their time in the team e
 | A | JavaScript-exact math, the crate, the state inventory, this plan | **Done** |
 | A2 | Portable sin/cos/atan2 in JavaScript; engines team-2.9 and team-4.0 use them, so every device plays the same game | **Done** |
 | B1 | Parity harness: the battle-state schema, JavaScript export and digest, the generated Rust state model, per-step helpers | **Done** |
-| B2 | Duel base layers (combat-v12: base, profile, contact, environment, powers), proven call by call | Next |
-| B3 | Team layers (combat-team-v2 → v2-3, support, role output and tuning): full-step parity on classic team-2.9 | |
-| B4 | Objective layers (v3-core → v4-0): full-step parity on Core siege team-4.0, then a speed benchmark | |
+| B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
+| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | Next |
+| B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
 | D | Wiring: a native batch command in the app (all cores), the pool falls back to JavaScript for anything else; later WebAssembly for the web version | 1–2 PRs |
 | E | Duel engine (optional) | Later |
 
@@ -95,6 +95,24 @@ Every later phase is proven against JavaScript with these tools.
   - The Titan's target is a string key (`"3"`, from `Object.entries`), so `===` against a fighter index is false. The model keeps `target` as number-or-string.
   - Some fields only exist inside a step (`castPayload`, `selectedPower`, `teleportPlan`, …). They are always null between steps and become locals in Rust.
 
+## Phase B2: the engine and its low-level methods
+
+- **Engine** (`core/src/team/engine`): an `Engine` holds the loaded battle state, the generator (seed plus call count) and the within-step fields (`healSource`, `balanceCast`, …), which are passed in separately.
+  - **Methods:** __METHODS__ team-4.0 methods are ported, listed in `scripts/lib/rust-ported.mjs`. They cover queries (`queries.rs`), movement and steering (`movement.rs`), the team brain, duties, respawns and the Titan's attacks (`objective.rs`), and healing, crowd control, zones, knockback, cover checks, spell projectiles and support targeting (`effects.rs`).
+  - **Inheritance:** each JavaScript method is a chain of overrides across the 23 layers of the prototype chain. The Rust version is that chain written out in order, with only the live layer versions ported. Doc comments name the layers (`d16` is depth 16 of the chain).
+  - **Stand-ins:** JavaScript sometimes passes a copy of a fighter (`{...t}`) or a look-alike (`Object.create(t)`) with a few fields replaced. Rust passes a `Tgt`: the entity plus the replaced fields.
+- **Call-by-call parity** (`scripts/rust-calls.mjs`, recorded in `validation/rust-calls.json`):
+  - **Recording:** JavaScript plays seeded team-4.0 games (__GAMES__ in the full run: every map, both sizes, varied tactics and game plans, and the coverage games that force every ability). It wraps each ported method; for the first calls and then every 37th, it records the state before the call, the arguments, the return value and the state digest after it. Nested calls are recorded too.
+  - **Replay:** the `team-calls` binary loads each recorded state, makes the same call in Rust, and compares the return value and the digest of the whole battle afterwards, bit for bit.
+  - **Result:** __CASES__ recorded calls, all matching. __NEVER__
+- **Schema:** it now also samples inside steps (at every 1500th method call), so values that only exist while a step runs (a power being weighed, a cast payload) are typed. Games now also vary tactics, flank game plans and league balance patches, so posture, lane and patch fields are covered.
+- **JavaScript quirks kept:**
+  - integer-like object keys iterate in ascending order (plan slots);
+  - `??` against `=== null` are kept apart;
+  - comparisons with `undefined` are false, and NaN is falsy;
+  - sorts are stable, and comparator `||` chains are kept as written.
+- **Always empty in team battles:** wisps, food, portals, visual effects and events. So the neutral-wisp checks are always false, and logs and effects do nothing headless.
+
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
 1. **Duel base the team engines inherit:**
    - `combat-v1` (generator, helpers);
@@ -113,7 +131,7 @@ Every later phase is proven against JavaScript with these tools.
    - `combat-team-v3-7` (backdoor duty, Molten Hurl, Fissure), `role-tuning` and `combat-team-v3-8`;
    - `combat-team-v3-9` (spread terrain, unsticking), `combat-team-v4-0` and `portable-combat` (portable math).
 
-Each PR ports a group and proves it with a **trace diff**. Both languages hash the battle state every 60 steps, and a mismatch names the first differing step and field. A group is done when every recorded fingerprint game and 200 random seeded games (3v3 and 5v5, every map) match exactly.
+B2 ported the low-level methods of every group and proved them call by call. From B3 on, a ported group is proven with a **trace diff**. Both languages hash the battle state every 60 steps, and a mismatch names the first differing step and field. A group is done when every recorded fingerprint game and 200 random seeded games (3v3 and 5v5, every map) match exactly.
 
 ### Wiring (phase D)
 - **Native batches:** a Tauri command `simulate_batch(games)` runs games on all cores (rayon).
@@ -127,6 +145,7 @@ Each PR ports a group and proves it with a **trace diff**. Both languages hash t
   - with cargo installed, also runs the unit tests and a fresh 200k-input comparison.
 - `node scripts/rust-math-vectors.mjs <dir> --chromium --record` re-records the parity file. It needs `playwright-core`; point `PLAYWRIGHT_CORE` at its `index.mjs`. `--compare` only compares.
 - `node scripts/inspect-battle-state.mjs` regenerates the state inventory.
-- `node scripts/rust-schema.mjs` rebuilds the schema (about 4 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
+- `node scripts/rust-schema.mjs` rebuilds the schema (about 25 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
 - `node scripts/rust-parity.mjs [--quick] [--record]` checks snapshots and helpers against Rust. `--quick` (7 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-parity.json`.
-- **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick parity run on Windows, and builds the crate for Android.
+- `node scripts/rust-calls.mjs [--quick] [--methods a,b] [--record]` replays recorded engine-method calls in Rust. `--quick` (8 games, 6 calls per method per game) runs in `check-rust-core` and CI; `--record` writes `validation/rust-calls.json`. Add each newly ported method to `scripts/lib/rust-ported.mjs` and to the dispatch in `core/src/bin/team_calls.rs`.
+- **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state and call parity runs on Windows, and builds the crate for Android.

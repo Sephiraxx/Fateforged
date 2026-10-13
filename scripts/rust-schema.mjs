@@ -17,6 +17,7 @@ export const ENGINE='team-4.0';
 // Objects whose keys are data (ability ids, team sizes, slot numbers, plan names), not fields.
 export const MAP_KINDS=new Set(['entity.abilityUseCounts','entity.powerUsed','battle.plans[].slots','battle.balance.multipliers','battle.titanRules.hp','battle.objectiveRules.coreHp','battle.objectiveRules.coreRamp','battle.brain[].scores','battle.planSeconds[]']);
 // Never part of the state: closures rebuilt from other fields, and the battle's random generator (exported separately).
+export const TRANSIENT=['healSource','balanceCast','balanceEnvironment','selectingFight','targetFilter','hitContext'];
 export const SKIP=new Set(['battle.rng','battle.__rngCalls','battle.plans[].along','battle.plans[].exposed']);
 
 const args=process.argv.slice(2),perCell=Number(args[args.indexOf('--games-per-cell')+1])||1;
@@ -52,7 +53,9 @@ export function buildSchema(games){
  // runs (a power being weighed, a cast payload, ...) are typed too: the Rust parity tests replay single calls.
  for(const g of games){const b=g();sample(b);let n=0,calls=0;
   const names=new Set();for(let p=Object.getPrototypeOf(b);p&&p!==Object.prototype;p=Object.getPrototypeOf(p))for(const k of Object.getOwnPropertyNames(p))if(k!=='constructor'&&k!=='step'&&k!=='result'&&typeof p[k]==='function')names.add(k);
-  for(const k of names){const fn=b[k];b[k]=function(...a){if(++calls%1500===0)sample(this);return fn.apply(this,a);};}
+  // Within-step battle fields (scripts/rust-calls.mjs: TRANSIENT) are passed to Rust separately, so they stay null here.
+  const midStep=b=>{const saved=TRANSIENT.filter(k=>Object.hasOwn(b,k)&&b[k]!=null).map(k=>{const v=b[k];b[k]=null;return [k,v];});try{sample(b);}finally{for(const [k,v] of saved)b[k]=v;}};
+  for(const k of names){const fn=b[k];b[k]=function(...a){if(++calls%1500===0)midStep(this);return fn.apply(this,a);};}
   while(!b.done){b.step(1/60);if(++n%10===0)sample(b);}sample(b);
   for(const k of names)delete b[k];}
  // Merge aliased kinds, resolve obj<path> to the merged kind name.

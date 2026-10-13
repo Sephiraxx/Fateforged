@@ -8,13 +8,12 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {gameList,coverageGames} from './rust-schema.mjs';
+import {gameList,coverageGames,TRANSIENT} from './rust-schema.mjs';
 import {exportState,digestState,trackRng,entitiesOf} from './lib/team-state.mjs';
+import {PORTED} from './lib/rust-ported.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const args=process.argv.slice(2),flag=n=>args.includes(n),opt=(n,d)=>args.includes(n)?args[args.indexOf(n)+1]:d;
-// Every method ported so far, by its JavaScript name. Methods taking callbacks are proven through their callers.
-export const PORTED=['actorFor','alliesOf','enemiesOf','ownerTeam','centroid','empowered','hasForgefire','clampX','clampY','clearShot','isSkirmisher','guardCount','intruders','touching','respawnDelay','preferredRange','posture','aim','powerCost','pushOutOfTerrain','creditDown','dropFallen','onDuty','nearestEnemy','threatened','placeAtBase','detour','warn','incomingThreat','underFire','dodgeThreat','steer','targetFor','moveFighter','moveTeamFighter','healerAnchor','escapeFrom','supportAllies','supportEnemies','planLeash','holdPoint','titanStun','titanAttackers','openFissure','moltenHurl','defendTarget','updateDuty','situation','planScores','updateBrain','teleportDestination','respawn','settleShield','updatePlans','usefulPortal','abilityFactor','duration','heal','kitControl','fortified','rebirth','zone','emitSound','push','wideKnockback','pathClear','shotClear','projectileClear','launch','supportLine','supportControl','supportChoice','supportTargets','lifeSpot'];
 const methods=opt('--methods',PORTED.join(',')).split(','),perGame=Number(opt('--per-game',flag('--quick')?6:25));
 const quick=flag('--quick'),dir=args.includes('--dir')?path.resolve(opt('--dir')):fs.mkdtempSync(path.join(os.tmpdir(),'fateforge-calls-'));
 fs.mkdirSync(dir,{recursive:true});
@@ -45,7 +44,6 @@ function encode(v,ctx){
 class Skip extends Error{}
 
 // --- recording ------------------------------------------------------------------------------------------------
-const TRANSIENT=['healSource','balanceCast','balanceEnvironment','selectingFight','targetFilter','hitContext'];
 // Within-step fields are recorded separately (tr) and blanked for the export; fields that do not exist stay absent.
 const blank=b=>TRANSIENT.filter(k=>Object.hasOwn(b,k)).map(k=>{const v=b[k];b[k]=null;return [k,v];});
 const restore=(b,saved)=>{for(const [k,v] of saved)b[k]=v;};
