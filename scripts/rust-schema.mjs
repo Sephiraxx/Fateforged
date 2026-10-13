@@ -49,13 +49,14 @@ export function buildSchema(games){
  const sample=b=>{const entities=entitiesOf(b),seen=new Set(),kindOfObject=new Map();
   for(const e of entities){seen.add(e);walk(e,'entity',entities,seen,kindOfObject);}
   walk(b,'battle',entities,seen,kindOfObject);};
- // Also sample inside steps, at method-call boundaries (every 1500th call), so values that only exist while a step
+ // Also sample inside steps, at method-call boundaries (every 1500th call and every power use), so values that only exist while a step
  // runs (a power being weighed, a cast payload, ...) are typed too: the Rust parity tests replay single calls.
  for(const g of games){const b=g();sample(b);let n=0,calls=0;
   const names=new Set();for(let p=Object.getPrototypeOf(b);p&&p!==Object.prototype;p=Object.getPrototypeOf(p))for(const k of Object.getOwnPropertyNames(p))if(k!=='constructor'&&k!=='step'&&k!=='result'&&typeof p[k]==='function')names.add(k);
   // Within-step battle fields (scripts/rust-calls.mjs: TRANSIENT) are passed to Rust separately, so they stay null here.
   const midStep=b=>{const saved=TRANSIENT.filter(k=>Object.hasOwn(b,k)&&b[k]!=null).map(k=>{const v=b[k];b[k]=null;return [k,v];});try{sample(b);}finally{for(const [k,v] of saved)b[k]=v;}};
-  for(const k of names){const fn=b[k];b[k]=function(...a){if(++calls%1500===0)midStep(this);return fn.apply(this,a);};}
+  // Every power use is sampled too: some fields (a teleport's landing) only exist while a power resolves.
+  for(const k of names){const fn=b[k],always=k==='usePower';b[k]=function(...a){if(always||++calls%1500===0)midStep(this);return fn.apply(this,a);};}
   while(!b.done){b.step(1/60);if(++n%10===0)sample(b);}sample(b);
   for(const k of names)delete b[k];}
  // Merge aliased kinds, resolve obj<path> to the merged kind name.

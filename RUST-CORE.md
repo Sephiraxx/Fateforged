@@ -105,7 +105,7 @@ Every later phase is proven against JavaScript with these tools.
   - **Recording:** JavaScript plays seeded team-4.0 games (__GAMES__ in the full run: every map, both sizes, varied tactics and game plans, and the coverage games that force every ability). It wraps each ported method; for the first calls and then every 37th, it records the state before the call, the arguments, the return value and the state digest after it. Nested calls are recorded too.
   - **Replay:** the `team-calls` binary loads each recorded state, makes the same call in Rust, and compares the return value and the digest of the whole battle afterwards, bit for bit.
   - **Result:** __CASES__ recorded calls, all matching. __NEVER__
-- **Schema:** it now also samples inside steps (at every 1500th method call), so values that only exist while a step runs (a power being weighed, a cast payload) are typed. Games now also vary tactics, flank game plans and league balance patches, so posture, lane and patch fields are covered.
+- **Schema:** it now also samples inside steps (at every 1500th method call and every power use), so values that only exist while a step runs (a power being weighed, a cast payload) are typed. Games now also vary tactics, flank game plans and league balance patches, so posture, lane and patch fields are covered.
 - **JavaScript quirks kept:**
   - integer-like object keys iterate in ascending order (plan slots);
   - `??` against `=== null` are kept apart;
