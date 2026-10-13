@@ -1,5 +1,6 @@
-// Rust simulation core, phase A: JavaScript math parity (RUST-CORE.md).
-// Always: the recorded parity run (1M inputs, node and Chromium) has no mismatches, flavour detection works, and the
+// Rust simulation core: JavaScript math parity (RUST-CORE.md).
+// Always: the recorded parity run (1M inputs, node and Chromium) has no mismatches and identical results in both
+// runtimes, the portable sin/cos is what node's Math gives and is only swapped in while an engine runs, and the
 // battle-state inventory exists. With cargo installed: the crate's unit tests pass and a fresh 200k-input run in this
 // node matches the Rust math bit for bit. Without cargo the live part is skipped (the app and CI builds have it).
 import assert from 'node:assert/strict';
@@ -7,24 +8,30 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {trigFlavor} from '../public/js-math-flavor.js';
+import * as portable from '../public/portable-math.js';
+import {teamEngine} from '../public/combat-team.js';
+import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 
 const recorded=JSON.parse(fs.readFileSync('validation/rust-math-parity.json','utf8'));
 assert(recorded.pairs>=1_000_000,'record at least a million inputs');
-const byRuntime=Object.fromEntries(recorded.runtimes.map(r=>[r.runtime,r]));
-assert.equal(byRuntime.node?.flavor,'fdlibm','node uses fdlibm');assert.equal(byRuntime.chromium?.flavor,'glibc','Chromium uses V8\'s glibc copy');
+assert.deepEqual(recorded.runtimes.map(r=>r.runtime).sort(),['chromium','node']);
 for(const r of recorded.runtimes){assert.equal(r.total,0,`${r.runtime}: ${r.total} mismatches`);assert.equal(r.pairs,recorded.pairs);assert(r.rngSeeds>=1000);}
-assert(recorded.nodeVsChromium.sin>0&&recorded.nodeVsChromium.other===0,'the two flavours differ only in sin and cos');
-assert.equal(trigFlavor(),'fdlibm','node detects fdlibm');
+assert.deepEqual(recorded.nodeVsChromium,{sin:0,cos:0,other:0},'portable math gives the same bits in node and Chromium');
+// Node's own Math.sin/cos/atan2 are V8's fdlibm, so the portable versions must agree with them here.
+{let x=0.123;for(let i=0;i<100000;i++){x=(x*1103515245+12345)%2147483648;const v=(x/2147483648-.5)*40;assert(Object.is(portable.sin(v),Math.sin(v))&&Object.is(portable.cos(v),Math.cos(v))&&Object.is(portable.atan2(v,v*.37-3),Math.atan2(v,v*.37-3)),`portable trig at ${v}`);}}
+// team-4.0 / team-2.9 swap the portable versions in only while they build or step a battle.
+{const native=[Math.sin,Math.cos,Math.atan2];for(const v of ['team-4.0','team-2.9']){const E=teamEngine(v),b=new E([squad(COMPOSITIONS.balanced3,7),squad(COMPOSITIONS.balanced3,8)],7,{headless:true,map:'pillars'});assert.deepEqual([Math.sin,Math.cos,Math.atan2],native);
+ let saw=null;const step=Object.getPrototypeOf(Object.getPrototypeOf(b)).step;Object.getPrototypeOf(Object.getPrototypeOf(b)).step=function(dt){saw=[Math.sin,Math.atan2];return step.call(this,dt);};try{b.step(1/60);}finally{Object.getPrototypeOf(Object.getPrototypeOf(b)).step=step;}
+ assert.deepEqual(saw,[portable.sin,portable.atan2],`${v} steps with portable sin and atan2`);assert.deepEqual([Math.sin,Math.cos,Math.atan2],native,'restored after the step');while(!b.done)b.step(1/60);assert.equal(b.result().combatVersion,v);}}
 
 const inventory=JSON.parse(fs.readFileSync('validation/rust-state-inventory.json','utf8'));
 for(const engine of ['team-3.9','team-2.8']){const e=inventory.find(x=>x.engine===engine);assert(e&&e.games>=10&&e.fields.fighter,`${engine} inventory`);assert.deepEqual(Object.keys(e.functions).sort(),['battle.plans[].along','battle.plans[].exposed','battle.rng'],`${engine}: only these functions live in battle state`);}
 
 const cargo=spawnSync('cargo',['--version'],{encoding:'utf8'});
-if(cargo.status!==0){console.log('Rust core: recorded parity holds (1M inputs × 9 functions, node and Chromium); cargo not installed, live run skipped.');process.exit(0);}
+if(cargo.status!==0){console.log('Rust core: recorded parity holds (1M inputs × 9 functions, identical in node and Chromium); portable trig swapped in only while team-4.0 / team-2.9 run; cargo not installed, live run skipped.');process.exit(0);}
 const manifest=['--manifest-path','core/Cargo.toml'];
 const test=spawnSync('cargo',['test','--quiet',...manifest],{encoding:'utf8'});assert.equal(test.status,0,test.stdout+test.stderr);
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'fateforge-math-'));
-try{const run=spawnSync(process.execPath,['scripts/rust-math-vectors.mjs',dir,'--pairs','200000','--compare'],{encoding:'utf8'});assert.equal(run.status,0,run.stdout+run.stderr);assert.match(run.stdout,/node \(fdlibm.*\): 0 mismatches/);}
+try{const run=spawnSync(process.execPath,['scripts/rust-math-vectors.mjs',dir,'--pairs','200000','--compare'],{encoding:'utf8'});assert.equal(run.status,0,run.stdout+run.stderr);assert.match(run.stdout,/node \(.*\): 0 mismatches/);}
 finally{fs.rmSync(dir,{recursive:true,force:true});}
-console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; recorded parity holds for node (fdlibm) and Chromium (glibc).`);
+console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);

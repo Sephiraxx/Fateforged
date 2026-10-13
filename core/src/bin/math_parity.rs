@@ -1,9 +1,10 @@
 //! Compares fateforge-core's JavaScript math with vectors recorded from a real JavaScript runtime.
 //!
-//! Usage: `math-parity <dir> <runtime> <fdlibm|glibc>`. `<dir>` holds the files written by
-//! `scripts/rust-math-vectors.mjs`: `inputs.f64` (x, y pairs), `<runtime>.out` (one row of results per pair, see
-//! `COLUMNS`), `rng-seeds.f64` and `<runtime>.rng`. Prints a JSON summary; exits with status 1 on any mismatch.
-use fateforge_core::jsmath::{self, JsMath, JsRandom, TrigFlavor};
+//! Usage: `math-parity <dir> <runtime>`. `<dir>` holds the files written by `scripts/rust-math-vectors.mjs`:
+//! `inputs.f64` (x, y pairs), `<runtime>.out` (one row of results per pair, see `COLUMNS`; sin, cos and atan2 come
+//! from `public/portable-math.js`, the rest from `Math`), `rng-seeds.f64` and `<runtime>.rng`. Prints a JSON summary; exits
+//! with status 1 on any mismatch.
+use fateforge_core::jsmath::{self, JsRandom};
 use std::fs;
 
 const COLUMNS: [&str; 9] = ["sin", "cos", "atan2", "hypot", "round", "max", "min", "toInt32", "toUint32"];
@@ -16,13 +17,11 @@ fn read_f64s(path: &str) -> Vec<f64> {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() != 4 {
-        eprintln!("usage: math-parity <dir> <runtime> <fdlibm|glibc>");
+    if args.len() != 3 {
+        eprintln!("usage: math-parity <dir> <runtime>");
         std::process::exit(2);
     }
     let (dir, runtime) = (&args[1], &args[2]);
-    let flavor = TrigFlavor::parse(&args[3]).expect("flavor must be fdlibm or glibc");
-    let math = JsMath::new(flavor);
     let inputs = read_f64s(&format!("{dir}/inputs.f64"));
     let expected = read_f64s(&format!("{dir}/{runtime}.out"));
     let pairs = inputs.len() / 2;
@@ -32,8 +31,8 @@ fn main() {
     for i in 0..pairs {
         let (x, y) = (inputs[2 * i], inputs[2 * i + 1]);
         let got = [
-            math.sin(x),
-            math.cos(x),
+            jsmath::sin(x),
+            jsmath::cos(x),
             jsmath::atan2(y, x),
             jsmath::hypot2(x, y),
             jsmath::round(x),
@@ -76,8 +75,7 @@ fn main() {
     let total: usize = mismatches.iter().sum::<usize>() + rng_mismatches;
     let per_fn: Vec<String> = COLUMNS.iter().zip(mismatches.iter()).map(|(n, m)| format!("\"{n}\":{m}")).collect();
     println!(
-        "{{\"runtime\":\"{runtime}\",\"flavor\":\"{}\",\"pairs\":{pairs},\"rngSeeds\":{},\"rngSteps\":{RNG_STEPS},\"mismatches\":{{{},\"rng\":{rng_mismatches}}},\"total\":{total},\"examples\":[{}]}}",
-        args[3],
+        "{{\"runtime\":\"{runtime}\",\"pairs\":{pairs},\"rngSeeds\":{},\"rngSteps\":{RNG_STEPS},\"mismatches\":{{{},\"rng\":{rng_mismatches}}},\"total\":{total},\"examples\":[{}]}}",
         seeds.len(),
         per_fn.join(","),
         examples.join(",")

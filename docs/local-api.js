@@ -5216,12 +5216,14 @@ function teamRole(character){
 
 // Current team engines and every engine that carries a per-save balance profile. Older versions stay
 // registered in combat-team.js so saved results and replays keep the rules they were played under.
-const TEAM_COMBAT_VERSION='team-2.8';
-const OBJECTIVE_COMBAT_VERSION='team-3.9';
-const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5','team-3.6','team-3.7','team-2.8','team-3.8','team-3.9']);
+const TEAM_COMBAT_VERSION='team-2.9';
+const OBJECTIVE_COMBAT_VERSION='team-4.0';
+const BALANCED_ENGINES=Object.freeze(['team-2.3','team-2.4','team-2.5','team-2.6','team-2.7','team-3-core','team-3','team-3.1','team-3.2','team-3.3','team-3.4','team-3.5','team-3.6','team-3.7','team-2.8','team-3.8','team-3.9','team-2.9','team-4.0']);
+// Core siege engines: team-3-core, team-3 … team-3.9, and team-4.0 onwards.
+const isObjectiveEngine=version=>/^team-(3|[4-9]|\d{2,})(\.|-|$)/.test(version??'');
 const engineForMode=battleMode=>battleMode==='core'?OBJECTIVE_COMBAT_VERSION:TEAM_COMBAT_VERSION;
 // Engines whose matches carry coach game plans.
-const GAME_PLAN_ENGINES=Object.freeze(['team-3.6','team-3.7','team-3.8','team-3.9']);
+const GAME_PLAN_ENGINES=Object.freeze(['team-3.6','team-3.7','team-3.8','team-3.9','team-4.0']);
 
 // Core siege game plan: three coach dials that steer the team brain (team-3.6). Shared by the engine, the league
 // rules, the worker and the UI. AI coaches take their dials from their personality and adjust one after a loss.
@@ -5640,9 +5642,9 @@ function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.8 / team-3.9: no fighters stuck on rocks; stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
+// Current rules (team-2.9 / team-4.0: the same game on every device; no fighters stuck on rocks; stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.8','team-2.7':'team-2.8','team-3.3':'team-3.9','team-3.4':'team-3.9','team-3.5':'team-3.9','team-3.6':'team-3.9','team-3.7':'team-3.9','team-3.8':'team-3.9'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.9','team-2.7':'team-2.9','team-2.8':'team-2.9','team-3.3':'team-4.0','team-3.4':'team-4.0','team-3.5':'team-4.0','team-3.6':'team-4.0','team-3.7':'team-4.0','team-3.8':'team-4.0','team-3.9':'team-4.0'});
 function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
@@ -5820,11 +5822,11 @@ const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineup
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
- if(!game||game.combatVersion!==engineVersion||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>(engineVersion.startsWith('team-3')?390.5:120.5))return false;
+ if(!game||game.combatVersion!==engineVersion||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>(isObjectiveEngine(engineVersion)?390.5:120.5))return false;
  if(!Array.isArray(game.hp)||game.hp.length!==2||game.hp.some(h=>!Number.isInteger(h)||h<0||h>100))return false;
  if(!game.environment||Object.entries(ENVIRONMENT).some(([k,v])=>!v.includes(game.environment[k])))return false;
  if(!Array.isArray(game.fighters)||game.fighters.length!==ids.length||game.fighters.some((f,i)=>f?.id!==ids[i]||!count(f.damage)||!count(f.healing)||!count(f.kills)||!count(f.deaths)||!(f.ccSeconds>=0&&Number.isFinite(f.ccSeconds)&&f.ccSeconds<=game.seconds*2+1)))return false;
- if(engineVersion.startsWith('team-3')){
+ if(isObjectiveEngine(engineVersion)){
   const o=game.objective,pair=(a,test)=>Array.isArray(a)&&a.length===2&&a.every(test),finite=n=>Number.isFinite(n)&&n>=0;
   if(!o||!pair(o.coreHp,n=>finite(n)&&n<=100)||!pair(o.monsterKills,count)||!pair(o.steals,count)||!pair(o.forgefireSeconds,n=>finite(n)&&n<=game.seconds+.1)||typeof o.suddenDeath!=='boolean')return false;
   if(o.steals.some((n,i)=>n>o.monsterKills[i])||o.coreHp.every(n=>n===0)||o.coreHp[game.winnerTeam]===0||o.coreHp[1-game.winnerTeam]>0&&game.seconds<389.9)return false;
@@ -6044,7 +6046,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.

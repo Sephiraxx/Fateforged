@@ -7,7 +7,7 @@ import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
 // Pure and deterministic from the world seed, so the server re-runs every rule; clients never submit picks.
 import {teamRole,combatNumbers} from './team-roles.js';
 import {MAP_IDS} from './team-maps.js';
-import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,GAME_PLAN_ENGINES,engineForMode} from './team-engine-versions.js';
+import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,GAME_PLAN_ENGINES,engineForMode,isObjectiveEngine} from './team-engine-versions.js';
 import {validGamePlan,personalityGamePlan} from './team-game-plan.js';
 export const TEAM_LEAGUE_VERSION=1;
 export const LEAGUE_SIZES=Object.freeze([8,16,32]);
@@ -97,9 +97,9 @@ export function prepareSupportRules(w){
  if(w.teamEngine)w.teamEngine=engineForMode(w.settings.battleMode);
  return w;
 }
-// Current rules (team-2.8 / team-3.9: no fighters stuck on rocks; stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
+// Current rules (team-2.9 / team-4.0: the same game on every device; no fighters stuck on rocks; stronger controllers; siege team brain with coach game plans, backdoor defense, Titan abilities): leagues on an earlier current engine move up from their next
 // series. A series already in progress finishes under its original rules; recorded games keep their own engine.
-const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.8','team-2.7':'team-2.8','team-3.3':'team-3.9','team-3.4':'team-3.9','team-3.5':'team-3.9','team-3.6':'team-3.9','team-3.7':'team-3.9','team-3.8':'team-3.9'});
+const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.9','team-2.7':'team-2.9','team-2.8':'team-2.9','team-3.3':'team-4.0','team-3.4':'team-4.0','team-3.5':'team-4.0','team-3.6':'team-4.0','team-3.7':'team-4.0','team-3.8':'team-4.0','team-3.9':'team-4.0'});
 export function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 export function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
@@ -277,11 +277,11 @@ export const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[])
 const ENVIRONMENT={time:['dawn','day','dusk','night'],weather:['clear','rain','frost','storm'],ground:['stone','water'],map:MAP_IDS};
 function validGame(game,lineups,engineVersion){
  const ids=lineups.flat(),count=n=>Number.isInteger(n)&&n>=0&&n<=1e7;
- if(!game||game.combatVersion!==engineVersion||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>(engineVersion.startsWith('team-3')?390.5:120.5))return false;
+ if(!game||game.combatVersion!==engineVersion||![0,1].includes(game.winnerTeam)||!Number.isFinite(game.seconds)||game.seconds<=0||game.seconds>(isObjectiveEngine(engineVersion)?390.5:120.5))return false;
  if(!Array.isArray(game.hp)||game.hp.length!==2||game.hp.some(h=>!Number.isInteger(h)||h<0||h>100))return false;
  if(!game.environment||Object.entries(ENVIRONMENT).some(([k,v])=>!v.includes(game.environment[k])))return false;
  if(!Array.isArray(game.fighters)||game.fighters.length!==ids.length||game.fighters.some((f,i)=>f?.id!==ids[i]||!count(f.damage)||!count(f.healing)||!count(f.kills)||!count(f.deaths)||!(f.ccSeconds>=0&&Number.isFinite(f.ccSeconds)&&f.ccSeconds<=game.seconds*2+1)))return false;
- if(engineVersion.startsWith('team-3')){
+ if(isObjectiveEngine(engineVersion)){
   const o=game.objective,pair=(a,test)=>Array.isArray(a)&&a.length===2&&a.every(test),finite=n=>Number.isFinite(n)&&n>=0;
   if(!o||!pair(o.coreHp,n=>finite(n)&&n<=100)||!pair(o.monsterKills,count)||!pair(o.steals,count)||!pair(o.forgefireSeconds,n=>finite(n)&&n<=game.seconds+.1)||typeof o.suddenDeath!=='boolean')return false;
   if(o.steals.some((n,i)=>n>o.monsterKills[i])||o.coreHp.every(n=>n===0)||o.coreHp[game.winnerTeam]===0||o.coreHp[1-game.winnerTeam]>0&&game.seconds<389.9)return false;

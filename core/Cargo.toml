@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 description = "Fateforge simulation core. Phase A: math that matches the browser's JavaScript bit for bit."
-# The crate is MIT like the rest of the repository, except src/jsmath/glibc*.rs (LGPL-2.1-or-later, see RUST-CORE.md).
-license = "MIT AND LGPL-2.1-or-later"
+license = "MIT"
 
 [lib]
 path = "src/lib.rs"
