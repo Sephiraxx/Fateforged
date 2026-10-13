@@ -177,7 +177,7 @@ impl Engine {
     }
 
     /// d4 `gamePlan(team)`
-    fn game_plan(&self, team: usize) -> (&str, &str, &str) {
+    pub(crate) fn game_plan(&self, team: usize) -> (&str, &str, &str) {
         let g = &self.b.game_plans[team];
         (g.titan.as_str(), g.style.as_str(), g.siege.as_str())
     }

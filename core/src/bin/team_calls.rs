@@ -547,6 +547,9 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
             let copied = c.bool(3);
             hit_result(c.eng.use_power(c.ent(0), &t, &p, copied))
         }
+        "chooseTarget" => opt_ent(c.eng.choose_target(c.ent(0))),
+        // fight(f) without a filter (calls with one pass a function and are not recorded).
+        "fight" => opt_ent(c.eng.fight(c.ent(0), None)),
         other => panic!("method {other} is not ported"),
     }
 }
