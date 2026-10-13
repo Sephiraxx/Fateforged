@@ -34,4 +34,4 @@ The apps play the same generated retro sound as the browser (see `SOUND.md`), th
 ## Performance
 - **Same speed as Chrome today:** the app runs the same JavaScript simulation, and the browser was never the slow part.
 - **Multi-core:** simulations already use every core but one (see "Faster simulation and patch audits" in `TEAM-BATTLES.md`).
-- **Next speed step:** a Rust simulation core, shared by the app (native, all cores) and the web version (WebAssembly). It will port the current engines (team-2.7, team-3.6, duel v13) and must reproduce the JavaScript engines' recorded games exactly (`validation/team-engine-fingerprints.json`), so saves and replays keep working.
+- **Next speed step:** a Rust simulation core, shared by the app (native, all cores) and later the web version (WebAssembly). It ports the current engines (Core siege team-3.9 first, then classic team-2.8) and must reproduce the JavaScript engines' games bit for bit, so saves and replays keep working; anything it does not cover keeps running in JavaScript. Phase A (JavaScript-exact math) is done; see `RUST-CORE.md` for the findings and the plan.
