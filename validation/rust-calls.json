@@ -451,6 +451,44 @@
    "cases": 267,
    "matching": 267,
    "failures": []
+  },
+  "chooseTarget": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "fight": {
+   "cases": 770,
+   "matching": 770,
+   "failures": [],
+   "skipped": {
+    "function argument": 32
+   }
+  },
+  "upkeep": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "objectiveStep": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "releaseFissure": {
+   "cases": 61,
+   "matching": 61,
+   "failures": []
+  },
+  "finishAtLimit": {
+   "cases": 1,
+   "matching": 1,
+   "failures": []
+  },
+  "step": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
   }
  }
 }

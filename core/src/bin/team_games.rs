@@ -1,13 +1,23 @@
 //! Full-game parity: plays whole team-4.0 games in Rust from the state JavaScript exported at the start, and checks
 //! the battle digest against JavaScript's every `every` steps and at the end. Then plays each game again without
 //! digests to time it.
-//! Usage: `team-games <dir>`: every `<name>.game` holds `{state, every, digests, steps, jsSeconds}`.
+//! Usage: `team-games <dir>`: every `<name>.game` holds `{state, every, digests, steps, jsSeconds, result}`.
 //! Prints a JSON summary; exits with status 1 on any mismatch.
 use fateforge_core::team::engine::Engine;
 use fateforge_core::team::Snapshot;
 use serde_json::{json, Value};
 use std::fs;
 use std::time::Instant;
+
+/// JSON equality with numbers compared as f64 and object keys in any order.
+fn same(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(x), Value::Number(y)) => x.as_f64() == y.as_f64(),
+        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| same(p, q)),
+        (Value::Object(x), Value::Object(y)) => x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w))),
+        _ => a == b,
+    }
+}
 
 fn main() {
     let dir = std::env::args().nth(1).expect("usage: team-games <dir>");
@@ -34,10 +44,12 @@ fn main() {
                 }
             }
         }
-        if mismatch.is_none() && step == want_steps {
+        let result_ok = mismatch.is_none() && eng.b.done && same(&eng.result(), &case["result"]);
+        if mismatch.is_none() && step == want_steps && result_ok {
             ok += 1;
         } else if failures.len() < 10 {
-            failures.push(json!({"game": name, "firstMismatchStep": mismatch, "steps": step, "jsSteps": want_steps}));
+            let result = if eng.b.done { eng.result() } else { Value::Null };
+            failures.push(json!({"game": name, "firstMismatchStep": mismatch, "steps": step, "jsSteps": want_steps, "result": result_ok, "got": result, "want": case["result"]}));
         }
         // Timing: the same game again, without digests.
         let started = Instant::now();

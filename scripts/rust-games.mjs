@@ -1,6 +1,7 @@
 // Full-game parity for the Rust engine (RUST-CORE.md, phase B3): plays seeded team-4.0 games in JavaScript and
 // records the battle digest every 60 steps and at the end. The Rust binary `team-games` plays each game from the
-// same starting state and must reach the same digest at every checkpoint and end on the same step. It also times
+// same starting state and must reach the same digest at every checkpoint, end on the same step and report the same
+// result(). It also times
 // both engines on the same games (one core each).
 // node scripts/rust-games.mjs [--quick] [--record] [--dir <dir>] [--keep]   (--record writes validation/rust-games.json)
 import fs from 'node:fs';
@@ -16,14 +17,15 @@ const args=process.argv.slice(2),flag=n=>args.includes(n),quick=flag('--quick');
 const dir=flag('--dir')?path.resolve(args[args.indexOf('--dir')+1]):fs.mkdtempSync(path.join(os.tmpdir(),'fateforge-games-'));
 fs.mkdirSync(dir,{recursive:true});
 const EVERY=60;
-const games=quick?[...gameList(1).filter((_,i)=>i%8===0),...coverageGames().list.filter((_,i)=>i%5===0)]:[...gameList(1),...coverageGames().list];
+// Full run: five seeds for every map, size and test composition, plus the coverage games that force every ability.
+const games=quick?[...gameList(1).filter((_,i)=>i%8===0),...coverageGames().list.filter((_,i)=>i%5===0)]:[...gameList(5),...coverageGames().list];
 const started=performance.now();
 for(const [gi,g] of games.entries()){
  const b=trackRng(g.make(),g.make()),state=exportState(b),digests=[];let steps=0;
  while(!b.done){b.step(1/60);steps++;if(steps%EVERY===0||b.done)digests.push(digestState(b));}
  // Time the same game untouched (no recording) for the speed comparison.
  const plain=g.make(),t0=performance.now();while(!plain.done)plain.step(1/60);const jsSeconds=(performance.now()-t0)/1000;
- fs.writeFileSync(path.join(dir,`g${String(gi).padStart(3,'0')}-${g.map}-${g.comp}.game`),JSON.stringify({state,every:EVERY,digests,steps,jsSeconds}));
+ fs.writeFileSync(path.join(dir,`g${String(gi).padStart(3,'0')}-${g.map}-${g.comp}.game`),JSON.stringify({state,every:EVERY,digests,steps,jsSeconds,result:JSON.parse(JSON.stringify(b.result()))}));
 }
 const recordSeconds=(performance.now()-started)/1000;
 const exe=path.join(root,'core/target/release/team-games'+(process.platform==='win32'?'.exe':''));

@@ -14,7 +14,7 @@ Season simulations and patch audits spend almost all of their time in the team e
 | A2 | Portable sin/cos/atan2 in JavaScript; engines team-2.9 and team-4.0 use them, so every device plays the same game | **Done** |
 | B1 | Parity harness: the battle-state schema, JavaScript export and digest, the generated Rust state model, per-step helpers | **Done** |
 | B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
-| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | In progress: damage, attacks and powers are done |
+| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 8.5× faster per core |
 | B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
 | D | Wiring: a native batch command in the app (all cores), the pool falls back to JavaScript for anything else; later WebAssembly for the web version | 1–2 PRs |
 | E | Duel engine (optional) | Later |
@@ -113,7 +113,7 @@ Every later phase is proven against JavaScript with these tools.
   - sorts are stable, and comparator `||` chains are kept as written.
 - **Always empty in team battles:** wisps, food, portals, visual effects and events. So the neutral-wisp checks are always false, and logs and effects do nothing headless.
 
-## Phase B3: the combat core (in progress)
+## Phase B3: the combat core
 
 - **Damage path** (`core/src/team/engine/combat.rs`), proven call by call like B2, as is everything below:
   - `hit`, `periodicHit`, `connectControl` and `applyImpact` (every spell payload, kit and support control, and a patched ability's context);
@@ -133,7 +133,18 @@ Every later phase is proven against JavaScript with these tools.
   - `powerUtility`, `powerPriority`, `copyChoice`, `castPower`;
   - `usePower`, for every power a team-4.0 fighter can roll.
 - **Dead for team-4.0:** team kits (`teamKit` is always null; rolled support abilities replaced them). Neutral wisps never exist, so `powerUnsafe` and `innocentRisk` are always false.
-- **Next:** targeting (`chooseTarget`, `fight`), then the per-step layers (`upkeep`, the environment and objective steps, `step` and `result`), with full-step parity and the benchmark.
+- **Targeting** (`core/src/team/engine/target.rs`):
+  - **`chooseTarget`:** with a team brain (always, in team-4.0) it runs d19 (taunts, defending the Core) → d18 (flank lanes) → d17 (the plan picks fighters, the Titan or the enemy Core). The d11 and d10 versions never run.
+  - **`fight`:** the formation chooser (d8 → d6), with only fighters in view and an optional filter (near our Core, or near the pit).
+- **The step** (`core/src/team/engine/step.rs`):
+  - **`step` (d10):** respawns, the environment, upkeep, plans, each fighter's target, movement, attack and powers, separation, projectiles, terrain, the objectives, control immunity and the time limit.
+  - **The layers it calls:** `upkeep`, `environmentStep` (d6: `step` calls it past the d14 wrapper), `objectiveStep` (Core pulses, Forgefire time and shields, the Titan's respawn, aggro, walk, swing, reset, slam, the brain, backdoor duty, Molten Hurl and the Fissure), `releaseFissure` and `finishAtLimit`.
+  - **Portable math:** d22 only swaps in the portable math, which Rust always uses.
+- **Full-game parity** (`scripts/rust-games.mjs`, recorded in `validation/rust-games.json`):
+  - **How it works:** JavaScript plays seeded games and records the battle digest every 60 steps and at the end. The `team-games` binary plays each game in Rust from the same starting state and must reach the same digest at every checkpoint and end on the same step.
+  - **Result:** __GAMES__ games (five seeds for every map, size and test composition, plus the coverage games that force every ability), __STEPS__ steps, all bit-identical.
+  - **Speed** (one core each, the same games): JavaScript __JS__ s, Rust __RUST__ s, **__SPEEDUP__× faster**.
+- **Not yet ported:** `result()`, the summary a finished game reports. The wiring in phase D needs it.
 
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
 1. **Duel base the team engines inherit:**
@@ -153,7 +164,7 @@ Every later phase is proven against JavaScript with these tools.
    - `combat-team-v3-7` (backdoor duty, Molten Hurl, Fissure), `role-tuning` and `combat-team-v3-8`;
    - `combat-team-v3-9` (spread terrain, unsticking), `combat-team-v4-0` and `portable-combat` (portable math).
 
-B2 ported the low-level methods of every group and proved them call by call. From B3 on, a ported group is proven with a **trace diff**. Both languages hash the battle state every 60 steps, and a mismatch names the first differing step and field. A group is done when every recorded fingerprint game and 200 random seeded games (3v3 and 5v5, every map) match exactly.
+B2 and B3 ported every group and proved each method call by call, then whole games with a **trace diff**: both languages hash the battle state every 60 steps, and a mismatch names the first differing step.
 
 ### Wiring (phase D)
 - **Native batches:** a Tauri command `simulate_batch(games)` runs games on all cores (rayon).
@@ -169,5 +180,6 @@ B2 ported the low-level methods of every group and proved them call by call. Fro
 - `node scripts/inspect-battle-state.mjs` regenerates the state inventory.
 - `node scripts/rust-schema.mjs` rebuilds the schema (about 25 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
 - `node scripts/rust-parity.mjs [--quick] [--record]` checks snapshots and helpers against Rust. `--quick` (7 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-parity.json`.
+- `node scripts/rust-games.mjs [--quick] [--record]` plays whole games in both languages and compares them, and times both. `--quick` (8 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-games.json`.
 - `node scripts/rust-calls.mjs [--quick] [--methods a,b] [--record]` replays recorded engine-method calls in Rust. `--quick` (8 games, 6 calls per method per game) runs in `check-rust-core` and CI; `--record` writes `validation/rust-calls.json`. Add each newly ported method to `scripts/lib/rust-ported.mjs` and to the dispatch in `core/src/bin/team_calls.rs`.
-- **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state and call parity runs on Windows, and builds the crate for Android.
+- **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state, call and game parity runs on Windows, and builds the crate for Android.
