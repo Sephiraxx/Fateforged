@@ -1,7 +1,7 @@
 //! sin, cos and atan2 exactly as V8 computes them with its fdlibm port (`src/base/ieee754.cc`).
 //!
-//! Node uses these for `Math.sin`/`Math.cos` (it is built without V8's glibc trig functions), and every V8 build uses
-//! this `atan2`. Ported line by line, so the results match bit for bit.
+//! `public/portable-math.js` is the same sin/cos in JavaScript (node's own `Math.sin`/`Math.cos` also use this code),
+//! and every V8 build uses this `atan2`. Ported line by line, so the results match bit for bit.
 //!
 //! Original notice (fdlibm): Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
 //! Developed at SunSoft, a Sun Microsystems, Inc. business. Permission to use, copy, modify, and distribute this

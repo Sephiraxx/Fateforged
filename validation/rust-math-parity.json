@@ -5,7 +5,6 @@
  "runtimes": [
   {
    "runtime": "node",
-   "flavor": "fdlibm",
    "pairs": 1000000,
    "rngSeeds": 2000,
    "rngSteps": 64,
@@ -27,7 +26,6 @@
   },
   {
    "runtime": "chromium",
-   "flavor": "glibc",
    "pairs": 1000000,
    "rngSeeds": 2000,
    "rngSteps": 64,
@@ -49,8 +47,8 @@
   }
  ],
  "nodeVsChromium": {
-  "sin": 22003,
-  "cos": 23364,
+  "sin": 0,
+  "cos": 0,
   "other": 0
  }
 }

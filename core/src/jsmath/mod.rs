@@ -1,60 +1,25 @@
 //! JavaScript math, bit for bit.
 //!
-//! The team engines are JavaScript and rely on V8's `Math` functions and number conversions. A Rust engine has to
-//! reproduce each of them exactly, or seeded games drift apart after a few hundred steps. Plain IEEE-754 arithmetic
-//! (+, −, ×, ÷, `%`, `sqrt`, `floor`, `ceil`, `abs`) is already identical in Rust; this module covers the rest.
+//! The team engines are JavaScript. A Rust engine has to reproduce each math operation they use exactly, or seeded
+//! games drift apart after a few hundred steps. Plain IEEE-754 arithmetic (+, −, ×, ÷, `%`, `sqrt`, `floor`, `ceil`,
+//! `abs`) is already identical in Rust; this module covers the rest.
 //!
-//! sin and cos come in two flavours, because V8 builds differ: node uses fdlibm, while Chrome, Edge (WebView2) and
-//! Android WebView use V8's copy of glibc. JavaScript detects which one it runs on (`public/js-math-flavor.js`) and
-//! tells the Rust side, so results always match the runtime that replays the game.
+//! sin and cos: `Math.sin`/`Math.cos` differ between JavaScript engines (node uses fdlibm, Chromium-based browsers a
+//! glibc copy), so engines from team-2.9 / team-4.0 on compute them with `public/portable-math.js`, V8's fdlibm in
+//! plain JavaScript. `sin`/`cos` here are the same fdlibm code, so they match that file in every runtime.
 
 pub mod fdlibm;
-pub mod glibc;
-mod glibc_table;
 
-/// Which sin/cos implementation the JavaScript runtime uses.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TrigFlavor {
-    /// V8's fdlibm port: node.
-    Fdlibm,
-    /// V8's bundled glibc (`v8_use_libm_trig_functions`): Chrome, Edge/WebView2, Android WebView.
-    Glibc,
+/// `sin` of `public/portable-math.js` (V8's fdlibm).
+#[inline]
+pub fn sin(x: f64) -> f64 {
+    fdlibm::sin(x)
 }
 
-impl TrigFlavor {
-    pub fn parse(name: &str) -> Option<TrigFlavor> {
-        match name {
-            "fdlibm" => Some(TrigFlavor::Fdlibm),
-            "glibc" => Some(TrigFlavor::Glibc),
-            _ => None,
-        }
-    }
-}
-
-/// The math functions of one JavaScript runtime.
-#[derive(Clone, Copy, Debug)]
-pub struct JsMath {
-    pub flavor: TrigFlavor,
-}
-
-impl JsMath {
-    pub fn new(flavor: TrigFlavor) -> JsMath {
-        JsMath { flavor }
-    }
-    #[inline]
-    pub fn sin(&self, x: f64) -> f64 {
-        match self.flavor {
-            TrigFlavor::Fdlibm => fdlibm::sin(x),
-            TrigFlavor::Glibc => glibc::sin(x),
-        }
-    }
-    #[inline]
-    pub fn cos(&self, x: f64) -> f64 {
-        match self.flavor {
-            TrigFlavor::Fdlibm => fdlibm::cos(x),
-            TrigFlavor::Glibc => glibc::cos(x),
-        }
-    }
+/// `cos` of `public/portable-math.js` (V8's fdlibm).
+#[inline]
+pub fn cos(x: f64) -> f64 {
+    fdlibm::cos(x)
 }
 
 /// `Math.atan2`: fdlibm in every V8 build.

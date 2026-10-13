@@ -787,6 +787,15 @@ Other roles are unchanged, and older engines keep their numbers for saved result
 
 One healer is now worth taking in both modes, while a second healer still loses or breaks even, so the meta does not turn into a sustain battle. Core siege otherwise plays as in team-3.7 (median about 4.6 minutes, sudden death 2.5–7.5%).
 
+## The same game on every device (team-2.9 / team-4.0)
+
+`Math.sin` and `Math.cos` are not the same in every JavaScript engine. Node uses V8's fdlibm, while Chrome, Edge (the Windows app's WebView2) and Android WebView use a copy of glibc. About 2% of results differ in the last bit, and that is enough to change a seeded game: in a test, the same team-3.9 game ended differently in node and Chromium for 4 of 6 seeds. A game replayed exactly only on the kind of browser that played it.
+
+- **Portable sin and cos** (`public/portable-math.js`): V8's fdlibm in plain JavaScript. It gives the same bits in node and Chromium over a million test inputs, and it costs about 0.015 µs more per call (about 2 ms per game).
+- **New engines:** team-2.9 (classic) and team-4.0 (Core siege) are team-2.8 and team-3.9 with that sin/cos swapped in while a battle is built or stepped (`public/portable-combat.js`). The rules and balance are unchanged; the same 12 seeded games now finish identically in node and Chromium.
+- **The Rust core** (`RUST-CORE.md`) implements exactly this math, so it only has to match one version.
+- Leagues move to the new engines from their next series. Older engines are kept as they were.
+
 ## No more fighters stuck on rocks (team-3.9)
 
 Fighters could wedge between rocks in Core siege. The Core siege field rearranges the classic maps (the classic centre pieces move next to the side pillars), which left open gaps of only 7–45 px between rocks on Pillars and Crossroads, while a fighter is 18 px wide. On Ruins, fighters also ground against the long rock walls, because routing around them only kicked in for melee fighters or blocked shots. Classic teamfight maps never go below 30 px and were not affected.
