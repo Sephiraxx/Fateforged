@@ -14,7 +14,7 @@ Season simulations and patch audits spend almost all of their time in the team e
 | A2 | Portable sin/cos/atan2 in JavaScript; engines team-2.9 and team-4.0 use them, so every device plays the same game | **Done** |
 | B1 | Parity harness: the battle-state schema, JavaScript export and digest, the generated Rust state model, per-step helpers | **Done** |
 | B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
-| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 8.5× faster per core |
+| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 8.9× faster per core |
 | B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
 | D | Wiring: a native batch command in the app (all cores), the pool falls back to JavaScript for anything else; later WebAssembly for the web version | 1–2 PRs |
 | E | Duel engine (optional) | Later |
@@ -142,8 +142,8 @@ Every later phase is proven against JavaScript with these tools.
   - **Portable math:** d22 only swaps in the portable math, which Rust always uses.
 - **Full-game parity** (`scripts/rust-games.mjs`, recorded in `validation/rust-games.json`):
   - **How it works:** JavaScript plays seeded games and records the battle digest every 60 steps and at the end. The `team-games` binary plays each game in Rust from the same starting state and must reach the same digest at every checkpoint and end on the same step.
-  - **Result:** __GAMES__ games (five seeds for every map, size and test composition, plus the coverage games that force every ability), __STEPS__ steps, all bit-identical.
-  - **Speed** (one core each, the same games): JavaScript __JS__ s, Rust __RUST__ s, **__SPEEDUP__× faster**.
+  - **Result:** 188 games (five seeds for every map, size and test composition, plus the coverage games that force every ability), 2,842,545 steps, all bit-identical.
+  - **Speed** (one core each, the same games): JavaScript 413 s, Rust 46 s, **8.9× faster**.
 - **Not yet ported:** `result()`, the summary a finished game reports. The wiring in phase D needs it.
 
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
