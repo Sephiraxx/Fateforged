@@ -54,7 +54,7 @@ impl Engine {
     /// d3 `titanAttackers()`: everyone who hit the Titan recently and is still up, by index.
     pub fn titan_attackers(&self) -> Vec<Ent> {
         let mut seen: Vec<f64> = Vec::new();
-        for h in &self.b.titan_hits {
+        for h in self.b.titan_hits.iter() {
             if !seen.iter().any(|s| *s == h.index || s.is_nan() && h.index.is_nan()) {
                 seen.push(h.index);
             }
@@ -66,9 +66,9 @@ impl Engine {
 
     /// d3 `openFissure()`: aim the line that catches the most fighters.
     pub fn open_fissure(&mut self) -> bool {
-        let t = self.f(self.b.titan);
+        let t = self.f(*self.b.titan);
         let r = &self.b.titan_rules;
-        let mut near: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).hp > 0.0 && de(self.f(f), t) <= r.fissure_length).collect();
+        let mut near: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).hp > 0.0 && de(self.f(f), t) <= r.fissure_length).collect();
         near.sort_by(|&a, &b| js_cmp(self.f(a).index - self.f(b).index));
         let mut best: Option<(f64, f64)> = None; // (angle, count)
         for &aim in &near {
@@ -81,13 +81,13 @@ impl Engine {
         }
         let Some((angle, _)) = best else { return false };
         self.b.fissure = Some(BattleFissure { x: t.x, y: t.y, angle, length: r.fissure_length, width: r.fissure_width, start: self.b.time, at: self.b.time + r.fissure_telegraph });
-        self.b.fissures += 1.0;
+        (*self.b.fissures) += 1.0;
         true
     }
 
     /// d3 `moltenHurl()`: throw molten rock at the farthest attacker beyond melee reach with a clear line.
     pub fn molten_hurl(&mut self) -> bool {
-        let titan = self.b.titan;
+        let titan = *self.b.titan;
         let (tx, ty) = (self.f(titan).x, self.f(titan).y);
         let r = &self.b.titan_rules;
         let mut targets: Vec<Ent> = self.titan_attackers().into_iter().filter(|&f| {
@@ -125,7 +125,7 @@ impl Engine {
             weapon_hit: None,
         };
         self.b.projectiles.push(p);
-        self.b.hurls += 1.0;
+        (*self.b.hurls) += 1.0;
         true
     }
 
@@ -160,7 +160,7 @@ impl Engine {
             }
             let core = self.b.cores[team];
             let ce = self.f(core);
-            let mut mine: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).team == team as f64 && self.f(f).hp > 0.0).collect();
+            let mut mine: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).team == team as f64 && self.f(f).hp > 0.0).collect();
             let k = min(self.intruders(team as f64).len() as f64, mine.len() as f64 - 1.0);
             mine.sort_by(|&a, &b| {
                 let v = de(self.f(a), ce) - de(self.f(b), ce);
@@ -184,11 +184,11 @@ impl Engine {
 
     /// d5 `situation(team)`
     pub fn situation(&self, team: f64) -> Situation {
-        let mine: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).team == team).collect();
-        let foes: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).team != team).collect();
+        let mine: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).team == team).collect();
+        let foes: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).team != team).collect();
         let alive = |l: &[Ent]| -> Vec<Ent> { l.iter().copied().filter(|&f| self.f(f).hp > 0.0).collect() };
         let hp = |l: &[Ent]| l.iter().fold(0.0, |n, &f| n + max(0.0, self.f(f).hp)) / l.iter().fold(0.0, |n, &f| n + self.f(f).max_hp);
-        let t = self.f(self.b.titan);
+        let t = self.f(*self.b.titan);
         let pit = self.pit();
         let own = self.f(self.b.cores[team as usize]);
         let foe = self.f(self.b.cores[1 - team as usize]);
@@ -200,7 +200,7 @@ impl Engine {
             foe_hp: hp(&foes),
             titan_up: t.hp > 0.0,
             titan_pct: t.hp / t.max_hp,
-            titan_soon: t.hp <= 0.0 && self.b.next_titan - self.b.time < 12.0,
+            titan_soon: t.hp <= 0.0 && (*self.b.next_titan) - self.b.time < 12.0,
             own_core: own.hp / own.max_hp,
             foe_core: foe.hp / foe.max_hp,
             forgefire: self.has_forgefire(team),
@@ -250,7 +250,7 @@ impl Engine {
             }
         };
         let pit = self.pit();
-        let lurking = self.b.combatants.iter().filter(|&&e| self.f(e).team != team && self.f(e).hp > 0.0 && d(self.f(e).x, self.f(e).y, pit.x, pit.y) < brain_rules::PIT_RADIUS + 150.0).count() as f64;
+        let lurking = self.combatants().iter().filter(|&&e| self.f(e).team != team && self.f(e).hp > 0.0 && d(self.f(e).x, self.f(e).y, pit.x, pit.y) < brain_rules::PIT_RADIUS + 150.0).count() as f64;
         if s.titan_up && !s.foes_on_titan && lurking >= max(1.0, s.alive - 1.0) && self.b.brain.get(team as usize).map(|b| b.plan.as_str()) != Some("contest") {
             add(&mut out, "contest", -25.0);
         }
@@ -335,6 +335,9 @@ impl Engine {
     /// `teleportDestination` chain: d3 (never onto or near the enemy Core) → d16 (a spot near the target at the
     /// preferred range, away from threats and rocks).
     pub fn teleport_destination(&mut self, f: Ent, t: &Tgt) -> Option<Pt> {
+        if self.classic {
+            return self.teleport_destination_d16(f, t);
+        }
         if self.b.cores.contains(&t.ent) && t.is_plain() {
             return None;
         }
@@ -455,7 +458,8 @@ impl Engine {
 
     /// `updatePlans` chain: d12 (plan over the fighters only) → d16 (formation plans for both teams).
     pub fn update_plans(&mut self) {
-        let all = std::mem::replace(&mut self.b.fighters, self.b.combatants.clone());
+        let combatants = self.combatants().clone();
+        let all = std::mem::replace(&mut self.b.fighters, combatants);
         let previous = self.b.plans.clone();
         let mut plans = Vec::with_capacity(2);
         for team in [0.0, 1.0] {

@@ -23,13 +23,19 @@ fn tenth(v: f64) -> Value {
 impl Engine {
     /// d10 `teamHealth(team)`: the team's share of its total health.
     pub fn team_health(&self, team: f64) -> f64 {
-        let mine = self.b.combatants.iter().filter(|&&f| self.f(f).team == team);
+        if self.classic {
+            return self.team_health_classic(team);
+        }
+        let mine = self.combatants().iter().filter(|&&f| self.f(f).team == team);
         let hp = mine.clone().fold(0.0, |n, &f| n + max(0.0, self.f(f).hp));
         hp / mine.fold(0.0, |n, &f| n + self.f(f).max_hp)
     }
 
     /// `result()` of a finished game.
     pub fn result(&self) -> Value {
+        if self.classic {
+            return self.result_classic();
+        }
         assert!(self.b.done, "Battle is still running.");
         let b = &self.b;
         let teams: Vec<Value> = (0..2).map(|team| Value::Array(b.combatants.iter().filter(|&&f| self.f(f).team == team as f64).map(|&f| json!(self.f(f).id)).collect())).collect();
@@ -41,22 +47,22 @@ impl Engine {
         objective.insert("monsterKills".into(), Value::Array(b.monster_kills.iter().map(|&v| n(v)).collect()));
         objective.insert("steals".into(), Value::Array(b.steals.iter().map(|&v| n(v)).collect()));
         objective.insert("forgefireSeconds".into(), Value::Array(b.forgefire_seconds.iter().map(|&v| tenth(v)).collect()));
-        objective.insert("suddenDeath".into(), json!(b.sudden_death));
+        objective.insert("suddenDeath".into(), json!(*b.sudden_death));
         // d11
-        objective.insert("titanIgnored".into(), json!(!b.titan_ever_damaged));
-        objective.insert("titanResets".into(), n(b.titan_resets));
+        objective.insert("titanIgnored".into(), json!(!(*b.titan_ever_damaged)));
+        objective.insert("titanResets".into(), n(*b.titan_resets));
         objective.insert(
             "titanDeaths".into(),
             Value::Array(b.titan_deaths.iter().map(|d| json!({"time": n(d.time), "team": n(d.team), "stolen": d.stolen, "damage": d.damage.iter().map(|&v| n(v)).collect::<Vec<_>>()})).collect()),
         );
         objective.insert("coreAt180".into(), b.core_at180.as_ref().map_or(Value::Null, |v| Value::Array(v.iter().map(|&x| n(x)).collect())));
         // d19
-        objective.insert("hurls".into(), n(b.hurls));
-        objective.insert("fissures".into(), n(b.fissures));
-        objective.insert("fissureStuns".into(), n(b.fissure_stuns));
+        objective.insert("hurls".into(), n(*b.hurls));
+        objective.insert("fissures".into(), n(*b.fissures));
+        objective.insert("fissureStuns".into(), n(*b.fissure_stuns));
         objective.insert("dutySeconds".into(), Value::Array(b.duty_seconds.iter().map(|&v| tenth(v)).collect()));
         // d21
-        objective.insert("unsticks".into(), n(b.unsticks));
+        objective.insert("unsticks".into(), n(*b.unsticks));
         let fighters: Vec<Value> = b
             .combatants
             .iter()

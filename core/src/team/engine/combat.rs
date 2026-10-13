@@ -93,13 +93,13 @@ impl Engine {
         t.over.as_ref().and_then(|o| o.is_objective).unwrap_or(self.f(t.ent).is_objective == Some(true))
     }
     fn is_core(&self, t: &Tgt) -> Option<usize> {
-        if !t.is_plain() {
+        if !t.is_plain() || self.classic {
             return None;
         }
         self.b.cores.iter().position(|c| *c == t.ent)
     }
     fn is_titan(&self, t: &Tgt) -> bool {
-        t.is_plain() && self.b.titan == t.ent
+        t.is_plain() && !self.classic && *self.b.titan == t.ent
     }
 
     /// d2 `hit(f, t, amount, type, payload, tags = {})`
@@ -155,7 +155,7 @@ impl Engine {
         // Projectiles are only ever appended while an ability resolves, so the new ones are the tail.
         let projectiles = if potency != 1.0 { Some(self.b.projectiles.len()) } else { None };
         let regens: Vec<(Ent, f64, Option<f64>)> = if id == "regeneration" {
-            self.b.combatants.iter().map(|&a| (a, self.f(a).regeneration, self.f(a).regen_source)).collect()
+            self.combatants().iter().map(|&a| (a, self.f(a).regeneration, self.f(a).regen_source)).collect()
         } else {
             Vec::new()
         };
@@ -313,13 +313,18 @@ impl Engine {
                     let r = &self.b.controller_rules;
                     amount *= (if self.t_objective(t) { r.objective } else { r.damage }) / ROLE_OUTPUT_CONTROLLER;
                 }
-                if fe.role == "healer" && self.t_objective(t) && self.b.healer_rules.objective != 0.0 && !self.b.healer_rules.objective.is_nan() {
-                    amount *= self.b.healer_rules.objective / ROLE_OUTPUT_HEALER;
+                let objective = self.b.healer_rules.as_ref().map_or(0.0, |r| r.objective);
+                if fe.role == "healer" && self.t_objective(t) && objective != 0.0 && !objective.is_nan() {
+                    amount *= objective / ROLE_OUTPUT_HEALER;
                 }
             }
         }
+        // Classic teamfight: d16 → d12 → d9 (the Core siege layers d19, d17, d15, d11 and d10 are not in its chain).
+        if self.classic {
+            return self.hurt_d16(t, f, amount, kind, can_dodge);
+        }
         // d19: the Titan never hits objectives; Cores take more damage late.
-        if f == Some(self.b.titan) && self.t_objective(t) {
+        if f == Some(*self.b.titan) && self.t_objective(t) {
             return Some(false);
         }
         if self.is_core(t).is_some() {
@@ -348,10 +353,16 @@ impl Engine {
             let fe = self.f(fi);
             if !(t.is_plain() && t.ent == fi) && fe.is_objective != Some(true) && self.f(t.ent).team != fe.team {
                 amount *= role_output(&fe.role).unwrap_or(1.0);
-                if !self.b.objective_mode && self.b.time > OVERTIME_RAMP_START {
+                if (self.classic || !*self.b.objective_mode) && self.b.time > OVERTIME_RAMP_START {
                     amount *= 1.0 + (self.b.time - OVERTIME_RAMP_START) * OVERTIME_RAMP_PER_SECOND;
                 }
             }
+        }
+        if self.classic {
+            // d12 around d9 (`fighterHit` without Forgefire's shield).
+            let connected = self.fighter_hit(t, f, amount, kind, can_dodge);
+            self.kit_stun_after(t);
+            return connected;
         }
         // d15: the fallen lose Forgefire; a Titan kill hands it to the claiming team's living fighters.
         let kills = self.b.titan_deaths.len();
@@ -359,8 +370,8 @@ impl Engine {
         self.drop_fallen();
         if let Some(team) = self.b.titan_deaths.get(kills).map(|c| c.team) {
             let until = self.b.forgefire_until[team as usize];
-            for i in 0..self.b.combatants.len() {
-                let a = self.b.combatants[i];
+            for i in 0..self.combatants().len() {
+                let a = self.combatants()[i];
                 let e = self.fm(a);
                 if e.team == team && e.hp > 0.0 {
                     e.forgefire_until = Some(until);
@@ -393,13 +404,18 @@ impl Engine {
             }
             connected
         };
+        self.kit_stun_after(t);
+        connected
+    }
+
+    /// d12: a kit's stun takes hold after the hit.
+    fn kit_stun_after(&mut self, t: &Tgt) {
         if !Self::is_decoy(t) {
             let e = self.fm(t.ent);
             if e.hp > 0.0 && e.kit_stun > 0.0 {
                 e.sleep = max(e.sleep, e.kit_stun);
             }
         }
-        connected
     }
 
     /// d11: the Titan took damage from team `f.team`; on its death that team claims (or steals) Forgefire.
@@ -407,8 +423,8 @@ impl Engine {
         let damage = before - self.f(titan).hp;
         let team = self.f(f).team;
         let time = self.b.time;
-        self.b.titan_ever_damaged = true;
-        self.b.titan_last_hit = time;
+        (*self.b.titan_ever_damaged) = true;
+        (*self.b.titan_last_hit) = time;
         self.b.titan_damage[team as usize] += damage;
         let index = self.f(f).index;
         self.b.titan_hits.push(BattleTitanHits { index, damage, time });
@@ -424,10 +440,10 @@ impl Engine {
             e.monster_last_hits = Some(e.monster_last_hits.map_or(f64::NAN, |v| v + 1.0));
             self.b.forgefire_until[t] = time + self.b.titan_rules.forgefire;
             self.b.next_shield[t] = time;
-            self.b.next_titan = time + self.b.titan_rules.respawn;
+            (*self.b.next_titan) = time + self.b.titan_rules.respawn;
             self.b.slam_at = None;
             let damage = self.b.titan_damage.clone();
-            self.b.titan_deaths.push(BattleTitanDeaths { time, team, stolen, damage });
+            self.b.titan_deaths.push(BattleTitanDeaths { time, team, stolen, damage: damage.to_vec() });
         }
     }
 
@@ -447,7 +463,7 @@ impl Engine {
                     let r = &self.b.objective_rules;
                     factor *= 1.0 - r.guarded * if self.empowered(fi) { r.forgefire_guard } else { 1.0 };
                 }
-                if self.b.sudden_death {
+                if *self.b.sudden_death {
                     factor *= 2.0;
                 }
             }
@@ -471,8 +487,8 @@ impl Engine {
         let hit = self.fighter_hit(t, f, amount, kind, can_dodge);
         let delay = self.respawn_delay();
         let time = self.b.time;
-        for i in 0..self.b.combatants.len() {
-            let a = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let a = self.combatants()[i];
             let e = self.fm(a);
             if e.hp <= 0.0 && !e.downed {
                 e.downed = true;
@@ -527,7 +543,9 @@ impl Engine {
                 let (gx, gy, gh, gd) = (self.f(g).x, self.f(g).y, self.f(g).hp, self.f(fi).damage_done);
                 self.duel_hurt(&Tgt::of(g), fi, share, kind, false);
                 let dealt = max(0.0, self.f(fi).damage_done - gd);
-                self.settle_shield(g, Some(fi), gh, dealt);
+                if !self.classic {
+                    self.settle_shield(g, Some(fi), gh, dealt);
+                }
                 self.wide_knockback(g, Some(fi), kind, gx, gy);
                 let e = self.fm(g);
                 if e.hp > 0.0 && e.kit_stun > 0.0 {
@@ -545,7 +563,9 @@ impl Engine {
         if !decoy {
             let tt = t.ent;
             let dealt = if !same(self, fi) { max(0.0, self.f(fi).damage_done - damage_before) } else { max(0.0, before - self.f(tt).hp) };
-            self.settle_shield(tt, Some(fi), before, dealt);
+            if !self.classic {
+                self.settle_shield(tt, Some(fi), before, dealt);
+            }
             let e = self.fm(tt);
             if e.hp > 0.0 && e.kit_stun > 0.0 {
                 e.sleep = max(e.sleep, e.kit_stun);

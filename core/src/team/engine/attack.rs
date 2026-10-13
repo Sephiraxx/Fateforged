@@ -59,12 +59,11 @@ fn projectile(x: f64, y: f64, vx: f64, vy: f64, owner: f64, damage: f64, kind: &
 impl Engine {
     /// d20 `healerSpend(f, run)`: healers get part of the mana a run spends back.
     pub fn healer_spend<R>(&mut self, f: Ent, run: impl FnOnce(&mut Engine) -> R) -> R {
-        if self.f(f).role != "healer" {
+        let Some(keep) = self.b.healer_rules.as_ref().map(|r| r.mana).filter(|_| self.f(f).role == "healer") else {
             return run(self);
-        }
+        };
         let before = self.f(f).mana;
         let result = run(self);
-        let keep = self.b.healer_rules.mana;
         let e = self.fm(f);
         if e.mana < before {
             e.mana += (before - e.mana) * (1.0 - keep);
@@ -120,7 +119,7 @@ impl Engine {
             .as_deref()
             .unwrap_or_default()
             .iter()
-            .filter_map(|&index| self.b.combatants.iter().copied().find(|&x| self.f(x).side == index))
+            .filter_map(|&index| self.combatants().iter().copied().find(|&x| self.f(x).side == index))
             .collect();
         let first = targets.first().copied();
         let legal = self.support_targets(f, &p, first.map(Tgt::of).as_ref(), true);
@@ -365,6 +364,7 @@ impl Engine {
             return released;
         }
         let had = fe.action.is_some();
+        let melee = fe.action.as_ref().is_some_and(|a| a.type_ == "melee");
         let released = fe.action.as_ref().is_some_and(|a| a.released == Some(true));
         let old = self.b.projectiles.len();
         let target = self.target_for(f, t);
@@ -375,6 +375,17 @@ impl Engine {
             if props.loud == Some(true) {
                 let (x, y) = (self.f(f).x, self.f(f).y);
                 self.emit_sound(Some(f), x, y, 190.0);
+            }
+            // A swing also strikes the neutral wisps in reach (classic teamfight; there are none in Core siege).
+            if melee {
+                let fe = &self.e[f.0 as usize];
+                if fe.weakness != "cannot harm the innocent" {
+                    for w in self.b.wisps.iter_mut() {
+                        if w.hp > 0.0 && hypot2(w.x - fe.x, w.y - fe.y) < fe.weapon.range + 10.0 {
+                            w.hp = max(0.0, w.hp - fe.damage);
+                        }
+                    }
+                }
             }
             for i in old..self.b.projectiles.len() {
                 self.b.projectiles[i].tags = Some(props.clone());
@@ -508,6 +519,13 @@ impl Engine {
             return;
         }
         let target = self.target_for(f, t);
+        if self.innocent_risk(f, &target) {
+            let e = self.fm(f);
+            e.orbit *= -1.0;
+            e.action_label = "Avoid neutral wisp".into();
+            self.warn(f, "innocent");
+            return;
+        }
         let before = self.f(f).action.is_some();
         self.start_attack_d1(f, &target);
         if !before && self.f(f).action.is_some() {

@@ -46,8 +46,10 @@ const RARE=new Set(['finishAtLimit']);
 
 // Phase B3: whole games played in Rust from the starting state stay bit-identical to JavaScript (digest every 60
 // steps and at the end), and Rust is faster on the same games.
-{const games=JSON.parse(fs.readFileSync('validation/rust-games.json','utf8'));assert.equal(games.engine,'team-4.0');assert(games.games>=150,'record a full game run');
- assert.equal(games.matching,games.games,'every game matches JavaScript to the end');assert(games.speedup>1,'Rust is faster than JavaScript');}
+// Phase B4: the same for classic teamfight (team-2.9).
+{const {engines}=JSON.parse(fs.readFileSync('validation/rust-games.json','utf8'));assert.deepEqual(Object.keys(engines),['team-4.0','team-2.9'],'record both engines');
+ for(const [engine,games] of Object.entries(engines)){assert(games.games>=150,`${engine}: record a full game run`);
+  assert.equal(games.matching,games.games,`${engine}: every game matches JavaScript to the end`);assert(games.speedup>1,`${engine}: Rust is faster than JavaScript`);}}
 
 const cargo=spawnSync('cargo',['--version'],{encoding:'utf8'});
 if(cargo.status!==0){console.log('Rust core: recorded parity holds (1M inputs × 9 functions, identical in node and Chromium); portable trig swapped in only while team-4.0 / team-2.9 run; cargo not installed, live run skipped.');process.exit(0);}
@@ -60,4 +62,4 @@ const quick=spawnSync(process.execPath,['scripts/rust-parity.mjs','--quick'],{en
 {const r=JSON.parse(quick.stdout.trim().split('\n').at(-1));assert.equal(r.state.matching,r.snapshots);assert.equal(r.helpers.total,0);}
 const calls=spawnSync(process.execPath,['scripts/rust-calls.mjs','--quick'],{encoding:'utf8',maxBuffer:64<<20});assert.equal(calls.status,0,calls.stdout.slice(-3000)+calls.stderr);
 const games=spawnSync(process.execPath,['scripts/rust-games.mjs','--quick'],{encoding:'utf8',maxBuffer:64<<20});assert.equal(games.status,0,games.stdout.slice(-3000)+games.stderr);
-console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; team-4.0 snapshots, helpers, ported engine methods and whole games match (quick runs); recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);
+console.log(`Rust core: ${cargo.stdout.trim()}; unit tests pass; 200k fresh inputs match node bit for bit; team-4.0 snapshots, helpers and ported engine methods, and whole team-4.0 and team-2.9 games, match (quick runs); recorded parity holds and is identical in node and Chromium; portable trig swapped in only while team-4.0 / team-2.9 run.`);

@@ -131,3 +131,55 @@ impl<'de, V: JsDe + DeserializeOwned> Deserialize<'de> for JsMap<V> {
         }
     }
 }
+
+/// A field only some engines have (a Core siege field in a classic teamfight battle): present in the engines the
+/// schema lists for it, missing in the others. Reading a missing one is a bug in the engine port, so it panics;
+/// a missing field digests as null, like a missing JavaScript property.
+#[derive(Debug, Clone)]
+pub struct Opt<T>(pub Option<T>);
+
+impl<T> Default for Opt<T> {
+    fn default() -> Self {
+        Opt(None)
+    }
+}
+
+impl<T> Opt<T> {
+    pub fn present(&self) -> Option<&T> {
+        self.0.as_ref()
+    }
+    pub fn is_some(&self) -> bool {
+        self.0.is_some()
+    }
+}
+
+impl<T> std::ops::Deref for Opt<T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        self.0.as_ref().expect("a field this engine does not have")
+    }
+}
+
+impl<T> std::ops::DerefMut for Opt<T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.0.as_mut().expect("a field this engine does not have")
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for Opt<T> {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        T::deserialize(d).map(|v| Opt(Some(v)))
+    }
+}
+
+pub fn eng_f64<'de, D: Deserializer<'de>>(d: D) -> Result<Opt<f64>, D::Error> {
+    f64(d).map(|v| Opt(Some(v)))
+}
+
+pub fn eng_vec_f64<'de, D: Deserializer<'de>>(d: D) -> Result<Opt<Vec<f64>>, D::Error> {
+    vec_f64(d).map(|v| Opt(Some(v)))
+}
+
+pub fn eng_vec_vec_f64<'de, D: Deserializer<'de>>(d: D) -> Result<Opt<Vec<Vec<f64>>>, D::Error> {
+    vec_vec_f64(d).map(|v| Opt(Some(v)))
+}

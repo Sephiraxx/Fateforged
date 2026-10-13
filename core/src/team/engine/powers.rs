@@ -9,7 +9,8 @@
 //!   (cover; refunds if the shot is held) → d6 (ally support, Life, wide-field fixes, Reality) → d5 (techniques,
 //!   nature spells) → d4 (copy, teleport, casts, rewind) → d3 (the combat-12 powers) → d2 (the rest).
 //!
-//! Neutral wisps never exist in team battles, so `powerUnsafe` and `innocentRisk` are always false.
+//! A fighter who cannot harm the innocent holds powers that would hit a neutral wisp (`powerUnsafe`, `innocentRisk`
+//! in wisps.rs); only classic teamfight battles have wisps.
 use super::combat::{weapon_tags, Tags};
 use super::consts::MOBILITY;
 use super::effects::HARMFUL_V12;
@@ -94,7 +95,7 @@ impl Engine {
     /// `powerUtility(f, t, p, copied = false)` from the top (d19): how much `f` wants to use `p` on `t` now (−1:
     /// not at all).
     pub fn power_utility(&mut self, f: Ent, t: &Tgt, p: &EntityPowers, copied: bool) -> f64 {
-        if MOBILITY.contains(&p.id.as_str()) && t.is_plain() && self.b.cores.contains(&t.ent) {
+        if !self.classic && MOBILITY.contains(&p.id.as_str()) && t.is_plain() && self.b.cores.contains(&t.ent) {
             return -1.0;
         }
         if SUPPORT.contains(&p.id.as_str()) {
@@ -166,6 +167,9 @@ impl Engine {
         } else if fe.mana < if copied { 9.0 } else { p.cost } || fe.suppressed > 0.0 || self.weak_blocks(f, p) {
             return -1.0;
         }
+        if p.group.as_deref() == Some("control") && self.power_unsafe(f, t, p) {
+            return -1.0;
+        }
         let targets = self.support_targets(f, p, Some(t), false);
         if targets.is_empty() {
             return -1.0;
@@ -191,7 +195,7 @@ impl Engine {
     fn power_utility_d5(&mut self, f: Ent, t: &Tgt, p: &EntityPowers, copied: bool) -> f64 {
         let fe = self.f(f);
         if p.kind != "technique" {
-            if fe.suppressed > 0.0 {
+            if fe.suppressed > 0.0 || self.power_unsafe(f, t, p) {
                 return -1.0;
             }
             if !NATURE.contains(&p.id.as_str()) {
@@ -209,7 +213,7 @@ impl Engine {
             }
             return 50.0;
         }
-        if copied || fe.energy < p.cost + if p.id == "lastStand" { 0.0 } else { 12.0 } {
+        if copied || fe.energy < p.cost + if p.id == "lastStand" { 0.0 } else { 12.0 } || self.power_unsafe(f, t, p) {
             return -1.0;
         }
         let (tx, ty) = (self.tx(t), self.ty(t));
@@ -306,6 +310,9 @@ impl Engine {
         }
         let id = p.id.as_str();
         if copied && (id == "frostTouch" && distance >= 75.0 || id == "kinetic" && distance >= 90.0) {
+            return -1.0;
+        }
+        if copied && self.power_unsafe(f, t, p) {
             return -1.0;
         }
         let rules = &self.b.rules;
@@ -443,7 +450,7 @@ impl Engine {
             return best;
         }
         let (fe, te) = (self.f(f), self.f(t.ent));
-        if available.is_empty() && hypot2(self.tx(t) - fe.x, self.ty(t) - fe.y) <= te.weapon.range + 16.0 {
+        if available.is_empty() && hypot2(self.tx(t) - fe.x, self.ty(t) - fe.y) <= te.weapon.range + 16.0 && !self.innocent_risk_with(f, te.weapon.type_ == "melee", te.weapon.range, self.tx(t), self.ty(t)) {
             return Some(CopyChoice { power: None, priority: 50.0, weapon: true });
         }
         None
@@ -814,6 +821,9 @@ impl Engine {
             }
             return result;
         }
+        if self.power_unsafe(f, t, p) {
+            return Some(false);
+        }
         self.fm(f).invisible = 0.0;
         let spell = self.f(f).spell;
         let (tx, ty) = (self.tx(t), self.ty(t));
@@ -889,6 +899,9 @@ impl Engine {
             return Some(true);
         }
         if id == "metal" && rules.metal_impact {
+            if self.power_unsafe(f, t, p) {
+                return Some(false);
+            }
             self.fm(f).invisible = 0.0;
             self.launch(f, t, p, 0.0);
             let d = self.duration(f, Some(t), 3.0);
@@ -901,6 +914,10 @@ impl Engine {
                 return None;
             }
             if hypot2(self.tx(t) - fe.x, self.ty(t) - fe.y) > if id == "storm" { 300.0 } else { 220.0 } {
+                return None;
+            }
+            if id != "memory" && self.innocent_risk(f, t) {
+                self.warn(f, "innocent-power");
                 return None;
             }
             if id != "memory" {
@@ -968,6 +985,10 @@ impl Engine {
             return None;
         }
         if ["ember", "frostTouch", "kinetic", "venom", "silence", "chainLightning", "singularity"].contains(&id) {
+            if self.f(f).weakness == "cannot harm the innocent" && self.wisps_near_cast(f, t) {
+                self.warn(f, "innocent-power");
+                return None;
+            }
             self.fm(f).invisible = 0.0;
         }
         let (tx, ty) = (self.tx(t), self.ty(t));
@@ -1074,6 +1095,11 @@ impl Engine {
             self.fm(f).invisible = 0.0;
         }
         if p.voice && self.f(f).weakness == "silenced casting" {
+            return None;
+        }
+        if self.f(f).weakness == "cannot harm the innocent" && REVEAL.contains(&id) && self.wisp_on_line(f, self.tx(t), self.ty(t), 18.0) {
+            self.fm(f).orbit *= -1.0;
+            self.warn(f, "innocent-power");
             return None;
         }
         let duration = self.duration(f, Some(t), 3.0);

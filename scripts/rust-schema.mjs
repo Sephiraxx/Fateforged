@@ -1,4 +1,4 @@
-// Builds core/schema/team-4.0.json: the typed shape of a running team-4.0 battle, for the Rust core's state model
+// Builds core/schema/team.json: the typed shape of a running team battle (team-4.0 Core siege and team-2.9 classic), for the Rust core's state model
 // (RUST-CORE.md, phase B1). node scripts/rust-schema.mjs [--games-per-cell N]
 // Plays seeded games (every composition, both sizes, every map), samples the battle every 10 steps and records each
 // field's type per object kind. Fighters, Cores and the Titan share one kind, "entity"; links to them become entity
@@ -14,6 +14,8 @@ import {teamEngine,TEAM_TACTICS} from '../public/combat-team.js';
 import {TEAM_MAPS} from '../public/team-maps.js';
 
 export const ENGINE='team-4.0';
+// The engines the Rust core runs: one schema covers both (fields one engine never has are optional).
+export const ENGINES=['team-4.0','team-2.9'];
 // Objects whose keys are data (ability ids, team sizes, slot numbers, plan names), not fields.
 export const MAP_KINDS=new Set(['entity.abilityUseCounts','entity.powerUsed','battle.plans[].slots','battle.balance.multipliers','battle.titanRules.hp','battle.objectiveRules.coreHp','battle.objectiveRules.coreRamp','battle.brain[].scores','battle.planSeconds[]']);
 // Never part of the state: closures rebuilt from other fields, and the battle's random generator (exported separately).
@@ -24,6 +26,7 @@ const args=process.argv.slice(2),perCell=Number(args[args.indexOf('--games-per-c
 export function entitiesOf(b){return new Set([...(b.combatants??[]),...(b.fighters??[]),...(b.actors??[]),...(b.cores??[]),...(b.titan?[b.titan]:[])]);}
 
 export function buildSchema(games){
+ const engines=[...new Set(games.map(g=>g.engine))];let engine;
  const kinds=new Map(),parent=new Map(),objects=new Map(),present=new Map();
  const find=k=>{while(parent.get(k)&&parent.get(k)!==k)k=parent.get(k);return k;};
  // Aliased kinds keep the name of the one seen first, whatever order later samples meet them in.
@@ -44,7 +47,7 @@ export function buildSchema(games){
  };
  const walk=(o,kind,entities,seen,kindOfObject)=>{
   if(!kinds.has(kind))kinds.set(kind,new Map());rank(kind);
-  objects.set(kind,(objects.get(kind)??0)+1);if(!MAP_KINDS.has(kind))for(const key of Object.keys(o))present.set(`${kind}\u0000${key}`,(present.get(`${kind}\u0000${key}`)??0)+1);
+  const ok=`${kind}\u0000${engine}`;objects.set(ok,(objects.get(ok)??0)+1);if(!MAP_KINDS.has(kind))for(const key of Object.keys(o)){const pk=`${kind}\u0000${key}\u0000${engine}`;present.set(pk,(present.get(pk)??0)+1);}
   for(const key of Object.keys(o)){const path=`${kind}.${key}`;if(SKIP.has(path))continue;const v=o[key];if(typeof v==='function')continue;
    const t=typeOf(v,MAP_KINDS.has(kind)?`${kind}{}`:path,entities,seen,kindOfObject);field(MAP_KINDS.has(kind)?kind:kind,MAP_KINDS.has(kind)?'{}':key).add(t);}
  };
@@ -53,7 +56,7 @@ export function buildSchema(games){
   walk(b,'battle',entities,seen,kindOfObject);};
  // Also sample inside steps, at method-call boundaries (every 1500th call and every power use), so values that only exist while a step
  // runs (a power being weighed, a cast payload, ...) are typed too: the Rust parity tests replay single calls.
- for(const g of games){const b=g();sample(b);let n=0,calls=0;
+ for(const g of games){engine=g.engine;const b=g.make();sample(b);let n=0,calls=0;
   const names=new Set();for(let p=Object.getPrototypeOf(b);p&&p!==Object.prototype;p=Object.getPrototypeOf(p))for(const k of Object.getOwnPropertyNames(p))if(k!=='constructor'&&k!=='step'&&k!=='result'&&typeof p[k]==='function')names.add(k);
   // Within-step battle fields (scripts/rust-calls.mjs: TRANSIENT) are passed to Rust separately, so they stay null here.
   const midStep=b=>{const saved=TRANSIENT.filter(k=>Object.hasOwn(b,k)&&b[k]!=null).map(k=>{const v=b[k];b[k]=null;return [k,v];});try{sample(b);}finally{for(const [k,v] of saved)b[k]=v;}};
@@ -62,9 +65,9 @@ export function buildSchema(games){
   while(!b.done){b.step(1/60);if(++n%10===0)sample(b);}sample(b);
   for(const k of names)delete b[k];}
  // Merge aliased kinds, resolve obj<path> to the merged kind name.
- const merged=new Map(),mergedObjects=new Map(),mergedPresent=new Map();
- for(const [kind,fields] of kinds){const root=find(kind),m=merged.get(root)??merged.set(root,new Map()).get(root);mergedObjects.set(root,(mergedObjects.get(root)??0)+(objects.get(kind)??0));
-  for(const [k,ts] of fields){const s=m.get(k)??m.set(k,new Set()).get(k);for(const t of ts)s.add(t);mergedPresent.set(`${root}\u0000${k}`,(mergedPresent.get(`${root}\u0000${k}`)??0)+(present.get(`${kind}\u0000${k}`)??0));}}
+ const merged=new Map(),mergedObjects=new Map(),mergedPresent=new Map(),add=(m,k,n)=>m.set(k,(m.get(k)??0)+n);
+ for(const [kind,fields] of kinds){const root=find(kind),m=merged.get(root)??merged.set(root,new Map()).get(root);for(const e of engines)add(mergedObjects,`${root}\u0000${e}`,objects.get(`${kind}\u0000${e}`)??0);
+  for(const [k,ts] of fields){const s=m.get(k)??m.set(k,new Set()).get(k);for(const t of ts)s.add(t);for(const e of engines)add(mergedPresent,`${root}\u0000${k}\u0000${e}`,present.get(`${kind}\u0000${k}\u0000${e}`)??0);}}
  const fix=t=>t.replace(/(obj|map)<([^>]+)>/g,(_,w,p)=>`${w}<${find(p)}>`);
  // "arr<?>|arr<obj<K>>" (sometimes empty) → "arr<obj<K>>"; "arr<null>|arr<obj<K>>" → "arr<obj<K>?>" (null elements).
  // Merge list alternatives at every depth: "arr<set<?>|set<f64>>" → "arr<set<f64>>".
@@ -73,7 +76,12 @@ export function buildSchema(games){
   for(const w of ['arr','set']){const lists=out.filter(t=>t.startsWith(w+'<')),rest=out.filter(t=>!t.startsWith(w+'<'));if(lists.length<2&&!lists.some(t=>split(t.slice(4,-1)).length>1))continue;
    const els=[...new Set(lists.flatMap(t=>split(t.slice(4,-1))))].filter(e=>e!=='?'),nullEl=els.includes('null')||els.some(e=>e.endsWith('?')&&e.length>1&&!e.endsWith('<?>')),real=[...new Set(els.filter(e=>e!=='null').map(e=>e.length>1&&e.endsWith('?')&&!e.endsWith('<?>')?e.slice(0,-1):e))];
    out=[...rest,`${w}<${real.join('|')||'?'}${nullEl?'?':''}>`];}return out;};
- const out={};for(const [kind,fields] of [...merged].sort(([a],[b])=>a.localeCompare(b))){out[kind]={map:MAP_KINDS.has(kind)||[...fields.keys()].every(k=>k==='{}'),fields:Object.fromEntries([...fields].sort(([a],[b])=>a.localeCompare(b)).map(([k,ts])=>{let types=[...new Set([...ts].map(fix))];for(let i=0;i<4;i++)types=normalize(types);const nullable=types.includes('null')||!MAP_KINDS.has(kind)&&(mergedPresent.get(`${kind}\u0000${k}`)??0)<(mergedObjects.get(kind)??0);const rest=types.filter(t=>t!=='null').sort();return [k,{type:rest.join('|')||'null',nullable}];}))};}
+ const out={};for(const [kind,fields] of [...merged].sort(([a],[b])=>a.localeCompare(b))){out[kind]={map:MAP_KINDS.has(kind)||[...fields.keys()].every(k=>k==='{}'),fields:Object.fromEntries([...fields].sort(([a],[b])=>a.localeCompare(b)).map(([k,ts])=>{let types=[...new Set([...ts].map(fix))];for(let i=0;i<4;i++)types=normalize(types);const rest=types.filter(t=>t!=='null').sort();if(MAP_KINDS.has(kind))return [k,{type:rest.join('|')||'null',nullable:types.includes('null')}];
+   // A field some engines never have (a Core siege field in classic teamfight) is marked with the engines that do; it is nullable only
+   // when it is missing or null in one of those.
+   const has=engines.filter(e=>(mergedObjects.get(`${kind}\u0000${e}`)??0)>0),carry=has.filter(e=>(mergedPresent.get(`${kind}\u0000${k}\u0000${e}`)??0)>0);
+   const nullable=types.includes('null')||carry.some(e=>mergedPresent.get(`${kind}\u0000${k}\u0000${e}`)<mergedObjects.get(`${kind}\u0000${e}`));
+   return [k,{type:rest.join('|')||'null',nullable,...carry.length<has.length?{engines:carry}:{}}];}))};}
  return out;
 }
 
@@ -87,7 +95,7 @@ export function gameList(perCell=1,engine=ENGINE){
   const gamePlans=list.length%3===0?[{titan:'always',style:'flank',siege:'numbers'},{titan:'ahead',style:'flank',siege:'late'}]:undefined;
   // args(): what simulateTeam(teams, seed, options) is given for this game; make() builds the same battle.
   const opponent=other[(list.length+k)%other.length],args=()=>[[squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[opponent],seed+1)],seed,{headless:true,map,tactics,engineVersion:engine,...(gamePlans?{gamePlans}:{})}];
-  list.push({map,size,comp,seed,tactics,args,make:()=>new (teamEngine(engine))(...args())});
+  list.push({map,size,comp,seed,tactics,engine,args,make:()=>new (teamEngine(engine))(...args())});
  }
  return list;
 }
@@ -107,17 +115,17 @@ export function coverageGames(engine=ENGINE){
   const balance=(i/6)%2?{id:'cover',multipliers:Object.fromEntries([...patched.map(id=>`ability:${id}:potency`),'ability:healing:healing','role:tank:health','role:controller:control','stat:MAG','stat:STR'].map((k,j)=>[k,j%2?1.08:.94]))}:undefined;
   const tactics=[TEAM_TACTICS[(i/6)%TEAM_TACTICS.length],TEAM_TACTICS[(i/6+2)%TEAM_TACTICS.length]];
   const args=()=>[[structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,tactics,engineVersion:engine,...(balance?{balance}:{})}];
-  list.push({map,size:3,comp:'coverage',seed,tactics,args,make:()=>new (teamEngine(engine))(...args())});}
+  list.push({map,size:3,comp:'coverage',seed,tactics,engine,args,make:()=>new (teamEngine(engine))(...args())});}
  return {ids,list};
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
- const coverage=coverageGames(),games=[...gameList(perCell),...coverage.list],started=performance.now();
- console.log(`${coverage.ids.length} abilities forced into ${coverage.list.length} coverage games`);
- const schema=buildSchema(games.map(g=>g.make));
+ const games=[],started=performance.now();
+ for(const engine of ENGINES){const coverage=coverageGames(engine);games.push(...gameList(perCell,engine),...coverage.list);console.log(`${engine}: ${coverage.ids.length} abilities forced into ${coverage.list.length} coverage games`);}
+ const schema=buildSchema(games.map(g=>({make:g.make,engine:g.engine})));
  const poly=[];for(const [kind,{fields}] of Object.entries(schema))for(const [k,{type}] of Object.entries(fields))if(type.includes('|')||type==='null'||type.includes('?'))poly.push(`${kind}.${k}: ${type}`);
  fs.mkdirSync('core/schema',{recursive:true});
- fs.writeFileSync('core/schema/team-4.0.json',JSON.stringify({engine:ENGINE,games:games.length,kinds:schema},null,1)+'\n');
+ fs.writeFileSync('core/schema/team.json',JSON.stringify({engines:ENGINES,games:games.length,kinds:schema},null,1)+'\n');
  console.log(`${games.length} games in ${((performance.now()-started)/1000).toFixed(0)} s: ${Object.keys(schema).length} kinds, ${Object.values(schema).reduce((n,k)=>n+Object.keys(k.fields).length,0)} fields`);
  console.log('Needs attention (mixed, unknown or always-null types):\n '+poly.join('\n '));
 }

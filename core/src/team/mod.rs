@@ -1,4 +1,4 @@
-//! Team battles (phase B of RUST-CORE.md). `state` is generated from `core/schema/team-4.0.json`
+//! Team battles (phase B of RUST-CORE.md). `state` is generated from `core/schema/team.json`
 //! (scripts/gen-rust-state.mjs); `digest` and `jsnum` are its hand-written support.
 pub mod digest;
 pub mod engine;

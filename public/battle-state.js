@@ -1,5 +1,5 @@
 // The running state of a team battle as plain data, and a digest of it (RUST-CORE.md). Both follow the generated
-// schema (public/team-state-schema.js, from core/schema/team-4.0.json), which the Rust core's state model is also
+// schema (public/team-state-schema.js, from core/schema/team.json), which the Rust core's state model is also
 // generated from. The game exports a freshly built battle with exportState() and hands it to the WebAssembly core
 // (public/rust-core.js); the parity scripts also use the digest.
 //
@@ -59,10 +59,11 @@ function exportObject(kind,o,entities,path){
  return out;
 }
 // The whole battle: entities (by index), the battle object, and how many values the battle generator has drawn.
-export function exportState(b){
+// `engine`: the battle's engine version (the core plays team-4.0 and team-2.9).
+export function exportState(b,engine=SCHEMA.engines[0]){
  const list=entitiesOf(b),entities=new Set(list);
  if(new Set(list.map(e=>e.index)).size!==list.length)throw new Error('entity indexes are not unique');
- return {engine:SCHEMA.engine,seed:b.seed,rngCalls:rngCalls(b),entities:list.map(e=>exportObject('entity',e,entities,`entity#${e.index}`)),battle:exportObject('battle',b,entities,'battle')};
+ return {engine,seed:b.seed,rngCalls:rngCalls(b),entities:list.map(e=>exportObject('entity',e,entities,`entity#${e.index}`)),battle:exportObject('battle',b,entities,'battle')};
 }
 
 // --- digest ---------------------------------------------------------------------------------------------------

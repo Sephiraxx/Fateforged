@@ -37,8 +37,8 @@ pub struct Pt {
 impl Engine {
     /// d12 `actorFor(index)`: `combatants[index] ?? actors.find(a => a.index === index) ?? fighters[index]`.
     pub fn actor_for(&self, index: f64) -> Option<Ent> {
-        if let Some(i) = js_index(index, self.b.combatants.len()) {
-            return Some(self.b.combatants[i]);
+        if let Some(i) = js_index(index, self.combatants().len()) {
+            return Some(self.combatants()[i]);
         }
         if let Some(a) = self.b.actors.iter().find(|a| self.f(**a).index == index) {
             return Some(*a);
@@ -46,18 +46,25 @@ impl Engine {
         js_index(index, self.b.fighters.len()).map(|i| self.b.fighters[i])
     }
 
+    /// `this.combatants`: the fighters without the Cores and the Titan (Core siege); classic battles have only
+    /// fighters.
+    #[inline]
+    pub fn combatants(&self) -> &Vec<Ent> {
+        self.b.combatants.present().unwrap_or(&self.b.fighters)
+    }
+
     /// d12 `alliesOf(f, self = false)` over `combatants`.
     pub fn allies_of(&self, f: Ent, include_self: bool) -> Vec<Ent> {
         let team = self.f(f).team;
-        self.b.combatants.iter().copied().filter(|&a| self.f(a).team == team && self.f(a).hp > 0.0 && (include_self || a != f)).collect()
+        self.combatants().iter().copied().filter(|&a| self.f(a).team == team && self.f(a).hp > 0.0 && (include_self || a != f)).collect()
     }
 
     /// d5 `enemiesOf(f)` → d12: living foes, plus the enemy Cores and the Titan unless a fight is being picked; then
     /// the fight's target filter, when one is installed.
     pub fn enemies_of(&self, f: Ent) -> Vec<Ent> {
         let team = self.f(f).team;
-        let mut foes: Vec<Ent> = self.b.combatants.iter().copied().filter(|&a| self.f(a).team != team && self.f(a).hp > 0.0).collect();
-        if self.b.objective_mode && !self.tr.selecting_fight {
+        let mut foes: Vec<Ent> = self.combatants().iter().copied().filter(|&a| self.f(a).team != team && self.f(a).hp > 0.0).collect();
+        if !self.classic && *self.b.objective_mode && !self.tr.selecting_fight {
             foes.extend(self.b.actors.iter().copied().filter(|&a| self.f(a).team != team && self.f(a).hp > 0.0));
         }
         match &self.tr.target_filter {
@@ -106,7 +113,7 @@ impl Engine {
     }
     /// d7 `hasForgefire(team)`
     pub fn has_forgefire(&self, team: f64) -> bool {
-        self.b.combatants.iter().any(|&f| self.f(f).team == team && self.empowered(f))
+        self.combatants().iter().any(|&f| self.f(f).team == team && self.empowered(f))
     }
 
     /// d16 `clampX(x)` / `clampY(y)`
@@ -134,7 +141,7 @@ impl Engine {
         let c = self.f(core);
         let r = self.b.objective_rules.guard_radius;
         let near = |team_eq: bool| {
-            self.b.combatants.iter().filter(|&&f| (self.f(f).team == c.team) == team_eq && self.f(f).hp > 0.0 && de(self.f(f), c) <= r).count() as f64
+            self.combatants().iter().filter(|&&f| (self.f(f).team == c.team) == team_eq && self.f(f).hp > 0.0 && de(self.f(f), c) <= r).count() as f64
         };
         let defenders = near(true);
         let attackers = near(false);
@@ -149,7 +156,7 @@ impl Engine {
     pub fn intruders(&self, team: f64) -> Vec<Ent> {
         let core = self.f(self.b.cores[team as usize]);
         let r = self.b.backdoor_rules.intrusion;
-        self.b.combatants.iter().copied().filter(|&e| self.f(e).team != team && self.f(e).hp > 0.0 && de(self.f(e), core) < r).collect()
+        self.combatants().iter().copied().filter(|&e| self.f(e).team != team && self.f(e).hp > 0.0 && de(self.f(e), core) < r).collect()
     }
 
     /// d1 `touching(f)`: the first obstacle the fighter is pressed against.
@@ -176,6 +183,10 @@ impl Engine {
     /// d4 `posture(team)` → d16: the siege posture of the team's tactic.
     pub fn posture(&self, team: f64) -> Posture {
         let tactic = &self.b.tactics[team as usize];
+        // Classic teamfight has no d18 (the siege postures).
+        if self.classic {
+            return consts::team_posture(tactic).expect("a known tactic");
+        }
         consts::siege_posture(tactic).or_else(|| consts::team_posture(tactic)).expect("a known tactic")
     }
 
@@ -259,8 +270,8 @@ impl Engine {
 
     /// d7 `dropFallen()`: fallen fighters lose Forgefire and its shield.
     pub fn drop_fallen(&mut self) {
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             let e = self.fm(f);
             if e.hp <= 0.0 && e.forgefire_until.is_some_and(|v| v != 0.0 && !v.is_nan()) {
                 e.forgefire_until = Some(0.0);
@@ -301,7 +312,7 @@ impl Engine {
     /// d12 `respawn` helper `placeAtBase(f)`
     pub fn place_at_base(&mut self, f: Ent) {
         let team = self.f(f).team;
-        let members: Vec<Ent> = self.b.combatants.iter().copied().filter(|&a| self.f(a).team == team).collect();
+        let members: Vec<Ent> = self.combatants().iter().copied().filter(|&a| self.f(a).team == team).collect();
         let slot = members.iter().position(|&a| a == f).map(|i| i as f64).unwrap_or(-1.0);
         let x = if team != 0.0 { self.b.width - 130.0 } else { 130.0 };
         let y = 300.0 + (slot - (members.len() as f64 - 1.0) / 2.0) * 45.0;
