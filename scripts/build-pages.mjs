@@ -47,6 +47,7 @@ for(const file of await readdir('public')){
  await writeFile(`${output}/${file}`,content);
 }
 for(const name of ['weapons','effects','obsidian'])await cp(`public/${name}.webp`,`${output}/assets/${name}.webp`);
+await cp('public/fateforge-core.wasm',`${output}/fateforge-core.wasm`);
 for(const file of await readdir('pages'))await cp(`pages/${file}`,`${output}/${file}`);
 for(const file of ['sql-wasm.js','sql-wasm.wasm'])await cp(`node_modules/sql.js/dist/${file}`,`${output}/vendor/${file}`);
 await cp('node_modules/sql.js/LICENSE',`${output}/vendor/sql.js-LICENSE.txt`);

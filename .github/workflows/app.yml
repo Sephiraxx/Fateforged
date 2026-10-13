@@ -36,6 +36,8 @@ jobs:
           node scripts/rust-parity.mjs --quick
           node scripts/rust-calls.mjs --quick
           node scripts/rust-games.mjs --quick
+          rustup target add wasm32-unknown-unknown
+          node scripts/check-rust-wasm.mjs
       - name: Install the Tauri CLI
         run: npm ci
         working-directory: desktop

@@ -3,11 +3,13 @@ name = "fateforge-core"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "Fateforge simulation core. Phase A: math that matches the browser's JavaScript bit for bit."
+description = "Fateforge simulation core: team-4.0 battles, bit-identical to the JavaScript engine."
 license = "MIT"
 
 [lib]
 path = "src/lib.rs"
+# The WebAssembly build (src/wasm.rs) is made with `cargo rustc --crate-type cdylib` (scripts/build-rust-wasm.mjs),
+# so the other targets keep a plain library build.
 
 [[bin]]
 name = "math-parity"
@@ -32,6 +34,8 @@ serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
 
 [profile.release]
 debug = false
+lto = true
+codegen-units = 1
 
 [[bin]]
 name = "team-games"

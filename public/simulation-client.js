@@ -3,6 +3,10 @@
 // Games within a series stay ordered and use their original seeds, so results do not depend on the pool.
 // Up to 15 workers, so a 16-thread CPU keeps one thread free for the page.
 export const POOL_LIMIT=15;
+// Headless Core siege games run on the Rust core (public/rust-core.js) unless the player turned it off.
+export const NATIVE_CORE_KEY='fateforge-rust-core';
+export function nativeCoreEnabled(){try{return globalThis.localStorage?.getItem(NATIVE_CORE_KEY)!=='off';}catch{return true;}}
+export function setNativeCore(on){try{globalThis.localStorage?.setItem(NATIVE_CORE_KEY,on?'on':'off');}catch{}}
 export function poolSize(cores=globalThis.navigator?.hardwareConcurrency||4){return Math.max(1,Math.min(POOL_LIMIT,cores-1));}
 export function createSimulationPool(workerUrl=new URL('./league-sim-worker.js',import.meta.url),{size=poolSize()}={}){
  const lanes=[],queue=[];let serial=0;
@@ -14,7 +18,7 @@ export function createSimulationPool(workerUrl=new URL('./league-sim-worker.js',
   while(queue.length){
    let slot=lanes.find(s=>!s.task);if(!slot){if(lanes.length>=size)return;slot={worker:null,task:null};lanes.push(slot);}
    if(!slot.worker)start(slot);const task=queue.shift();slot.task=task;
-   try{slot.worker.postMessage({...task.input,dispatchId:task.id});}catch(error){slot.task=null;task.reject(error);}
+   try{slot.worker.postMessage({...task.input,dispatchId:task.id,nativeCore:nativeCoreEnabled()});}catch(error){slot.task=null;task.reject(error);}
   }
  }
  return {
