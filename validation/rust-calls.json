@@ -1,0 +1,384 @@
+{
+ "engine": "team-4.0",
+ "games": 31,
+ "methods": {
+  "actorFor": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "alliesOf": {
+   "cases": 564,
+   "matching": 564,
+   "failures": []
+  },
+  "enemiesOf": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "ownerTeam": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "centroid": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "empowered": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "hasForgefire": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "clampX": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "clampY": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "clearShot": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "isSkirmisher": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "guardCount": {
+   "cases": 144,
+   "matching": 144,
+   "failures": []
+  },
+  "intruders": {
+   "cases": 770,
+   "matching": 770,
+   "failures": []
+  },
+  "touching": {
+   "cases": 105,
+   "matching": 105,
+   "failures": []
+  },
+  "respawnDelay": {
+   "cases": 68,
+   "matching": 68,
+   "failures": []
+  },
+  "preferredRange": {
+   "cases": 113,
+   "matching": 113,
+   "failures": []
+  },
+  "posture": {
+   "cases": 744,
+   "matching": 744,
+   "failures": []
+  },
+  "aim": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "powerCost": {
+   "cases": 728,
+   "matching": 728,
+   "failures": []
+  },
+  "pushOutOfTerrain": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "creditDown": {
+   "cases": 60,
+   "matching": 60,
+   "failures": []
+  },
+  "dropFallen": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "onDuty": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "nearestEnemy": {
+   "cases": 756,
+   "matching": 756,
+   "failures": []
+  },
+  "threatened": {
+   "cases": 712,
+   "matching": 712,
+   "failures": [],
+   "skipped": {
+    "stand-in replaces powers": 1
+   }
+  },
+  "placeAtBase": {
+   "cases": 66,
+   "matching": 66,
+   "failures": []
+  },
+  "detour": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "warn": {
+   "cases": 182,
+   "matching": 182,
+   "failures": []
+  },
+  "incomingThreat": {
+   "cases": 333,
+   "matching": 333,
+   "failures": []
+  },
+  "underFire": {
+   "cases": 62,
+   "matching": 62,
+   "failures": []
+  },
+  "dodgeThreat": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "steer": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "targetFor": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "moveFighter": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "moveTeamFighter": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "healerAnchor": {
+   "cases": 400,
+   "matching": 400,
+   "failures": []
+  },
+  "escapeFrom": {
+   "cases": 15,
+   "matching": 15,
+   "failures": []
+  },
+  "supportAllies": {
+   "cases": 164,
+   "matching": 164,
+   "failures": []
+  },
+  "supportEnemies": {
+   "cases": 96,
+   "matching": 96,
+   "failures": []
+  },
+  "planLeash": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "holdPoint": {
+   "cases": 0,
+   "skipped": {}
+  },
+  "titanStun": {
+   "cases": 57,
+   "matching": 57,
+   "failures": []
+  },
+  "titanAttackers": {
+   "cases": 187,
+   "matching": 187,
+   "failures": []
+  },
+  "openFissure": {
+   "cases": 63,
+   "matching": 63,
+   "failures": []
+  },
+  "moltenHurl": {
+   "cases": 187,
+   "matching": 187,
+   "failures": []
+  },
+  "defendTarget": {
+   "cases": 607,
+   "matching": 607,
+   "failures": []
+  },
+  "updateDuty": {
+   "cases": 191,
+   "matching": 191,
+   "failures": []
+  },
+  "situation": {
+   "cases": 614,
+   "matching": 614,
+   "failures": []
+  },
+  "planScores": {
+   "cases": 335,
+   "matching": 335,
+   "failures": []
+  },
+  "updateBrain": {
+   "cases": 191,
+   "matching": 191,
+   "failures": []
+  },
+  "teleportDestination": {
+   "cases": 30,
+   "matching": 30,
+   "failures": []
+  },
+  "respawn": {
+   "cases": 66,
+   "matching": 66,
+   "failures": []
+  },
+  "settleShield": {
+   "cases": 593,
+   "matching": 593,
+   "failures": []
+  },
+  "updatePlans": {
+   "cases": 486,
+   "matching": 486,
+   "failures": []
+  },
+  "usefulPortal": {
+   "cases": 94,
+   "matching": 94,
+   "failures": []
+  },
+  "abilityFactor": {
+   "cases": 338,
+   "matching": 338,
+   "failures": []
+  },
+  "duration": {
+   "cases": 452,
+   "matching": 452,
+   "failures": []
+  },
+  "heal": {
+   "cases": 184,
+   "matching": 184,
+   "failures": []
+  },
+  "kitControl": {
+   "cases": 25,
+   "matching": 25,
+   "failures": []
+  },
+  "fortified": {
+   "cases": 239,
+   "matching": 239,
+   "failures": []
+  },
+  "rebirth": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "zone": {
+   "cases": 38,
+   "matching": 38,
+   "failures": []
+  },
+  "emitSound": {
+   "cases": 32,
+   "matching": 32,
+   "failures": []
+  },
+  "push": {
+   "cases": 41,
+   "matching": 41,
+   "failures": []
+  },
+  "wideKnockback": {
+   "cases": 593,
+   "matching": 593,
+   "failures": []
+  },
+  "pathClear": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "shotClear": {
+   "cases": 775,
+   "matching": 775,
+   "failures": []
+  },
+  "projectileClear": {
+   "cases": 769,
+   "matching": 769,
+   "failures": [],
+   "skipped": {
+    "stand-in replaces powers": 3
+   }
+  },
+  "launch": {
+   "cases": 78,
+   "matching": 78,
+   "failures": []
+  },
+  "supportLine": {
+   "cases": 275,
+   "matching": 275,
+   "failures": []
+  },
+  "supportControl": {
+   "cases": 25,
+   "matching": 25,
+   "failures": []
+  },
+  "supportChoice": {
+   "cases": 258,
+   "matching": 258,
+   "failures": []
+  },
+  "supportTargets": {
+   "cases": 156,
+   "matching": 156,
+   "failures": [],
+   "skipped": {
+    "stand-in replaces powers": 4
+   }
+  },
+  "lifeSpot": {
+   "cases": 51,
+   "matching": 51,
+   "failures": []
+  }
+ }
+}

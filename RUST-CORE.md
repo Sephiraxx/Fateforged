@@ -98,13 +98,13 @@ Every later phase is proven against JavaScript with these tools.
 ## Phase B2: the engine and its low-level methods
 
 - **Engine** (`core/src/team/engine`): an `Engine` holds the loaded battle state, the generator (seed plus call count) and the within-step fields (`healSource`, `balanceCast`, …), which are passed in separately.
-  - **Methods:** __METHODS__ team-4.0 methods are ported, listed in `scripts/lib/rust-ported.mjs`. They cover queries (`queries.rs`), movement and steering (`movement.rs`), the team brain, duties, respawns and the Titan's attacks (`objective.rs`), and healing, crowd control, zones, knockback, cover checks, spell projectiles and support targeting (`effects.rs`).
+  - **Methods:** 74 team-4.0 methods are ported, listed in `scripts/lib/rust-ported.mjs`. They cover queries (`queries.rs`), movement and steering (`movement.rs`), the team brain, duties, respawns and the Titan's attacks (`objective.rs`), and healing, crowd control, zones, knockback, cover checks, spell projectiles and support targeting (`effects.rs`).
   - **Inheritance:** each JavaScript method is a chain of overrides across the 23 layers of the prototype chain. The Rust version is that chain written out in order, with only the live layer versions ported. Doc comments name the layers (`d16` is depth 16 of the chain).
   - **Stand-ins:** JavaScript sometimes passes a copy of a fighter (`{...t}`) or a look-alike (`Object.create(t)`) with a few fields replaced. Rust passes a `Tgt`: the entity plus the replaced fields.
 - **Call-by-call parity** (`scripts/rust-calls.mjs`, recorded in `validation/rust-calls.json`):
-  - **Recording:** JavaScript plays seeded team-4.0 games (__GAMES__ in the full run: every map, both sizes, varied tactics and game plans, and the coverage games that force every ability). It wraps each ported method; for the first calls and then every 37th, it records the state before the call, the arguments, the return value and the state digest after it. Nested calls are recorded too.
+  - **Recording:** JavaScript plays seeded team-4.0 games (31 in the full run: every map, both sizes, varied tactics and game plans, and the coverage games that force every ability). It wraps each ported method; for the first calls and then every 37th, it records the state before the call, the arguments, the return value and the state digest after it. Nested calls are recorded too.
   - **Replay:** the `team-calls` binary loads each recorded state, makes the same call in Rust, and compares the return value and the digest of the whole battle afterwards, bit for bit.
-  - **Result:** __CASES__ recorded calls, all matching. __NEVER__
+  - **Result:** 31,937 recorded calls, all matching. `holdPoint` (a tank holding a point under a hold posture) never comes up in the recorded games; it is proven when the full-step parity of B3 runs.
 - **Schema:** it now also samples inside steps (at every 1500th method call and every power use), so values that only exist while a step runs (a power being weighed, a cast payload) are typed. Games now also vary tactics, flank game plans and league balance patches, so posture, lane and patch fields are covered.
 - **JavaScript quirks kept:**
   - integer-like object keys iterate in ascending order (plan slots);
