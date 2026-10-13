@@ -483,7 +483,7 @@ impl Engine {
 }
 
 /// The timer field of a harmful effect (for clearing it).
-fn harmful_mut<'a>(e: &'a mut crate::team::state::Entity, key: &str) -> &'a mut f64 {
+pub(crate) fn harmful_mut<'a>(e: &'a mut crate::team::state::Entity, key: &str) -> &'a mut f64 {
     match key {
         "burn" => &mut e.burn,
         "poison" => &mut e.poison,

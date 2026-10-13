@@ -18,6 +18,7 @@ pub mod objective;
 pub mod queries;
 pub mod effects;
 pub mod combat;
+pub mod attack;
 
 pub use view::Tgt;
 

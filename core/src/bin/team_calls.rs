@@ -497,6 +497,17 @@ fn dispatch(method: &str, c: &mut Call) -> Value {
             let amount = c.f64(2);
             hit_result(if method == "hurt" { c.eng.hurt(&t, f, amount, &kind, can_dodge) } else { c.eng.fighter_hit(&t, f, amount, &kind, can_dodge) })
         }
+        "updateAttack" => {
+            let t = c.tgt(1);
+            c.eng.update_attack(c.ent(0), &t, c.f64(2));
+            UNDEFINED()
+        }
+        "applySupportAbility" => {
+            let p = c.power(1);
+            let targets = c.ent_list(2);
+            c.eng.apply_support_ability(c.ent(0), &p, &targets);
+            UNDEFINED()
+        }
         other => panic!("method {other} is not ported"),
     }
 }
