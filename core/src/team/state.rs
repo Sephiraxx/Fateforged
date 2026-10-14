@@ -22,6 +22,10 @@ pub struct Battle {
     pub balance_environment: Option<bool>,
     #[serde(rename = "brain", default)]
     pub brain: Opt<Vec<BattleBrain>>,
+    #[serde(rename = "campKills", default, deserialize_with = "jsnum::eng_vec_f64")]
+    pub camp_kills: Opt<Vec<f64>>,
+    #[serde(rename = "camps", default)]
+    pub camps: Opt<Vec<Ent>>,
     #[serde(rename = "center")]
     pub center: BattleCenter,
     #[serde(rename = "combatants", default)]
@@ -170,6 +174,8 @@ pub struct Battle {
     pub titan_rules: Opt<BattleTitanRules>,
     #[serde(rename = "titanUp", default)]
     pub titan_up: Opt<bool>,
+    #[serde(rename = "titanXp", default, deserialize_with = "jsnum::eng_f64")]
+    pub titan_xp: Opt<f64>,
     #[serde(rename = "unsticks", default, deserialize_with = "jsnum::eng_f64")]
     pub unsticks: Opt<f64>,
     #[serde(rename = "width", deserialize_with = "jsnum::f64")]
@@ -193,6 +199,8 @@ impl Digest for Battle {
         match &self.balance_cast { None => h.nil(), Some(v) => { h.nil(); } }
         match &self.balance_environment { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match self.brain.present() { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { (*x).digest(h); } } }
+        match self.camp_kills.present() { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { h.f64((*x)); } } }
+        match self.camps.present() { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { h.ent((*x)); } } }
         self.center.digest(h);
         match self.combatants.present() { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { h.ent((*x)); } } }
         self.controller_rules.digest(h);
@@ -267,6 +275,7 @@ impl Digest for Battle {
         match self.titan_resets.present() { None => h.nil(), Some(v) => { h.f64((*v)); } }
         match self.titan_rules.present() { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match self.titan_up.present() { None => h.nil(), Some(v) => { h.bool((*v)); } }
+        match self.titan_xp.present() { None => h.nil(), Some(v) => { h.f64((*v)); } }
         match self.unsticks.present() { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.width);
         match &self.winner { None => h.nil(), Some(v) => { h.f64((*v)); } }
@@ -463,6 +472,8 @@ impl Digest for BattleFood {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct BattleGamePlans {
+    #[serde(rename = "camp", default)]
+    pub camp: Option<String>,
     #[serde(rename = "siege")]
     pub siege: String,
     #[serde(rename = "style")]
@@ -474,6 +485,7 @@ impl JsDe for BattleGamePlans {}
 impl Digest for BattleGamePlans {
     fn digest(&self, h: &mut Fnv) {
         h.obj();
+        match &self.camp { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.str(&self.siege);
         h.str(&self.style);
         h.str(&self.titan);
@@ -1299,8 +1311,12 @@ pub struct Entity {
     pub guard_time: f64,
     #[serde(rename = "healingDone", deserialize_with = "jsnum::f64")]
     pub healing_done: f64,
+    #[serde(rename = "hitBy", default, deserialize_with = "jsnum::opt_vec_f64")]
+    pub hit_by: Option<Vec<f64>>,
     #[serde(rename = "hitFlash", deserialize_with = "jsnum::f64")]
     pub hit_flash: f64,
+    #[serde(rename = "hitter", default, deserialize_with = "jsnum::opt_f64")]
+    pub hitter: Option<f64>,
     #[serde(rename = "hp", deserialize_with = "jsnum::f64")]
     pub hp: f64,
     #[serde(rename = "id")]
@@ -1341,6 +1357,8 @@ pub struct Entity {
     pub last_stand_time: f64,
     #[serde(rename = "lastStandUsed")]
     pub last_stand_used: bool,
+    #[serde(rename = "level", default, deserialize_with = "jsnum::opt_f64")]
+    pub level: Option<f64>,
     #[serde(rename = "magic", deserialize_with = "jsnum::f64")]
     pub magic: f64,
     #[serde(rename = "mana", deserialize_with = "jsnum::f64")]
@@ -1363,6 +1381,8 @@ pub struct Entity {
     pub move_: f64,
     #[serde(rename = "name")]
     pub name: String,
+    #[serde(rename = "nextPulse", default, deserialize_with = "jsnum::opt_f64")]
+    pub next_pulse: Option<f64>,
     #[serde(rename = "nextSelection", deserialize_with = "jsnum::f64")]
     pub next_selection: f64,
     #[serde(rename = "nutrition", deserialize_with = "jsnum::f64")]
@@ -1523,6 +1543,10 @@ pub struct Entity {
     pub wind_remaining: f64,
     #[serde(rename = "x", deserialize_with = "jsnum::f64")]
     pub x: f64,
+    #[serde(rename = "xp", default, deserialize_with = "jsnum::opt_f64")]
+    pub xp: Option<f64>,
+    #[serde(rename = "xpDown", default)]
+    pub xp_down: Option<bool>,
     #[serde(rename = "y", deserialize_with = "jsnum::f64")]
     pub y: f64,
 }
@@ -1585,7 +1609,9 @@ impl Digest for Entity {
         h.bool(self.guard_ready);
         h.f64(self.guard_time);
         h.f64(self.healing_done);
+        match &self.hit_by { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { h.f64((*x)); } } }
         h.f64(self.hit_flash);
+        match &self.hitter { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.hp);
         h.str(&self.id);
         h.f64(self.illusion_time);
@@ -1606,6 +1632,7 @@ impl Digest for Entity {
         match &self.last_hit_at { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.last_stand_time);
         h.bool(self.last_stand_used);
+        match &self.level { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.magic);
         h.f64(self.mana);
         h.f64(self.max_energy);
@@ -1617,6 +1644,7 @@ impl Digest for Entity {
         match &self.monster_last_hits { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.move_);
         h.str(&self.name);
+        match &self.next_pulse { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.next_selection);
         h.f64(self.nutrition);
         match &self.objective_damage { None => h.nil(), Some(v) => { h.f64((*v)); } }
@@ -1697,6 +1725,8 @@ impl Digest for Entity {
         h.f64(self.wind_healing);
         h.f64(self.wind_remaining);
         h.f64(self.x);
+        match &self.xp { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.xp_down { None => h.nil(), Some(v) => { h.bool((*v)); } }
         h.f64(self.y);
     }
 }

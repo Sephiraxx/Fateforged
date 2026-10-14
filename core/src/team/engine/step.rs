@@ -88,6 +88,8 @@ impl Engine {
         }
         // d23
         self.cast_upkeep(f, dt);
+        // d24
+        self.level_upkeep(f);
     }
 
     fn upkeep_d6(&mut self, f: Ent, dt: f64) {
@@ -523,8 +525,14 @@ impl Engine {
         self.b.projectiles = kept;
     }
 
-    /// `objectiveStep(dt)` from the top (d19).
+    /// `objectiveStep(dt)` from the top: d24 (levels and wisps) after d19.
     pub fn objective_step(&mut self, dt: f64) {
+        self.objective_step_d19(dt);
+        self.level_step();
+    }
+
+    /// d19 `objectiveStep(dt)`.
+    fn objective_step_d19(&mut self, dt: f64) {
         self.drop_fallen();
         self.objective_step_d11(dt);
         if self.b.done {

@@ -19,7 +19,7 @@ fn back_liner(f: &Entity) -> bool {
 
 impl Engine {
     /// d22 `hurt`: a fighter hit by an enemy fighter remembers when.
-    pub fn hurt(&mut self, t: &Tgt, f: Option<Ent>, amount: f64, kind: &str, can_dodge: bool) -> Option<bool> {
+    pub(super) fn siege_hurt(&mut self, t: &Tgt, f: Option<Ent>, amount: f64, kind: &str, can_dodge: bool) -> Option<bool> {
         if self.classic {
             return self.cast_hurt(t, f, amount, kind, can_dodge);
         }

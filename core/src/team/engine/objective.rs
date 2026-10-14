@@ -448,6 +448,8 @@ impl Engine {
         e.still_since = None;
         // d23
         e.statuses = Some(Vec::new());
+        // d24
+        self.level_respawn(f);
     }
 
     /// d11 `settleShield(t, f, before, dealt)`: Forgefire's shield absorbs part of a hit after it lands.

@@ -83,7 +83,8 @@ impl Engine {
     /// `heal` chain: d8 (an ability's healing patch) → d12 (Cores and the Titan never heal) → d13 (role and target
     /// healing patches) → d16 (overtime halves healing; the healer is credited) → d20 (Death mark, slow recovery).
     pub fn heal(&mut self, f: Ent, amount: f64) -> f64 {
-        // d23: healing received.
+        // d24: healing grows with the healer's level; d23: healing received.
+        let amount = self.level_heal(f, amount);
         let amount = amount * self.cast_mod(f, |s| s.heal_in);
         // d8
         let source = self.tr.heal_source.unwrap_or(f);

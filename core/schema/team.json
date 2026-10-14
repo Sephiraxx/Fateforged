@@ -3,7 +3,7 @@
   "team-4.0",
   "team-2.9"
  ],
- "games": 110,
+ "games": 128,
  "kinds": {
   "battle": {
    "map": false,
@@ -39,6 +39,20 @@
     },
     "brain": {
      "type": "arr<obj<battle.brain[]>>",
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
+    },
+    "campKills": {
+     "type": "arr<f64>",
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
+    },
+    "camps": {
+     "type": "arr<entity>",
      "nullable": false,
      "engines": [
       "team-4.0"
@@ -463,6 +477,13 @@
       "team-4.0"
      ]
     },
+    "titanXp": {
+     "type": "f64",
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
+    },
     "unsticks": {
      "type": "f64",
      "nullable": false,
@@ -669,6 +690,10 @@
   "battle.gamePlans[]": {
    "map": false,
    "fields": {
+    "camp": {
+     "type": "str",
+     "nullable": true
+    },
     "siege": {
      "type": "str",
      "nullable": false
@@ -1683,9 +1708,23 @@
      "type": "f64",
      "nullable": false
     },
+    "hitBy": {
+     "type": "arr<f64>",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
+    },
     "hitFlash": {
      "type": "f64",
      "nullable": false
+    },
+    "hitter": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "hp": {
      "type": "f64",
@@ -1776,6 +1815,13 @@
      "type": "bool",
      "nullable": false
     },
+    "level": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
+    },
     "magic": {
      "type": "f64",
      "nullable": false
@@ -1822,6 +1868,13 @@
     "name": {
      "type": "str",
      "nullable": false
+    },
+    "nextPulse": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextSelection": {
      "type": "f64",
@@ -2157,6 +2210,20 @@
     "x": {
      "type": "f64",
      "nullable": false
+    },
+    "xp": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
+    },
+    "xpDown": {
+     "type": "bool",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "y": {
      "type": "f64",
