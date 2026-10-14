@@ -37,6 +37,9 @@ impl Engine {
 
     /// `chooseTarget(f)` from the top (d19).
     pub fn choose_target(&mut self, f: Ent) -> Option<Ent> {
+        if self.classic {
+            return self.choose_target_d8(f);
+        }
         let fe = self.f(f);
         let taunt = fe.taunt_source.and_then(|i| self.actor_for(i));
         if fe.taunt_time > 0.0 && taunt.is_some_and(|t| self.f(t).hp > 0.0) {
@@ -77,7 +80,7 @@ impl Engine {
         }
         let team = fe.team;
         let plan = self.b.brain[team as usize].plan.clone();
-        let (titan, core, own_core) = (self.b.titan, self.b.cores[1 - team as usize], self.b.cores[team as usize]);
+        let (titan, core, own_core) = ((*self.b.titan), self.b.cores[1 - team as usize], self.b.cores[team as usize]);
         let near = |s: &Engine, r: f64| s.b.combatants.iter().any(|&e| {
             let ee = s.f(e);
             ee.team != team && ee.hp > 0.0 && de(ee, s.f(f)) < r

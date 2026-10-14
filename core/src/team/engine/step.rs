@@ -24,7 +24,7 @@ fn tick_technique_timers(f: &mut crate::team::state::Entity, dt: f64) {
 }
 
 /// `tickCombatTimers` (combat-team-v2.js)
-fn tick_combat_timers(f: &mut crate::team::state::Entity, dt: f64) {
+pub(super) fn tick_combat_timers(f: &mut crate::team::state::Entity, dt: f64) {
     f.swing = max(0.0, f.swing - dt);
     f.slow = max(0.0, f.slow - dt);
     f.shield = max(0.0, f.shield - dt);
@@ -35,7 +35,7 @@ fn tick_combat_timers(f: &mut crate::team::state::Entity, dt: f64) {
 
 impl Engine {
     /// `this.fighters[i]` for an index that may be missing.
-    fn fighter_at(&self, i: Option<f64>) -> Option<Ent> {
+    pub(super) fn fighter_at(&self, i: Option<f64>) -> Option<Ent> {
         i.and_then(|i| js_index(i, self.b.fighters.len())).map(|i| self.b.fighters[i])
     }
 
@@ -75,7 +75,7 @@ impl Engine {
         // d20
         let rate = match self.f(f).role.as_str() {
             "controller" => self.b.controller_rules.cooldown,
-            "healer" => self.b.healer_rules.cooldown,
+            "healer" => self.b.healer_rules.as_ref().map_or(1.0, |r| r.cooldown),
             _ => 1.0,
         };
         if rate != 1.0 {
@@ -100,6 +100,10 @@ impl Engine {
             if e.weakness == "needs constant food" {
                 e.nutrition = max(0.0, e.nutrition - dt * 2.2);
             }
+        }
+        self.eat_rations(f);
+        {
+            let e = self.fm(f);
             if env.weather == "rain" || env.weather == "storm" || env.ground == "water" && e.flight <= 0.0 {
                 e.wet = max(e.wet, 0.1);
             }
@@ -342,6 +346,7 @@ impl Engine {
                 }
             }
         }
+        self.drift_wisps(dt);
         // Thunder.
         if self.b.environment.weather == "storm" && self.b.time >= self.b.next_thunder {
             self.b.next_thunder += 8.0;
@@ -508,6 +513,9 @@ impl Engine {
             if self.b.obstacles.iter().any(|o| segment_distance(o.x, o.y, p.x, p.y, x, y) < o.radius + p.radius) {
                 continue;
             }
+            if self.wisp_catches(p.x, p.y, x, y, p.radius, p.damage) {
+                continue;
+            }
             kept.push(p);
         }
         self.b.projectiles = kept;
@@ -530,8 +538,8 @@ impl Engine {
                 None => seconds.0.push((plan, v)),
             }
         }
-        if self.b.time >= self.b.next_brain {
-            self.b.next_brain = self.b.time + brain_rules::INTERVAL;
+        if self.b.time >= (*self.b.next_brain) {
+            (*self.b.next_brain) = self.b.time + brain_rules::INTERVAL;
             self.update_brain();
         }
         if self.b.done {
@@ -544,15 +552,15 @@ impl Engine {
                 self.b.duty_seconds[team] += dt * size;
             }
         }
-        let titan = self.b.titan;
+        let titan = *self.b.titan;
         let up = self.f(titan).hp > 0.0;
-        if up && (!self.b.titan_up || self.b.titan_resets != self.b.seen_resets) {
-            self.b.next_hurl = self.b.time + self.b.titan_rules.hurl_interval;
-            self.b.next_fissure = self.b.time + self.b.titan_rules.fissure_first;
+        if up && (!(*self.b.titan_up) || (*self.b.titan_resets) != (*self.b.seen_resets)) {
+            (*self.b.next_hurl) = self.b.time + self.b.titan_rules.hurl_interval;
+            (*self.b.next_fissure) = self.b.time + self.b.titan_rules.fissure_first;
             self.b.fissure = None;
         }
-        self.b.titan_up = up;
-        self.b.seen_resets = self.b.titan_resets;
+        (*self.b.titan_up) = up;
+        (*self.b.seen_resets) = *self.b.titan_resets;
         if !up {
             self.b.fissure = None;
             return;
@@ -563,11 +571,11 @@ impl Engine {
         if self.f(titan).target.is_none() {
             return;
         }
-        if self.b.time >= self.b.next_hurl && self.molten_hurl() {
-            self.b.next_hurl = self.b.time + self.b.titan_rules.hurl_interval;
+        if self.b.time >= (*self.b.next_hurl) && self.molten_hurl() {
+            (*self.b.next_hurl) = self.b.time + self.b.titan_rules.hurl_interval;
         }
-        if self.b.fissure.is_none() && self.b.slam_at.is_none() && self.b.time >= self.b.next_fissure && self.open_fissure() {
-            self.b.next_fissure = self.b.time + self.b.titan_rules.fissure_interval;
+        if self.b.fissure.is_none() && self.b.slam_at.is_none() && self.b.time >= (*self.b.next_fissure) && self.open_fissure() {
+            (*self.b.next_fissure) = self.b.time + self.b.titan_rules.fissure_interval;
         }
     }
 
@@ -587,7 +595,7 @@ impl Engine {
             }
             self.b.next_pulse[team] = self.b.time + self.b.objective_rules.pulse_interval;
             let ce = self.f(core);
-            let mut targets: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).team != ce.team && self.f(f).hp > 0.0 && de(self.f(f), ce) <= self.b.objective_rules.pulse_range).collect();
+            let mut targets: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).team != ce.team && self.f(f).hp > 0.0 && de(self.f(f), ce) <= self.b.objective_rules.pulse_range).collect();
             targets.sort_by(|&a, &b| {
                 let r = de(self.f(a), ce) - de(self.f(b), ce);
                 super::movement::js_cmp(if r != 0.0 && !r.is_nan() { r } else { self.f(a).index - self.f(b).index })
@@ -608,8 +616,8 @@ impl Engine {
                 self.b.forgefire_seconds[team] += min(dt, self.b.forgefire_until[team] - self.b.time);
                 if self.b.time >= self.b.next_shield[team] {
                     self.b.next_shield[team] = self.b.time + self.b.titan_rules.shield_interval;
-                    for i in 0..self.b.combatants.len() {
-                        let f = self.b.combatants[i];
+                    for i in 0..self.combatants().len() {
+                        let f = self.combatants()[i];
                         if self.f(f).team == team as f64 && self.f(f).hp > 0.0 && self.empowered(f) {
                             let shield = self.f(f).max_hp * self.b.titan_rules.shield;
                             self.fm(f).forge_shield = Some(shield);
@@ -617,26 +625,26 @@ impl Engine {
                     }
                 }
             } else {
-                for i in 0..self.b.combatants.len() {
-                    let f = self.b.combatants[i];
+                for i in 0..self.combatants().len() {
+                    let f = self.combatants()[i];
                     if self.f(f).team == team as f64 {
                         self.fm(f).forge_shield = Some(0.0);
                     }
                 }
             }
         }
-        let t = self.b.titan;
+        let t = *self.b.titan;
         let time = self.b.time;
         if self.f(t).hp <= 0.0 {
-            if time >= self.b.next_titan {
+            if time >= (*self.b.next_titan) {
                 let e = self.fm(t);
                 e.hp = e.max_hp;
                 e.x = 640.0;
                 e.y = 300.0;
-                self.b.titan_damage = vec![0.0, 0.0];
+                *self.b.titan_damage = vec![0.0, 0.0];
                 self.b.titan_hits.clear();
-                self.b.titan_last_hit = time;
-                self.b.next_slam = time + self.b.titan_rules.slam;
+                (*self.b.titan_last_hit) = time;
+                (*self.b.next_slam) = time + self.b.titan_rules.slam;
             }
             return;
         }
@@ -644,7 +652,7 @@ impl Engine {
         self.b.titan_hits.retain(|h| time - h.time <= reset);
         // Aggro by attacker index: an object with integer keys, so its keys come out in ascending order.
         let mut aggro: Vec<(f64, f64)> = Vec::new();
-        for h in &self.b.titan_hits {
+        for h in self.b.titan_hits.iter() {
             if self.actor_for(h.index).is_some_and(|a| self.f(a).hp > 0.0) {
                 match aggro.iter_mut().find(|(i, _)| *i == h.index) {
                     Some((_, v)) => *v += h.damage,
@@ -676,34 +684,34 @@ impl Engine {
                     e.y = y;
                 }
             }
-            if de(self.f(t), self.f(target)) < 80.0 && self.b.time >= self.b.next_titan_attack {
-                self.b.next_titan_attack = self.b.time + 1.2;
+            if de(self.f(t), self.f(target)) < 80.0 && self.b.time >= (*self.b.next_titan_attack) {
+                (*self.b.next_titan_attack) = self.b.time + 1.2;
                 let amount = self.f(target).max_hp * self.b.titan_rules.attack_damage;
                 self.hurt(&Tgt::of(target), Some(t), amount, "physical", true);
             }
         }
-        if self.b.time - self.b.titan_last_hit > self.b.titan_rules.reset && self.f(t).hp < self.f(t).max_hp {
+        if self.b.time - (*self.b.titan_last_hit) > self.b.titan_rules.reset && self.f(t).hp < self.f(t).max_hp {
             let e = self.fm(t);
             e.hp = e.max_hp;
             e.x = 640.0;
             e.y = 300.0;
-            self.b.titan_damage = vec![0.0, 0.0];
+            *self.b.titan_damage = vec![0.0, 0.0];
             self.b.titan_hits.clear();
             self.b.slam_at = None;
-            self.b.titan_resets += 1.0;
+            (*self.b.titan_resets) += 1.0;
         }
         if self.b.slam_at.is_some_and(|at| self.b.time >= at) {
             self.b.slam_at = None;
-            for i in 0..self.b.combatants.len() {
-                let f = self.b.combatants[i];
+            for i in 0..self.combatants().len() {
+                let f = self.combatants()[i];
                 if self.f(f).hp > 0.0 && de(self.f(f), self.f(t)) <= self.b.titan_rules.range {
                     let amount = self.f(f).max_hp * self.b.titan_rules.slam_damage;
                     self.hurt(&Tgt::of(f), Some(t), amount, "physical", true);
                 }
             }
         }
-        if self.b.slam_at.is_none() && self.b.time >= self.b.next_slam && self.f(t).target.is_some() {
-            self.b.next_slam = self.b.time + self.b.titan_rules.slam;
+        if self.b.slam_at.is_none() && self.b.time >= (*self.b.next_slam) && self.f(t).target.is_some() {
+            (*self.b.next_slam) = self.b.time + self.b.titan_rules.slam;
             self.b.slam_at = Some(self.b.time + self.b.titan_rules.telegraph);
         }
     }
@@ -712,17 +720,17 @@ impl Engine {
     pub fn release_fissure(&mut self) {
         let z = self.b.fissure.take().expect("an open Fissure");
         let r = self.b.titan_rules.clone();
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             let fe = self.f(f);
             if fe.hp <= 0.0 || !fissure_inside(z.x, z.y, z.angle, z.length, z.width, fe.x, fe.y, fe.radius) {
                 continue;
             }
             let amount = fe.max_hp * r.fissure_damage;
-            let titan = self.b.titan;
+            let titan = *self.b.titan;
             self.hurt(&Tgt::of(f), Some(titan), amount, "physical", true);
             if self.f(f).hp > 0.0 && self.titan_stun(Some(f), r.fissure_stun) {
-                self.b.fissure_stuns += 1.0;
+                (*self.b.fissure_stuns) += 1.0;
             }
         }
     }
@@ -732,7 +740,7 @@ impl Engine {
         let hp: Vec<f64> = self.b.cores.iter().map(|&c| self.f(c).hp / self.f(c).max_hp).collect();
         let damage: Vec<f64> = (0..2)
             .map(|team| {
-                self.b.combatants.iter().filter(|&&f| self.f(f).team == team as f64).fold(0.0, |n, &f| n + self.f(f).damage_done + self.f(f).objective_damage.unwrap_or(f64::NAN))
+                self.combatants().iter().filter(|&&f| self.f(f).team == team as f64).fold(0.0, |n, &f| n + self.f(f).damage_done + self.f(f).objective_damage.unwrap_or(f64::NAN))
             })
             .collect();
         let winner = if (hp[0] - hp[1]).abs() > 1e-9 {
@@ -760,29 +768,32 @@ impl Engine {
 
     /// d10 `step(dt = 1/60)`
     pub fn step(&mut self, dt: f64) {
+        if self.classic {
+            return self.step_classic(dt);
+        }
         if self.b.done {
             return;
         }
         let dt = clamp(dt, 0.001, 0.05);
-        if self.b.time + dt >= self.b.objective_rules.sudden_death && !self.b.sudden_death {
-            self.b.sudden_death = true;
+        if self.b.time + dt >= self.b.objective_rules.sudden_death && !(*self.b.sudden_death) {
+            (*self.b.sudden_death) = true;
         }
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             if self.f(f).hp > 0.0 {
                 continue;
             }
             let e = self.fm(f);
             e.down_seconds = Some(e.down_seconds.unwrap_or(f64::NAN) + dt);
-            if !self.b.sudden_death && self.f(f).respawn_at.is_some_and(|at| self.b.time >= at) {
+            if !(*self.b.sudden_death) && self.f(f).respawn_at.is_some_and(|at| self.b.time >= at) {
                 self.respawn(f);
             }
         }
-        self.b.fighters = self.b.combatants.clone();
+        self.b.fighters = self.combatants().clone();
         self.environment_step(dt);
         let mut burn_states: Vec<(Ent, f64)> = Vec::new();
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             if self.f(f).hp <= 0.0 {
                 continue;
             }
@@ -796,18 +807,18 @@ impl Engine {
             self.b.plan_timer = 0.5;
             self.update_plans();
         }
-        self.b.fighters = self.b.combatants.iter().chain(self.b.actors.iter()).copied().collect();
+        self.b.fighters = self.combatants().iter().chain(self.b.actors.iter()).copied().collect();
         self.step_fight(dt, &burn_states);
-        self.b.fighters = self.b.combatants.clone();
+        self.b.fighters = self.combatants().clone();
     }
 
     /// The part of d10 `step` that runs with the Cores and the Titan among `this.fighters`.
     fn step_fight(&mut self, dt: f64, burn_states: &[(Ent, f64)]) {
-        for i in 0..self.b.combatants.len() {
+        for i in 0..self.combatants().len() {
             if self.b.done {
                 break;
             }
-            let f = self.b.combatants[i];
+            let f = self.combatants()[i];
             if self.f(f).hp <= 0.0 {
                 self.fm(f).action = None;
                 continue;
@@ -840,7 +851,7 @@ impl Engine {
             self.cast_power(f, &t);
         }
         // Separation.
-        let living: Vec<Ent> = self.b.combatants.iter().copied().filter(|&f| self.f(f).hp > 0.0).collect();
+        let living: Vec<Ent> = self.combatants().iter().copied().filter(|&f| self.f(f).hp > 0.0).collect();
         for i in 0..living.len() {
             for j in i + 1..living.len() {
                 let (a, b) = (living[i], living[j]);
@@ -914,8 +925,8 @@ impl Engine {
             }
         }
         self.b.projectiles = kept;
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             if self.f(f).hp > 0.0 {
                 self.push_out_of_terrain(f);
             }
@@ -923,8 +934,8 @@ impl Engine {
         if !self.b.done {
             self.objective_step(dt);
         }
-        for i in 0..self.b.combatants.len() {
-            let f = self.b.combatants[i];
+        for i in 0..self.combatants().len() {
+            let f = self.combatants()[i];
             let burn = burn_states.iter().find(|(e, _)| *e == f).map_or(0.0, |&(_, b)| if b != 0.0 && !b.is_nan() { b } else { 0.0 });
             {
                 let e = self.fm(f);

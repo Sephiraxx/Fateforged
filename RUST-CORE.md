@@ -14,8 +14,8 @@ Season simulations and patch audits spend almost all of their time in the team e
 | A2 | Portable sin/cos/atan2 in JavaScript; engines team-2.9 and team-4.0 use them, so every device plays the same game | **Done** |
 | B1 | Parity harness: the battle-state schema, JavaScript export and digest, the generated Rust state model, per-step helpers | **Done** |
 | B2 | The engine skeleton and its low-level methods (queries, movement, the team brain, effects), proven call by call | **Done** |
-| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 8.9× faster per core |
-| B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity | |
+| B3 | The combat core (damage, impacts, powers, attacks, targeting, the step): full-step parity on Core siege team-4.0, then a speed benchmark | **Done**: whole games bit-identical, about 9.4× faster per core |
+| B4 | Classic teamfight team-2.9 (the layers Core siege does not use): full-step parity, then in the game | **Done**: whole games bit-identical, about 8.5× faster per core |
 | D | Wiring: the core runs as WebAssembly inside the simulation workers (web and apps); JavaScript for anything else | **Done**: about 3–5× faster in the browser |
 | E | Duel engine (optional) | Later |
 
@@ -70,9 +70,10 @@ The crate is MIT. `fdlibm.rs` keeps Sun's permissive notice, like `portable-math
 
 Every later phase is proven against JavaScript with these tools.
 
-- **Schema** (`core/schema/team-4.0.json`, built by `scripts/rust-schema.mjs`):
-  - **What it covers:** the type of every field of a running team-4.0 battle, sampled every 10 steps over 48 games. The games span every map, 3v3 and 5v5, every test composition, plus 13 coverage games that force all 74 abilities onto generation-4 fighters, half of them under a league patch.
-  - **Result:** 54 object kinds and 537 fields.
+- **Schema** (`core/schema/team.json`, built by `scripts/rust-schema.mjs`):
+  - **What it covers:** the type of every field of a running team-4.0 or team-2.9 battle, sampled every 10 steps over 48 games per engine. The games span every map, 3v3 and 5v5, every test composition, plus 13 coverage games that force all 74 abilities onto generation-4 fighters, half of them under a league patch.
+  - **Result:** 59 object kinds and 557 fields (54 and 537 for team-4.0 alone, before B4).
+  - **Engine-only fields:** a field one engine never has (the Cores, the Titan, the brain and the rest of Core siege's state in a classic battle; `balanceEnvironment` in Core siege) lists the engines that have it. Rust reads it as an `Opt` that panics if it is missing, and a missing field digests as null, as in JavaScript.
   - **Shared kinds:** fighters, Cores and the Titan share one kind, `entity`. An object reached from two places (a fighter's `intent.slot` and its team plan's slot) gets one kind.
   - **Maps:** objects keyed by data (ability ids, team sizes, slots) are maps.
   - **Optional fields:** a field missing on some objects (the Titan lacks some fighter fields) is optional.
@@ -132,7 +133,7 @@ Every later phase is proven against JavaScript with these tools.
 - **Powers** (`core/src/team/engine/powers.rs`):
   - `powerUtility`, `powerPriority`, `copyChoice`, `castPower`;
   - `usePower`, for every power a team-4.0 fighter can roll.
-- **Dead for team-4.0:** team kits (`teamKit` is always null; rolled support abilities replaced them). Neutral wisps never exist, so `powerUnsafe` and `innocentRisk` are always false.
+- **Dead for team-4.0:** team kits (`teamKit` is always null; rolled support abilities replaced them). Neutral wisps and arena rations never exist in Core siege; B4 ports them for classic teamfight.
 - **Targeting** (`core/src/team/engine/target.rs`):
   - **`chooseTarget`:** with a team brain (always, in team-4.0) it runs d19 (taunts, defending the Core) → d18 (flank lanes) → d17 (the plan picks fighters, the Titan or the enemy Core). The d11 and d10 versions never run.
   - **`fight`:** the formation chooser (d8 → d6), with only fighters in view and an optional filter (near our Core, or near the pit).
@@ -142,8 +143,8 @@ Every later phase is proven against JavaScript with these tools.
   - **Portable math:** d22 only swaps in the portable math, which Rust always uses.
 - **Full-game parity** (`scripts/rust-games.mjs`, recorded in `validation/rust-games.json`):
   - **How it works:** JavaScript plays seeded games and records the battle digest every 60 steps and at the end. The `team-games` binary plays each game in Rust from the same starting state and must reach the same digest at every checkpoint and end on the same step.
-  - **Result:** 188 games (five seeds for every map, size and test composition, plus the coverage games that force every ability), 2,842,545 steps, all bit-identical.
-  - **Speed** (one core each, the same games): JavaScript 413 s, Rust 46 s, **8.9× faster**.
+  - **Result:** 188 games (five seeds for every map, size and test composition, plus the coverage games that force every ability), 2,865,034 steps, all bit-identical (re-recorded on the two-engine state model in B4).
+  - **Speed** (one core each, the same games): JavaScript 388 s, Rust 41 s, **9.4× faster**.
 - **Not yet ported:** `result()`, the summary a finished game reports. The wiring in phase D needs it.
 
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
@@ -166,10 +167,28 @@ Every later phase is proven against JavaScript with these tools.
 
 B2 and B3 ported every group and proved each method call by call, then whole games with a **trace diff**: both languages hash the battle state every 60 steps, and a mismatch names the first differing step.
 
+## Phase B4: classic teamfight (team-2.9)
+
+- **The chain:** team-2.9 is the team-4.0 chain without its seven Core siege layers (d10, d11, d15, d17, d18, d19 and d21). Every layer it keeps is the same source as in team-4.0, so the Rust engine plays both. `Engine.classic` (from the exported `engine`) skips the Core siege layers.
+- **What only classic games run** (`core/src/team/engine/classic.rs`, `wisps.rs`):
+  - **`step`, `teamHealth` and `result()`:** the base team layer's versions (d6, with d8, d9 and d12's changes to the result). The step calls `environmentStep` through the d14 wrapper, which marks the environment as the source of patched-ability effects.
+  - **The damage chain:** d20 → d16 (role output and the overtime ramp) → d12 (kit stuns) → d9 (dives, overtime, exposure, the Bulwark share and kill credit, without Forgefire's shield).
+  - **Postures:** the formation postures of the tactic, not the siege ones.
+  - **Targets:** taunts (d8), then the formation's choice (d6). No plan leash, lane waypoints, unsticking, Core rules for teleports or slam and Fissure dodges.
+  - **Neutral wisps and arena rations**, which the duel arena brings and Core siege removes:
+    - wisps drift, block projectiles and take melee swings;
+    - a fighter who cannot harm the innocent holds attacks and powers that would hit one (`innocentRisk`, `powerUnsafe`);
+    - hungry fighters walk to a ready ration and eat it.
+- **Full-game parity** (`scripts/rust-games.mjs`, both engines in `validation/rust-games.json`):
+  - **Result:** 188 classic games (five seeds for every map, size and test composition, plus the coverage games), 769,138 steps, all bit-identical.
+  - **Coverage:** 156 of the 188 games hurt a wisp, 98 use a ration, and 51 fighters cannot harm the innocent.
+  - **Speed** (one core each): JavaScript 84 s, Rust 9.9 s, **8.5× faster**.
+  - Team-4.0's call-by-call and whole-game parity still hold on the two-engine state model.
+
 ## Phase D: the core in the game (WebAssembly)
 
 - **Where it runs:**
-  - Headless Core siege games (team-4.0) run on the core. That covers season series, exhibitions and patch-audit games, all of which run in the simulation workers.
+  - Headless Core siege (team-4.0) and classic teamfight (team-2.9, since B4) games run on the core. That covers season series, exhibitions and patch-audit games, all of which run in the simulation workers.
   - The core is `public/fateforge-core.wasm`, built from `core/` by `scripts/build-rust-wasm.mjs` and committed, so the web and app builds need no Rust toolchain.
   - `src/wasm.rs` is a plain C ABI over linear memory: state JSON in, `result()` JSON out.
   - The same file serves the web version, the Windows app (WebView2) and the Android app (Android WebView).
@@ -179,14 +198,14 @@ B2 and B3 ported every group and proved each method call by call, then whole gam
   - The core plays the game to the end and returns the same `result()`.
   - Workers load the core once at startup, and `simulateTeam` (`public/combat-team.js`) hands it supported games.
 - **What stays in JavaScript:**
-  - every other engine version (classic team-2.9 and older Core siege engines);
+  - every older engine version (team-2.8 and older classic engines, team-3.9 and older Core siege engines);
   - watched games and replays, which step on the page;
   - everything when the player turns off **Fast simulation** in the Combat rules help (stored as `fateforge-rust-core`).
 - **Safety:**
   - Each worker also plays its first two core games in JavaScript and compares the results as JSON.
   - A difference, a load failure or an error turns the core off for that worker, and the JavaScript result is used.
 - **Measured:**
-  - **Node:** about 5.4× faster per core than the JavaScript engine (`validation/rust-wasm.json`).
+  - **Node:** about 5× faster per core than the JavaScript engine, over Core siege and classic games (`validation/rust-wasm.json`).
   - **Chromium, 3 workers, 83 games:** JavaScript 63 s, the core 19 s, about 3.4× including each worker's self-test and the time to compile the module. Long seasons approach the per-game figure.
 - **Staleness check:** `validation/rust-wasm-source.json` holds the hash of the core's sources. `check-rust-wasm` fails when the sources change without a rebuild; with the wasm32 target installed, it also plays games on a fresh build.
 - **Maintenance rule:** new engine versions ship in JavaScript first and work at once through the fallback. The core catches up afterwards (extend `CORE_ENGINES` in `public/rust-core.js` once a version is ported and proven).
@@ -197,9 +216,9 @@ B2 and B3 ported every group and proved each method call by call, then whole gam
   - with cargo installed, also runs the unit tests and a fresh 200k-input comparison.
 - `node scripts/rust-math-vectors.mjs <dir> --chromium --record` re-records the parity file. It needs `playwright-core`; point `PLAYWRIGHT_CORE` at its `index.mjs`. `--compare` only compares.
 - `node scripts/inspect-battle-state.mjs` regenerates the state inventory.
-- `node scripts/rust-schema.mjs` rebuilds the schema (about 25 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
+- `node scripts/rust-schema.mjs` rebuilds the schema for both engines (about 12 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
 - `node scripts/rust-parity.mjs [--quick] [--record]` checks snapshots and helpers against Rust. `--quick` (7 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-parity.json`.
 - `node scripts/build-rust-wasm.mjs` rebuilds `public/fateforge-core.wasm` (needs `rustup target add wasm32-unknown-unknown`); `node scripts/check-rust-wasm.mjs [--record]` (in `check-all`) compares it with JavaScript through `simulateTeam`.
-- `node scripts/rust-games.mjs [--quick] [--record]` plays whole games in both languages and compares them, and times both. `--quick` (8 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-games.json`.
+- `node scripts/rust-games.mjs [--quick] [--record] [--engine team-4.0|team-2.9]` plays whole games in both languages and compares them, and times both, for each engine. `--quick` (8 games per engine) runs in `check-rust-core` and CI; `--record` writes `validation/rust-games.json`.
 - `node scripts/rust-calls.mjs [--quick] [--methods a,b] [--record]` replays recorded engine-method calls in Rust. `--quick` (8 games, 6 calls per method per game) runs in `check-rust-core` and CI; `--record` writes `validation/rust-calls.json`. Add each newly ported method to `scripts/lib/rust-ported.mjs` and to the dispatch in `core/src/bin/team_calls.rs`.
 - **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state, call and game parity runs on Windows, and builds the crate for Android.

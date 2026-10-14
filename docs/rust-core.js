@@ -1,13 +1,14 @@
-// The Rust simulation core, compiled to WebAssembly (RUST-CORE.md, phase D). Simulation workers load it once and
-// play headless Core siege games (team-4.0) through it instead of the JavaScript engine. JavaScript still builds each
+// The Rust simulation core, compiled to WebAssembly (RUST-CORE.md, phases D and B4). Simulation workers load it once
+// and play headless Core siege (team-4.0) and classic teamfight (team-2.9) games through it instead of the JavaScript
+// engine. JavaScript still builds each
 // battle, so every fighter, ability and map is set up by the same code; the core only steps it to the end. Results
 // are bit-identical to the JavaScript engine (proven game by game in RUST-CORE.md), and every worker double-checks
 // its first games against JavaScript anyway: any difference or error turns the core off for that worker, and the
-// JavaScript result is used. Other engine versions, watched games and replays always run in JavaScript.
+// JavaScript result is used. Older engine versions, watched games and replays always run in JavaScript.
 import {teamEngine} from './combat-team.js';
 import {exportState,trackRng} from './battle-state.js';
 
-export const CORE_ENGINES=Object.freeze(['team-4.0']);
+export const CORE_ENGINES=Object.freeze(['team-4.0','team-2.9']);
 // How many games per worker are also played in JavaScript and compared before the core is trusted on its own.
 export const SELF_TEST_GAMES=2;
 const state={exports:null,checked:0,off:null};
@@ -25,10 +26,10 @@ export function rustCoreSupports(options={}){return !!state.exports&&!state.off&
 
 // The game played by the Rust core; throws when the core reports an error.
 export function simulateTeamRust(teams,seed,options={}){
- const Engine=teamEngine(options.engineVersion),settings={...options,headless:true};
+ const version=options.engineVersion??'team-2.9',Engine=teamEngine(version),settings={...options,headless:true};
  // A twin battle tells how many values the battle's generator drew while it was being built (see trackRng).
  const battle=trackRng(new Engine(teams,seed,settings),new Engine(teams,seed,settings));
- return run(JSON.stringify(exportState(battle)));
+ return run(JSON.stringify(exportState(battle,version)));
 }
 
 function run(json){

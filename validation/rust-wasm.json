@@ -1,8 +1,11 @@
 {
- "engine": "team-4.0",
- "games": 14,
+ "engines": [
+  "team-4.0",
+  "team-2.9"
+ ],
+ "games": 28,
  "rebuilt": true,
- "jsSeconds": 31.3,
- "rustSeconds": 4.98,
- "speedup": 6.29
+ "jsSeconds": 34.76,
+ "rustSeconds": 6.89,
+ "speedup": 5.05
 }

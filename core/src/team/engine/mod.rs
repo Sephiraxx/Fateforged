@@ -1,4 +1,5 @@
-//! The team-4.0 engine in Rust (RUST-CORE.md, phase B). JavaScript builds a battle; this runs it.
+//! The team-4.0 (Core siege) and team-2.9 (classic teamfight) engines in Rust (RUST-CORE.md, phases B3 and B4).
+//! JavaScript builds a battle; this runs it.
 //!
 //! The JavaScript engine is a chain of 23 class layers. Each ported method keeps that shape: `name` is the version
 //! a call reaches first (the most derived layer), and `name_dNN` is the layer at depth NN of the team-4.0 prototype
@@ -23,6 +24,8 @@ pub mod powers;
 pub mod target;
 pub mod step;
 pub mod result;
+pub mod wisps;
+pub mod classic;
 
 pub use view::Tgt;
 
@@ -31,6 +34,8 @@ pub struct Engine {
     /// Entities by `index` (fighters, then the two Cores, then the Titan).
     pub e: Vec<Entity>,
     pub seed: f64,
+    /// A classic teamfight (team-2.9): the team-4.0 chain without its Core siege layers (RUST-CORE.md, B4).
+    pub classic: bool,
     rng: JsRandom,
     rng_calls: f64,
     /// Fields the JavaScript engine sets and clears within one step (always empty between steps).
@@ -64,7 +69,12 @@ impl Engine {
             assert_eq!(e.index as usize, i, "entity indexes must be 0..n in order");
         }
         assert!(s.battle.headless, "the Rust engine only runs headless battles");
-        Engine { rng: JsRandom::resume(s.seed, s.rng_calls), rng_calls: s.rng_calls, seed: s.seed, b: s.battle, e: s.entities, tr: Transient::default() }
+        let classic = match s.engine.as_str() {
+            "team-4.0" => false,
+            "team-2.9" => true,
+            other => panic!("engine {other} is not supported"),
+        };
+        Engine { classic, rng: JsRandom::resume(s.seed, s.rng_calls), rng_calls: s.rng_calls, seed: s.seed, b: s.battle, e: s.entities, tr: Transient::default() }
     }
 
     /// `this.rng()`: the battle's seeded generator.

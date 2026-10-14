@@ -1,17 +1,26 @@
 {
- "engine": "team-4.0",
- "games": 48,
+ "engines": [
+  "team-4.0",
+  "team-2.9"
+ ],
+ "games": 96,
  "kinds": {
   "battle": {
    "map": false,
    "fields": {
     "actors": {
      "type": "arr<entity>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "backdoorRules": {
      "type": "obj<battle.backdoorRules>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "balance": {
      "type": "obj<battle.balance>",
@@ -21,9 +30,19 @@
      "type": "null",
      "nullable": true
     },
+    "balanceEnvironment": {
+     "type": "bool",
+     "nullable": true,
+     "engines": [
+      "team-2.9"
+     ]
+    },
     "brain": {
      "type": "arr<obj<battle.brain[]>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "center": {
      "type": "obj<battle.center>",
@@ -31,7 +50,10 @@
     },
     "combatants": {
      "type": "arr<entity>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "controllerRules": {
      "type": "obj<battle.controllerRules>",
@@ -39,15 +61,24 @@
     },
     "coreAt180": {
      "type": "arr<f64>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "coreHitAt": {
      "type": "arr<f64>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "cores": {
      "type": "arr<entity>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "done": {
      "type": "bool",
@@ -55,11 +86,17 @@
     },
     "duty": {
      "type": "arr<set<f64>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "dutySeconds": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "effectAbilityIds": {
      "type": "set<str>",
@@ -83,31 +120,49 @@
     },
     "fissure": {
      "type": "obj<battle.fissure>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "fissures": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "fissureStuns": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "food": {
-     "type": "arr<?>",
+     "type": "arr<obj<battle.food[]>>",
      "nullable": false
     },
     "forgefireSeconds": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "forgefireUntil": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "gamePlans": {
      "type": "arr<obj<battle.gamePlans[]>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "headless": {
      "type": "bool",
@@ -115,7 +170,7 @@
     },
     "healerRules": {
      "type": "obj<battle.healerRules>",
-     "nullable": false
+     "nullable": true
     },
     "healSource": {
      "type": "null",
@@ -131,7 +186,10 @@
     },
     "hurls": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "lightningPulses": {
      "type": "arr<obj<battle.lightningPulses[]>>",
@@ -147,31 +205,52 @@
     },
     "monsterKills": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextBrain": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextFissure": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextHurl": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextPulse": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextShield": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextSlam": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextThunder": {
      "type": "f64",
@@ -179,11 +258,17 @@
     },
     "nextTitan": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "nextTitanAttack": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "night": {
      "type": "bool",
@@ -191,11 +276,17 @@
     },
     "objectiveMode": {
      "type": "bool",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "objectiveRules": {
      "type": "obj<battle.objectiveRules>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "obstacles": {
      "type": "arr<obj<battle.obstacles[]>>",
@@ -207,11 +298,17 @@
     },
     "planSeconds": {
      "type": "arr<map<battle.planSeconds[]>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "planSwitches": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "planTimer": {
      "type": "f64",
@@ -243,11 +340,17 @@
     },
     "seenResets": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "selectingFight": {
      "type": "null",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "size": {
      "type": "f64",
@@ -255,15 +358,24 @@
     },
     "slamAt": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "steals": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "suddenDeath": {
      "type": "bool",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "summons": {
      "type": "arr<obj<battle.summons[]>>",
@@ -275,7 +387,10 @@
     },
     "targetFilter": {
      "type": "null",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "time": {
      "type": "f64",
@@ -287,43 +402,73 @@
     },
     "titan": {
      "type": "entity",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanDamage": {
      "type": "arr<f64>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanDeaths": {
      "type": "arr<obj<battle.titanDeaths[]>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanEverDamaged": {
      "type": "bool",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanHits": {
      "type": "arr<obj<battle.titanHits[]>>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanLastHit": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanResets": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanRules": {
      "type": "obj<battle.titanRules>",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "titanUp": {
      "type": "bool",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "unsticks": {
      "type": "f64",
-     "nullable": false
+     "nullable": false,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "width": {
      "type": "f64",
@@ -338,7 +483,7 @@
      "nullable": true
     },
     "wisps": {
-     "type": "arr<?>",
+     "type": "arr<obj<battle.wisps[]>>",
      "nullable": false
     },
     "zones": {
@@ -491,6 +636,23 @@
      "nullable": false
     },
     "width": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "battle.food[]": {
+   "map": false,
+   "fields": {
+    "ready": {
      "type": "f64",
      "nullable": false
     },
@@ -853,7 +1015,10 @@
     },
     "molten": {
      "type": "bool",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "ordinaryArcane": {
      "type": "bool",
@@ -1212,6 +1377,27 @@
     }
    }
   },
+  "battle.wisps[]": {
+   "map": false,
+   "fields": {
+    "hp": {
+     "type": "f64",
+     "nullable": false
+    },
+    "phase": {
+     "type": "f64",
+     "nullable": false
+    },
+    "x": {
+     "type": "f64",
+     "nullable": false
+    },
+    "y": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
   "battle.zones[]": {
    "map": false,
    "fields": {
@@ -1430,7 +1616,10 @@
     },
     "downSeconds": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "energy": {
      "type": "f64",
@@ -1458,11 +1647,17 @@
     },
     "forgefireUntil": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "forgeShield": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "futureTime": {
      "type": "f64",
@@ -1526,7 +1721,10 @@
     },
     "isObjective": {
      "type": "bool",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "kills": {
      "type": "f64",
@@ -1550,7 +1748,10 @@
     },
     "laneWaypoint": {
      "type": "obj<entity.laneWaypoint>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "lastAttacker": {
      "type": "f64",
@@ -1602,7 +1803,10 @@
     },
     "monsterLastHits": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "move": {
      "type": "f64",
@@ -1622,7 +1826,10 @@
     },
     "objectiveDamage": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "orbit": {
      "type": "f64",
@@ -1706,7 +1913,10 @@
     },
     "respawnAt": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "retarget": {
      "type": "f64",
@@ -1806,7 +2016,10 @@
     },
     "stillSince": {
      "type": "obj<entity.stillSince>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "supportRevived": {
      "type": "bool",
@@ -1870,11 +2083,17 @@
     },
     "unstickTo": {
      "type": "obj<entity.unstickTo>",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "unstickUntil": {
      "type": "f64",
-     "nullable": true
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
     },
     "vx": {
      "type": "f64",
@@ -2387,6 +2606,20 @@
   "entity.warnings": {
    "map": false,
    "fields": {
+    "cc-immune": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-2.9"
+     ]
+    },
+    "innocent": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-2.9"
+     ]
+    },
     "sound": {
      "type": "f64",
      "nullable": true

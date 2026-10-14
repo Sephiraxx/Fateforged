@@ -34,4 +34,4 @@ The apps play the same generated retro sound as the browser (see `SOUND.md`), th
 ## Performance
 - **Same speed as Chrome today:** the app runs the same JavaScript simulation, and the browser was never the slow part.
 - **Multi-core:** simulations already use every core but one (see "Faster simulation and patch audits" in `TEAM-BATTLES.md`).
-- **Rust core:** simulated Core siege games (season series, exhibitions and patch tests) run on the Rust simulation core, compiled to WebAssembly. It is about 3–5× faster and gives exactly the same results; see `RUST-CORE.md`. It works the same in the browser, the Windows app and the Android app. Fast simulation can be turned off in the Combat rules help; classic teamfight still runs in JavaScript.
+- **Rust core:** simulated games (season series, exhibitions and patch tests, in Core siege and classic teamfight) run on the Rust simulation core, compiled to WebAssembly. It is about 3–5× faster and gives exactly the same results; see `RUST-CORE.md`. It works the same in the browser, the Windows app and the Android app. Fast simulation can be turned off in the Combat rules help.

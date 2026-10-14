@@ -128,6 +128,8 @@ impl Engine {
             "winded" => &mut w.winded,
             "sunlight" => &mut w.sunlight,
             "sound" => &mut w.sound,
+            "cc-immune" => &mut w.cc_immune,
+            "innocent" => &mut w.innocent,
             other => panic!("warning key {other} is not in the schema"),
         };
         if slot.unwrap_or(-10.0) + 4.0 <= time {
@@ -234,7 +236,7 @@ impl Engine {
         }
         // d11
         if self.b.slam_at.is_some() {
-            let titan = self.f(self.b.titan);
+            let titan = self.f(*self.b.titan);
             let fe = self.f(f);
             if d(fe.x, fe.y, titan.x, titan.y) < self.b.titan_rules.range + 12.0 && fe.roll_cooldown <= 0.0 && fe.energy >= 18.0 && fe.raging != Some(true) && fe.weakness != "overconfidence" && fe.action.is_none() && fe.sleep <= 0.0 && fe.root <= 0.0 && fe.stagger <= 0.0 {
                 let (dx, dy) = (fe.x - titan.x, fe.y - titan.y);
@@ -590,7 +592,7 @@ impl Engine {
         };
         // d5
         let fe = self.f(f);
-        let wants_leash = fe.intent.as_ref().is_some_and(|i| i.support != Some(true)) && !self.t_is_objective(&t);
+        let wants_leash = !self.classic && fe.intent.as_ref().is_some_and(|i| i.support != Some(true)) && !self.t_is_objective(&t);
         if wants_leash {
             if let Some(leash) = self.plan_leash(f) {
                 let team = self.f(f).team;
@@ -669,10 +671,25 @@ impl Engine {
                 return;
             }
         }
-        let target = self.target_for(f, t);
+        let mut target = self.target_for(f, t);
         let fe = self.f(f);
         let hungry = fe.weakness == "needs constant food" && fe.nutrition < 30.0;
-        // Food never exists in team battles (battle.food is always empty), so a hungry fighter keeps its target.
+        // A hungry fighter heads for the nearest ready ration (classic teamfight; Core siege has none).
+        if hungry {
+            let time = self.b.time;
+            let mut ready: Vec<(f64, f64)> = self.b.food.iter().filter(|x| x.ready <= time).map(|x| (x.x, x.y)).collect();
+            ready.sort_by(|a, b| js_cmp(hypot2(a.0 - fe.x, a.1 - fe.y) - hypot2(b.0 - fe.x, b.1 - fe.y)));
+            if let Some(&(x, y)) = ready.first() {
+                target = t.with(|o| {
+                    o.x = Some(x);
+                    o.y = Some(y);
+                });
+                let e = self.fm(f);
+                e.action_label = "Seek food".into();
+                e.intent = None;
+            }
+        }
+        let fe = self.f(f);
         let weapon = fe.weapon.clone();
         if fe.raging == Some(true) || fe.shape > 0.0 || hungry {
             let w = &mut self.fm(f).weapon;
@@ -728,6 +745,10 @@ impl Engine {
 
     /// `moveTeamFighter` chain: d1 (walk free of a rock) → d10 → d12 → d14 → d16 (formation intent).
     pub fn move_team_fighter(&mut self, f: Ent, t: &Tgt, dt: f64) {
+        // Classic teamfight has no d1 (walking free of rocks).
+        if self.classic {
+            return self.move_team_fighter_d10(f, t, dt);
+        }
         // d1
         let fe = self.f(f);
         if fe.unstick_until.unwrap_or(f64::NAN) > self.b.time && fe.sleep <= 0.0 && fe.root <= 0.0 {
@@ -785,7 +806,7 @@ impl Engine {
         e.unstick_to = Some(crate::team::state::EntityUnstickTo { x: to.x, y: to.y });
         e.unstick_until = Some(until);
         e.still_since = None;
-        self.b.unsticks += 1.0;
+        (*self.b.unsticks) += 1.0;
     }
 
     fn move_team_fighter_d10(&mut self, f: Ent, t: &Tgt, dt: f64) {
@@ -987,7 +1008,7 @@ impl Engine {
     pub fn support_allies(&self, f: Ent, down: bool) -> Vec<Ent> {
         let fe = self.f(f);
         let team_mode = self.b.mode == "team";
-        self.b.combatants.iter().copied().filter(|&a| {
+        self.combatants().iter().copied().filter(|&a| {
             let ae = self.f(a);
             ae.is_objective != Some(true) && (if team_mode { ae.team == fe.team } else { a == f }) && (if down { ae.hp <= 0.0 } else { ae.hp > 0.0 })
         }).collect()
@@ -997,7 +1018,7 @@ impl Engine {
     pub fn support_enemies(&self, f: Ent) -> Vec<Ent> {
         let fe = self.f(f);
         let team_mode = self.b.mode == "team";
-        self.b.combatants.iter().copied().filter(|&a| {
+        self.combatants().iter().copied().filter(|&a| {
             let ae = self.f(a);
             ae.is_objective != Some(true) && ae.hp > 0.0 && (if team_mode { ae.team != fe.team } else { a != f })
         }).collect()
@@ -1014,7 +1035,7 @@ impl Engine {
             "regroup" => Some(Leash { r: LeashRef::Pt(self.base(team)), max: 60.0 }),
             "defend" => Some(Leash { r: LeashRef::Ent(self.b.cores[team as usize]), max: 240.0 }),
             "hold" => Some(Leash { r: LeashRef::Pt(self.choke(team)), max: 70.0 }),
-            "contest" if self.f(self.b.titan).hp <= 0.0 => {
+            "contest" if self.f(*self.b.titan).hp <= 0.0 => {
                 let pit = self.pit();
                 Some(Leash { r: LeashRef::Pt(Pt { x: pit.x + if team != 0.0 { 110.0 } else { -110.0 }, y: pit.y }), max: 40.0 })
             }

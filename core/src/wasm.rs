@@ -26,7 +26,7 @@ pub unsafe extern "C" fn ff_free(ptr: *mut u8, len: usize) {
 fn run(input: &[u8]) -> Result<String, String> {
     let text = std::str::from_utf8(input).map_err(|e| e.to_string())?;
     let snapshot: Snapshot = serde_json::from_str(text).map_err(|e| format!("state: {e}"))?;
-    if snapshot.engine != "team-4.0" {
+    if snapshot.engine != "team-4.0" && snapshot.engine != "team-2.9" {
         return Err(format!("engine {} is not supported", snapshot.engine));
     }
     let mut eng = Engine::from_snapshot(snapshot);

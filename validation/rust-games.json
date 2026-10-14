@@ -1,10 +1,22 @@
 {
- "engine": "team-4.0",
- "games": 188,
- "matching": 188,
- "failures": [],
- "steps": 2842545,
- "jsSeconds": 413.18809076600076,
- "rustSeconds": 46.27920756600002,
- "speedup": 8.928158291749964
+ "engines": {
+  "team-4.0": {
+   "games": 188,
+   "matching": 188,
+   "failures": [],
+   "steps": 2865034,
+   "jsSeconds": 388.0678010379995,
+   "rustSeconds": 41.13593737699998,
+   "speedup": 9.433790154858045
+  },
+  "team-2.9": {
+   "games": 188,
+   "matching": 188,
+   "failures": [],
+   "steps": 769138,
+   "jsSeconds": 84.46080798100033,
+   "rustSeconds": 9.909868652999998,
+   "speedup": 8.522898833319212
+  }
+ }
 }
