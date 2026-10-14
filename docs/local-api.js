@@ -5214,6 +5214,10 @@ function castSubclass(className,subclassName){const c=TEAM_CLASSES.find(x=>x.nam
 // sum of those options plus the same kit allowance for every subclass, so they can be checked from the traits alone.
 const CAST_BODY=Object.freeze(['race','subrace','class','strength','speed','durability','iq','magic','weapon','mastery']);
 const CAST_KIT=Object.freeze([30,30,30,30,30]);
+// Hand balance (TEAM-BATTLES.md, "Hand balance"): extra stats per subclass on top of the kit allowance, tuned with
+// scripts/balance-lab.mjs. They count in the fighter's stats but not in its tier, so a tier means the same body budget
+// for every subclass. Order: strength, speed, durability, IQ, magic.
+const CAST_BONUS=Object.freeze({'Assassin (Executioner)':[-125,-65,-125,0,0],'Assassin (Riftwalker)':[185,90,185,0,0],'Assassin (Shadowblade)':[150,75,150,0,0],'Assassin (Venomblade)':[90,45,90,0,0],'Bard (Maestro)':[0,15,40,15,50],'Bard (Siren)':[0,-50,-90,-50,-125],'Bard (Skald)':[0,95,195,95,260],'Cleric (Light)':[0,-10,-25,-10,-30],'Cleric (Mercy)':[0,-30,-65,-30,-80],'Cleric (Ward)':[0,-15,-30,-15,-35],'Druid (Forest)':[0,15,30,15,35],'Druid (Grove)':[0,35,80,35,105],'Druid (Moon)':[0,-45,-85,-45,-115],'Guardian (Aegis)':[-100,-50,-100,0,0],'Guardian (Stoneguard)':[-95,-50,-95,0,0],'Guardian (Warden)':[185,90,185,0,0],'Mage (Blood)':[0,-65,-130,-65,-175],'Mage (Chrono)':[0,-65,-135,-65,-185],'Mage (Fire)':[0,-25,-50,-25,-65],'Mage (Frost)':[0,-50,-115,-50,-150],'Paladin (Crusader)':[-10,-5,-10,0,0],'Paladin (Justiciar)':[70,35,70,0,0],'Paladin (Oathbreaker)':[-105,-50,-105,0,0],'Ranger (Beastmaster)':[-115,-115,-95,0,0],'Ranger (Marksman)':[-40,-40,-35,0,0],'Ranger (Trapper)':[165,165,140,0,0],'Warlock (Hexer)':[0,-30,-60,-30,-75],'Warlock (Soulbinder)':[0,-50,-100,-50,-135],'Warlock (Voidcaller)':[0,-100,-195,-100,-260],'Warrior (Berserker)':[180,90,180,0,0],'Warrior (Duelist)':[235,115,235,0,0],'Warrior (Vanguard)':[170,75,170,0,0]});
 const CAST_TIERS=[['E',0,349],['D',350,649],['C',650,999],['B',1000,1499],['A',1500,2099],['S',2100,2999],['SS',3000,Infinity]];
 const castTierOf=total=>CAST_TIERS.find(([,lo,hi])=>total>=lo&&total<=hi)?.[0]??'E';
 // The summary of a cast fighter, after checking its traits against the cast and the wheel pools. Throws on anything
@@ -5226,8 +5230,9 @@ function castSummary(pools,traits){
  if(traits.weakness!=='None')throw new Error('Team fighters have no weakness.');
  const stats=[...CAST_KIT];
  for(const key of CAST_BODY){const list=key==='subrace'?pools.subrace[traits.race]:pools.base[key],option=list?.find(o=>o.name===traits[key]);if(!option)throw new Error(`Invalid ${key}: ${traits[key]}.`);option.stats.forEach((n,i)=>stats[i]+=n);}
- const clean=stats.map(v=>Math.max(0,v)),total=clean.reduce((a,b)=>a+b,0);
- return {stats:clean,total,tier:castTierOf(total),generationVersion:CAST_VERSION,castRole:s.role};
+ const sum=list=>list.reduce((a,b)=>a+b,0),budget=sum(stats.map(v=>Math.max(0,v))),bonus=CAST_BONUS[`${c.name} (${s.name})`]??[0,0,0,0,0];
+ const clean=stats.map((v,i)=>Math.max(0,v+bonus[i])),total=sum(clean);
+ return {stats:clean,total,tier:castTierOf(budget),generationVersion:CAST_VERSION,castRole:s.role};
 }
 
 // Team roles: tank, healer, controller or damage, derived from class identity, abilities, weapon and stats.
@@ -5316,233 +5321,6 @@ const NEXT=Object.freeze({titan:{always:'ahead',ahead:'always',never:'ahead'},st
 function adaptGamePlan(current,personality,lost){if(!lost)return {...current};const dial=ADAPT[personality]??'titan';return {...current,[dial]:NEXT[dial][current[dial]]};}
 function gamePlanSummary(p){return DIALS.filter(k=>p[k]!=null).map(k=>GAME_PLAN_OPTIONS[k].find(([v])=>v===p[k])?.[1]).join(' · ');}
 
-
-
-
-
-
-// Version 5. Preseason screens every candidate (16 pairs; roles and stats get a full test only when the screen or last
-// season flags them). Midseason tests only this season's outliers (at most 12): the season record sets the direction
-// and size of the change (up to 10%), one comparison of 12 pairs checks it, and controlled fights can only veto it when
-// they clearly disagree or the change makes things worse. Every lever stays within 30% of the base rules.
-const AUDIT_RULES=Object.freeze({version:5,pairs:Object.freeze({preseason:16,halfway:12}),screenPairs:8,maxCandidates:null,maxBundleAttempts:3,preseason:.10,halfway:.10,bound:.30,outliers:12});
-const AUDIT_STATS=['STR','SPD','DUR','IQ','MAG'];
-const auditRoles=['tank','healer','controller','damage'];
-const healIds=new Set(['healing','life','regeneration','rewind','secondWind','mendingWave','chainHeal','resurrection']);
-const durationIds=new Set(['dream','memory','silence','void','roots','telekinesis','kinetic','sound','metal','time','gravity','singularity','ice','frostTouch','light','soul','cripplingStrike','bramble','shadow','stunBolt','knockUp','disarmShot','tauntShout','hamstring','barrier','guard','parry','lastStand','spiritArmor','mind','size','spirits','beast']);
-// Passive/percentage/transformation effects and delayed chain pulses have no
-// reliable cast-power scalar. Their cooldown is reviewed; unsupported effects
-// remain visible for assessment rather than receiving a fictitious buff.
-const cooldownOnly=new Set(['phoenix','copy','reality','teleport','force','absorption','mirror','perfectCounter','future','shape','flight','chainLightning']);
-function auditHash(value){let n=2166136261;for(const ch of JSON.stringify(value))n=Math.imul(n^ch.charCodeAt(0),16777619);return (n>>>0).toString(16);}
-function auditDefinition(f,name){const catalog=(f.summary?.generationVersion??1)>=4?globalThis.CURRENT_CLASS_ABILITIES:globalThis.CLASS_ABILITIES;return catalog.definition(name);}
-function auditBaseKey(key){return key.startsWith('within:')?key.split(':').slice(2).join(':'):key;}
-function auditScope(key){return key.startsWith('within:')?key.split(':')[1]:null;}
-function auditFeatures(f){const keys=[...new Set([f.traits.power,f.traits.power2].map(name=>auditDefinition(f,name)?.id).filter(Boolean))].map(id=>'ability:'+id);const total=f.summary.stats.reduce((a,b)=>a+b,0);AUDIT_STATS.forEach((key,i)=>{if(total&&f.summary.stats[i]/total>.24)keys.push('stat:'+key);});return keys;}
-function auditObservations(f){const features=auditFeatures(f);return [...features,...features.map(k=>'within:'+f.role+':'+k),...['race','subrace','class','subclass','weapon','mastery','magic','weakness'].filter(k=>f.traits[k]).map(k=>'trait:'+k+':'+f.traits[k])];}
-function auditCarries(f,key){const scope=auditScope(key),base=auditBaseKey(key);if(scope&&f.role!==scope)return false;if(base.startsWith('role:'))return f.role===base.split(':')[1];if(base.startsWith('weapon:'))return globalThis.CLASS_ABILITIES.weaponType(f.traits.weapon)===base.split(':')[1];if(base.startsWith('stat:'))return f.summary.stats[AUDIT_STATS.indexOf(base.split(':')[1])]>0;return auditFeatures(f).includes(base);}
-function auditSeasonRates(w,phase){
- const rates=balanceRates(phase==='preseason'?(w.balance?.previousSamples??[]):(w.balance?.samples??[]));
- if(phase==='preseason')for(const row of w.balance?.previousRoleRates??[]){const existing=rates.find(r=>r.key===row.key);if(!existing||existing.games<row.games){if(existing)Object.assign(existing,row);else rates.push({...row});}}
- const shift=phase==='preseason'?w.lastOffseason?.meta?.shift:null;
- if(shift?.games>=30){const key='role:'+shift.role,existing=rates.find(r=>r.key===key);if(!existing||existing.games<shift.games){const wins=Math.round(shift.winPct*shift.games/100),rate={key,games:shift.games,wins,rate:wins/shift.games};if(existing)Object.assign(existing,rate);else rates.push(rate);}}
- return rates;
-}
-function auditConcern(rate){if(!rate||rate.games<30)return false;const [lo,hi]=balanceEvidence(rate);return (rate.rate<.45||rate.rate>.55)&&(hi<.5||lo>.5);}
-function auditControl(f,key,peer){
- const copy=structuredClone(f),parts=auditBaseKey(key).split(':');
- if(parts[0]==='ability'){
-  const slot=['power','power2'].find(k=>auditDefinition(f,f.traits[k])?.id===parts[1]);if(!slot)return null;
-  const original=auditDefinition(f,f.traits[slot]),other=slot==='power'?'power2':'power',catalog=globalThis.CURRENT_CLASS_ABILITIES;
-  const candidates=Object.values(catalog.abilities).filter(p=>p.id!==original.id&&p.kind===original.kind&&p.rarity===original.rarity&&p.id!==auditDefinition(f,f.traits[other])?.id&&catalog.compatible(p,f.traits.weapon)&&catalog.bucket(p,f.traits)===catalog.bucket(original,f.traits)&&(!p.group||(f.summary.generationVersion??1)>=4));
-  const choice=candidates[peer%candidates.length];if(!choice)return null;copy.traits[slot]=choice.name;
- }else{
-  const i=AUDIT_STATS.indexOf(parts[1]);if(i<0)return null;if(typeof peer==='number'){const before=f.summary.stats,total=before.reduce((a,b)=>a+b,0),shift=Math.min(before[i]*.5,total*(.06+(peer%4)*.01)),rest=total-before[i];if(!rest||shift<total*.04)return null;copy.summary.stats=before.map((v,j)=>j===i?v-shift:v+shift*v/rest);return teamRole(copy).role===teamRole(f).role?copy:null;}if(!peer)return null;
-  const before=f.summary.stats,total=before.reduce((a,b)=>a+b,0),otherTotal=peer.summary.stats.reduce((a,b)=>a+b,0);
-  if(!total||!otherTotal||before[i]/total-peer.summary.stats[i]/otherTotal<.04)return null;
-  copy.summary.stats=peer.summary.stats.map(v=>v/otherTotal*total);copy.summary.total=total;
- }
- return teamRole(copy).role===teamRole(f).role?copy:null;
-}
-
-function auditFields(key){const base=auditBaseKey(key);if(!base.startsWith('ability:'))return ['value'];const id=base.split(':')[1],primary=healIds.has(id)?'healing':durationIds.has(id)?'duration':cooldownOnly.has(id)?'cooldown':'potency';return primary==='cooldown'?['cooldown']:[primary,'cooldown'];}
-function auditLever(key,field='cooldown'){const scope=auditScope(key),base=auditBaseKey(key),lever=base.startsWith('role:')?balanceLever(base):base.startsWith('weapon:')?base+':damage':base.startsWith('ability:')?base+':'+field:base;return scope?'role:'+scope+':'+lever:lever;}
-function auditCurrentValue(profile,lever){const base=lever.startsWith('role:')&&['stat','ability'].includes(lever.split(':')[2])?lever.split(':').slice(2).join(':'):lever;return profile.multipliers[lever]??profile.multipliers[base]??1;}
-// Role and stacked-composition candidates of the same role belong to one family (one midseason change per role).
-function auditFamily(key){return /^role:\w+(:count:\d+)?$/.test(key)?key.split(':').slice(0,2).join(':'):null;}
-function balanceAuditPlan(w,phase){
- if(!['preseason','halfway'].includes(phase))throw Error('Invalid balance audit phase.');
- const roster=Object.values(w.fighters).filter(f=>f.team).sort((a,b)=>a.id.localeCompare(b.id)),rates=new Map(auditSeasonRates(w,phase).map(r=>[r.key,r])),keys=new Set(AUDIT_STATS.map(s=>'stat:'+s));
- for(const f of roster){keys.add('role:'+f.role);keys.add('weapon:'+globalThis.CLASS_ABILITIES.weaponType(f.traits.weapon));for(const k of auditFeatures(f))if(k.startsWith('ability:'))keys.add(k);}
- for(const role of auditRoles){const members=roster.filter(f=>f.role===role);for(let n=2;n<=w.format&&n<=members.length;n++)keys.add('role:'+role+':count:'+n);
-  const concern=auditConcern(rates.get('role:'+role));for(const key of [...keys])if(key.startsWith('ability:')||key.startsWith('stat:')){const carriers=members.filter(f=>auditCarries(f,key)),within='within:'+role+':'+key;if(carriers.length>=2&&(concern&&(key.startsWith('stat:')||carriers.length/members.length>=.35)||auditConcern(rates.get(within))))keys.add(within);}
- }
- const candidates=[...keys].map(key=>{const carriers=roster.filter(f=>auditCarries(f,key)),base=auditBaseKey(key),scope=auditScope(key),observed=rates.get(key)??null,roles=auditRoles.map(role=>{const members=roster.filter(f=>f.role===role),count=carriers.filter(f=>f.role===role).length;return {role,count,share:members.length?count/members.length:0,observed:rates.get('within:'+role+':'+base)??null};}).filter(r=>r.count),parent=scope?rates.get('role:'+scope)??null:null;
-  return {key,count:carriers.length,fields:auditFields(key),observed,roles,parent,method:scope&&auditConcern(parent)?'role-intervention':'feature-comparison',priority:(auditConcern(observed)?100:0)+(auditConcern(parent)?80:0)+Math.abs((observed?.rate??.5)-.5)*Math.sqrt(observed?.games??0)*10+Math.log2(carriers.length+1)};
- }).sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key));
- // Midseason tests only this season's outliers (by priority, at most AUDIT_RULES.outliers); the rest play no fights.
- // An outlier sharing a lever or a role with a higher-priority one is covered by it and not tested again.
- if(phase==='halfway'){const taken=[];for(const c of candidates){const lever=auditLever(c.key,c.fields[0]),family=auditFamily(c.key);c.test=auditConcern(c.observed)&&taken.length<AUDIT_RULES.outliers&&!taken.some(t=>t.lever===lever||family&&t.family===family);if(c.test)taken.push({lever,family});}}
- const traits={};for(const f of roster)for(const key of auditObservations(f).filter(k=>k.startsWith('trait:'))){const row=traits[key]??={key,count:0,observed:rates.get(key)??null};row.count++;}
- const compositions=new Map();for(const t of w.teams){const counts=auditRoles.map(r=>t.lineup.filter(id=>w.fighters[id]?.role===r).length),key=counts.join('-'),row=compositions.get(key)??{key,counts,teams:0};row.teams++;compositions.set(key,row);}
- const census={fighters:roster.length,traits:Object.values(traits),compositions:[...compositions.values()]},engine=engineForMode(w.settings.battleMode),profile=w.balance?.profile??{id:'base',multipliers:{}};
- const snapshot={id:w.id,seed:w.seed,format:w.format,season:w.season,phase,engine,profile,roster:roster.map(f=>[f.id,f.traits,f.summary.stats,f.summary.tier,f.role,f.ovr]),teams:w.teams.map(t=>[t.id,t.lineup,t.roster,t.tactic,t.coach.personality]),candidates,census};
- return {version:AUDIT_RULES.version,token:auditHash(snapshot),season:w.season,phase,engine,profile:structuredClone(profile),pairs:AUDIT_RULES.pairs[phase],screenPairs:AUDIT_RULES.screenPairs,candidates,census,seed:parseInt(auditHash([w.seed,w.season,phase]),16)};
-}
-function auditPercent(from,to){const n=Math.round((to/from-1)*1000)/10;return (n>0?'+':'')+n+'%';}
-function auditSuggestion(profile,key,wins,pairs,phase,field='cooldown'){
- const rate=wins/pairs,[lo,hi]=balanceEvidence({games:pairs,rate},2.5);if(pairs<AUDIT_RULES.pairs[phase]||rate>=.45&&rate<=.55||lo<=.5&&hi>=.5)return null;
- const lever=auditLever(key,field),before=auditCurrentValue(profile,lever),limit=phase==='preseason'?AUDIT_RULES.preseason:AUDIT_RULES.halfway,direction=(auditBaseKey(key).startsWith('ability:')&&field==='cooldown'?1:-1)*Math.sign(rate-.5),step=direction*Math.min(limit,Math.abs(rate-.5)*.4);
- const after=auditStep(before,step);return after===before?null:{lever,from:before,to:after};
-}
-// A lever after a relative step, kept within AUDIT_RULES.bound of the base rules and rounded toward the current value.
-function auditStep(before,step){const bounded=Math.max(1-AUDIT_RULES.bound,Math.min(1+AUDIT_RULES.bound,before*(1+step)));return (step<0?Math.ceil((bounded-1e-9)*10000):Math.floor((bounded+1e-9)*10000))/10000;}
-// Midseason: the season record sets the direction and size of the change (up to AUDIT_RULES.halfway) on the
-// candidate's primary field. direction is the intended effect on the carrier's win rate.
-function auditMidseasonProposal(plan,key){
- const d=plan.candidates.find(c=>c.key===key);if(!d?.test)return null;
- const field=d.fields[0],o=d.observed,lever=auditLever(key,field),before=auditCurrentValue(plan.profile,lever),direction=-Math.sign(o.rate-.5);
- const after=auditStep(before,(auditBaseKey(key).startsWith('ability:')&&field==='cooldown'?-1:1)*direction*Math.min(AUDIT_RULES.halfway,Math.abs(o.rate-.5)*.4));
- return after===before?null:{field,direction,suggestion:{lever,from:before,to:after}};
-}
-function auditCandidateSuggestion(plan,key,wins,field='cooldown'){
- const descriptor=plan.candidates.find(c=>c.key===key),observed=descriptor?.method==='role-intervention'?descriptor.parent:descriptor?.observed,rate=wins/plan.pairs;
- // Conflicting season and controlled evidence is a diagnostic, not a reason
- // to reverse the direction of an already concerning meta.
- if(auditConcern(observed)&&(rate-.5)*(observed.rate-.5)<=0)return null;
- const simulated=auditSuggestion(plan.profile,key,wins,plan.pairs,plan.phase,field);if(simulated)return simulated;
- if(!auditConcern(observed)||rate>=.45&&rate<=.55)return null;
- return auditSuggestion(plan.profile,key,observed.wins,observed.games,plan.phase,field);
-}
-function auditCandidateProposals(plan,key,wins){return plan.candidates.find(c=>c.key===key).fields.map(field=>({field,suggestion:auditCandidateSuggestion(plan,key,wins,field)})).filter(p=>p.suggestion);}
-function auditValidateComparison(r,pairs){
- if(r.pairs!==pairs||![r.wins,r.patchedWins].every(n=>Number.isFinite(n)&&n>=0&&n<=pairs&&Number.isInteger(n*2))||![r.validationMargin,r.patchedMargin].every(n=>Number.isFinite(n)&&Math.abs(n)<=1)||!Array.isArray(r.marginDeltas)||r.marginDeltas.length!==pairs||!r.marginDeltas.every(n=>Number.isFinite(n)&&Math.abs(n)<=2))throw Error('Invalid balance simulation/performance results.');
- if(Math.abs(r.marginDeltas.reduce((a,b)=>a+b,0)/pairs-(r.patchedMargin-r.validationMargin))>1e-8)throw Error('Inconsistent balance performance results.');
-}
-function validateBalanceAudit(w,phase,report){
- const plan=balanceAuditPlan(w,phase);if(!report||report.token!==plan.token||report.version!==plan.version||!Array.isArray(report.rows)||report.rows.length!==plan.candidates.length)throw Error('Balance audit is stale or incomplete. Run it again.');
- if(phase==='halfway')return report.rows.map((r,i)=>validateMidseasonRow(plan,plan.candidates[i],r));
- return report.rows.map((r,i)=>{
-  if(!r||r.key!==plan.candidates[i].key||!['tested','screened','limited','unmatched'].includes(r.status))throw Error('Invalid balance diagnostic.');if(r.status==='unmatched')return {key:r.key,status:r.status};
-  // Candidates that can never be tested (fewer than two distinct carriers or controls) play no fights at all.
-  if(r.status==='limited'&&r.pairs===0){if(r.wins!==undefined||![r.controls,r.carriers].every(n=>Number.isInteger(n)&&n>=1&&n<=plan.pairs)||Math.min(r.controls,r.carriers)>=2)throw Error('Invalid balance simulation results.');return {...r,feedback:[]};}
-  const pairs=r.status==='tested'?plan.pairs:Math.min(plan.pairs,plan.screenPairs);
-  if(r.pairs!==pairs||!Number.isFinite(r.wins)||r.wins<0||r.wins>pairs||!Number.isInteger(r.wins*2)||!Number.isInteger(r.controls)||r.controls<1||r.controls>pairs||!Number.isInteger(r.carriers)||r.carriers<1||r.carriers>pairs||r.status!=='limited'&&(r.controls<2||r.carriers<2))throw Error('Invalid balance simulation results.');
-  if(r.status!=='tested')return {...r,feedback:[]};
-  const proposals=auditCandidateProposals(plan,r.key,r.wins);if(!Number.isFinite(r.validationWins)||r.validationWins<0||r.validationWins>pairs||!Number.isInteger(r.validationWins*2)||!Array.isArray(r.feedback)||r.feedback.length!==proposals.length)throw Error('Invalid balance validation results.');
-  r.feedback.forEach((f,j)=>{if(f.field!==proposals[j].field||f.wins!==r.validationWins)throw Error('Invalid balance field comparison.');auditValidateComparison(f,pairs);});return structuredClone(r);
- });
-}
-// Midseason rows: skipped (not an outlier, or nothing left to change), unmatched, limited (no fights), or one
-// comparison of the current rules against the proposed change, with the per-pair baseline margins.
-function validateMidseasonRow(plan,c,r){
- if(!r||r.key!==c.key)throw Error('Invalid balance diagnostic.');const proposal=auditMidseasonProposal(plan,c.key);
- if(!c.test||!proposal){if(r.status!=='skipped')throw Error('Invalid balance diagnostic.');return {key:r.key,status:'skipped'};}
- if(r.status==='unmatched')return {key:r.key,status:r.status};
- if(r.status==='limited'){if(r.pairs!==0||![r.controls,r.carriers].every(n=>Number.isInteger(n)&&n>=1&&n<=plan.pairs)||Math.min(r.controls,r.carriers)>=2)throw Error('Invalid balance simulation results.');return {...r,feedback:[]};}
- if(r.status!=='tested'||r.field!==proposal.field||!Number.isInteger(r.controls)||r.controls<2||r.controls>plan.pairs||!Number.isInteger(r.carriers)||r.carriers<2||r.carriers>plan.pairs)throw Error('Invalid balance simulation results.');
- auditValidateComparison(r,plan.pairs);auditValidateBaseline(r,plan.pairs);return structuredClone(r);
-}
-function auditValidateBaseline(r,pairs){if(!Array.isArray(r.margins)||r.margins.length!==pairs||!r.margins.every(n=>Number.isFinite(n)&&Math.abs(n)<=1)||Math.abs(r.margins.reduce((a,b)=>a+b,0)/pairs-r.validationMargin)>1e-8)throw Error('Invalid balance baseline results.');}
-// Midseason: a change hurts when matched fights end worse for the carrier in both wins (a full pair or more) and margin.
-function auditWorse(r,direction){const response=auditResponse(r,direction);return response.winGain<=-1&&response.mean<0||response.regressed;}
-// Midseason decision: the season leads; matched fights veto only when they clearly disagree or the change hurts.
-function midseasonProposal(plan,rows){
- const changes=[],diagnostics=[],pct=n=>Math.round(n*100)+'%';
- for(const r of rows){const d=plan.candidates.find(c=>c.key===r.key);let status=r.status,note,change=null;
-  if(r.status==='skipped')note=d.test?'At its adjustment limit; no further change.':'Within the normal range this season; not tested.';
-  else if(r.status==='unmatched')note='No suitable matched controls were available.';
-  else if(r.status==='limited')note='Too few distinct carriers or controls to separate this feature from individual fighters.';
-  else{const p=auditMidseasonProposal(plan,r.key),controlled=r.wins/r.pairs,[lo,hi]=balanceEvidence({games:r.pairs,rate:controlled});
-   if((controlled-.5)*(d.observed.rate-.5)<0&&(lo>.5||hi<.5)){status='needs-assessment';note=`Matched fights clearly disagree with the season (${pct(controlled)} in ${r.pairs} pairs); held for assessment.`;}
-   else if(auditWorse(r,p.direction)){status='needs-assessment';note=`The change made matched fights worse (${pct(controlled)} → ${pct(r.patchedWins/r.pairs)}); held for assessment.`;}
-   else{change={...p.suggestion,key:r.key,field:p.field,games:r.pairs*4,winRate:Math.round(controlled*1000)/10,direction:p.direction,priority:d.priority,note:`${balanceLabel(p.suggestion.lever)} ${auditPercent(p.suggestion.from,p.suggestion.to)} (season ${pct(d.observed.rate)} in ${d.observed.games} games; matched fights ${pct(controlled)} → ${pct(r.patchedWins/r.pairs)})`};changes.push(change);status='confirmed';note='Season outlier; awaiting combined patch validation.';}
-  }
-  diagnostics.push({...r,status,note,roles:d.roles,observed:d.observed,parent:d.parent,method:d.method,change});
- }
- // One change per lever; a role-scoped feature change is dropped when the same feature already changes league-wide,
- // and a stacked-composition change when its role already changes the same way.
- const roleOf=auditFamily,unique=[];for(const c of changes.sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key))){if(unique.some(x=>x.lever===c.lever||x.direction===c.direction&&(auditScope(c.key)&&x.key===auditBaseKey(c.key)||roleOf(c.key)&&roleOf(x.key)===roleOf(c.key))))continue;unique.push(c);}
- for(const d of diagnostics)if(d.status==='confirmed'&&!unique.some(c=>c.key===d.key)){d.status='needs-assessment';d.note='A change to the same lever or role already covers this.';}
- return {plan,rows,diagnostics,allChanges:unique,changes:unique,deferred:[]};
-}
-function auditResponse(r,direction){
- const deltas=r.marginDeltas.map(d=>d*direction),mean=deltas.reduce((a,b)=>a+b,0)/r.pairs,se=Math.sqrt(deltas.reduce((n,d)=>n+(d-mean)**2,0)/(r.pairs-1)/r.pairs),winGain=(r.patchedWins-r.wins)*direction,overshot=direction>0?r.patchedWins/r.pairs>.55:r.patchedWins/r.pairs<.45;
- return {mean,se,winGain,improved:!overshot&&(winGain>=1||winGain>=0&&mean>=.005&&mean-2.5*se>0),regressed:winGain<=-2&&mean+2.5*se<0};
-}
-function balanceAuditProposal(w,phase,report){
- const plan=balanceAuditPlan(w,phase),rows=validateBalanceAudit(w,phase,report),changes=[],diagnostics=[];
- if(phase==='halfway')return midseasonProposal(plan,rows);
- for(const r of rows){const descriptor=plan.candidates.find(c=>c.key===r.key);let status=r.status,note=r.status==='unmatched'?'No suitable matched controls were available.':r.status==='limited'?'Too few distinct carriers or controls to separate this feature from individual fighters.':r.status==='screened'?'Screened against matched controls; no strong signal. This is a screen, not proof of perfect balance.':'No confident advantage or disadvantage was found.',change=null;
-  if(r.status==='tested'){
-   const direction=-Math.sign(r.wins-r.pairs/2),confirmed=r.feedback.map(f=>{const suggestion=auditCandidateSuggestion(plan,r.key,r.wins,f.field),repeat=auditCandidateSuggestion(plan,r.key,r.validationWins,f.field),response=auditResponse(f,direction);return {f,suggestion,response,valid:repeat&&(r.wins-r.pairs/2)*(r.validationWins-r.pairs/2)>0&&response.improved};}).filter(x=>x.valid).sort((a,b)=>b.response.winGain-a.response.winGain||b.response.mean-a.response.mean||descriptor.fields.indexOf(a.f.field)-descriptor.fields.indexOf(b.f.field));
-   if(confirmed.length){const {f,suggestion}=confirmed[0];change={...suggestion,key:r.key,field:f.field,games:r.pairs*2,winRate:Math.round(r.wins/r.pairs*1000)/10,direction,priority:descriptor.priority,note:`${balanceLabel(suggestion.lever)} ${auditPercent(suggestion.from,suggestion.to)} (${Math.round(r.validationWins/r.pairs*100)}% → ${Math.round(f.patchedWins/r.pairs*100)}% in individual validation${r.validationWins===f.patchedWins?'; fights became consistently closer':''})`};changes.push(change);status='confirmed';note='Individually responsive; awaiting combined patch validation.';}
-   else if(r.feedback.length){status='needs-assessment';note='The tested adjustments did not repeat or clearly improve the comparison.';}
-   else if(auditConcern(descriptor.observed)||descriptor.method==='role-intervention'&&auditConcern(descriptor.parent)){status='needs-assessment';note='Season results remain uneven, but controlled fights did not confirm a responsive adjustment. Matchups or tactics may be involved.';}
-   else status='stable';
-  }
-  diagnostics.push({...r,status,note,roles:descriptor.roles,observed:descriptor.observed,parent:descriptor.parent,method:descriptor.method,change});
- }
- // One field per named ability in each scope; one proposal per effective lever.
- const unique=[],abilityFields=new Map();for(const c of changes.sort((a,b)=>b.priority-a.priority||Math.abs(b.winRate-50)-Math.abs(a.winRate-50)||a.key.localeCompare(b.key))){const base=auditBaseKey(c.key),field=abilityFields.get(base);if(unique.some(x=>x.lever===c.lever)||base.startsWith('ability:')&&field&&field!==c.field)continue;unique.push(c);if(base.startsWith('ability:'))abilityFields.set(base,c.field);}
- // Shared-feature tests take precedence. A broad role adjustment is retained
- // as a fallback until the combined test demonstrates the narrower fix helps.
- const deferred=unique.filter(c=>c.key.startsWith('role:')&&unique.some(n=>!auditBaseKey(n.key).startsWith('role:')&&n.direction===c.direction&&plan.candidates.find(d=>d.key===n.key).roles.some(r=>r.role===c.key.split(':')[1]&&r.share>=.35)));
- return {plan,rows,diagnostics,allChanges:unique,changes:unique.filter(c=>!deferred.includes(c)),deferred};
-}
-function auditBundleProfile(plan,changes,index){const profile=structuredClone(plan.profile);profile.id='audit-bundle-'+index;for(const c of changes)profile.multipliers[c.lever]=c.to;return profile;}
-function auditBundleResult(proposal,changes,bundle){
- const checks=[];for(const c of [...changes,...proposal.deferred.filter(d=>!changes.includes(d))]){const row=bundle.rows.find(r=>r.key===c.key);checks.push({key:c.key,change:c,missing:row?.status!=='tested',...(row?.status==='tested'?auditResponse(row,c.direction):{})});}
- const guards=bundle.rows.filter(r=>r.status==='tested'&&auditBaseKey(r.key).startsWith('role:')&&!checks.some(c=>c.key===r.key)).map(r=>({key:r.key,...auditResponse(r,-Math.sign(r.wins-r.pairs/2)||-Math.sign(r.patchedWins-r.pairs/2))}));
- const failed=checks.filter(c=>c.missing||(changes.includes(c.change)?!c.improved:c.regressed||!(c.winGain>0||c.mean>.005)));
- return {passed:!failed.length&&!guards.some(g=>g.regressed),failed,guards};
-}
-function nextAuditBundle(w,phase,report){
- const proposal=balanceAuditProposal(w,phase,report),{plan}=proposal;let changes=[...proposal.changes];
- if(phase==='halfway')return nextMidseasonBundle(proposal,report);
- if(!changes.length&&proposal.deferred.length)changes=[...proposal.deferred];
- const bundles=report.bundles??[];if(!Array.isArray(bundles)||bundles.length>AUDIT_RULES.maxBundleAttempts)throw Error('Invalid combined patch report.');
- for(let index=0;index<bundles.length;index++){
-  const expected=auditBundleProfile(plan,changes,index),keys=[...new Set([...changes.map(c=>c.key),...proposal.deferred.map(c=>c.key),...plan.candidates.filter(c=>/^role:\w+$/.test(c.key)).map(c=>c.key)])].sort(),bundle=bundles[index];
-  if(bundle.index!==index||bundle.profileToken!==auditHash(expected)||!Array.isArray(bundle.rows)||bundle.rows.length!==keys.length||!changes.length)throw Error('Combined patch report is stale or incomplete.');
-  bundle.rows.forEach((r,i)=>{if(r.key!==keys[i]||!['tested','unmatched'].includes(r.status))throw Error('Invalid combined patch diagnostic.');if(r.status==='tested')auditValidateComparison(r,plan.pairs);});
-  const outcome=auditBundleResult(proposal,changes,bundle);if(outcome.passed){if(index!==bundles.length-1)throw Error('The combined patch was already validated.');return {complete:true,passed:true,changes,proposal,bundle,outcome};}
-  // Restore a broad role fallback when the narrower changes fail to improve
-  // that role; discard changes whose own combined comparison fails.
-  const failedKeys=new Set(outcome.failed.filter(c=>changes.includes(c.change)).map(c=>c.key));changes=changes.filter(c=>!failedKeys.has(c.key));
-  for(const c of proposal.deferred)if(outcome.failed.some(f=>f.key===c.key)&&!changes.includes(c))changes.push(c);
-  if(outcome.guards.some(g=>g.regressed)&&changes.length)changes=changes.slice(0,-1);
- }
- if(!changes.length||bundles.length===AUDIT_RULES.maxBundleAttempts)return {complete:true,passed:false,changes:[],proposal};
- const index=bundles.length,profile=auditBundleProfile(plan,changes,index),keys=[...new Set([...changes.map(c=>c.key),...proposal.deferred.map(c=>c.key),...plan.candidates.filter(c=>/^role:\w+$/.test(c.key)).map(c=>c.key)])].sort();
- return {complete:false,index,profile,profileToken:auditHash(profile),keys,changes};
-}
-// Midseason: one combined check. Each changed candidate replays only its patched side with every change applied,
-// against the baseline it already played; a change is dropped only if it makes things worse there.
-function nextMidseasonBundle(proposal,report){
- const {plan}=proposal,changes=[...proposal.changes],bundles=report.bundles??[];if(!Array.isArray(bundles)||bundles.length>1)throw Error('Invalid combined patch report.');
- if(!changes.length)return {complete:true,passed:false,changes:[],proposal};
- const profile=auditBundleProfile(plan,changes,0),keys=changes.map(c=>c.key).sort(),baselines=Object.fromEntries(keys.map(key=>{const r=proposal.rows.find(x=>x.key===key);return [key,{wins:r.wins,margins:r.margins}];}));
- if(!bundles.length)return {complete:false,index:0,profile,profileToken:auditHash(profile),keys,changes,baselines};
- const bundle=bundles[0];if(bundle.index!==0||bundle.profileToken!==auditHash(profile)||!Array.isArray(bundle.rows)||bundle.rows.length!==keys.length)throw Error('Combined patch report is stale or incomplete.');
- bundle.rows.forEach((r,i)=>{if(r.key!==keys[i]||r.status!=='tested'||r.wins!==baselines[r.key].wins||Math.abs(r.validationMargin-baselines[r.key].margins.reduce((a,b)=>a+b,0)/plan.pairs)>1e-8)throw Error('Invalid combined patch diagnostic.');auditValidateComparison(r,plan.pairs);});
- const failed=changes.filter(c=>auditWorse(bundle.rows.find(r=>r.key===c.key),c.direction)).map(change=>({key:change.key,change,regressed:true})),kept=changes.filter(c=>!failed.some(f=>f.key===c.key));
- return {complete:true,passed:kept.length>0,changes:kept,proposal,bundle,outcome:{passed:!failed.length,failed,guards:[]}};
-}
-function applyBalanceAudit(w,phase,report){
- const balance=w.balance;if(!balance?.enabled)return null;const final=nextAuditBundle(w,phase,report);if(!final.complete)throw Error('Validate the combined balance patch before applying it.');
- const {proposal}=final,selected=final.passed?final.changes:[],profile=structuredClone(balance.profile),diagnostics=structuredClone(proposal.diagnostics);
- for(const c of selected)profile.multipliers[c.lever]=c.to;
- for(const d of diagnostics)if(d.status==='confirmed'){const change=selected.find(c=>c.key===d.key);d.status=change?'adjusted':'needs-assessment';d.note=change?change.note:phase==='halfway'?'Made matched fights worse together with the other changes; held for assessment.':proposal.deferred.some(c=>c.key===d.key)&&final.passed?'A narrower shared ability or stat adjustment improved this role in combined validation; no broad role modifier was added.':'The combined patch did not confirm this adjustment; held for assessment.';}
- const id=`${w.season}.${phase}.${balance.history.length+1}`;if(selected.length)profile.id=id;
- const simulationGames=phase==='halfway'?proposal.rows.reduce((n,r)=>n+(r.status==='tested'?r.pairs*4:0),0)+(report.bundles??[]).reduce((n,b)=>n+b.rows.length*proposal.plan.pairs*2,0):proposal.rows.reduce((n,r)=>n+(r.status==='unmatched'?0:r.status==='tested'?proposal.plan.pairs*2*(r.feedback.length?2+r.feedback.length:1):r.pairs*2),0)+(report.bundles??[]).reduce((n,b)=>n+b.rows.filter(r=>r.status==='tested').length*proposal.plan.pairs*4,0);
- const coverage={candidates:diagnostics.length,abilities:proposal.plan.candidates.filter(c=>c.key.startsWith('ability:')).length,stats:5,roles:proposal.plan.candidates.filter(c=>/^role:\w+$/.test(c.key)).length,compositions:proposal.plan.candidates.filter(c=>c.key.includes(':count:')).length,weapons:proposal.plan.candidates.filter(c=>c.key.startsWith('weapon:')).length,focused:proposal.plan.candidates.filter(c=>c.key.startsWith('within:')).length};
- for(const d of diagnostics)if(d.feedback)d.feedback=d.feedback.map(({marginDeltas,...f})=>({...f,marginMean:marginDeltas.reduce((a,b)=>a+b,0)/marginDeltas.length}));
- const combined=(report.bundles??[]).map(b=>({...b,rows:b.rows.map(({marginDeltas,...r})=>r)}));
- const entry={id,auditVersion:AUDIT_RULES.version,season:w.season,phase,engine:proposal.plan.engine,changes:selected,profile:structuredClone(profile),diagnostics,coverage,census:proposal.plan.census,combined,simulationGames,token:report.token};
- balance.profile=profile;balance.history.push(entry);balance.samples=[];balance.sampleGames=0;if(phase==='preseason')balance.preseasonSeason=w.season;else balance.halfwaySeason=w.season;delete balance.pendingAudit;return entry;
-}
-
 // Team battle fields: a 960×600 arena with optional terrain. Every map is mirrored across the centre line,
 // so neither side gains ground, and terrain stays out of both spawn zones (x < 280 and x > 680).
 const TEAM_FIELD=Object.freeze({width:960,height:600});
@@ -5604,7 +5382,6 @@ function seriesGameOptions(match,games=[],choice=null){
  if(choice&&match.userSide>=0){if(choice.lineup)lineups[match.userSide]=[...choice.lineup];if(choice.tactic)tactics[match.userSide]=choice.tactic;if(choice.gamePlan&&gamePlans)gamePlans[match.userSide]={...choice.gamePlan};}
  return {lineups,tactics,...(gamePlans?{gamePlans}:{})};
 }
-
 
 
 
@@ -5742,7 +5519,7 @@ function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  supportRulesVersion:1,balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  supportRulesVersion:1,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -5836,9 +5613,11 @@ function buildSchedule(w){
  return shuffle(rounds.map((games,i)=>({games,i})),w.seed^Math.imul(season,0x632be5ab)).map(({games},week)=>({week:week+1,games:games.map(([homeTeam,away],n)=>({id:`s${season}:w${week+1}:${n}`,home:homeTeam,away}))}));
 }
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
-function startSeason(w,audit){
+// Balance is set by hand for the team cast (TEAM-BATTLES.md, "Hand balance"): leagues play the base rules and never
+// audit or patch themselves.
+function startSeason(w){
  if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
- w.balance??=neutralBalance();if(audit&&w.balance.enabled)recordBalanceAudit(w,'preseason',audit);w.balance.rulesVersion=3;
+ w.balance??=neutralBalance();w.balance.enabled=false;delete w.balance.pendingAudit;w.balance.rulesVersion=3;
  w.teamEngine=engineForMode(w.settings.battleMode);w.balance??=neutralBalance();w.balance.samples=[];w.balance.seasonSamples=[];w.balance.sampleGames=w.balance.seasonSampleGames=0;delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
 }
 const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
@@ -6104,16 +5883,13 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-function setAutoBalance(w,enabled){if(typeof enabled!=='boolean')throw new Error('Choose whether auto-balance is enabled.');w.balance??=neutralBalance();w.balance.enabled=enabled;if(!enabled)delete w.balance.pendingAudit;return w;}
 // Battle rules change only between seasons; startSeason picks the engine from settings.battleMode.
 function setBattleMode(w,mode){if(!['teamfight','core'].includes(mode))throw new Error('Choose Core siege or classic teamfight.');if(mode==='core'&&FORMATS[w.format].size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(['season','playoffs'].includes(w.phase)||w.pendingSeries)throw new Error('Battle rules change between seasons.');w.settings.battleMode=mode;return w;}
-function auditPlan(w,phase){return balanceAuditPlan(w,phase);}
-function recordBalanceAudit(w,phase,report){if(w.pendingSeries)throw Error('Finish the current series before balancing.');if(phase==='preseason'&&w.phase!=='ready'||phase==='halfway'&&w.balance?.pendingAudit!=='halfway')throw Error('This balance checkpoint is not available.');if(phase==='preseason'&&w.balance?.preseasonSeason===w.season)throw Error('This preseason was already balanced.');const entry=applyBalanceAudit(w,phase,report);if(entry)w.teamEngine=entry.engine;return entry;}
 function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;if(w.balance.rulesVersion>=2){if(phase==='offseason'){w.balance.previousSamples=structuredClone(w.balance.seasonSamples??w.balance.samples);w.balance.previousRoleRates=seasonMeta(w).roleRates;w.balance.previousSampleGames=w.balance.seasonSampleGames;w.balance.offseasonSeason=w.season;}else if(w.balance.enabled)w.balance.pendingAudit='halfway';return;}w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}
 
-function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
+function lineupEvidence(w,ids){return lineupGroups(ids.map(id=>w.fighters[id]));}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setBattleMode});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -6127,7 +5903,7 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','balanceAudit','balance','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','draft','pick','claim','lineup','tactic','startSeason','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeMarket','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
@@ -6145,7 +5921,7 @@ async function teamApi(request,env,url){
  else if(input.action==='draft'){
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>1000)fail('Invalid number of draft picks.');
   if(world.draft.complete)fail('The draft is already complete.');TEAM_LEAGUE.draftPicks(world,input.count);
- }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world,input.audit);}catch(e){fail(e.message);}}
+ }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
  else if(['pick','claim','lineup','tactic','offseason','decide','trade','closeMarket'].includes(input.action)){
   // Coach-mode and offseason commands: the shared rules validate every choice.
   if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>200))fail('Invalid rookie class.');
@@ -6161,10 +5937,8 @@ async function teamApi(request,env,url){
    else TEAM_LEAGUE.closeMarket(world);
   }catch(e){fail(e.message);}
  }
- else if(input.action==='balanceAudit'){try{TEAM_LEAGUE.recordBalanceAudit(world,input.phase,input.audit);}catch(e){fail(e.message);}}
  else if(input.action==='gamePlan'){try{TEAM_LEAGUE.setGamePlan(world,input.plan);}catch(e){fail(e.message);}}
  else if(input.action==='rules'){try{TEAM_LEAGUE.setBattleMode(world,input.mode);}catch(e){fail(e.message);}}
- else if(input.action==='balance'){try{TEAM_LEAGUE.setAutoBalance(world,input.enabled);}catch(e){fail(e.message);}}
  else if(input.action==='seriesGame'){try{TEAM_LEAGUE.recordSeriesGame(world,input.matchId,input.game);}catch(e){fail(e.message);}}
  else if(input.action==='record'){
   // Simulated matches arrive in batches; each must be the next match and a complete, valid series.

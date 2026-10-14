@@ -6,7 +6,7 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
 
 Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
 
-Save-specific Monte Carlo audits can tune individual ability cooldowns and effective stats, with up to 10% preseason adjustments. Patch history folds by season, and new championships preserve their winning roster. See [TARGETED-BALANCE.md](TARGETED-BALANCE.md).
+Team balance is set by hand with the balance lab (see "Hand balance"); leagues no longer audit or patch themselves.
 
 The sections below record how the team systems were introduced; references to extra kits describe the earlier implementation.
 
@@ -473,7 +473,9 @@ Rating calibration uses separate regularized kit coefficients, with each subject
 
 The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.
 
-## League-specific patches
+## League-specific patches (removed)
+
+Leagues made with the team cast no longer audit or patch themselves (see "Hand balance"). The notes below describe the old per-save system.
 
 Each new league starts at base combat rules. A save owns its own immutable patch history; new seasons use team 2.3, while older active seasons keep their engine. Patches are considered after the complete halfway week and once at the offseason. Each lever changes at most 1.5% at halfway or 3% at the offseason (both relative to its current value and in percentage points of base), with a cumulative ±15% cap per lever. These are per-lever limits; distinct stats can change together.
 
@@ -941,6 +943,23 @@ New team abilities are data (`public/team-abilities.js`) that a small set of eff
 - **Old format:** leagues carry `castVersion: 5`; a league saved before the team cast is the old format. The league page shows it as "Old format" with only Delete, and the server refuses every other command for it. Nothing is migrated. Pools and rookie classes must be cast fighters.
 
 With equal odds per class, about 13% of fighters are healers, 13% tanks, 22% controllers, 32% damage dealers, 10% supports and 10% bruisers. Coverage games (`castteam` in `scripts/rust-schema.mjs`) play random cast teams on both engines, and `node scripts/rust-games.mjs --comp castteam` checks them alone against the Rust core.
+
+## Hand balance
+
+Team balance is set by hand. No league audits or patches itself any more: the preseason, midseason and offseason audits, their worker pool, the League patches panel and the auto-balance switch are gone. New leagues keep a disabled neutral patch profile, and the server refuses the old audit and switch commands.
+- **Balance lab** (`node scripts/balance-lab.mjs [--games N] [--mode core|teamfight|both] [--seed S] [--record]`):
+  - plays seeded games between random cast teams on the Rust core (WebAssembly in worker threads, about 9 games a second on four cores), alternating 3v3 and 5v5 and Core siege and classic teamfight, across every map;
+  - reports win rates with 95% intervals per subclass, class and cast role, each group's average damage, healing and control, game length and timeouts;
+  - also reports how often the team with more levels at the end wins (Core siege);
+  - `--record` writes `validation/balance-lab.json`.
+- **Lever:** `CAST_BONUS` in `public/team-classes.js` gives a subclass extra stats (strength, speed, durability, IQ, magic) on top of the shared kit allowance. It counts in the fighter's stats and rating but not in its tier, so every tier is the same body budget. About 45 stats move a subclass one point of win rate.
+- **Target:** every subclass between 46% and 54%. `check-cast-balance` checks the recorded lab: enough games, every subclass inside the band, and the lever's entries naming real subclasses.
+- **Recorded (6000 games, fresh seeds after tuning):**
+  - all 32 subclasses win between 46.1% and 53.7%, and the six cast roles between 48.8% and 51%;
+  - median Core siege 4:02, classic teamfight 52 s;
+  - 0.3% (Core siege) and 1.6% (classic) of games reach the time limit.
+  
+  Before tuning they ranged from 37% (Warrior Duelist) to 67% (Warlock Voidcaller). Retune after any change to the cast, its abilities or the engines: run the lab with `--record` and adjust `CAST_BONUS` until the check passes.
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 
