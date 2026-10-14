@@ -136,6 +136,80 @@ Pose: <POSE>. Output: 512x512 transparent PNG.
 - `fx-core-hit.png`: a shard burst.
 - `fx-steal.png`: a sharp golden flash with a star.
 
+## Team cast sheets (animated, one per subclass)
+
+Team fighters (2v2, 3v3, 5v5) come from the team cast: 10 classes, 32 subclasses. Each subclass gets one animated **sprite sheet**. A fighter with a sheet is drawn from it; everyone else keeps the archetype sprites above. The race is not drawn (it varies), so describe the class and subclass only.
+
+**Sheet layout** (`public/sprite-art.js`, `SHEET_ROWS`):
+- 256×256 frames, facing RIGHT, same camera and style as the preamble;
+- five rows: **idle 4 frames, walk 6, attack/cast 5, hit 2, down 4**;
+- the weapon is part of the drawing (the game adds no prop on top of a sheet);
+- the file is `public/sprites/cast-<class>-<subclass>.webp`, for example `cast-mage-blood.webp`.
+
+**Ready-to-paste prompts:** [SPRITE-SHEET-PROMPTS.md](SPRITE-SHEET-PROMPTS.md) has all 160 prompts written out in full (32 subclasses × 5 rows), plus fix-up replies for GPT's common mistakes. The rest of this section explains the format.
+
+**Workflow (one row per message):**
+1. Generate the subclass's **idle row** first, with the prompt below. When it looks right, save it as `idle.png` in a folder for that subclass.
+2. For every other row, **attach the idle image** and start with: "Same character, same outfit, colours, proportions, size and camera as the attached image." Then paste the row prompt. Save each as `walk.png`, `attack.png`, `hit.png` and `down.png`.
+3. Each row is ONE image: the frames side by side, left to right, evenly spaced, on a transparent background. Ask for "a horizontal strip of N frames, each frame the same width, nothing between them".
+4. Build the sheet: `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>`, for example `node scripts/sprite-sheet.mjs Mage Blood art/mage-blood`. It cuts out every frame, scales the whole sheet by one factor, stands every frame on the same feet line, centres it on its feet and writes the WebP. Then rebuild.
+5. Start with **Mage (Blood)**, check it in a watched game (Enhanced graphics), then do one class at a time.
+
+**Row prompt (paste after the preamble and the subclass description):**
+```
+Draw a HORIZONTAL STRIP of {N} animation frames of this character, left to right,
+evenly spaced, each frame the same width, transparent background, facing right,
+feet on the same ground line in every frame, same size in every frame.
+Row: {ROW}. Frames: {FRAMES}
+```
+Use these `{ROW}`/`{FRAMES}` texts (pick the attack line that matches the subclass's **style**: blade, bow or spell):
+- **idle (4):** 1 standing ready, weapon held; 2 slight breath in, shoulders up; 3 breath out; 4 small weight shift back to frame 1.
+- **walk (6):** a full walk cycle to the right: 1 contact right foot forward; 2 down; 3 passing; 4 contact left foot forward; 5 down; 6 passing. Weapon held steady.
+- **attack, blade (5):** 1 anticipation, weapon drawn back; 2 wind-up, body coiled; 3 swing starts, motion arc; 4 strike, weapon fully extended to the right with a short slash trail; 5 follow-through, recovering.
+- **attack, bow (5):** 1 reach for an arrow; 2 nock; 3 draw back; 4 full draw, aiming right; 5 release, string snapped forward, arrow gone.
+- **attack, spell (5):** 1 hands low, energy gathering; 2 hands rising, glow growing; 3 a ball or sigil of the subclass's magic forms; 4 thrust forward, release toward the right; 5 follow-through with fading trails.
+- **hit (2):** 1 recoil, head and shoulders snapped back, wince; 2 recovering, still braced.
+- **down (4):** 1 knees buckle; 2 falling sideways; 3 on the ground; 4 lying still, weapon dropped beside them.
+
+**Example: Mage (Blood), attack row.** Description: "a gaunt battle mage in deep crimson and black robes with bone clasps, a staff topped with a red crystal, dark-red blood magic with mist." Frames: 1 hands low as red mist gathers at the fingers; 2 hands rising, mist swirling up the arms; 3 a dark-red blood orb forms between the hands; 4 arms thrust right, the orb flies off with a trailing mist; 5 follow-through, arms lowering, mist fading.
+
+**Subclass descriptions** (accent colour in brackets; never use pure team cyan or red as the main colour):
+
+| Sheet | Style | Description |
+| --- | --- | --- |
+| `cast-cleric-light` | spell | white-and-gold priest robes, sun circlet, staff with a radiant disc, warm golden light [gold] |
+| `cast-cleric-mercy` | spell | soft grey-blue habit, hood, silver chain, wand with a white feather charm, gentle glow [pale silver] |
+| `cast-cleric-ward` | spell | half-armoured cleric, white tabard, round sigil shield on the back, spellbook, hexagon ward light [ivory] |
+| `cast-druid-grove` | spell | leaf-and-bark robe, antler crown, staff sprouting leaves, green healing motes [leaf green] |
+| `cast-druid-forest` | spell | thorny bark armour, mossy cloak, gnarled staff, vines and roots [moss] |
+| `cast-druid-moon` | spell | night-blue robe with silver crescents, owl-feather mantle, crystal orb, pale moonlight [moon silver] |
+| `cast-warrior-vanguard` | blade | heavy plate, tower shield and longsword, plumed helm, steady stance [steel blue-grey] |
+| `cast-warrior-berserker` | blade | bare-armed, fur mantle, war paint, huge two-handed greataxe, wild hair [rust orange] |
+| `cast-warrior-duelist` | blade | fitted leather coat, cape over one shoulder, rapier, elegant fencing stance [wine] |
+| `cast-guardian-stoneguard` | blade | massive rune-carved stone armour, tower shield, warhammer, glowing rune cracks [granite amber] |
+| `cast-guardian-warden` | blade | layered plate with chains, heavy mace and shield, horned helm [iron] |
+| `cast-guardian-aegis` | blade | gleaming silver plate, kite shield with a sun emblem, force-field shimmer [aqua-white, not cyan] |
+| `cast-mage-fire` | spell | flame-trimmed robe, ember scarf, staff with a flame head, fire [flame orange] |
+| `cast-mage-blood` | spell | gaunt mage in crimson and black, bone clasps, red-crystal staff, blood mist [crimson] |
+| `cast-mage-frost` | spell | pale fur-trimmed robe, icicle crown, wand with an ice shard, frost [ice white] |
+| `cast-mage-chrono` | spell | brass-and-blue robe, hourglass belt, clockwork orb, golden time rings [brass] |
+| `cast-ranger-marksman` | bow | long coat, hood, tall longbow, quiver, focused aim [forest green] |
+| `cast-ranger-trapper` | bow | patched leathers, crossbow, snares and spikes on the belt [tan] |
+| `cast-ranger-beastmaster` | bow | fur hood, spirit bow, a small spirit wolf at the heels (inside the frame) [teal-green] |
+| `cast-assassin-shadowblade` | blade | black hooded leathers, mask, twin daggers, smoky edges [violet-black] |
+| `cast-assassin-riftwalker` | blade | dark leathers with glowing rift seams, short sword, portal sparks [indigo] |
+| `cast-assassin-executioner` | blade | dark heavy hood, katana, grim faceless mask [bone white] |
+| `cast-assassin-venomblade` | blade | green-black wraps, poisoned daggers dripping venom, vials on the belt [toxic green] |
+| `cast-bard-skald` | spell | fur-trimmed northern bard, war horn at the hip, spellbook, rousing glow [bronze] |
+| `cast-bard-maestro` | spell | elegant tailcoat, conductor's wand, floating musical notes [plum] |
+| `cast-bard-siren` | spell | flowing sea-green gown, shell jewellery, wand, singing sound waves [sea green] |
+| `cast-paladin-crusader` | blade | gold-trimmed white plate, longsword, holy tabard, radiant strikes [gold] |
+| `cast-paladin-justiciar` | blade | dark-blue plate with scales emblem, blessed mace, judgment light [deep blue] |
+| `cast-paladin-oathbreaker` | blade | blackened plate, cracked holy symbol, warhammer, dark aura [ash grey] |
+| `cast-warlock-hexer` | spell | tattered dark robe, hex charms, spellbook, purple curse sigils [purple] |
+| `cast-warlock-soulbinder` | spell | pale robe with soul chains, crystal orb with a trapped wisp, ghostly links [spectral blue-grey] |
+| `cast-warlock-voidcaller` | spell | starry void-black robe, staff with a black orb, swirling singularity [void violet] |
+
 ## Checklist
 - [ ] S1 style sheet
 - [ ] 10 class-archetype characters
@@ -144,5 +218,6 @@ Pose: <POSE>. Output: 512x512 transparent PNG.
 - [ ] 3 Titan sprites
 - [ ] 5 terrain pieces
 - [ ] 5 effects
+- [ ] Team cast sheets (32, one per subclass; 5 row strips each, built with `scripts/sprite-sheet.mjs`)
 
 That is 40 images. The class icons already in the game (plus, hat, bow, shield) remain the fallback, so the sprites can arrive gradually.

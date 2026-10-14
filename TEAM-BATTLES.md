@@ -996,3 +996,16 @@ The renderer uses sprite art from `public/sprites/` wherever a file exists, and 
 - **Adding art:** save files as `<name>.webp` (preferred) or `.png`, under 400 KB each (256 px, 512 px for the Titan and pit), then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
 - **Builds:** they list the files in a generated `sprite-manifest.js` (empty in source), serve them from `/sprites/` (the worker embeds them like the other images), and add content hashes so updated art isn't cached.
 - **Loading:** sprites load in the background, and a fight that starts first switches over as each one arrives.
+
+### Team cast sheets (animated)
+
+Each of the 32 team cast subclasses can have an animated sheet, `public/sprites/cast-<class>-<subclass>.webp` (`sprite-art.js` `SHEET_NAMES`).
+- **Layout:** 256 px frames facing right, in five rows: idle 4, walk 6, attack or cast 5, hit 2, down 4.
+- **Frame choice** (`pixi-arena-model.js` `sheetFrame`, a pure helper tested in `check-pixi-arena`):
+  - down plays once and holds its last frame, and restarts after a respawn;
+  - a hit shows while the hit flash lasts;
+  - an attack or cast follows its windup (frames 1–4), then shows its release (frame 5) until the action ends;
+  - walking (moving faster than 8 px/s) and idling loop at 10 and 6 frames a second.
+- **Rendering:** a fighter drawn from a sheet shows no separate weapon prop. Fighters without a sheet keep the archetype art. Sheets may be up to 2 MB.
+- **Making them:** `ART-PROMPTS.md` ("Team cast sheets") has the ChatGPT workflow, one row strip per message with the idle row attached as the reference. It also has the row prompts and a description per subclass. `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>` turns the five strips into a sheet, using Chromium's canvas: it cuts out each frame, applies one scale for the whole sheet, and puts every frame on a shared feet line, centred on its feet.
+

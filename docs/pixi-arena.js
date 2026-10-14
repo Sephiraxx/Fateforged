@@ -2,8 +2,8 @@
 // positions are eased for display, particles come from state differences, and the camera frames the field or
 // follows the action. Sprite art from public/sprites/ replaces the drawn shapes wherever a file exists
 // (sprite-art.js). The 2D canvas renderer in arena.js stays the fallback and the "Classic" option.
-import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES} from './pixi-arena-model.js';
-import {fighterArt,coreArt,spriteUrls,TERRAIN_ART} from './sprite-art.js';
+import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES,sheetFrame} from './pixi-arena-model.js';
+import {fighterArt,coreArt,spriteUrls,TERRAIN_ART,fighterSheet,SHEET_ROWS,SHEET_COLUMNS} from './sprite-art.js';
 import {SPRITE_MANIFEST} from './sprite-manifest.js';
 const TEAM_COLORS=[0x3ee0ff,0xff5a6a],GOLD=0xf4c96b,ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const colorOf=f=>TEAM_COLORS[teamOf(f)]??0xffffff;
@@ -28,6 +28,9 @@ export async function createPixiArena(frame,images,{onFail}={}){
  // Sprite art: each file listed by the build loads in the background; until it arrives (or if it fails) the
  // drawn version is used. artCount lets the static layer rebuild once new terrain art is ready.
  const art={};let artCount=0,staticArt=-1;
+ // Team cast sheets: one texture per frame, cut from the sheet on first use (rows from sprite-art.js SHEET_ROWS).
+ const sheetFrames=new Map(),sheetMemo=new Map();
+ const sheetTex=(name,{row,frame})=>{const id=`${name}:${row}:${frame}`;let t=sheetFrames.get(id);if(!t){const base=art[name],size=base.width/SHEET_COLUMNS,y=SHEET_ROWS.findIndex(([r])=>r===row);t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,y*size,size,size)});sheetFrames.set(id,t);}return t;};
  for(const [name,url]of Object.entries(spriteUrls(SPRITE_MANIFEST,import.meta.url))){const img=new Image();img.decoding='async';img.onload=()=>{art[name]=PIXI.Texture.from(img);artCount++;};img.onerror=()=>console.warn('Sprite failed to load: '+name);img.src=url;}
  // Scene graph: world (camera) > ground, terrain, zones, objectives, trails, effects, projectiles, fighters, particles, overlay.
  const world=new PIXI.Container();app.stage.addChild(world);
@@ -154,14 +157,14 @@ export async function createPixiArena(frame,images,{onFail}={}){
    shots.begin();for(const p of b.projectiles??[]){if(p.molten){lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.08,p.y-p.vy*.08).stroke({width:6,color:0xff7a2a,alpha:.45});lineG.circle(p.x,p.y,13).fill({color:0xffb347,alpha:.3}).circle(p.x,p.y,7).fill({color:0xff6a1a,alpha:.95});continue;}const owner=b.actorFor?.(p.owner)??b.fighters[p.owner],color=owner?colorOf(owner):0xffe27a;lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.06,p.y-p.vy*.06).stroke({width:3,color,alpha:.35});if(p.sprite>=0){const s=shots.get(),tex=frameTex('effects',p.sprite);if(tex)s.texture=tex;s.x=p.x;s.y=p.y;s.width=s.height=18;s.rotation=0;}}shots.end();
    // Fighters, eased toward their simulated positions; respawns and teleports snap.
    bars.clear();const keys=new Set();
-   b.fighters.forEach((f,i)=>{if(f.isObjective)return;const key=fighterKey(f,i);keys.add(key);const v=body(key),r=f.radius||9,color=colorOf(f),looks=fighterArt(f),charTex=art[looks.character],propTex=art[looks.prop];
+   b.fighters.forEach((f,i)=>{if(f.isObjective)return;const key=fighterKey(f,i);keys.add(key);const v=body(key),r=f.radius||9,color=colorOf(f),looks=fighterArt(f),sheet=fighterSheet(f),cell=sheet&&art[sheet]?sheetFrame(f,sheetMemo.get(key)??sheetMemo.set(key,{}).get(key),clock,Math.hypot(f.vx??0,f.vy??0)>8):null,charTex=cell?sheetTex(sheet,cell):art[looks.character],propTex=cell?null:art[looks.prop];
     drawBody(v,f,!!charTex);let pos=shown.get(key);if(!pos||Math.hypot(pos.x-f.x,pos.y-f.y)>120)pos={x:f.x,y:f.y};pos={x:ease(pos.x,f.x,dt,30),y:ease(pos.y,f.y,dt,30)};shown.set(key,pos);
     const root=v.root;root.x=pos.x;root.y=pos.y;root.alpha=f.hp>0?(f.invisible>0?.35:1):.3;v.flash.alpha=f.hitFlash>0?.9:0;v.glow.alpha=f.hp>0?.5:.15;
     if(f.hp>0&&b.empowered?.(f)){const k=.6+.4*Math.sin(clock*6+key);if(!artAt('fx-forgefire',pos.x,pos.y,r*6,{alpha:.55+.35*k,rotation:clock*1.5,add:true})){glowAt(pos.x,pos.y,r*6,GOLD,.35*k+.2);objG.circle(pos.x,pos.y,r+7).stroke({width:f.forgeShield>0?3:1.5,color:0xffc45c,alpha:.85});}else if(f.forgeShield>0)objG.circle(pos.x,pos.y,r+7).stroke({width:2,color:0xffc45c,alpha:.7});}
     const facing=f.facing??f.angle??0,angle=facing+(f.swing>0?Math.sin(f.swing/.22*Math.PI)*.7:0);
     // Character art faces right; it is mirrored when the fighter faces left on screen and stays upright in portrait.
     v.character.visible=!!charTex;if(charTex){v.character.texture=charTex;const size=r*6,left=view.portrait?Math.sin(facing)<0:Math.cos(facing)<0;v.character.width=v.character.height=size;v.character.scale.x=Math.abs(v.character.scale.x)*(left?-1:1);v.character.rotation=view.portrait?Math.PI/2:0;v.character.tint=f.hitFlash>0?0xff9a9a:0xffffff;}
-    const wt=propTex??(f.weapon?frameTex('weapons',f.weapon.sprite):null);
+    const wt=cell?null:propTex??(f.weapon?frameTex('weapons',f.weapon.sprite):null);
     if(wt){v.weapon.texture=wt;v.weapon.visible=true;v.weapon.width=v.weapon.height=propTex?24:27;v.weapon.x=Math.cos(angle)*16;v.weapon.y=Math.sin(angle)*16;v.weapon.rotation=angle+(!propTex&&f.weapon.sprite===5?Math.PI:0);}else v.weapon.visible=false;
     if(f.hp>0&&f.action&&!f.action.released&&f.action.angle!=null&&f.weapon)lineG.moveTo(pos.x,pos.y).lineTo(pos.x+Math.cos(f.action.angle)*Math.min(80,f.weapon.range),pos.y+Math.sin(f.action.angle)*Math.min(80,f.weapon.range)).stroke({width:1,color,alpha:.45});
     if(f.hp>0&&!charTex)bars.circle(pos.x+Math.cos(f.angle??facing)*4,pos.y+Math.sin(f.angle??facing)*4,2).fill({color:0xffffff,alpha:root.alpha});

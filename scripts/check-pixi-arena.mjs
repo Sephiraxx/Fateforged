@@ -5,9 +5,9 @@ import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
-import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey} from '../public/pixi-arena-model.js';
+import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS} from '../public/pixi-arena-model.js';
 import {Battle} from '../public/combat.js';
-import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls} from '../public/sprite-art.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet} from '../public/sprite-art.js';
 import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
 import {collectSprites} from './sprites.mjs';
 import {MAP_IDS} from '../public/team-maps.js';
@@ -77,6 +77,17 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  assert.equal(coreArt({team:0,hp:900,maxHp:1000}),'core-blue');assert.equal(coreArt({team:1,hp:400,maxHp:1000}),'core-red-cracked');
  assert.deepEqual(spriteUrls({'char-plate':'char-plate.webp?v=1',nope:'x.webp'},'https://example.test/Fateforged/pixi-arena.js'),{'char-plate':'https://example.test/Fateforged/sprites/char-plate.webp?v=1'});
  assert.deepEqual(SPRITE_MANIFEST,{},'the source manifest is empty; builds generate it');}
+// Team cast sheets: one per subclass, listed in ART-PROMPTS.md, and the frame each fighter state shows.
+{const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SHEET_NAMES.length,32);for(const name of SHEET_NAMES)assert(prompts.includes('`'+name+'`'),`${name} is in ART-PROMPTS.md`);
+ assert.deepEqual(SHEET_ROWS.map(([r,n])=>`${r}${n}`),['idle4','walk6','attack5','hit2','down4']);assert.equal(SHEET_COLUMNS,6);
+ assert.equal(sheetName('Mage','Blood'),'cast-mage-blood');assert.equal(fighterSheet({traits:{class:'Mage',subclass:'Blood'}}),'cast-mage-blood');assert.equal(fighterSheet({traits:{class:'Mage',subclass:'Fire mastery'}}),null,'wheel subclasses have no sheet');
+ assert.equal(spriteUrls({'cast-mage-blood':'cast-mage-blood.webp?v=1'},'https://example.test/a.js')['cast-mage-blood'],'https://example.test/sprites/cast-mage-blood.webp?v=1');
+ const f={hp:100,hitFlash:0,action:null},memo={};
+ assert.deepEqual(sheetFrame(f,memo,1/SHEET_FPS.idle*5,false),{row:'idle',frame:1});assert.deepEqual(sheetFrame(f,memo,1/SHEET_FPS.walk*7,true),{row:'walk',frame:1});
+ assert.deepEqual(sheetFrame({...f,action:{elapsed:.1,windup:.4}},memo,0,true),{row:'attack',frame:1});assert.deepEqual(sheetFrame({...f,action:{elapsed:.5,windup:.4,released:true}},memo,0,false),{row:'attack',frame:4});
+ assert.deepEqual(sheetFrame({...f,hitFlash:.1,action:{elapsed:0,windup:.4}},memo,0,false),{row:'hit',frame:0});
+ assert.deepEqual(sheetFrame({...f,hp:0},memo,10,false),{row:'down',frame:0});assert.deepEqual(sheetFrame({...f,hp:0},memo,10+1/SHEET_FPS.down*2,false),{row:'down',frame:2});assert.deepEqual(sheetFrame({...f,hp:0},memo,20,false),{row:'down',frame:3},'down holds its last frame');
+ sheetFrame(f,memo,21,false);assert.equal(memo.downSince,null,'a respawn resets the fall');}
 
 // Sprite collection: known names only, one file per name, size-capped.
 {const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sprites-'));const warn=console.warn;console.warn=()=>{};
