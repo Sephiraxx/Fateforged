@@ -1,3 +1,4 @@
+import {TEAM_CLASSES} from './team-classes.js';
 // Sprite art for the enhanced renderer (ART-PROMPTS.md). Every class maps to one of ten character archetypes and
 // every weapon to one of twelve props. Images live in public/sprites/ as <name>.webp or <name>.png; the builds list
 // the ones present in sprite-manifest.js, and the renderer falls back to today's icons for anything missing.
@@ -43,5 +44,16 @@ export const propArt=weaponName=>byWeapon.get(weaponName)??null;
 // The fighter's base class and weapon (rage or shapeshifting never swaps the sprite mid-fight).
 export const fighterArt=f=>({character:characterArt(f.traits?.class),prop:propArt(f.original?.weapon?.name??f.weapon?.name)});
 export const coreArt=c=>`core-${c.team?'red':'blue'}${c.hp<c.maxHp*.5?'-cracked':''}`;
+// Animated sheets for the team cast (ART-PROMPTS.md, "Team cast sheets"): one per subclass, named
+// cast-<class>-<subclass>, with 256 px frames in five rows (idle, walk, attack or cast, hit, down) and as many columns
+// as the longest row. A fighter with a sheet is drawn from it; everyone else keeps the archetype art.
+export const SHEET_FRAME=256;
+export const SHEET_ROWS=Object.freeze([['idle',4],['walk',6],['attack',5],['hit',2],['down',4]]);
+export const SHEET_COLUMNS=Math.max(...SHEET_ROWS.map(([,n])=>n));
+export const SHEET_MAX_BYTES=2*1024*1024;
+const slug=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+export const sheetName=(className,subclass)=>`cast-${slug(className)}-${slug(subclass)}`;
+export const SHEET_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.map(s=>sheetName(c.name,s.name))));
+export const fighterSheet=f=>{const t=f.traits;if(!t?.subclass)return null;const name=sheetName(t.class,t.subclass);return SHEET_NAMES.includes(name)?name:null;};
 // Which sprite files are usable: the manifest maps a sprite name to its file; unknown names are ignored.
-export function spriteUrls(manifest,base){const out={};for(const name of SPRITE_NAMES)if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}
+export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}

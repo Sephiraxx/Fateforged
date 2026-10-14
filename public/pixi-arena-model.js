@@ -46,3 +46,17 @@ export function diffEvents(prev,cur){
 }
 // Screen shake: a decaying offset after a slam; deterministic per time so it never needs randomness.
 export function shakeOffset(shake,time){if(!(shake>0))return {x:0,y:0};const k=CAMERA_RULES.shakeSize*shake/CAMERA_RULES.shakeTime;return {x:Math.sin(time*91)*k,y:Math.cos(time*73)*k};}
+// Team cast sheets (sprite-art.js SHEET_ROWS): which row and frame a fighter shows. `memo` is the renderer's memory
+// for that fighter (when it went down); `moving` is whether it moved since the last frame. Down plays once and holds
+// its last frame; a hit shows while the hit flash lasts; an attack or cast follows its windup (frames 0–3) and shows
+// its release (frame 4) until the action ends; walking and idling loop.
+export const SHEET_FPS=Object.freeze({idle:6,walk:10,down:8});
+export function sheetFrame(f,memo,time,moving){
+ if(f.hp<=0){memo.downSince??=time;return {row:'down',frame:Math.min(3,Math.floor((time-memo.downSince)*SHEET_FPS.down))};}
+ memo.downSince=null;
+ if(f.hitFlash>0)return {row:'hit',frame:f.hitFlash>.07?0:1};
+ const a=f.action;
+ if(a)return {row:'attack',frame:a.released||!(a.windup>0)||a.elapsed>=a.windup?4:Math.min(3,Math.max(0,Math.floor(a.elapsed/a.windup*4)))};
+ if(moving)return {row:'walk',frame:Math.floor(time*SHEET_FPS.walk)%6};
+ return {row:'idle',frame:Math.floor(time*SHEET_FPS.idle)%4};
+}
