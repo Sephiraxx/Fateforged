@@ -146,6 +146,8 @@ Team fighters (2v2, 3v3, 5v5) come from the team cast: 10 classes, 32 subclasses
 - the weapon is part of the drawing (the game adds no prop on top of a sheet);
 - the file is `public/sprites/cast-<class>-<subclass>.webp`, for example `cast-mage-blood.webp`.
 
+**Ready-to-paste prompts:** [SPRITE-SHEET-PROMPTS.md](SPRITE-SHEET-PROMPTS.md) has all 160 prompts written out in full (32 subclasses × 5 rows), plus fix-up replies for GPT's common mistakes. The rest of this section explains the format.
+
 **Workflow (one row per message):**
 1. Generate the subclass's **idle row** first, with the prompt below. When it looks right, save it as `idle.png` in a folder for that subclass.
 2. For every other row, **attach the idle image** and start with: "Same character, same outfit, colours, proportions, size and camera as the attached image." Then paste the row prompt. Save each as `walk.png`, `attack.png`, `hit.png` and `down.png`.
