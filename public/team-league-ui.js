@@ -14,7 +14,9 @@ import {createSimulationPool} from './simulation-client.js';
 import {compactTeamResult} from './team-sim-worker.js';
 import {openTraitDetails} from './trait-detail-ui.js';
 import {STAT_KEYS} from './trait-details.js';
-const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
+const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦',support:'♪',bruiser:'⚔'};
+// Cast fighters show their cast role (Support, Bruiser); the engine role still drives the team's composition.
+const roleText=f=>`${ROLE_GLYPH[f.castRole??f.role]} ${ROLE_LABELS[f.castRole??f.role]}`;
 const money=n=>`${n.toFixed(1)}M`;
 const TACTIC_TEXT={balanced:['Balanced','Default target choice.'],'protect-carry':['Protect the carry','Peel harder for teammates under attack.'],'focus-healer':['Focus their healer','Prioritise enemy healers.'],aggressive:['All-out aggression','Chase wounded targets across the arena.'],defensive:['Hold the line','Fight near your own side instead of chasing.']};
 const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f.summary.generationVersion??3,wheelRarity:f.summary.wheelRarity}});
@@ -157,7 +159,7 @@ export function mountTeamLeague(host,hooks){
  function showFighter(id,snapshot,title){
   const f=snapshot??world?.fighters[id];if(!f)return;const t=f.traits,stats=snapshot?f.seasonStats:world.stats?.[id],ability=x=>x&&!/^no (second )?(power|ability)$/i.test(x)?x:null;dialog.replaceChildren();
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
-  const info=el('div');info.append(el('p',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));head.append(info,close);
+  const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));head.append(info,close);
   const traits=el('dl','','fighter-traits');
   for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
   const bars=el('div','','fighter-stats'),values=f.summary.stats??[],top=Math.max(800,...values);
@@ -169,7 +171,7 @@ export function mountTeamLeague(host,hooks){
   const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,role:f.role,traits:f.traits,summary:f.summary},'overview');};
   dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${title?.season??world.season}`),season,breakdown);dialog.showModal();
  }
- function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
+ function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
  function check(label,checked=false){const box=el('input');box.type='checkbox';box.checked=checked;box.setAttribute('aria-label',label);return box;}
  function table(headers,rows,caption){const wrap=el('div','','table-scroll'),t=el('table','','team-league-table');if(caption)t.append(el('caption',caption));const head=el('thead'),hr=el('tr');for(const h of headers)hr.append(el('th',h));head.append(hr);const tb=el('tbody');tb.append(...rows);t.append(head,tb);wrap.append(t);return wrap;}
@@ -268,7 +270,7 @@ export function mountTeamLeague(host,hooks){
    }
    (top??panel).append(clock,actions);
   }
-  const recent=d.picks.slice(-10).reverse().map(p=>{const f=world.fighters[p.fighter],tr=el('tr','',`role-${f.role}`);tr.append(el('td',`${p.round}.${p.pick}${p.exception?' · min. exception':''}`),el('td',LEAGUE.teamById(world,p.team).name),cell(fighterLink(f)),el('td',`${ROLE_GLYPH[f.role]} ${ROLE_LABELS[f.role]}`),el('td',String(f.ovr),'ovr'),el('td',money(f.salary)));return tr;});
+  const recent=d.picks.slice(-10).reverse().map(p=>{const f=world.fighters[p.fighter],tr=el('tr','',`role-${f.role}`);tr.append(el('td',`${p.round}.${p.pick}${p.exception?' · min. exception':''}`),el('td',LEAGUE.teamById(world,p.team).name),cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',String(f.ovr),'ovr'),el('td',money(f.salary)));return tr;});
   // The whole pool, filterable by role and sortable, so every fighter can be scouted.
   const pool=LEAGUE.available(world),sorts={ovr:(a,b)=>b.ovr-a.ovr||a.salary-b.salary,value:(a,b)=>b.ovr/b.salary-a.ovr/a.salary||b.ovr-a.ovr,salary:(a,b)=>a.salary-b.salary||b.ovr-a.ovr,stats:(a,b)=>b.summary.total-a.summary.total};
   const filters=el('div','','pool-filters');

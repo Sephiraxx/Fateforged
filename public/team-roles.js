@@ -2,10 +2,11 @@
 // Pure and deterministic; shared by the team engine, the exhibition UI and (later) coach valuation.
 import './class-abilities.js';
 import './support-catalog.js';
+import {castSubclass,CAST_ROLES} from './team-classes.js';
 const CATALOG=globalThis.CURRENT_CLASS_ABILITIES;
 const definitions=c=>(c.summary?.generationVersion??c.state?.generationVersion??c.generationVersion??1)>=4?CATALOG:globalThis.CLASS_ABILITIES;
 export const TEAM_ROLES=Object.freeze(['tank','healer','controller','damage']);
-export const ROLE_LABELS=Object.freeze({tank:'Tank',healer:'Healer',controller:'Controller',damage:'Damage'});
+export const ROLE_LABELS=Object.freeze({tank:'Tank',healer:'Healer',controller:'Controller',damage:'Damage',support:'Support',bruiser:'Bruiser'});
 const HEALS={healing:3,life:3,regeneration:2.2,rewind:1,phoenix:.8,secondWind:.4,mendingWave:3,chainHeal:3,resurrection:2};
 const HARD_CONTROL={dream:2.4,memory:2.4,silence:2,void:1.8,roots:2,telekinesis:1.6,kinetic:1.2,sound:1.2,metal:1,stunBolt:2,knockUp:1.2,disarmShot:1,tauntShout:1.2,hamstring:.8};
 const SOFT_CONTROL={time:1.6,gravity:1.6,singularity:1.4,ice:1.1,frostTouch:.9,light:1,soul:1,cripplingStrike:.8,bramble:.7,shadow:.6};
@@ -21,6 +22,9 @@ export function combatNumbers(character){
  return {maxHp,armor,effectiveHp:maxHp/(1-armor),dps:damage/interval*(.76+Math.min(.2,s[3]/130)),spell:12+s[4]*2.3,weaponType:w.type,shield:(w.tags||[]).includes('shield')};
 }
 export function teamRole(character){
+ // Cast fighters (generation 5) play the role their subclass sets.
+ const cast=(character.summary?.generationVersion??character.generationVersion??0)>=5?castSubclass(character.traits?.class,character.traits?.subclass):null;
+ if(cast){const role=CAST_ROLES[cast.role];return {role,secondary:role,castRole:cast.role,scores:{[role]:1}};}
  const traits=character.traits||character.state?.traits||{},profile=CATALOG.profile(traits),ids=abilityIds(traits,character),n=combatNumbers(character);
  const scores={tank:0,healer:0,controller:0,damage:1.2};
  for(const [role,weights]of Object.entries(tagScore)){for(const tag of profile.core||[])scores[role]+=weights[tag]??0;for(const tag of profile.specialty||[])scores[role]+=(weights[tag]??0)*.6;for(const tag of profile.related||[])scores[role]+=(weights[tag]??0)*.25;}

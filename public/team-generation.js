@@ -2,6 +2,7 @@
 // then a fighter is accepted only when its derived role matches (healers must actually roll healing magic).
 import {tierCharacter} from './tier-generation.js';
 import {teamRole} from './team-roles.js';
+import {TEAM_CLASSES,CAST_ROLES,castSummary} from './team-classes.js';
 export const ROLE_CLASSES=Object.freeze({
  tank:['Guardian','Sentinel','Juggernaut','Warlord','Warrior','Paladin'],
  healer:['Healer','Cleric','Druid','Priest'],
@@ -43,16 +44,36 @@ export function roleFighter(pools,luck,{role,tier,random,id,name}){
  }
  return fallback;
 }
+// The team cast (team-classes.js): a uniform class, then a uniform subclass of it. With a role, only subclasses that
+// play it (exhibitions fill a composition this way).
+export function castPick(random,role=null){
+ const fits=s=>!role||CAST_ROLES[s.role]===role,classes=TEAM_CLASSES.filter(c=>c.subclasses.some(fits)),c=classes[Math.floor(random()*classes.length)],subs=c.subclasses.filter(fits);
+ return {cls:c,sub:subs[Math.floor(random()*subs.length)]};
+}
+// A cast fighter: the wheel rolls its body (race, subrace and stat traits, near the tier), the subclass fixes its role,
+// weapon family and two abilities, and it has no weakness.
+// The body is rolled again (up to eight times) until the cast stats land in the slot's tier.
+export function castFighter(pools,luck,{tier,random,id,name,role=null}){
+ const {cls,sub}=castPick(random,role),weapons=sub.weapons??cls.weapons,weapon=weapons[Math.floor(random()*weapons.length)];
+ let body,traits,summary;
+ for(let attempt=0;attempt<8;attempt++){
+  body=tierCharacter(pools,tier,{luck,draw:n=>Math.floor(random()*n),id,forceClass:cls.name});
+  traits={...body.traits,subclass:sub.name,weapon,power:sub.powers[0],power2:sub.powers[1],weakness:'None'};
+  summary=castSummary(pools,traits);if(summary.tier===tier)break;
+ }
+ return {id,name:name?name(traits):body.name,traits,summary:{...summary,wheelRarity:'common',creationSource:'team'}};
+}
 // Random exhibition teams draw a coach-style composition (like league coaches do), so lineups vary.
 const RANDOM_STYLES={fortress:{tank:2.2,healer:1.4,controller:.6,damage:1},glass:{tank:.4,healer:.6,controller:.8,damage:2.6},star:{tank:.8,healer:1.5,controller:.5,damage:1.8},tactician:{tank:.8,healer:1,controller:2,damage:1.2},balanced:{tank:1,healer:1,controller:.7,damage:1.6}};
 export function randomComposition(size,random){const styles=Object.values(RANDOM_STYLES),weights=styles[Math.floor(random()*styles.length)],roles=Object.keys(weights),sharp=roles.map(r=>Math.pow(weights[r]*(.75+random()*.55),1.8)),total=sharp.reduce((a,b)=>a+b,0),raw=sharp.map(x=>x/total*size),counts=raw.map(Math.floor);let left=size-counts.reduce((a,b)=>a+b,0);
  for(const i of raw.map((x,i)=>[x-Math.floor(x),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[1])){if(left<=0)break;counts[i]++;left--;}return roles.flatMap((r,i)=>Array(counts[i]).fill(r));}
 export function randomTeam(pools,luck,{size,seed,prefix='team',name}){
  const random=seededRandom(seed);
- return randomComposition(size,random).map((role,i)=>roleFighter(pools,luck,{role,tier:poolTier(random),random,id:`${prefix}-${seed}-${i}`,name}));
+ return randomComposition(size,random).map((role,i)=>castFighter(pools,luck,{role,tier:poolTier(random),random,id:`${prefix}-${seed}-${i}`,name}));
 }
 // Deterministic version-4-style UUID from a seeded random stream (pool fighters need storage-safe IDs).
 export function seededUuid(random){const hex=Array.from({length:32},()=>Math.floor(random()*16).toString(16));hex[12]='4';hex[16]=(8+Math.floor(random()*4)).toString(16);const h=hex.join('');return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;}
 // One fighter per pool-plan slot (team-league.js poolPlan). Each slot has its own seeded stream, so a pool can be
 // generated in chunks (keeping the page responsive) and still come out identical.
-export function poolFighter(pools,luck,slot,index,seed,name){const random=seededRandom((seed^Math.imul(index+1,0x9e3779b1))>>>0);return roleFighter(pools,luck,{role:slot.role,tier:slot.tier,random,id:seededUuid(random),name});}
+// Pool fighters come from the whole cast with equal odds per class and subclass (the slot's role is not forced).
+export function poolFighter(pools,luck,slot,index,seed,name){const random=seededRandom((seed^Math.imul(index+1,0x9e3779b1))>>>0);return castFighter(pools,luck,{tier:slot.tier,random,id:seededUuid(random),name});}

@@ -8,7 +8,7 @@ import {engineForMode,GAME_PLAN_ENGINES} from './team-engine-versions.js';
 import {defaultGamePlan} from './team-game-plan.js';
 import {gamePlanFields} from './game-plan-ui.js';
 const TACTIC_LABELS={balanced:'Balanced','protect-carry':'Protect the carry','focus-healer':'Focus their healer',aggressive:'All-out aggression',defensive:'Hold the line'};
-const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
+const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦',support:'♪',bruiser:'⚔'};
 const scripts=new Map();
 const loadScript=src=>{if(!scripts.has(src))scripts.set(src,new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{scripts.delete(src);reject(new Error('Could not load the fighter generator.'));};document.head.append(s);}));return scripts.get(src);};
 // The wheel data and luck rules are classic scripts; load them only when a random team is requested.
@@ -39,7 +39,6 @@ export function mountTeamBattles(host,hooks){
  host.append(head,intro,board,conditions,actions,status,results);
  const say=(text,error=false)=>{status.textContent=text;status.classList.toggle('error',error);};
  const lookup=async id=>{if(generated.has(id))return generated.get(id);if(characters.has(id))return characters.get(id);const c=await hooks.character(id);characters.set(id,c);return c;};
- const roleOf=c=>c?teamRole(c).role:null;
  function renderBoard(){
   board.replaceChildren();
   sides.forEach((side,team)=>{
@@ -50,7 +49,7 @@ export function mountTeamBattles(host,hooks){
    for(let i=0;i<size;i++){
     const slot=el('li','','team-slot'),choice=select([['','Choose a fighter'],...[...generated.values()].filter(c=>c.team===team).map(c=>[c.id,`${c.name} · ${c.summary.tier} · generated`]),...hooks.roster().map(c=>[c.id,`${c.name} · ${c.summary.tier}`])],side.ids[i]??'');
     choice.setAttribute('aria-label',`${team?'Red':'Blue'} fighter ${i+1}`);const badge=el('span','','team-slot-role');
-    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const fighter=await lookup(id),role=roleOf(fighter);badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[role]} ${ROLE_LABELS[role]}`;}catch(e){say(e.message,true);}};
+    const paint=async()=>{badge.textContent='';badge.removeAttribute('data-role');const id=choice.value;if(!id)return;try{const fighter=await lookup(id),r=fighter?teamRole(fighter):null,role=r?.role??null,shown=r?.castRole??role;badge.dataset.role=role;badge.textContent=`${ROLE_GLYPH[shown]} ${ROLE_LABELS[shown]}`;}catch(e){say(e.message,true);}};
     choice.onchange=()=>{side.ids[i]=choice.value||undefined;paint();};paint();
     slot.append(el('span',String(i+1),'team-slot-no'),choice,badge);list.append(slot);
    }

@@ -64,8 +64,13 @@ async function teamApi(request,env,url){
 // A pool fighter must be an unedited roll from the canonical generation wheels.
 function teamPoolFighter(input){
  if(!plain(input)||!UUID.test(input.id)||typeof input.name!=='string'||!input.name.trim()||input.name.length>100||!plain(input.traits))fail('Invalid pool fighter.');
- const {summary}=validateSnapshot({version:1,generationVersion:input.summary?.generationVersion??3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  if(IDS.some(key=>typeof input.traits[key]!=='string'))fail('Pool fighters need all fourteen traits.');
  if(input.teamKit!=null)fail('Extra team kits are no longer generated. Roll abilities in the two normal slots.');
+ // Team cast fighters (generation 5) are checked against the cast; older fighters against the wheel.
+ if(input.summary?.generationVersion===TEAM_LEAGUE.CAST_VERSION){
+  let summary;try{summary=TEAM_LEAGUE.castSummary(GENERATION_POOLS,input.traits);}catch(e){fail(e.message);}
+  return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:summary.generationVersion,castRole:summary.castRole,wheelRarity:'common'}};
+ }
+ const {summary}=validateSnapshot({version:1,generationVersion:input.summary?.generationVersion??3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:summary.generationVersion,wheelRarity:summary.wheelRarity}};
 }
