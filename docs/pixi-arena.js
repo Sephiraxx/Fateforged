@@ -143,6 +143,9 @@ export async function createPixiArena(frame,images,{onFail}={}){
      const tp=Math.max(0,t.hp/t.maxHp),barUp=titanArt?t.radius*2+6:t.radius+12;if(view.portrait)objG.rect(t.x+barUp,t.y-35,6,70).fill({color:0x171621}).rect(t.x+barUp,t.y-35,6,70*tp).fill({color:GOLD});else objG.rect(t.x-35,t.y-barUp-6,70,6).fill({color:0x171621}).rect(t.x-35,t.y-barUp-6,70*tp,6).fill({color:GOLD});
      const label=labels.get();setLabel(label,'FORGE TITAN',GOLD);[label.x,label.y]=up(t.x,t.y,barUp+22);upright(label);label.scale.set(label.scale.x*.55);}
     else{const death=b.titanDeaths?.at(-1),since=death?b.time-death.time:Infinity;if(lastTitan&&since<3){const [ax,ay]=up(lastTitan.x,lastTitan.y,lastTitan.radius*.3);artAt('titan-down',ax,ay,lastTitan.radius*3.4,{rotation:turn,alpha:1-since/3});}}}
+   // Ember Wisps (level-combat.js): a flickering ember with a health ring while up, a faint mark while away.
+   for(const c of b.camps??[]){if(c.hp>0){glowAt(c.x,c.y,c.radius*3.2,0xff7a2a,.4+.15*Math.sin(clock*5+c.index));objG.circle(c.x,c.y,c.radius*.8).fill({color:c.hitFlash>0?0xffffff:0xff8a3d,alpha:.9}).stroke({width:2,color:0xffd27a});objG.moveTo(c.x,c.y-c.radius-6).arc(c.x,c.y,c.radius+6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,c.hp/c.maxHp)).stroke({width:3,color:0xffc45c,alpha:.9});}
+    else objG.circle(c.x,c.y,c.radius*.6).stroke({width:2,color:0xff8a3d,alpha:.25});}
    // Trails, weapon swings and effect sprites.
    trailG.clear();lineG.clear();
    for(const f of b.fighters)for(const p of f.trail??[])trailG.circle(p.x,p.y,7).fill({color:colorOf(f),alpha:p.life/.16*.16});
@@ -167,7 +170,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
     if(team&&f.hp>0){const target=b.actorFor?.(f.target)??b.fighters[f.target];if(target?.hp>0)lineG.moveTo(pos.x,pos.y).lineTo(target.x,target.y).stroke({width:1,color,alpha:.12});
      const k=(view.portrait?1.35:1)/camera.zoom,lift=charTex?14:0,pct=Math.max(0,f.hp/f.maxHp),[bx,by]=view.portrait?[pos.x+(21+lift)*k,pos.y-13*k]:[pos.x-13*k,pos.y-(21+lift)*k],[bw,bh]=view.portrait?[4*k,26*k]:[26*k,4*k];
      bars.rect(bx,by,bw,bh).fill({color:0x05070d,alpha:.8});if(view.portrait)bars.rect(bx,by,bw,bh*pct).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});else bars.rect(bx,by,bw*pct,bh).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});
-     const glyph=labels.get();setLabel(glyph,ROLE_GLYPH[f.role]||'',color);const [gx,gy]=view.portrait?[pos.x+(27+lift)*k,pos.y]:[pos.x,pos.y-(27+lift)*k];glyph.x=gx;glyph.y=gy;upright(glyph);glyph.scale.set(glyph.scale.x*.5);}});
+     const glyph=labels.get();setLabel(glyph,(ROLE_GLYPH[f.role]||'')+(f.level>1?' '+f.level:''),color);const [gx,gy]=view.portrait?[pos.x+(27+lift)*k,pos.y]:[pos.x,pos.y-(27+lift)*k];glyph.x=gx;glyph.y=gy;upright(glyph);glyph.scale.set(glyph.scale.x*.5);}});
    for(const [key,v]of bodies)if(!keys.has(key)){v.root.destroy({children:true});bodies.delete(key);}
    objGlow.end();objArt.end();labels.end();
    // Weather.

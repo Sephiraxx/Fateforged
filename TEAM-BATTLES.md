@@ -838,6 +838,42 @@ Before this change a team on the siege plan kept hitting the enemy Core while de
 
 "Answered" means that a fighter hit by an enemy fighter (healers aside) targets that attacker within 2 s.
 
+## Levels and Ember Wisps (team-4.0, Core siege only)
+
+Fighters start each Core siege game at level 1 and level up to 6 (`public/level-combat.js`, ported to Rust in `core/src/team/engine/levels.rs`). Levels last the whole game, through respawns. Classic teamfight has no levels.
+- **Levels:** at 0 / 200 / 450 / 750 / 1100 / 1500 XP. Each level above 1 adds:
+  - 6% damage and 6% healing;
+  - 7% maximum health;
+  - 2% movement speed.
+  
+  A level-up also heals 20% of the fighter's health.
+- **XP:**
+  - **Kill:** 120 to the killer (the enemy who hit the victim last), 25% more for killing a higher-level fighter.
+  - **Assist:** 60 to every living ally of the killer who hurt the victim in the last 5 seconds.
+  - **Titan:** 150 to every living fighter of the team that takes Forgefire.
+  - **Ember Wisp:** 70 to every living fighter of the team that lands the last hit.
+- **Ember Wisps:** two neutral monsters, one in each half of the field at (300, 520) and (980, 520). The spots are mirrored and clear of every map's rocks.
+  - They appear at 0:20 and return 45 s after they fall.
+  - They have 600 health in 3v3 and 800 in 5v5.
+  - Every 1.5 s a wisp hits its last attacker for 4% of that fighter's maximum health, if the fighter is within 180 and hit it in the last 3 s.
+  - A wisp left alone for 6 s heals back to full.
+- **Who goes:** a fighter goes for a wisp only when all of these hold:
+  - it is not a healer;
+  - no enemy is within 260 of its target;
+  - no enemy is within 400 of its own Core;
+  - its team has no Forgefire;
+  - its team's plan is not defend.
+  
+  The two or three non-healers nearest to the wisp go (2 in 3v3, 3 in 5v5). The wisp in the team's own half is taken on the way, for example by fighters back from their base. The far one is taken only while the team holds, flanks or regroups, or contests the pit before the Titan is about to rise (8 s).
+- **Coach dial:** "Ember Wisps" (`camp` in the game plan) is *When not ahead in levels* (default), *Always* or *Never*. AI coaches take it from their personality: tacticians and bargain hunters always, glass cannons never, everyone else when not ahead. Plans without the dial use the default.
+- **Results:** each fighter's `level` and `xp`, `objective.camps` (wisps cleared per team) and `objective.levelLead` (blue's average level minus red's).
+- **Renderers:**
+  - wisps show as embers with a health ring, and a faint mark while they are gone;
+  - fighters above level 1 show their level next to them;
+  - the status line shows each team's average level.
+
+In a sample of 20 cast games, each team cleared 0–4 wisps per game and fighters ended between levels 1 and 6. Balance passes come with the balance lab.
+
 ## Ability primitives (team-4.0 / team-2.9)
 
 New team abilities are data (`public/team-abilities.js`) that a small set of effect primitives runs (`public/cast-ability-combat.js`, ported to Rust in `core/src/team/engine/cast.rs`). That way the larger team cast can get distinct kits without a hand-written function per ability. They use the ordinary two ability slots, selection and resources:

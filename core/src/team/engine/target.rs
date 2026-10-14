@@ -45,7 +45,8 @@ impl Engine {
             return self.choose_target_d8(f);
         }
         let t = self.choose_target_d19(f);
-        self.siege_ai_target(f, t)
+        let t = self.siege_ai_target(f, t);
+        self.level_target(f, t)
     }
 
     /// d19: taunts, defending the Core, then the plan's choice.

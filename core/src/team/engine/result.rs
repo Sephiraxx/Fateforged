@@ -63,6 +63,12 @@ impl Engine {
         objective.insert("dutySeconds".into(), Value::Array(b.duty_seconds.iter().map(|&v| tenth(v)).collect()));
         // d21
         objective.insert("unsticks".into(), n(*b.unsticks));
+        // d24
+        let levels = b.camps.present().is_some();
+        if levels {
+            objective.insert("camps".into(), Value::Array(b.camp_kills.present().map(|v| v.iter().map(|&x| n(x)).collect()).unwrap_or_default()));
+            objective.insert("levelLead".into(), n(round((self.team_level(0.0) - self.team_level(1.0)) * 100.0) / 100.0));
+        }
         let fighters: Vec<Value> = b
             .combatants
             .iter()
@@ -82,6 +88,10 @@ impl Engine {
                 m.insert("downSeconds".into(), tenth(e.down_seconds.unwrap_or(f64::NAN)));
                 if let Some(v) = e.monster_last_hits {
                     m.insert("monsterLastHits".into(), n(v));
+                }
+                if levels {
+                    m.insert("level".into(), n(e.level.unwrap_or(f64::NAN)));
+                    m.insert("xp".into(), n(round(e.xp.unwrap_or(f64::NAN))));
                 }
                 Value::Object(m)
             })
@@ -103,7 +113,21 @@ impl Engine {
         out.insert("objective".into(), Value::Object(objective));
         out.insert("fighters".into(), Value::Array(fighters));
         // d18
-        out.insert("gamePlans".into(), Value::Array(b.game_plans.iter().map(|p| json!({"titan": p.titan, "style": p.style, "siege": p.siege})).collect()));
+        out.insert(
+            "gamePlans".into(),
+            Value::Array(
+                b.game_plans
+                    .iter()
+                    .map(|p| {
+                        let mut plan = json!({"titan": p.titan, "style": p.style, "siege": p.siege});
+                        if let Some(camp) = &p.camp {
+                            plan["camp"] = json!(camp);
+                        }
+                        plan
+                    })
+                    .collect(),
+            ),
+        );
         Value::Object(out)
     }
 }

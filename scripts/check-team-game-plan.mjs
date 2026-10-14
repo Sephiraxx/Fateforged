@@ -20,7 +20,7 @@ for(const bad of [null,[],{},plan('sometimes','group','numbers'),{...plan('alway
 for(const tactic of ['balanced','defensive','aggressive','focus-healer','protect-carry'])assert(validGamePlan(defaultGamePlan(tactic)),tactic);
 for(const personality of Object.keys(L.PERSONALITIES))assert(validGamePlan(personalityGamePlan(personality)),personality);
 assert.deepEqual(Object.keys(PERSONALITY_PLANS).sort(),Object.keys(L.PERSONALITIES).sort());
-assert.deepEqual(Object.keys(GAME_PLAN_OPTIONS),['titan','style','siege']);
+assert.deepEqual(Object.keys(GAME_PLAN_OPTIONS),['titan','style','siege','camp']);
 const base=plan('always','group','numbers');assert.deepEqual(adaptGamePlan(base,'glass',false),base,'winners keep their plan');
 for(const personality of Object.keys(L.PERSONALITIES)){const next=adaptGamePlan(base,personality,true);assert(validGamePlan(next));assert.equal(Object.keys(base).filter(k=>base[k]!==next[k]).length,1,`${personality} changes exactly one dial after a loss`);assert.deepEqual(next,adaptGamePlan(base,personality,true));}
 

@@ -93,7 +93,7 @@ export function gameList(perCell=1,engine=ENGINE){
   // Every tactic plays on each side (game plans follow the tactic), so flanks, holds and dives all show up.
   const tactics=[TEAM_TACTICS[list.length%TEAM_TACTICS.length],TEAM_TACTICS[(list.length*3+1)%TEAM_TACTICS.length]];
   // Every third game, both sides play a flank game plan (side-lane sieges set laneWaypoint).
-  const gamePlans=list.length%3===0?[{titan:'always',style:'flank',siege:'numbers'},{titan:'ahead',style:'flank',siege:'late'}]:undefined;
+  const gamePlans=list.length%3===0?[{titan:'always',style:'flank',siege:'numbers',camp:'always'},{titan:'ahead',style:'flank',siege:'late'}]:undefined;
   // args(): what simulateTeam(teams, seed, options) is given for this game; make() builds the same battle.
   const opponent=other[(list.length+k)%other.length],args=()=>[[squad(COMPOSITIONS[comp],seed),squad(COMPOSITIONS[opponent],seed+1)],seed,{headless:true,map,tactics,engineVersion:engine,...(gamePlans?{gamePlans}:{})}];
   list.push({map,size,comp,seed,tactics,engine,args,make:()=>new (teamEngine(engine))(...args())});
