@@ -155,4 +155,4 @@ node scripts/summarize-class-evaluation.mjs
 node scripts/verify-class-save.mjs "path/to/a/read-only-backup.sqlite"
 ```
 
-The last command writes only to an in-memory clone and the validation report. The offline fresh-world evaluation never opens user saves. Fingerprints in the generation/world reports identify the exact combat and generation inputs. The approved specification is retained in [CLASS-IDENTITY-PROPOSAL.md](CLASS-IDENTITY-PROPOSAL.md).
+The last command writes only to an in-memory clone and the validation report. The offline fresh-world evaluation never opens user saves. Fingerprints in the generation/world reports identify the exact combat and generation inputs.

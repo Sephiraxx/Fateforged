@@ -26,6 +26,7 @@ pub mod step;
 pub mod result;
 pub mod wisps;
 pub mod classic;
+pub mod siege_ai;
 
 pub use view::Tgt;
 
@@ -61,6 +62,8 @@ pub struct Transient {
 pub enum TargetFilter {
     NearCore(Ent),
     NearPit,
+    /// d22: enemies hitting our team near the enemy Core (`hitters` are their indexes), or close to `me`.
+    SiegeGuard { hitters: Vec<Option<f64>>, core: Ent, me: Ent },
 }
 
 impl Engine {

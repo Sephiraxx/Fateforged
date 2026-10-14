@@ -296,6 +296,16 @@ impl Engine {
             let v = max(out[plan_index("defend")].unwrap_or(0.0), r.defend_base + r.defend_per_intruder * n);
             set(&mut out, "defend", v);
         }
+        // d22: siege with an edge, or once the game runs long.
+        if out[plan_index("siege")].is_some_and(|v| v > 0.0) {
+            let edge = s.alive - s.foes_alive;
+            if !(s.forgefire || edge > 0.0 || edge == 0.0 && !s.titan_up && !s.titan_soon || s.foe_core < 0.2 || self.b.time >= super::siege_ai::SIEGE_ANYWAY) {
+                set(&mut out, "siege", 0.0);
+                if !out[plan_index("hold")].is_some_and(|v| v > 0.0) && !out[plan_index("contest")].is_some_and(|v| v > 0.0) {
+                    set(&mut out, "hold", 30.0);
+                }
+            }
+        }
         out
     }
 

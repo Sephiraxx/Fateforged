@@ -1,0 +1,45 @@
+{
+ "games": 32,
+ "before": {
+  "engine": "team-3.9",
+  "rows": {
+   "3": {
+    "games": 32,
+    "retaliation": 0.526,
+    "contestedCoreDamage": 0.759,
+    "medianSeconds": 251.4,
+    "suddenDeath": 0,
+    "killsPerGame": 13.4
+   },
+   "5": {
+    "games": 32,
+    "retaliation": 0.408,
+    "contestedCoreDamage": 0.805,
+    "medianSeconds": 281.9,
+    "suddenDeath": 0.125,
+    "killsPerGame": 26.8
+   }
+  }
+ },
+ "after": {
+  "engine": "team-4.0",
+  "rows": {
+   "3": {
+    "games": 32,
+    "retaliation": 0.918,
+    "contestedCoreDamage": 0.613,
+    "medianSeconds": 268.2,
+    "suddenDeath": 0,
+    "killsPerGame": 15.9
+   },
+   "5": {
+    "games": 32,
+    "retaliation": 0.884,
+    "contestedCoreDamage": 0.577,
+    "medianSeconds": 280.4,
+    "suddenDeath": 0.125,
+    "killsPerGame": 27.4
+   }
+  }
+ }
+}

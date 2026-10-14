@@ -1761,6 +1761,13 @@
      "type": "str",
      "nullable": true
     },
+    "lastHitAt": {
+     "type": "f64",
+     "nullable": true,
+     "engines": [
+      "team-4.0"
+     ]
+    },
     "lastStandTime": {
      "type": "f64",
      "nullable": false

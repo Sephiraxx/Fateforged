@@ -1,6 +1,6 @@
 # Art prompts (for ChatGPT image generation)
 
-These prompts produce sprites for team battles and the coming objective mode (`OBJECTIVE-MODE.md`). Paste them into ChatGPT one at a time. The game creates fighters from 72 races, 56 classes and 41 weapons, so one sprite per combination is impossible. The plan is a small set of **class-archetype characters**, **weapon props** and **map pieces** that the game combines.
+These prompts produce sprites for team battles and Core siege. Paste them into ChatGPT one at a time. The game creates fighters from 72 races, 56 classes and 41 weapons, so one sprite per combination is impossible. The plan is a small set of **class-archetype characters**, **weapon props** and **map pieces** that the game combines.
 
 > **Why not separate body and outfit layers?** Image generators cannot reliably produce pieces that line up pixel-perfect when stacked. Each character sprite is therefore a complete figure. The game adds the team colour and the weapon on top, and shows the race through the name and a later race badge.
 

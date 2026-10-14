@@ -16,11 +16,15 @@ impl Engine {
         if ee.is_objective == Some(true) {
             return false;
         }
-        match *filter {
-            TargetFilter::NearCore(core) => d(ee.x, ee.y, self.f(core).x, self.f(core).y) < brain_rules::DEFEND_RANGE + 60.0,
+        match filter {
+            &TargetFilter::NearCore(core) => d(ee.x, ee.y, self.f(core).x, self.f(core).y) < brain_rules::DEFEND_RANGE + 60.0,
             TargetFilter::NearPit => {
                 let pit = self.pit();
                 d(ee.x, ee.y, pit.x, pit.y) < brain_rules::PIT_RADIUS + 60.0
+            }
+            TargetFilter::SiegeGuard { hitters, core, me } => {
+                let (c, m) = (self.f(*core), self.f(*me));
+                hitters.contains(&Some(ee.index)) && de(ee, c) < super::siege_ai::GUARD_RANGE || de(ee, m) < super::siege_ai::CLOSE_GUARD
             }
         }
     }
@@ -35,11 +39,17 @@ impl Engine {
         t
     }
 
-    /// `chooseTarget(f)` from the top (d19).
+    /// `chooseTarget(f)` from the top: d22 (fight back) over d19; classic games go straight to d8.
     pub fn choose_target(&mut self, f: Ent) -> Option<Ent> {
         if self.classic {
             return self.choose_target_d8(f);
         }
+        let t = self.choose_target_d19(f);
+        self.siege_ai_target(f, t)
+    }
+
+    /// d19: taunts, defending the Core, then the plan's choice.
+    fn choose_target_d19(&mut self, f: Ent) -> Option<Ent> {
         let fe = self.f(f);
         let taunt = fe.taunt_source.and_then(|i| self.actor_for(i));
         if fe.taunt_time > 0.0 && taunt.is_some_and(|t| self.f(t).hp > 0.0) {

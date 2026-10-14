@@ -304,7 +304,7 @@ impl Engine {
 
     /// The `hurt` chain from the top (d20). `Some(true)` = the hit connected, `Some(false)` = a layer refused it,
     /// `None` = JavaScript's `undefined` (dodged, warded, a decoy, already down).
-    pub fn hurt(&mut self, t: &Tgt, f: Option<Ent>, mut amount: f64, kind: &str, can_dodge: bool) -> Option<bool> {
+    pub(super) fn hurt_d20(&mut self, t: &Tgt, f: Option<Ent>, mut amount: f64, kind: &str, can_dodge: bool) -> Option<bool> {
         // d20: controllers' and healers' output.
         if let Some(fi) = f {
             let fe = self.f(fi);

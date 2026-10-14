@@ -41,4 +41,3 @@ A deterministic fresh sample of 160 A/S fighters had 57 fighters with at least o
 
 `scripts/check-rolled-support.mjs` checks every option in both slots, duplicate and equipment exclusion, actual effect delivery, resources, cooldowns, interruptions, area-healer positioning, Core siege resurrection limits, legacy replay meanings, existing-roster conversion and API persistence. Twelve baseline duel fixtures produce identical results to frozen v12 when no new ability is equipped. Team seasons, series, offseason, automatic balance, objectives, Pages saves and trait details have additional regression checks.
 
-The coach/fighter AI roadmap remains a separate future change in `AI-IMPROVEMENT-PLAN.md`.

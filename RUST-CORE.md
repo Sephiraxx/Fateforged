@@ -208,7 +208,7 @@ B2 and B3 ported every group and proved each method call by call, then whole gam
   - **Node:** about 5× faster per core than the JavaScript engine, over Core siege and classic games (`validation/rust-wasm.json`).
   - **Chromium, 3 workers, 83 games:** JavaScript 63 s, the core 19 s, about 3.4× including each worker's self-test and the time to compile the module. Long seasons approach the per-game figure.
 - **Staleness check:** `validation/rust-wasm-source.json` holds the hash of the core's sources. `check-rust-wasm` fails when the sources change without a rebuild; with the wasm32 target installed, it also plays games on a fresh build.
-- **Maintenance rule:** new engine versions ship in JavaScript first and work at once through the fallback. The core catches up afterwards (extend `CORE_ENGINES` in `public/rust-core.js` once a version is ported and proven).
+- **Maintenance rule:** the current engines (team-4.0, team-2.9) now change in place, and each change ships with its Rust port and a fresh parity run. The siege AI, for example, is `public/siege-ai-combat.js` in JavaScript and `core/src/team/engine/siege_ai.rs` in Rust. If a port lags behind, the self-test turns the core off and JavaScript plays the games.
 
 ## Commands
 - `node scripts/check-rust-core.mjs`, part of `check-all`:

@@ -1335,6 +1335,8 @@ pub struct Entity {
     pub last_attacker: Option<f64>,
     #[serde(rename = "lastCastId", default)]
     pub last_cast_id: Option<String>,
+    #[serde(rename = "lastHitAt", default, deserialize_with = "jsnum::opt_f64")]
+    pub last_hit_at: Option<f64>,
     #[serde(rename = "lastStandTime", deserialize_with = "jsnum::f64")]
     pub last_stand_time: f64,
     #[serde(rename = "lastStandUsed")]
@@ -1599,6 +1601,7 @@ impl Digest for Entity {
         match &self.lane_waypoint { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.last_attacker { None => h.nil(), Some(v) => { h.f64((*v)); } }
         match &self.last_cast_id { None => h.nil(), Some(v) => { h.str(&(*v)); } }
+        match &self.last_hit_at { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.last_stand_time);
         h.bool(self.last_stand_used);
         h.f64(self.magic);

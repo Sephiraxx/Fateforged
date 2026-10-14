@@ -1,5 +1,5 @@
 {
- "note": "Hash of result() and final fighter positions for one seeded game per team engine and squad (scripts/check-team-performance-paths.mjs). Recorded before the simulation speed-up; frozen engines must keep matching.",
+ "note": "Hash of result() and final fighter positions for one seeded game per team engine and squad (scripts/check-team-performance-paths.mjs). The current engines (team-4.0, team-2.9) are re-recorded when their rules change on purpose; the others are frozen.",
  "seed": 4242,
  "map": "ruins",
  "tactics": [
@@ -54,8 +54,8 @@
   "team-3.8 healer3": "5633f0f573b696dfab1f3fbf",
   "team-3.9 balanced3": "8c3880079d79844e54e28ab3",
   "team-3.9 healer3": "a91369be889859f23d26dc97",
-  "team-4.0 balanced3": "1b26c21ff9dc4b45a0160727",
-  "team-4.0 healer3": "76ec7759c154719652b25483",
+  "team-4.0 balanced3": "16b53c0495f6b78e520ec830",
+  "team-4.0 healer3": "a2f328ced5601e06f43d9a7b",
   "team-2.9 balanced3": "ad4f73d1df057511876d698f",
   "team-2.9 healer3": "7f31c7f4126e33cea0c95d0c"
  }
