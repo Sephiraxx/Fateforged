@@ -1,5 +1,4 @@
 import {neutralBalance,lineupGroups,balanceObservations,addBalanceObservations,applyBalanceCheckpoint} from './team-balance.js';
-import {auditObservations,balanceAuditPlan,applyBalanceAudit} from './balance-analysis.js';
 import {teamKit,TEAM_KITS} from './team-kits.js';
 import {supportAbility} from './support-abilities.js';
 import {SERIES_TACTICS,seriesGameOptions,seriesScore} from './team-series.js';
@@ -135,7 +134,7 @@ export function create({id,format:formatSize,teams,seed,fighters,battleMode='tea
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  supportRulesVersion:1,balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  supportRulesVersion:1,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -229,9 +228,11 @@ export function buildSchedule(w){
  return shuffle(rounds.map((games,i)=>({games,i})),w.seed^Math.imul(season,0x632be5ab)).map(({games},week)=>({week:week+1,games:games.map(([homeTeam,away],n)=>({id:`s${season}:w${week+1}:${n}`,home:homeTeam,away}))}));
 }
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
-export function startSeason(w,audit){
+// Balance is set by hand for the team cast (TEAM-BATTLES.md, "Hand balance"): leagues play the base rules and never
+// audit or patch themselves.
+export function startSeason(w){
  if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
- w.balance??=neutralBalance();if(audit&&w.balance.enabled)recordBalanceAudit(w,'preseason',audit);w.balance.rulesVersion=3;
+ w.balance??=neutralBalance();w.balance.enabled=false;delete w.balance.pendingAudit;w.balance.rulesVersion=3;
  w.teamEngine=engineForMode(w.settings.battleMode);w.balance??=neutralBalance();w.balance.samples=[];w.balance.seasonSamples=[];w.balance.sampleGames=w.balance.seasonSampleGames=0;delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
 }
 const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
@@ -497,11 +498,8 @@ function newSeason(w){
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
-export function setAutoBalance(w,enabled){if(typeof enabled!=='boolean')throw new Error('Choose whether auto-balance is enabled.');w.balance??=neutralBalance();w.balance.enabled=enabled;if(!enabled)delete w.balance.pendingAudit;return w;}
 // Battle rules change only between seasons; startSeason picks the engine from settings.battleMode.
 export function setBattleMode(w,mode){if(!['teamfight','core'].includes(mode))throw new Error('Choose Core siege or classic teamfight.');if(mode==='core'&&FORMATS[w.format].size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(['season','playoffs'].includes(w.phase)||w.pendingSeries)throw new Error('Battle rules change between seasons.');w.settings.battleMode=mode;return w;}
-export function auditPlan(w,phase){return balanceAuditPlan(w,phase);}
-export function recordBalanceAudit(w,phase,report){if(w.pendingSeries)throw Error('Finish the current series before balancing.');if(phase==='preseason'&&w.phase!=='ready'||phase==='halfway'&&w.balance?.pendingAudit!=='halfway')throw Error('This balance checkpoint is not available.');if(phase==='preseason'&&w.balance?.preseasonSeason===w.season)throw Error('This preseason was already balanced.');const entry=applyBalanceAudit(w,phase,report);if(entry)w.teamEngine=entry.engine;return entry;}
 function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;if(w.balance.rulesVersion>=2){if(phase==='offseason'){w.balance.previousSamples=structuredClone(w.balance.seasonSamples??w.balance.samples);w.balance.previousRoleRates=seasonMeta(w).roleRates;w.balance.previousSampleGames=w.balance.seasonSampleGames;w.balance.offseasonSeason=w.season;}else if(w.balance.enabled)w.balance.pendingAudit='halfway';return;}w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}
 
-function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
+function lineupEvidence(w,ids){return lineupGroups(ids.map(id=>w.fighters[id]));}

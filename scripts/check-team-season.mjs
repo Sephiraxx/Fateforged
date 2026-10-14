@@ -1,4 +1,3 @@
-import {auditMidseasonProposal} from '../public/balance-analysis.js';
 import assert from 'node:assert/strict';import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';
 import {generation} from './team-fixtures.mjs';
 import * as L from '../public/team-league.js';
@@ -54,10 +53,12 @@ const ok=r=>{assert.equal(r.status,200,r.error);return r;};
 const seed=4321,plan=L.poolPlan(3,8,seed),pool=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`));
 let {world,revision}=ok(await call({action:'start',revision:0,worldId:crypto.randomUUID(),teams:8,seed,fighters:pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))}));
 assert.equal((await call({action:'startSeason',revision})).status,400,'The season waits for the draft.');
-({world,revision}=ok(await call({action:'draft',revision,count:1000})));const auditPlan=L.auditPlan(world,'preseason'),audit={version:auditPlan.version,token:auditPlan.token,rows:auditPlan.candidates.map(c=>({key:c.key,status:'unmatched'}))};assert.equal((await call({action:'startSeason',revision,audit:{...audit,token:'stale'}})).status,400);const startSeasonCommand={action:'startSeason',revision,audit,operationId:crypto.randomUUID()};({world,revision}=ok(await call(startSeasonCommand)));assert.deepEqual(ok(await call(startSeasonCommand)).world,world);assert.equal(world.balance.preseasonSeason,1);assert.equal(world.balance.history[0].phase,'preseason');assert.equal(world.phase,'season');
+({world,revision}=ok(await call({action:'draft',revision,count:1000})));const startSeasonCommand={action:'startSeason',revision,operationId:crypto.randomUUID()};({world,revision}=ok(await call(startSeasonCommand)));assert.deepEqual(ok(await call(startSeasonCommand)).world,world);assert.equal(world.phase,'season');
+// Hand balance: leagues never audit or patch themselves.
+assert.equal(world.balance.enabled,false);assert.equal((await call({action:'balanceAudit',revision,phase:'preseason',audit:{}})).status,400);assert.equal((await call({action:'balance',revision,enabled:true})).status,400);
 const week=L.upcoming(world,4);assert.equal((await call({action:'record',revision,results:week.slice(1).map(m=>({matchId:m.id,games:fake(m)}))})).status,400,'Out-of-order results are rejected.');
 assert.equal((await call({action:'record',revision,results:[{matchId:week[0].id,games:fake(week[0]).map(g=>({...g,combatVersion:12}))}]})).status,400,'Results from another engine are rejected.');
 while(world.phase!=='complete'){const matches=L.upcoming(world,world.phase==='season'?4:Infinity);({world,revision}=ok(await call({action:'record',revision,results:matches.map(m=>({matchId:m.id,games:fake(m)}))})));}
 assert.equal(world.titles.length,1);assert.equal((await call({action:'record',revision,results:[{matchId:'s1:w1:0',games:[]}]})).status,400,'Nothing to record after the final.');
-assert.equal(world.balance.pendingAudit,'halfway');const midPlan=L.auditPlan(world,'halfway'),midAudit={version:midPlan.version,token:midPlan.token,rows:midPlan.candidates.map(c=>({key:c.key,status:auditMidseasonProposal(midPlan,c.key)?'unmatched':'skipped'}))};({world,revision}=ok(await call({action:'balanceAudit',revision,phase:'halfway',audit:midAudit})));assert.equal(world.balance.pendingAudit,undefined);assert.equal(world.balance.halfwaySeason,1);assert.equal(world.titles[0].roster.length,world.settings.rosterSize);
+assert.equal(world.balance.pendingAudit,undefined);assert.equal(world.balance.history.length,0);assert.equal(world.titles[0].roster.length,world.settings.rosterSize);
 console.log(`Team season passed: perfect 10/14/17-week schedules, ${regular}-game 32-team season with tiebreak standings, 7-seed re-seeded playoffs to a Bo5 final, 16/8-team brackets, a real simulated series, result validation and server batches through the champion.`);
