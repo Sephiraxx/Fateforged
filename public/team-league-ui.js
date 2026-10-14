@@ -203,7 +203,7 @@ export function mountTeamLeague(host,hooks){
  }
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');
-  card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of S and A tier fighters (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
+  card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of team cast fighters (ten classes, every subclass equally likely), S and A tier (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
   const rules=el('select'),rulesLabel=el('label','Battle rules');rules.setAttribute('aria-label','League battle rules');for(const [value,text]of [...(size===2?[]:[['core','Core siege']]),['teamfight',size===2?'Team battle':'Classic teamfight']]){const o=el('option',text);o.value=value;rules.append(o);}rules.value=size===2?'teamfight':'core';rules.disabled=busy;rulesLabel.append(rules);card.append(rulesLabel);
   for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams,rules.value);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
   card.append(pick);body.append(card);
@@ -414,6 +414,12 @@ export function mountTeamLeague(host,hooks){
  function draw(){
   body.replaceChildren();
   if(!world){renderSetup();return;}
+  if(LEAGUE.oldFormat(world)){
+   const card=el('div','','team-league-head'),info=el('div'),reset=button('Delete league','quiet danger');reset.disabled=busy;
+   info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3','Old format'),el('p','This league was made before the team cast (classes and subclasses for team fighters) and can no longer be played. Delete it to start a new league.','muted'));
+   reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
+   card.append(info,reset);body.append(card);return;
+  }
   const phaseLabel={draft:'Draft day',ready:'Rosters set',season:'Regular season',playoffs:'Playoffs',complete:'Season complete',offseason:'Offseason'}[world.phase];
   const head=el('div','','team-league-head'),info=el('div');info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3',phaseLabel));
   const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);

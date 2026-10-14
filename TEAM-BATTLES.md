@@ -902,6 +902,8 @@ New team abilities are data (`public/team-abilities.js`) that a small set of eff
 | | | Soulbinder | controller | Soul link, Blood control |
 | | | Voidcaller | controller | Singularity, Dispel |
 
+- **Old format:** leagues carry `castVersion: 5`; a league saved before the team cast is the old format. The league page shows it as "Old format" with only Delete, and the server refuses every other command for it. Nothing is migrated. Pools and rookie classes must be cast fighters.
+
 With equal odds per class, about 13% of fighters are healers, 13% tanks, 22% controllers, 32% damage dealers, 10% supports and 10% bruisers. Coverage games (`castteam` in `scripts/rust-schema.mjs`) play random cast teams on both engines, and `node scripts/rust-games.mjs --comp castteam` checks them alone against the Rust core.
 
 ## Enhanced renderer (PixiJS, objective phase 5)

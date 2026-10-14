@@ -10,6 +10,11 @@ import {MAP_IDS} from './team-maps.js';
 import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,GAME_PLAN_ENGINES,engineForMode,isObjectiveEngine} from './team-engine-versions.js';
 import {validGamePlan,personalityGamePlan} from './team-game-plan.js';
 export const TEAM_LEAGUE_VERSION=1;
+// Leagues from the team cast (team-classes.js) carry castVersion 5. Older leagues are the old format: they can only
+// be deleted.
+export const CAST_LEAGUE=5;
+export const oldFormat=w=>!!w&&w.castVersion!==CAST_LEAGUE;
+const castFighters=list=>list.every(c=>c?.summary?.generationVersion===CAST_LEAGUE);
 export const LEAGUE_SIZES=Object.freeze([8,16,32]);
 // mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
 export const FORMATS=Object.freeze({
@@ -115,7 +120,7 @@ function teamIdentities(teams,seed){
 const FIGHTER_KEYS=['race','subrace','class','subclass','strength','speed','durability','iq','magic','weapon','mastery','power','power2','weakness'];
 export function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'}){
  const f=format(formatSize);if(!['teamfight','core'].includes(battleMode)||battleMode==='core'&&f.size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(!LEAGUE_SIZES.includes(teams))throw new Error('Choose 8, 16 or 32 teams.');
- const plan=poolPlan(formatSize,teams,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);
+ const plan=poolPlan(formatSize,teams,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);if(!castFighters(fighters))throw new Error('Team leagues draw their fighters from the team cast.');
  const roster={},seen=new Set();
  fighters.forEach((c,i)=>{
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
@@ -129,7 +134,7 @@ export function create({id,format:formatSize,teams,seed,fighters,battleMode='tea
  list.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
- return {version:TEAM_LEAGUE_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
+ return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
   supportRulesVersion:1,balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
@@ -424,7 +429,7 @@ export function adaptCoaches(w,meta){
 }
 export function startOffseason(w,rookies){
  if(w.phase!=='complete')throw new Error('Finish the season before the offseason.');
- const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);
+ const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);if(!castFighters(rookies))throw new Error('Rookies come from the team cast.');
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
  balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
