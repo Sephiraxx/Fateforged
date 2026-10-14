@@ -5177,14 +5177,68 @@ function applyBalanceCheckpoint(balance,context){if(!balance.enabled)return null
 function patchFactor(profile,key){return profile?.multipliers?.[key]??1;}
 function validateBalanceProfile(profile){if(!profile||typeof profile.id!=='string'||!profile.multipliers||Array.isArray(profile.multipliers))throw new Error('Invalid saved balance patch.');const ids=new Set(Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).map(p=>p.id));for(const [key,n]of Object.entries(profile.multipliers)){const raw=key.split(':'),p=raw[0]==='role'&&['stat','ability'].includes(raw[2])&&['tank','healer','controller','damage'].includes(raw[1])?raw.slice(2):raw,specific=p[0]==='stat'&&p.length===2&&['STR','SPD','DUR','IQ','MAG'].includes(p[1])||p[0]==='ability'&&p.length===3&&['cooldown','potency','healing','duration'].includes(p[2])&&ids.has(p[1]);if(!specific&&!/^(role:(tank:health|healer:healing|controller:control|damage:damage)|weapon:(melee|ranged|arcane):damage|(kit|ability):(healing|control):output|target:(fortified|healing|control|dive))$/.test(key)||!Number.isFinite(n)||n<.7||n>1.3)throw new Error('Invalid saved balance multiplier.');}return structuredClone(profile);}
 
+// The team cast (TEAM-BATTLES.md, "Team cast"): ten classes, each with subclasses that set the role, the weapon family
+// and the two abilities. 2v2, 3v3 and 5v5 fighters come from this cast instead of the duel wheel: races keep their stat
+// modifiers, and nobody has a weakness. Every class is equally likely, then every subclass of that class.
+// Roles: the cast's roles (shown in the game) and the engine role each one plays (support → controller, bruiser →
+// melee damage).
+const CAST_ROLES=Object.freeze({tank:'tank',healer:'healer',controller:'controller',damage:'damage',support:'controller',bruiser:'damage'});
+const CAST_ROLE_LABELS=Object.freeze({tank:'Tank',healer:'Healer',controller:'Controller',damage:'Damage',support:'Support',bruiser:'Bruiser'});
+const castSub=(name,role,powers,weapons=null)=>Object.freeze({name,role,powers:Object.freeze(powers),...(weapons?{weapons:Object.freeze(weapons)}:{})});
+const TEAM_CLASSES=Object.freeze([
+ {name:'Cleric',weapons:['Staff','Magic wand','Crystal orb','Spellbook'],subclasses:[
+  castSub('Light','healer',['Healing touch','Mending wave']),castSub('Mercy','healer',['Healing touch','Resurrection']),castSub('Ward','healer',['Barrier','Healing touch'])]},
+ {name:'Druid',weapons:['Staff','Crystal orb'],subclasses:[
+  castSub('Grove','healer',['Regeneration','Life creation']),castSub('Forest','controller',['Entangling roots','Bramble patch']),castSub('Moon','controller',['Dream walking','Moonfire'])]},
+ {name:'Warrior',weapons:['Longsword','Shield','Tower shield'],subclasses:[
+  castSub('Vanguard','tank',['Guard','Taunt shout']),castSub('Berserker','damage',['Cleave','Charge'],['Greataxe','Battleaxe','Warhammer']),castSub('Duelist','damage',['Parry','Driving strike'],['Rapier','Katana','Longsword'])]},
+ {name:'Guardian',weapons:['Shield','Tower shield','Warhammer','Mace'],subclasses:[
+  castSub('Stoneguard','tank',['Last stand','Spirit armor']),castSub('Warden','tank',['Knock-up','Taunt shout']),castSub('Aegis','tank',['Aegis','Force fields'])]},
+ {name:'Mage',weapons:['Staff','Magic wand','Crystal orb','Spellbook'],subclasses:[
+  castSub('Fire','damage',['Fire control','Ember spark']),castSub('Blood','damage',['Blood bolt','Venom craft']),castSub('Frost','controller',['Ice control','Frost touch']),castSub('Chrono','controller',['Time slowing','Arcane silence'])]},
+ {name:'Ranger',weapons:['Longbow','Crossbow','Spirit bow'],subclasses:[
+  castSub('Marksman','damage',['Aimed shot','Chain shot']),castSub('Trapper','damage',['Crippling strike','Disarm shot']),castSub('Beastmaster','damage',['Beast command','Aimed shot'])]},
+ {name:'Assassin',weapons:['Twin daggers','Shortsword','Katana'],subclasses:[
+  castSub('Shadowblade','damage',['Invisibility','Backstab']),castSub('Riftwalker','damage',['Teleportation','Arcane silence']),castSub('Executioner','damage',['Death command','Execute']),castSub('Venomblade','damage',['Toxic blade','Shadowstep'],['Poisoned daggers'])]},
+ {name:'Bard',weapons:['Magic wand','Spellbook','Throwing knives'],subclasses:[
+  castSub('Skald','support',['Battle hymn','War cry']),castSub('Maestro','support',['Haste','Discord']),castSub('Siren','support',['Charm','Sound control'])]},
+ {name:'Paladin',weapons:['Longsword','Warhammer','Blessed mace','Silver longsword'],subclasses:[
+  castSub('Crusader','bruiser',['Smite','Zeal']),castSub('Justiciar','bruiser',['Judgment','Taunt shout']),castSub('Oathbreaker','bruiser',['Blood control','Dread aura'])]},
+ {name:'Warlock',weapons:['Spellbook','Crystal orb','Staff'],subclasses:[
+  castSub('Hexer','controller',['Curse','Enfeeble']),castSub('Soulbinder','controller',['Soul link','Blood control']),castSub('Voidcaller','controller',['Singularity','Dispel'])]}
+].map(c=>Object.freeze({...c,weapons:Object.freeze(c.weapons),subclasses:Object.freeze(c.subclasses)})));
+const CAST_VERSION=5;
+function castSubclass(className,subclassName){const c=TEAM_CLASSES.find(x=>x.name===className);return c?.subclasses.find(s=>s.name===subclassName)??null;}
+
+// A cast fighter's body comes from the wheel (race, subrace, class and stat traits, weapon, mastery); its stats are the
+// sum of those options plus the same kit allowance for every subclass, so they can be checked from the traits alone.
+const CAST_BODY=Object.freeze(['race','subrace','class','strength','speed','durability','iq','magic','weapon','mastery']);
+const CAST_KIT=Object.freeze([30,30,30,30,30]);
+const CAST_TIERS=[['E',0,349],['D',350,649],['C',650,999],['B',1000,1499],['A',1500,2099],['S',2100,2999],['SS',3000,Infinity]];
+const castTierOf=total=>CAST_TIERS.find(([,lo,hi])=>total>=lo&&total<=hi)?.[0]??'E';
+// The summary of a cast fighter, after checking its traits against the cast and the wheel pools. Throws on anything
+// a cast fighter can't have.
+function castSummary(pools,traits){
+ const c=TEAM_CLASSES.find(x=>x.name===traits?.class),s=c?.subclasses.find(x=>x.name===traits.subclass);
+ if(!s)throw new Error('Unknown team class or subclass.');
+ if(!(s.weapons??c.weapons).includes(traits.weapon))throw new Error(`${c.name} (${s.name}) fighters cannot carry ${traits.weapon}.`);
+ if(traits.power!==s.powers[0]||traits.power2!==s.powers[1])throw new Error('Team fighters keep their subclass abilities.');
+ if(traits.weakness!=='None')throw new Error('Team fighters have no weakness.');
+ const stats=[...CAST_KIT];
+ for(const key of CAST_BODY){const list=key==='subrace'?pools.subrace[traits.race]:pools.base[key],option=list?.find(o=>o.name===traits[key]);if(!option)throw new Error(`Invalid ${key}: ${traits[key]}.`);option.stats.forEach((n,i)=>stats[i]+=n);}
+ const clean=stats.map(v=>Math.max(0,v)),total=clean.reduce((a,b)=>a+b,0);
+ return {stats:clean,total,tier:castTierOf(total),generationVersion:CAST_VERSION,castRole:s.role};
+}
+
 // Team roles: tank, healer, controller or damage, derived from class identity, abilities, weapon and stats.
 // Pure and deterministic; shared by the team engine, the exhibition UI and (later) coach valuation.
+
 
 
 const CATALOG=globalThis.CURRENT_CLASS_ABILITIES;
 const definitions=c=>(c.summary?.generationVersion??c.state?.generationVersion??c.generationVersion??1)>=4?CATALOG:globalThis.CLASS_ABILITIES;
 const TEAM_ROLES=Object.freeze(['tank','healer','controller','damage']);
-const ROLE_LABELS=Object.freeze({tank:'Tank',healer:'Healer',controller:'Controller',damage:'Damage'});
+const ROLE_LABELS=Object.freeze({tank:'Tank',healer:'Healer',controller:'Controller',damage:'Damage',support:'Support',bruiser:'Bruiser'});
 const HEALS={healing:3,life:3,regeneration:2.2,rewind:1,phoenix:.8,secondWind:.4,mendingWave:3,chainHeal:3,resurrection:2};
 const HARD_CONTROL={dream:2.4,memory:2.4,silence:2,void:1.8,roots:2,telekinesis:1.6,kinetic:1.2,sound:1.2,metal:1,stunBolt:2,knockUp:1.2,disarmShot:1,tauntShout:1.2,hamstring:.8};
 const SOFT_CONTROL={time:1.6,gravity:1.6,singularity:1.4,ice:1.1,frostTouch:.9,light:1,soul:1,cripplingStrike:.8,bramble:.7,shadow:.6};
@@ -5200,6 +5254,9 @@ function combatNumbers(character){
  return {maxHp,armor,effectiveHp:maxHp/(1-armor),dps:damage/interval*(.76+Math.min(.2,s[3]/130)),spell:12+s[4]*2.3,weaponType:w.type,shield:(w.tags||[]).includes('shield')};
 }
 function teamRole(character){
+ // Cast fighters (generation 5) play the role their subclass sets.
+ const cast=(character.summary?.generationVersion??character.generationVersion??0)>=5?castSubclass(character.traits?.class,character.traits?.subclass):null;
+ if(cast){const role=CAST_ROLES[cast.role];return {role,secondary:role,castRole:cast.role,scores:{[role]:1}};}
  const traits=character.traits||character.state?.traits||{},profile=CATALOG.profile(traits),ids=abilityIds(traits,character),n=combatNumbers(character);
  const scores={tank:0,healer:0,controller:0,damage:1.2};
  for(const [role,weights]of Object.entries(tagScore)){for(const tag of profile.core||[])scores[role]+=weights[tag]??0;for(const tag of profile.specialty||[])scores[role]+=(weights[tag]??0)*.6;for(const tag of profile.related||[])scores[role]+=(weights[tag]??0)*.25;}
@@ -5555,6 +5612,11 @@ function seriesGameOptions(match,games=[],choice=null){
 
 
 const TEAM_LEAGUE_VERSION=1;
+// Leagues from the team cast (team-classes.js) carry castVersion 5. Older leagues are the old format: they can only
+// be deleted.
+const CAST_LEAGUE=5;
+const oldFormat=w=>!!w&&w.castVersion!==CAST_LEAGUE;
+const castFighters=list=>list.every(c=>c?.summary?.generationVersion===CAST_LEAGUE);
 const LEAGUE_SIZES=Object.freeze([8,16,32]);
 // mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
 const FORMATS=Object.freeze({
@@ -5648,7 +5710,7 @@ const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.9','team-2.7':'team-2
 function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
-function scoutFighter(character){const {role,secondary}=teamRole(character),ovr=overall(character,role);return {role,secondary,ovr,salary:salaryFor(ovr)};}
+function scoutFighter(character){const {role,secondary,castRole}=teamRole(character),ovr=overall(character,role);return {role,secondary,...(castRole?{castRole}:{}),ovr,salary:salaryFor(ovr)};}
 function structure(teams){
  const divisions=teams===32?4:teams===16?2:1,perDivision=teams/(2*divisions);
  return CONFERENCES.map((name,c)=>({name,divisions:DIVISIONS.slice(0,divisions).map((division,d)=>({name:division,slots:Array.from({length:perDivision},(_,i)=>c*divisions*perDivision+d*perDivision+i)}))}));
@@ -5660,7 +5722,7 @@ function teamIdentities(teams,seed){
 const FIGHTER_KEYS=['race','subrace','class','subclass','strength','speed','durability','iq','magic','weapon','mastery','power','power2','weakness'];
 function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'}){
  const f=format(formatSize);if(!['teamfight','core'].includes(battleMode)||battleMode==='core'&&f.size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(!LEAGUE_SIZES.includes(teams))throw new Error('Choose 8, 16 or 32 teams.');
- const plan=poolPlan(formatSize,teams,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);
+ const plan=poolPlan(formatSize,teams,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);if(!castFighters(fighters))throw new Error('Team leagues draw their fighters from the team cast.');
  const roster={},seen=new Set();
  fighters.forEach((c,i)=>{
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
@@ -5674,7 +5736,7 @@ function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'
  list.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
- return {version:TEAM_LEAGUE_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
+ return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
   supportRulesVersion:1,balance:neutralBalance(),settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
@@ -5969,7 +6031,7 @@ function adaptCoaches(w,meta){
 }
 function startOffseason(w,rookies){
  if(w.phase!=='complete')throw new Error('Finish the season before the offseason.');
- const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);
+ const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);if(!castFighters(rookies))throw new Error('Rookies come from the team cast.');
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
  balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
@@ -6046,7 +6108,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -6067,6 +6129,8 @@ async function teamApi(request,env,url){
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
  let world=row?TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))):null;
+ // Old-format leagues (before the team cast) can only be deleted.
+ if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This team league uses the old format. Delete it to start a new league with the team cast.',409);
  if(input.action==='start'){
   if(world)fail('This team league already exists. Refresh to continue it.',409);
   if(!UUID.test(input.worldId)||!Number.isSafeInteger(input.seed)||input.seed<0||input.seed>0xffffffff)fail('Invalid team league setup.');
@@ -6113,9 +6177,14 @@ async function teamApi(request,env,url){
 // A pool fighter must be an unedited roll from the canonical generation wheels.
 function teamPoolFighter(input){
  if(!plain(input)||!UUID.test(input.id)||typeof input.name!=='string'||!input.name.trim()||input.name.length>100||!plain(input.traits))fail('Invalid pool fighter.');
- const {summary}=validateSnapshot({version:1,generationVersion:input.summary?.generationVersion??3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  if(IDS.some(key=>typeof input.traits[key]!=='string'))fail('Pool fighters need all fourteen traits.');
  if(input.teamKit!=null)fail('Extra team kits are no longer generated. Roll abilities in the two normal slots.');
+ // Team cast fighters (generation 5) are checked against the cast; older fighters against the wheel.
+ if(input.summary?.generationVersion===TEAM_LEAGUE.CAST_VERSION){
+  let summary;try{summary=TEAM_LEAGUE.castSummary(GENERATION_POOLS,input.traits);}catch(e){fail(e.message);}
+  return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:summary.generationVersion,castRole:summary.castRole,wheelRarity:'common'}};
+ }
+ const {summary}=validateSnapshot({version:1,generationVersion:input.summary?.generationVersion??3,traits:input.traits,pools:GENERATION_POOLS,wheelRarity:input.summary?.wheelRarity});
  return {id:input.id,name:input.name.trim(),traits:input.traits,summary:{stats:summary.stats,total:summary.total,tier:summary.tier,generationVersion:summary.generationVersion,wheelRarity:summary.wheelRarity}};
 }
 
