@@ -70,6 +70,7 @@ The sections below record how the team systems were introduced; references to ex
   - `rollTier` gained two options for this: `forceWeaponType` keeps only weapons of one type, and `requirePower` keeps only the listed abilities on the first power wheel.
   - Tiers are roughly 70% A, 28% S and 2% SS.
 - Random exhibition teams are generated in the browser and never saved to the roster.
+- League pools, rookie classes and random exhibition teams now come from the team cast (see "Team cast"). The role-targeted wheel generation above remains for the test fixtures until the old team formats are removed.
 
 ## Balance (engine 1)
 These were engine 1's results (`node scripts/evaluate-team-combat.mjs 40`, 40 seeded games per matchup with alternating sides). Engine 2's numbers are in the Team engine 2 section below.
@@ -854,7 +855,56 @@ New team abilities are data (`public/team-abilities.js`) that a small set of eff
   - stepping behind the target and evasion;
   - dispels;
   - timed **statuses**, held in each fighter's `statuses` list: damage dealt and taken, attack and move speed, accuracy, healing received, and soul links that pass part of the damage to the target's nearest ally. Stat changes stack multiplicatively and end on death and respawn.
-- **The 21 new abilities:** Moonfire, Blood bolt, Chain shot, Backstab, Execute, Toxic blade, Shadowstep, Battle hymn, War cry, Haste, Discord, Charm, Smite, Zeal, Judgment, Dread aura, Curse, Enfeeble, Soul link, Dispel and Aegis. No fighter rolls them yet: the team cast (next step) gives them to its subclasses. Coverage games in `scripts/rust-schema.mjs` force every one of them onto fighters, so the state schema and the Rust parity runs exercise them.
+- **The 21 new abilities:** Moonfire, Blood bolt, Chain shot, Backstab, Execute, Toxic blade, Shadowstep, Battle hymn, War cry, Haste, Discord, Charm, Smite, Zeal, Judgment, Dread aura, Curse, Enfeeble, Soul link, Dispel and Aegis. The team cast gives them to its subclasses (see "Team cast"). Coverage games in `scripts/rust-schema.mjs` force every one of them onto fighters, so the state schema and the Rust parity runs exercise them.
+
+## Team cast (generation 5)
+
+2v2, 3v3 and 5v5 fighters come from their own cast (`public/team-classes.js`), not from the duel wheel. Duels and cups keep the wheel.
+- **Body:** the wheel still rolls the race, subrace, class and stat traits, weapon and mastery (`tierCharacter` with the class forced), so races keep their stat modifiers.
+- **Kit:** the subclass sets the role, the weapon family and both abilities. Team fighters have no weakness.
+- **Odds:** every class is equally likely, then every subclass of that class (`castPick`). Exhibitions that fill a composition only pick among subclasses that play the slot's role.
+- **Stats:** the sum of the body options (race, subrace, class, the five stats, weapon, mastery) plus the same kit allowance of 30 per stat for every subclass. The body is rolled again (up to eight times) until the stats land in the pool slot's tier.
+- **Validation:** `castSummary` rebuilds the summary from the traits alone and rejects anything a cast fighter can't have (unknown class or subclass, a weapon outside the family, other abilities, a weakness). The server checks generation-5 pool fighters and rookies with it.
+- **Roles:** the cast has six roles. Support (Bards) fights as a controller and Bruiser (Paladins) as a damage dealer in the engines; rosters keep `castRole` for the labels.
+
+| Class | Weapons | Subclass | Role | Abilities |
+| --- | --- | --- | --- | --- |
+| Cleric | Staff, Magic wand, Crystal orb, Spellbook | Light | healer | Healing touch, Mending wave |
+| | | Mercy | healer | Healing touch, Resurrection |
+| | | Ward | healer | Barrier, Healing touch |
+| Druid | Staff, Crystal orb | Grove | healer | Regeneration, Life creation |
+| | | Forest | controller | Entangling roots, Bramble patch |
+| | | Moon | controller | Dream walking, Moonfire |
+| Warrior | Longsword, Shield, Tower shield | Vanguard | tank | Guard, Taunt shout |
+| | Greataxe, Battleaxe, Warhammer | Berserker | damage | Cleave, Charge |
+| | Rapier, Katana, Longsword | Duelist | damage | Parry, Driving strike |
+| Guardian | Shield, Tower shield, Warhammer, Mace | Stoneguard | tank | Last stand, Spirit armor |
+| | | Warden | tank | Knock-up, Taunt shout |
+| | | Aegis | tank | Aegis, Force fields |
+| Mage | Staff, Magic wand, Crystal orb, Spellbook | Fire | damage | Fire control, Ember spark |
+| | | Blood | damage | Blood bolt, Venom craft |
+| | | Frost | controller | Ice control, Frost touch |
+| | | Chrono | controller | Time slowing, Arcane silence |
+| Ranger | Longbow, Crossbow, Spirit bow | Marksman | damage | Aimed shot, Chain shot |
+| | | Trapper | damage | Crippling strike, Disarm shot |
+| | | Beastmaster | damage | Beast command, Aimed shot |
+| Assassin | Twin daggers, Shortsword, Katana | Shadowblade | damage | Invisibility, Backstab |
+| | | Riftwalker | damage | Teleportation, Arcane silence |
+| | | Executioner | damage | Death command, Execute |
+| | Poisoned daggers | Venomblade | damage | Toxic blade, Shadowstep |
+| Bard | Magic wand, Spellbook, Throwing knives | Skald | support | Battle hymn, War cry |
+| | | Maestro | support | Haste, Discord |
+| | | Siren | support | Charm, Sound control |
+| Paladin | Longsword, Warhammer, Blessed mace, Silver longsword | Crusader | bruiser | Smite, Zeal |
+| | | Justiciar | bruiser | Judgment, Taunt shout |
+| | | Oathbreaker | bruiser | Blood control, Dread aura |
+| Warlock | Spellbook, Crystal orb, Staff | Hexer | controller | Curse, Enfeeble |
+| | | Soulbinder | controller | Soul link, Blood control |
+| | | Voidcaller | controller | Singularity, Dispel |
+
+- **Old format:** leagues carry `castVersion: 5`; a league saved before the team cast is the old format. The league page shows it as "Old format" with only Delete, and the server refuses every other command for it. Nothing is migrated. Pools and rookie classes must be cast fighters.
+
+With equal odds per class, about 13% of fighters are healers, 13% tanks, 22% controllers, 32% damage dealers, 10% supports and 10% bruisers. Coverage games (`castteam` in `scripts/rust-schema.mjs`) play random cast teams on both engines, and `node scripts/rust-games.mjs --comp castteam` checks them alone against the Rust core.
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 

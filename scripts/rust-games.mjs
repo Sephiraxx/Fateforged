@@ -4,7 +4,8 @@
 // same starting state and must reach the same digest at every checkpoint, end on the same step and report the same
 // result(). It also times
 // both engines on the same games (one core each).
-// node scripts/rust-games.mjs [--quick] [--record] [--engine <version>] [--dir <dir>] [--keep]
+// node scripts/rust-games.mjs [--quick] [--record] [--engine <version>] [--comp <composition>] [--dir <dir>] [--keep]
+// (--comp plays only the games of one composition, such as castteam)
 // (--record writes validation/rust-games.json, one summary per engine)
 import fs from 'node:fs';
 import os from 'node:os';
@@ -26,7 +27,7 @@ const exe=path.join(root,'core/target/release/team-games'+(process.platform==='w
 const build=spawnSync('cargo',['build','--release','--quiet','--manifest-path',path.join(root,'core/Cargo.toml')],{stdio:'inherit'});if(build.status!==0)process.exit(1);
 const summary={engines:{}};let failed=false;
 for(const engine of engines){
-const games=quick?[...gameList(1,engine).filter((_,i)=>i%8===0),...coverageGames(engine).list.filter((_,i)=>i%5===0)]:[...gameList(5,engine),...coverageGames(engine).list];
+const games=(quick?[...gameList(1,engine).filter((_,i)=>i%8===0),...coverageGames(engine).list.filter((_,i)=>i%5===0)]:[...gameList(5,engine),...coverageGames(engine).list]).filter(g=>!flag('--comp')||g.comp===args[args.indexOf('--comp')+1]);
 const at=path.join(dir,engine);fs.mkdirSync(at,{recursive:true});
 const started=performance.now();
 for(const [gi,g] of games.entries()){

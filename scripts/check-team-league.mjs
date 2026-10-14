@@ -44,6 +44,9 @@ const topSpend={star:[],bargain:[]};
 for(const [teams,seed]of [[8,4242],[8,4243],[16,4244],[16,4245]]){const w=L.create({id:'x',format:3,teams,seed,fighters:buildPool(3,teams,seed)});L.draftPicks(w,1e6);for(const t of w.teams)topSpend[t.coach.personality]?.push(Math.max(...w.draft.picks.filter(p=>p.team===t.id).map(p=>p.salary)));}
 const mean=list=>list.reduce((a,b)=>a+b,0)/list.length;assert(mean(topSpend.star)>mean(topSpend.bargain),`star ${mean(topSpend.star)} vs bargain ${mean(topSpend.bargain)}`);
 assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.slice(1)}),/must hold/);
+// Team cast leagues: pools must come from the cast, and leagues without castVersion 5 are the old format.
+assert.equal(world.castVersion,L.CAST_LEAGUE);assert.equal(L.oldFormat(world),false);assert.equal(L.oldFormat({...world,castVersion:undefined}),true);
+assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.map(f=>({...f,summary:{...f.summary,generationVersion:4}}))}),/team cast/);
 assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.map((f,i)=>i?f:{...f,summary:{...f.summary,tier:f.summary.tier==='A'?'S':'A'}})}),/planned tier/);
 
 // Server commands: create, deterministic picks, revisions, retries and validation.
@@ -51,7 +54,7 @@ const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync('drizzle').f
 const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},first:async()=>db.prepare(sql).get(...args)||null,all:async()=>({results:db.prepare(sql).all(...args)}),run:async()=>({meta:{changes:Number(db.prepare(sql).run(...args).changes)}})};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}}};
 const call=async(body,format=3)=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams'+(body?'':'?format='+format),{method:body?'POST':'GET',headers:{'oai-authenticated-user-id':'owner','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);return {status:r.status,...await r.json()};};
 const ok=r=>assert.equal(r.status,200,r.error);
-const wire=pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{wheelRarity:f.summary.wheelRarity}}));
+const wire=pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}));
 assert.equal((await call()).world,null);
 const start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed:4242,fighters:wire};
 const tampered=structuredClone(start);tampered.operationId=crypto.randomUUID();tampered.fighters[0].traits.power='Singularity';

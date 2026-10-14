@@ -5,7 +5,7 @@ import {TeamBattle,teamEngine} from '../public/combat-team.js';
 import {Battle as LegacyDuel} from '../public/combat-v12.js';
 import {Battle as DuelBattle} from '../public/combat-v13.js';
 import {SUPPORT_ABILITIES,powerFor} from '../public/abilities-v13.js';
-import {roleFighter,seededRandom} from '../public/team-generation.js';
+import {roleFighter,poolFighter,seededRandom} from '../public/team-generation.js';
 import {overall,prepareSupportRules} from '../public/team-league.js';
 import {buildTraitDetails} from '../public/trait-details.js';
 const context=vm.createContext({});
@@ -99,11 +99,13 @@ const loaded=(await call('characters/'+rolled.id)).character;assert.deepEqual(lo
 const cup=createTournament('Support cup',[rolled,pool.find(f=>f.id!==rolled.id)],[defaultStage('single')],17,{shuffle:false});
 cup.engineVersion=12;
 assert.equal((await call('tournaments/'+crypto.randomUUID(),'PUT',{name:cup.name,state:cup})).status,400,'Old cups cannot accept new support abilities.');
-const wire=pool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:4,wheelRarity:f.summary.wheelRarity}})),start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed,fighters:wire};
+// Team leagues draw from the team cast (generation 5); the wheel pool above covers characters and cups.
+const castPool=plan.map((slot,i)=>poolFighter(pools,luck,slot,i,seed,()=>`F${i}`));
+const wire=castPool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:5,wheelRarity:f.summary.wheelRarity}})),start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed,fighters:wire};
 const extra=structuredClone(start);extra.operationId=crypto.randomUUID();extra.fighters[0].teamKit='stunBolt';assert.equal((await call('teams','POST',extra)).status,400);
-let reply=await call('teams','POST',start);assert.equal(reply.status,200,reply.error);assert(Object.values(reply.world.fighters).every(f=>f.summary.generationVersion===4&&!Object.hasOwn(f,'teamKit')));
+let reply=await call('teams','POST',start);assert.equal(reply.status,200,reply.error);assert(Object.values(reply.world.fighters).every(f=>f.summary.generationVersion===5&&!Object.hasOwn(f,'teamKit')));
 const legacyWorld=structuredClone(reply.world);delete legacyWorld.supportRulesVersion;legacyWorld.engine='team-2.3';for(const f of Object.values(legacyWorld.fighters)){f.teamKit='stunBolt';f.ovr=99;delete f.ratingVersion;}const beforeTraits=Object.fromEntries(Object.entries(legacyWorld.fighters).map(([id,f])=>[id,f.traits]));
 db.prepare('UPDATE team_worlds SET state_json=? WHERE format=3').run(JSON.stringify(legacyWorld));
 reply=await call('teams?format=3');assert.equal(reply.status,200,reply.error);assert.equal(reply.world.supportRulesVersion,1);assert(Object.values(reply.world.fighters).every(f=>!Object.hasOwn(f,'teamKit')&&f.legacyTeamKit==='stunBolt'));assert.deepEqual(Object.fromEntries(Object.entries(reply.world.fighters).map(([id,f])=>[id,f.traits])),beforeTraits);
 reply=await call('teams','POST',{action:'draft',format:3,revision:reply.revision,operationId:crypto.randomUUID(),count:1});assert.equal(reply.status,200,reply.error);assert.equal((await call('teams?format=3')).world.supportRulesVersion,1);
-console.log('Support API integration passed: generation-4 character save/reload, pinned-cup rejection, validated fresh pools, rejected extra kits and persisted existing-roster conversion without changing rolls.');
+console.log('Support API integration passed: generation-4 character save/reload, pinned-cup rejection, validated fresh cast pools, rejected extra kits and persisted existing-roster conversion without changing rolls.');

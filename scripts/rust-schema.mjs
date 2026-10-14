@@ -9,7 +9,7 @@ import vm from 'node:vm';
 import {pathToFileURL} from 'node:url';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {tierCharacter} from '../public/tier-generation.js';
-import {seededRandom} from '../public/team-generation.js';
+import {seededRandom,randomTeam} from '../public/team-generation.js';
 import {teamEngine,TEAM_TACTICS} from '../public/combat-team.js';
 import {TEAM_MAPS} from '../public/team-maps.js';
 import {CAST_ABILITIES} from '../public/team-abilities.js';
@@ -122,6 +122,11 @@ export function coverageGames(engine=ENGINE){
  for(const [gi,g] of gameList(1,engine).filter((_,i)=>i%5===0).entries()){
   const base=g.args,args=()=>{const [teams,seed,options]=base();let k=gi*4;for(const team of teams)for(const f of team){f.traits={...f.traits,power:cast[k++%cast.length]};f.summary={...f.summary,generationVersion:4};}return [teams,seed,options];};
   list.push({...g,comp:'cast',args,make:()=>new (teamEngine(engine))(...args())});
+ }
+ // Team cast fighters (team-classes.js, generation 5): random cast teams of both sizes on every map.
+ for(const [gi,g] of gameList(1,engine).filter((_,i)=>i%4===1).entries()){
+  const base=g.args,args=()=>{const [,seed,options]=base(),pick=k=>randomTeam(context.pools,context.luck,{size:g.size,seed:seed*4+k+gi,prefix:'cast'});return [[pick(0),pick(1)],seed,options];};
+  list.push({...g,comp:'castteam',args,make:()=>new (teamEngine(engine))(...args())});
  }
  return {ids:[...ids,...Object.keys(CAST_ABILITIES)],list};
 }
