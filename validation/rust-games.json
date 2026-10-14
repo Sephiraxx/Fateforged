@@ -4,19 +4,19 @@
    "games": 188,
    "matching": 188,
    "failures": [],
-   "steps": 2865034,
-   "jsSeconds": 388.0678010379995,
-   "rustSeconds": 41.13593737699998,
-   "speedup": 9.433790154858045
+   "steps": 3009867,
+   "jsSeconds": 415.35596657199994,
+   "rustSeconds": 44.24904315099998,
+   "speedup": 9.386778492691844
   },
   "team-2.9": {
    "games": 188,
    "matching": 188,
    "failures": [],
    "steps": 769138,
-   "jsSeconds": 84.46080798100033,
-   "rustSeconds": 9.909868652999998,
-   "speedup": 8.522898833319212
+   "jsSeconds": 83.73954343900019,
+   "rustSeconds": 10.036694912999996,
+   "speedup": 8.343338535730204
   }
  }
 }

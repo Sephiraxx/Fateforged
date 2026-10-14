@@ -143,8 +143,8 @@ Every later phase is proven against JavaScript with these tools.
   - **Portable math:** d22 only swaps in the portable math, which Rust always uses.
 - **Full-game parity** (`scripts/rust-games.mjs`, recorded in `validation/rust-games.json`):
   - **How it works:** JavaScript plays seeded games and records the battle digest every 60 steps and at the end. The `team-games` binary plays each game in Rust from the same starting state and must reach the same digest at every checkpoint and end on the same step.
-  - **Result:** 188 games (five seeds for every map, size and test composition, plus the coverage games that force every ability), 2,865,034 steps, all bit-identical (re-recorded on the two-engine state model in B4).
-  - **Speed** (one core each, the same games): JavaScript 388 s, Rust 41 s, **9.4× faster**.
+  - **Result:** 188 games (five seeds for every map, size and test composition, plus the coverage games that force every ability), 3,009,867 steps, all bit-identical (last re-recorded with the siege AI).
+  - **Speed** (one core each, the same games): JavaScript 415 s, Rust 44 s, **9.4× faster**.
 - **Not yet ported:** `result()`, the summary a finished game reports. The wiring in phase D needs it.
 
 ### Port order (team-4.0, 42 modules, about 265 KB of JavaScript)
@@ -219,6 +219,7 @@ B2 and B3 ported every group and proved each method call by call, then whole gam
 - `node scripts/rust-schema.mjs` rebuilds the schema for both engines (about 12 minutes); then run `node scripts/gen-rust-state.mjs` to regenerate `core/src/team/state.rs`.
 - `node scripts/rust-parity.mjs [--quick] [--record]` checks snapshots and helpers against Rust. `--quick` (7 games) runs in `check-rust-core` and CI; `--record` writes `validation/rust-parity.json`.
 - `node scripts/build-rust-wasm.mjs` rebuilds `public/fateforge-core.wasm` (needs `rustup target add wasm32-unknown-unknown`); `node scripts/check-rust-wasm.mjs [--record]` (in `check-all`) compares it with JavaScript through `simulateTeam`.
+- **Parity policy:** the quick game and call runs are the gate for every engine change (`check-rust-core`, CI), together with each worker's self-test. A full `--record` run (about 30–40 minutes) is only needed for large ports, such as new ability mechanics or a new cast; the recorded files are the last such proof.
 - `node scripts/rust-games.mjs [--quick] [--record] [--engine team-4.0|team-2.9]` plays whole games in both languages and compares them, and times both, for each engine. `--quick` (8 games per engine) runs in `check-rust-core` and CI; `--record` writes `validation/rust-games.json`.
 - `node scripts/rust-calls.mjs [--quick] [--methods a,b] [--record]` replays recorded engine-method calls in Rust. `--quick` (8 games, 6 calls per method per game) runs in `check-rust-core` and CI; `--record` writes `validation/rust-calls.json`. Add each newly ported method to `scripts/lib/rust-ported.mjs` and to the dispatch in `core/src/bin/team_calls.rs`.
 - **CI:** the App builds workflow runs the crate's tests, a 200k math comparison and the quick state, call and game parity runs on Windows, and builds the crate for Android.
