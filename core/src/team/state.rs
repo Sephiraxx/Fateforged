@@ -1459,6 +1459,8 @@ pub struct Entity {
     pub stagger: f64,
     #[serde(rename = "stats", deserialize_with = "jsnum::vec_f64")]
     pub stats: Vec<f64>,
+    #[serde(rename = "statuses", default)]
+    pub statuses: Option<Vec<EntityStatuses>>,
     #[serde(rename = "stillSince", default)]
     pub still_since: Option<EntityStillSince>,
     #[serde(rename = "supportRevived", default)]
@@ -1663,6 +1665,7 @@ impl Digest for Entity {
         h.f64(self.spirit_armor);
         h.f64(self.stagger);
         h.arr(self.stats.len()); for x in self.stats.iter() { h.f64((*x)); }
+        match &self.statuses { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { (*x).digest(h); } } }
         match &self.still_since { None => h.nil(), Some(v) => { (*v).digest(h); } }
         match &self.support_revived { None => h.nil(), Some(v) => { h.bool((*v)); } }
         match &self.support_revive_spent { None => h.nil(), Some(v) => { h.bool((*v)); } }
@@ -2002,6 +2005,8 @@ pub struct EntityPowers {
     pub cost: f64,
     #[serde(rename = "description")]
     pub description: String,
+    #[serde(rename = "effects", default)]
+    pub effects: Option<Vec<EntityPowersEffects>>,
     #[serde(rename = "group", default)]
     pub group: Option<String>,
     #[serde(rename = "id")]
@@ -2010,6 +2015,10 @@ pub struct EntityPowers {
     pub kind: String,
     #[serde(rename = "name")]
     pub name: String,
+    #[serde(rename = "pick", default)]
+    pub pick: Option<String>,
+    #[serde(rename = "range", default, deserialize_with = "jsnum::opt_f64")]
+    pub range: Option<f64>,
     #[serde(rename = "rarity")]
     pub rarity: String,
     #[serde(rename = "sprite", deserialize_with = "jsnum::f64")]
@@ -2018,8 +2027,12 @@ pub struct EntityPowers {
     pub stats: Option<Vec<f64>>,
     #[serde(rename = "tags")]
     pub tags: Vec<String>,
+    #[serde(rename = "target", default)]
+    pub target: Option<String>,
     #[serde(rename = "voice")]
     pub voice: bool,
+    #[serde(rename = "weapon", default)]
+    pub weapon: Option<String>,
     #[serde(rename = "windup", default, deserialize_with = "jsnum::opt_f64")]
     pub windup: Option<f64>,
 }
@@ -2030,16 +2043,285 @@ impl Digest for EntityPowers {
         match &self.cooldown { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.f64(self.cost);
         h.str(&self.description);
+        match &self.effects { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { (*x).digest(h); } } }
         match &self.group { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.str(&self.id);
         h.str(&self.kind);
         h.str(&self.name);
+        match &self.pick { None => h.nil(), Some(v) => { h.str(&(*v)); } }
+        match &self.range { None => h.nil(), Some(v) => { h.f64((*v)); } }
         h.str(&self.rarity);
         h.f64(self.sprite);
         match &self.stats { None => h.nil(), Some(v) => { h.arr((*v).len()); for x in (*v).iter() { h.f64((*x)); } } }
         h.arr(self.tags.len()); for x in self.tags.iter() { h.str(&(*x)); }
+        match &self.target { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         h.bool(self.voice);
+        match &self.weapon { None => h.nil(), Some(v) => { h.str(&(*v)); } }
         match &self.windup { None => h.nil(), Some(v) => { h.f64((*v)); } }
+    }
+}
+
+/// `entity.powers[].effects[]`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffects {
+    #[serde(rename = "blink", default)]
+    pub blink: Option<String>,
+    #[serde(rename = "bounce", default)]
+    pub bounce: Option<EntityPowersEffectsBounce>,
+    #[serde(rename = "control", default)]
+    pub control: Option<EntityPowersEffectsControl>,
+    #[serde(rename = "dispel", default)]
+    pub dispel: Option<bool>,
+    #[serde(rename = "dot", default)]
+    pub dot: Option<EntityPowersEffectsDot>,
+    #[serde(rename = "evade", default, deserialize_with = "jsnum::opt_f64")]
+    pub evade: Option<f64>,
+    #[serde(rename = "hit", default)]
+    pub hit: Option<EntityPowersEffectsHit>,
+    #[serde(rename = "status", default)]
+    pub status: Option<EntityPowersEffectsStatus>,
+    #[serde(rename = "ward", default)]
+    pub ward: Option<EntityPowersEffectsWard>,
+}
+impl JsDe for EntityPowersEffects {}
+impl Digest for EntityPowersEffects {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        match &self.blink { None => h.nil(), Some(v) => { h.str(&(*v)); } }
+        match &self.bounce { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        match &self.control { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        match &self.dispel { None => h.nil(), Some(v) => { h.bool((*v)); } }
+        match &self.dot { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        match &self.evade { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.hit { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        match &self.status { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        match &self.ward { None => h.nil(), Some(v) => { (*v).digest(h); } }
+    }
+}
+
+/// `entity.powers[].effects[].bounce`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsBounce {
+    #[serde(rename = "count", deserialize_with = "jsnum::f64")]
+    pub count: f64,
+    #[serde(rename = "mult", deserialize_with = "jsnum::f64")]
+    pub mult: f64,
+    #[serde(rename = "radius", deserialize_with = "jsnum::f64")]
+    pub radius: f64,
+}
+impl JsDe for EntityPowersEffectsBounce {}
+impl Digest for EntityPowersEffectsBounce {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.count);
+        h.f64(self.mult);
+        h.f64(self.radius);
+    }
+}
+
+/// `entity.powers[].effects[].control`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsControl {
+    #[serde(rename = "for", deserialize_with = "jsnum::f64")]
+    pub for_: f64,
+    #[serde(rename = "pull", deserialize_with = "jsnum::f64")]
+    pub pull: f64,
+}
+impl JsDe for EntityPowersEffectsControl {}
+impl Digest for EntityPowersEffectsControl {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.for_);
+        h.f64(self.pull);
+    }
+}
+
+/// `entity.powers[].effects[].dot`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsDot {
+    #[serde(rename = "base")]
+    pub base: String,
+    #[serde(rename = "for", deserialize_with = "jsnum::f64")]
+    pub for_: f64,
+    #[serde(rename = "per", deserialize_with = "jsnum::f64")]
+    pub per: f64,
+    #[serde(rename = "selfHeal", default, deserialize_with = "jsnum::opt_f64")]
+    pub self_heal: Option<f64>,
+    #[serde(rename = "type")]
+    pub type_: String,
+}
+impl JsDe for EntityPowersEffectsDot {}
+impl Digest for EntityPowersEffectsDot {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.str(&self.base);
+        h.f64(self.for_);
+        h.f64(self.per);
+        match &self.self_heal { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        h.str(&self.type_);
+    }
+}
+
+/// `entity.powers[].effects[].hit`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsHit {
+    #[serde(rename = "ambush", default, deserialize_with = "jsnum::opt_f64")]
+    pub ambush: Option<f64>,
+    #[serde(rename = "base")]
+    pub base: String,
+    #[serde(rename = "execute", default)]
+    pub execute: Option<EntityPowersEffectsHitExecute>,
+    #[serde(rename = "mult", deserialize_with = "jsnum::f64")]
+    pub mult: f64,
+    #[serde(rename = "type")]
+    pub type_: String,
+}
+impl JsDe for EntityPowersEffectsHit {}
+impl Digest for EntityPowersEffectsHit {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        match &self.ambush { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        h.str(&self.base);
+        match &self.execute { None => h.nil(), Some(v) => { (*v).digest(h); } }
+        h.f64(self.mult);
+        h.str(&self.type_);
+    }
+}
+
+/// `entity.powers[].effects[].hit.execute`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsHitExecute {
+    #[serde(rename = "below", deserialize_with = "jsnum::f64")]
+    pub below: f64,
+    #[serde(rename = "mult", deserialize_with = "jsnum::f64")]
+    pub mult: f64,
+}
+impl JsDe for EntityPowersEffectsHitExecute {}
+impl Digest for EntityPowersEffectsHitExecute {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.below);
+        h.f64(self.mult);
+    }
+}
+
+/// `entity.powers[].effects[].status`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsStatus {
+    #[serde(rename = "acc", default, deserialize_with = "jsnum::opt_f64")]
+    pub acc: Option<f64>,
+    #[serde(rename = "atk", default, deserialize_with = "jsnum::opt_f64")]
+    pub atk: Option<f64>,
+    #[serde(rename = "dmgIn", default, deserialize_with = "jsnum::opt_f64")]
+    pub dmg_in: Option<f64>,
+    #[serde(rename = "dmgOut", default, deserialize_with = "jsnum::opt_f64")]
+    pub dmg_out: Option<f64>,
+    #[serde(rename = "for", deserialize_with = "jsnum::f64")]
+    pub for_: f64,
+    #[serde(rename = "healIn", default, deserialize_with = "jsnum::opt_f64")]
+    pub heal_in: Option<f64>,
+    #[serde(rename = "link", default, deserialize_with = "jsnum::opt_f64")]
+    pub link: Option<f64>,
+    #[serde(rename = "move", default, deserialize_with = "jsnum::opt_f64")]
+    pub move_: Option<f64>,
+    #[serde(rename = "on")]
+    pub on: String,
+    #[serde(rename = "radius", default, deserialize_with = "jsnum::opt_f64")]
+    pub radius: Option<f64>,
+}
+impl JsDe for EntityPowersEffectsStatus {}
+impl Digest for EntityPowersEffectsStatus {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        match &self.acc { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.atk { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.dmg_in { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.dmg_out { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        h.f64(self.for_);
+        match &self.heal_in { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.link { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        match &self.move_ { None => h.nil(), Some(v) => { h.f64((*v)); } }
+        h.str(&self.on);
+        match &self.radius { None => h.nil(), Some(v) => { h.f64((*v)); } }
+    }
+}
+
+/// `entity.powers[].effects[].ward`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityPowersEffectsWard {
+    #[serde(rename = "for", deserialize_with = "jsnum::f64")]
+    pub for_: f64,
+    #[serde(rename = "hits", deserialize_with = "jsnum::f64")]
+    pub hits: f64,
+}
+impl JsDe for EntityPowersEffectsWard {}
+impl Digest for EntityPowersEffectsWard {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.for_);
+        h.f64(self.hits);
+    }
+}
+
+/// `entity.statuses[]`
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct EntityStatuses {
+    #[serde(rename = "acc", deserialize_with = "jsnum::f64")]
+    pub acc: f64,
+    #[serde(rename = "atk", deserialize_with = "jsnum::f64")]
+    pub atk: f64,
+    #[serde(rename = "dmgIn", deserialize_with = "jsnum::f64")]
+    pub dmg_in: f64,
+    #[serde(rename = "dmgOut", deserialize_with = "jsnum::f64")]
+    pub dmg_out: f64,
+    #[serde(rename = "dot", deserialize_with = "jsnum::f64")]
+    pub dot: f64,
+    #[serde(rename = "healIn", deserialize_with = "jsnum::f64")]
+    pub heal_in: f64,
+    #[serde(rename = "id")]
+    pub id: String,
+    #[serde(rename = "link", deserialize_with = "jsnum::f64")]
+    pub link: f64,
+    #[serde(rename = "move", deserialize_with = "jsnum::f64")]
+    pub move_: f64,
+    #[serde(rename = "selfHeal", deserialize_with = "jsnum::f64")]
+    pub self_heal: f64,
+    #[serde(rename = "src", deserialize_with = "jsnum::f64")]
+    pub src: f64,
+    #[serde(rename = "tick", deserialize_with = "jsnum::f64")]
+    pub tick: f64,
+    #[serde(rename = "type")]
+    pub type_: String,
+    #[serde(rename = "until", deserialize_with = "jsnum::f64")]
+    pub until: f64,
+}
+impl JsDe for EntityStatuses {}
+impl Digest for EntityStatuses {
+    fn digest(&self, h: &mut Fnv) {
+        h.obj();
+        h.f64(self.acc);
+        h.f64(self.atk);
+        h.f64(self.dmg_in);
+        h.f64(self.dmg_out);
+        h.f64(self.dot);
+        h.f64(self.heal_in);
+        h.str(&self.id);
+        h.f64(self.link);
+        h.f64(self.move_);
+        h.f64(self.self_heal);
+        h.f64(self.src);
+        h.f64(self.tick);
+        h.str(&self.type_);
+        h.f64(self.until);
     }
 }
 

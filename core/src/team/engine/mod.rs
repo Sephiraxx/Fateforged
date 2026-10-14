@@ -27,6 +27,7 @@ pub mod result;
 pub mod wisps;
 pub mod classic;
 pub mod siege_ai;
+pub mod cast;
 
 pub use view::Tgt;
 
