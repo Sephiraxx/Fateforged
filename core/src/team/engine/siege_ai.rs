@@ -21,10 +21,10 @@ impl Engine {
     /// d22 `hurt`: a fighter hit by an enemy fighter remembers when.
     pub fn hurt(&mut self, t: &Tgt, f: Option<Ent>, amount: f64, kind: &str, can_dodge: bool) -> Option<bool> {
         if self.classic {
-            return self.hurt_d20(t, f, amount, kind, can_dodge);
+            return self.cast_hurt(t, f, amount, kind, can_dodge);
         }
         let before = self.thp(t);
-        let result = self.hurt_d20(t, f, amount, kind, can_dodge);
+        let result = self.cast_hurt(t, f, amount, kind, can_dodge);
         if let Some(fi) = f.filter(|&fi| t.is_plain() && fi != t.ent) {
             let (te, fe) = (self.f(t.ent), self.f(fi));
             if te.is_objective != Some(true) && fe.is_objective != Some(true) && fe.team != te.team && te.hp < before {

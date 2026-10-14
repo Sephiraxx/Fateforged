@@ -446,6 +446,8 @@ impl Engine {
         e.unstick_until = Some(0.0);
         e.unstick_to = None;
         e.still_since = None;
+        // d23
+        e.statuses = Some(Vec::new());
     }
 
     /// d11 `settleShield(t, f, before, dealt)`: Forgefire's shield absorbs part of a hit after it lands.

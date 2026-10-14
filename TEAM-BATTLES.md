@@ -837,6 +837,25 @@ Before this change a team on the siege plan kept hitting the enemy Core while de
 
 "Answered" means that a fighter hit by an enemy fighter (healers aside) targets that attacker within 2 s.
 
+## Ability primitives (team-4.0 / team-2.9)
+
+New team abilities are data (`public/team-abilities.js`) that a small set of effect primitives runs (`public/cast-ability-combat.js`, ported to Rust in `core/src/team/engine/cast.rs`). That way the larger team cast can get distinct kits without a hand-written function per ability. They use the ordinary two ability slots, selection and resources:
+- `castPower` picks and pays for the ability;
+- `usePower` starts a short cast;
+- the cast resolves after its windup, on targets checked again at that moment. An interrupted or lost cast refunds the cost, like support abilities.
+
+- **Targets:** the fighter's current enemy target, one ally (the best damage dealer in a fight, or the most threatened ally), the caster itself, or every ally or enemy near the caster.
+- **Effects:**
+  - direct hits, with an ambush bonus (from stealth, or against an enemy looking elsewhere) and an execute bonus (under 35% health);
+  - damage over time, optionally healing its source;
+  - hits that bounce to nearby enemies;
+  - a stun that pulls toward the caster;
+  - wards that block hits;
+  - stepping behind the target and evasion;
+  - dispels;
+  - timed **statuses**, held in each fighter's `statuses` list: damage dealt and taken, attack and move speed, accuracy, healing received, and soul links that pass part of the damage to the target's nearest ally. Stat changes stack multiplicatively and end on death and respawn.
+- **The 21 new abilities:** Moonfire, Blood bolt, Chain shot, Backstab, Execute, Toxic blade, Shadowstep, Battle hymn, War cry, Haste, Discord, Charm, Smite, Zeal, Judgment, Dread aura, Curse, Enfeeble, Soul link, Dispel and Aegis. No fighter rolls them yet: the team cast (next step) gives them to its subclasses. Coverage games in `scripts/rust-schema.mjs` force every one of them onto fighters, so the state schema and the Rust parity runs exercise them.
+
 ## Enhanced renderer (PixiJS, objective phase 5)
 
 Every fight draws with a WebGL renderer, `public/pixi-arena.js`: team battles (2v2, 3v3, 5v5, classic teamfight and Core siege), 1v1 duels and tournament matches. The renderer only reads the battle, so results, replays and server validation don't change. `scripts/check-pixi-arena.mjs` runs seeded team battles and a duel with the renderer's per-frame reads and compares the results.

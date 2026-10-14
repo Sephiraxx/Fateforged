@@ -12,6 +12,7 @@ import {tierCharacter} from '../public/tier-generation.js';
 import {seededRandom} from '../public/team-generation.js';
 import {teamEngine,TEAM_TACTICS} from '../public/combat-team.js';
 import {TEAM_MAPS} from '../public/team-maps.js';
+import {CAST_ABILITIES} from '../public/team-abilities.js';
 
 export const ENGINE='team-4.0';
 // The engines the Rust core runs: one schema covers both (fields one engine never has are optional).
@@ -106,7 +107,7 @@ export function coverageGames(engine=ENGINE){
  const context=vm.createContext({});
  for(const file of ['class-abilities.js','support-catalog.js','data.js','luck-v4.js'])vm.runInContext(fs.readFileSync(new URL(`../public/${file}`,import.meta.url),'utf8'),context);
  vm.runInContext('this.pools=supportPools(WHEEL_DATA);this.luck=WHEEL_LUCK;this.ids=[...new Set([...Object.values(CLASS_ABILITIES.abilities??CLASS_ABILITIES),...Object.values(globalThis.SUPPORT_ABILITIES??{})].map(a=>a.id).filter(Boolean))];',context);
- const ids=[...new Set([...context.ids,...Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).map(a=>a.id),...Object.values(globalThis.SUPPORT_ABILITIES??{}).map(a=>a.id)])].sort();
+ const ids=[...new Set([...context.ids,...Object.values(globalThis.CURRENT_CLASS_ABILITIES.abilities).map(a=>a.id),...Object.values(globalThis.SUPPORT_ABILITIES??{}).map(a=>a.id)])].filter(id=>!CAST_ABILITIES[id]).sort();
  const fighters=ids.map((power,i)=>{const random=seededRandom(9000+i);const f=tierCharacter(context.pools,i%3?'S':'SS',{luck:context.luck,draw:n=>Math.floor(random()*n),id:`cover-${power}`,requirePower:[power]});f.name=`cover ${power}`;return f;});
  const maps=TEAM_MAPS.map(m=>m.id),list=[];
  for(let i=0;i<fighters.length;i+=6){const group=fighters.slice(i,i+6);while(group.length<6)group.push(fighters[group.length]);const seed=7000+i,map=maps[(i/6)%maps.length];
@@ -116,7 +117,13 @@ export function coverageGames(engine=ENGINE){
   const tactics=[TEAM_TACTICS[(i/6)%TEAM_TACTICS.length],TEAM_TACTICS[(i/6+2)%TEAM_TACTICS.length]];
   const args=()=>[[structuredClone(group.slice(0,3)),structuredClone(group.slice(3))],seed,{headless:true,map,tactics,engineVersion:engine,...(balance?{balance}:{})}];
   list.push({map,size:3,comp:'coverage',seed,tactics,engine,args,make:()=>new (teamEngine(engine))(...args())});}
- return {ids,list};
+ // Team abilities built from primitives (team-abilities.js): every one of them on several fighters, in both sizes.
+ const cast=Object.values(CAST_ABILITIES).map(a=>a.name);
+ for(const [gi,g] of gameList(1,engine).filter((_,i)=>i%5===0).entries()){
+  const base=g.args,args=()=>{const [teams,seed,options]=base();let k=gi*4;for(const team of teams)for(const f of team){f.traits={...f.traits,power:cast[k++%cast.length]};f.summary={...f.summary,generationVersion:4};}return [teams,seed,options];};
+  list.push({...g,comp:'cast',args,make:()=>new (teamEngine(engine))(...args())});
+ }
+ return {ids:[...ids,...Object.keys(CAST_ABILITIES)],list};
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){

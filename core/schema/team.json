@@ -3,7 +3,7 @@
   "team-4.0",
   "team-2.9"
  ],
- "games": 96,
+ "games": 110,
  "kinds": {
   "battle": {
    "map": false,
@@ -2021,6 +2021,10 @@
      "type": "arr<f64>",
      "nullable": false
     },
+    "statuses": {
+     "type": "arr<obj<entity.statuses[]>>",
+     "nullable": true
+    },
     "stillSince": {
      "type": "obj<entity.stillSince>",
      "nullable": true,
@@ -2455,6 +2459,10 @@
      "type": "str",
      "nullable": false
     },
+    "effects": {
+     "type": "arr<obj<entity.powers[].effects[]>>",
+     "nullable": true
+    },
     "group": {
      "type": "str",
      "nullable": true
@@ -2470,6 +2478,14 @@
     "name": {
      "type": "str",
      "nullable": false
+    },
+    "pick": {
+     "type": "str",
+     "nullable": true
+    },
+    "range": {
+     "type": "f64",
+     "nullable": true
     },
     "rarity": {
      "type": "str",
@@ -2487,9 +2503,17 @@
      "type": "arr<str>",
      "nullable": false
     },
+    "target": {
+     "type": "str",
+     "nullable": true
+    },
     "voice": {
      "type": "bool",
      "nullable": false
+    },
+    "weapon": {
+     "type": "str",
+     "nullable": true
     },
     "windup": {
      "type": "f64",
@@ -2497,10 +2521,263 @@
     }
    }
   },
+  "entity.powers[].effects[]": {
+   "map": false,
+   "fields": {
+    "blink": {
+     "type": "str",
+     "nullable": true
+    },
+    "bounce": {
+     "type": "obj<entity.powers[].effects[].bounce>",
+     "nullable": true
+    },
+    "control": {
+     "type": "obj<entity.powers[].effects[].control>",
+     "nullable": true
+    },
+    "dispel": {
+     "type": "bool",
+     "nullable": true
+    },
+    "dot": {
+     "type": "obj<entity.powers[].effects[].dot>",
+     "nullable": true
+    },
+    "evade": {
+     "type": "f64",
+     "nullable": true
+    },
+    "hit": {
+     "type": "obj<entity.powers[].effects[].hit>",
+     "nullable": true
+    },
+    "status": {
+     "type": "obj<entity.powers[].effects[].status>",
+     "nullable": true
+    },
+    "ward": {
+     "type": "obj<entity.powers[].effects[].ward>",
+     "nullable": true
+    }
+   }
+  },
+  "entity.powers[].effects[].bounce": {
+   "map": false,
+   "fields": {
+    "count": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mult": {
+     "type": "f64",
+     "nullable": false
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[].effects[].control": {
+   "map": false,
+   "fields": {
+    "for": {
+     "type": "f64",
+     "nullable": false
+    },
+    "pull": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[].effects[].dot": {
+   "map": false,
+   "fields": {
+    "base": {
+     "type": "str",
+     "nullable": false
+    },
+    "for": {
+     "type": "f64",
+     "nullable": false
+    },
+    "per": {
+     "type": "f64",
+     "nullable": false
+    },
+    "selfHeal": {
+     "type": "f64",
+     "nullable": true
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[].effects[].hit": {
+   "map": false,
+   "fields": {
+    "ambush": {
+     "type": "f64",
+     "nullable": true
+    },
+    "base": {
+     "type": "str",
+     "nullable": false
+    },
+    "execute": {
+     "type": "obj<entity.powers[].effects[].hit.execute>",
+     "nullable": true
+    },
+    "mult": {
+     "type": "f64",
+     "nullable": false
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[].effects[].hit.execute": {
+   "map": false,
+   "fields": {
+    "below": {
+     "type": "f64",
+     "nullable": false
+    },
+    "mult": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.powers[].effects[].status": {
+   "map": false,
+   "fields": {
+    "acc": {
+     "type": "f64",
+     "nullable": true
+    },
+    "atk": {
+     "type": "f64",
+     "nullable": true
+    },
+    "dmgIn": {
+     "type": "f64",
+     "nullable": true
+    },
+    "dmgOut": {
+     "type": "f64",
+     "nullable": true
+    },
+    "for": {
+     "type": "f64",
+     "nullable": false
+    },
+    "healIn": {
+     "type": "f64",
+     "nullable": true
+    },
+    "link": {
+     "type": "f64",
+     "nullable": true
+    },
+    "move": {
+     "type": "f64",
+     "nullable": true
+    },
+    "on": {
+     "type": "str",
+     "nullable": false
+    },
+    "radius": {
+     "type": "f64",
+     "nullable": true
+    }
+   }
+  },
+  "entity.powers[].effects[].ward": {
+   "map": false,
+   "fields": {
+    "for": {
+     "type": "f64",
+     "nullable": false
+    },
+    "hits": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
   "entity.powerUsed": {
    "map": true,
    "fields": {
     "{}": {
+     "type": "f64",
+     "nullable": false
+    }
+   }
+  },
+  "entity.statuses[]": {
+   "map": false,
+   "fields": {
+    "acc": {
+     "type": "f64",
+     "nullable": false
+    },
+    "atk": {
+     "type": "f64",
+     "nullable": false
+    },
+    "dmgIn": {
+     "type": "f64",
+     "nullable": false
+    },
+    "dmgOut": {
+     "type": "f64",
+     "nullable": false
+    },
+    "dot": {
+     "type": "f64",
+     "nullable": false
+    },
+    "healIn": {
+     "type": "f64",
+     "nullable": false
+    },
+    "id": {
+     "type": "str",
+     "nullable": false
+    },
+    "link": {
+     "type": "f64",
+     "nullable": false
+    },
+    "move": {
+     "type": "f64",
+     "nullable": false
+    },
+    "selfHeal": {
+     "type": "f64",
+     "nullable": false
+    },
+    "src": {
+     "type": "f64",
+     "nullable": false
+    },
+    "tick": {
+     "type": "f64",
+     "nullable": false
+    },
+    "type": {
+     "type": "str",
+     "nullable": false
+    },
+    "until": {
      "type": "f64",
      "nullable": false
     }

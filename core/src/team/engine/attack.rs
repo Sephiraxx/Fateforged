@@ -73,6 +73,9 @@ impl Engine {
 
     /// `updateAttack(f, t, dt)` from the top (d20).
     pub fn update_attack(&mut self, f: Ent, t: &Tgt, dt: f64) {
+        if self.f(f).action.as_ref().is_some_and(|a| a.type_ == "castAbility") {
+            return self.cast_update_attack(f, t, dt);
+        }
         self.healer_spend(f, |s| {
             match s.f(f).action.as_ref().and_then(|a| a.power.as_ref()).map(|p| p.id.clone()) {
                 Some(id) => s.ability_context(f, &id, |s| s.update_attack_d12(f, t, dt)),

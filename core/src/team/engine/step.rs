@@ -86,6 +86,8 @@ impl Engine {
                 e.kit_cooldown = max(0.0, e.kit_cooldown - extra);
             }
         }
+        // d23
+        self.cast_upkeep(f, dt);
     }
 
     fn upkeep_d6(&mut self, f: Ent, dt: f64) {

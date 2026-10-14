@@ -77,7 +77,7 @@ impl CopyChoice {
 }
 
 impl Engine {
-    fn weak_blocks(&self, f: Ent, p: &EntityPowers) -> bool {
+    pub(super) fn weak_blocks(&self, f: Ent, p: &EntityPowers) -> bool {
         let fe = self.f(f);
         let weak = fe.weakness.as_str();
         weak == "silenced casting" && p.voice || self.b.night && weak == "loses power at night" || !self.b.night && weak == "loses power in daylight" || weak == "power needs a sacrifice" && fe.hp <= fe.max_hp * 0.03
@@ -95,6 +95,9 @@ impl Engine {
     /// `powerUtility(f, t, p, copied = false)` from the top (d19): how much `f` wants to use `p` on `t` now (−1:
     /// not at all).
     pub fn power_utility(&mut self, f: Ent, t: &Tgt, p: &EntityPowers, copied: bool) -> f64 {
+        if super::cast::is_cast(p) {
+            return self.cast_power_utility(f, t, p, copied);
+        }
         if !self.classic && MOBILITY.contains(&p.id.as_str()) && t.is_plain() && self.b.cores.contains(&t.ent) {
             return -1.0;
         }
@@ -555,6 +558,9 @@ impl Engine {
 
     /// `usePower(f, t, p, copied = false)` from the top (d14). `None` is JavaScript's `undefined`.
     pub fn use_power(&mut self, f: Ent, t: &Tgt, p: &EntityPowers, copied: bool) -> Option<bool> {
+        if super::cast::is_cast(p) {
+            return self.cast_use_power(f, t, p);
+        }
         self.ability_context(f, &p.id, |s| s.use_power_d12(f, t, p, copied))
     }
 
