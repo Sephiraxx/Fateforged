@@ -325,7 +325,7 @@ function validateSeriesGame(w,m,g,previous){
  if(gamePlans&&(!Array.isArray(gamePlans)||gamePlans.length!==2||gamePlans.some((p,side)=>!validGamePlan(p)||side!==m.userSide&&JSON.stringify(p)!==JSON.stringify(plan.gamePlans[side]))))throw new Error('The game plans must follow the series plan.');
  if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
- return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege}))}:{})};
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege,...(p.camp?{camp:p.camp}:{})}))}:{})};
 }
 export function recordSeriesGame(w,matchId,game){
  const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
@@ -365,7 +365,7 @@ export function setLineup(w,ids){
 }
 // Core siege game plan: the coached team's dials, otherwise the coach's personality.
 export function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
-export function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege};return w;}
+export function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege,...(plan.camp?{camp:plan.camp}:{})};return w;}
 export function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 export function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.

@@ -325,7 +325,7 @@ function validateSeriesGame(w,m,g,previous){
  if(gamePlans&&(!Array.isArray(gamePlans)||gamePlans.length!==2||gamePlans.some((p,side)=>!validGamePlan(p)||side!==m.userSide&&JSON.stringify(p)!==JSON.stringify(plan.gamePlans[side]))))throw new Error('The game plans must follow the series plan.');
  if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
- return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege}))}:{})};
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege,...(p.camp?{camp:p.camp}:{})}))}:{})};
 }
 export function recordSeriesGame(w,matchId,game){
  const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');

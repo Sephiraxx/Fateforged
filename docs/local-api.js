@@ -5287,11 +5287,14 @@ const GAME_PLAN_ENGINES=Object.freeze(['team-3.6','team-3.7','team-3.8','team-3.
 const GAME_PLAN_OPTIONS=Object.freeze({
  titan:Object.freeze([['always','Always contest'],['ahead','Contest when ahead'],['never','Never (play around it)']]),
  style:Object.freeze([['group','Group up'],['flank','Flank']]),
- siege:Object.freeze([['forgefire','With Forgefire'],['numbers','On a numbers lead'],['late','Not before 3:00']])
+ siege:Object.freeze([['forgefire','With Forgefire'],['numbers','On a numbers lead'],['late','Not before 3:00']]),
+ // Ember Wisps (level-combat.js, team-4.0): when a few fighters may take a wisp for XP. Optional; plans without it
+ // take wisps when the team is not ahead in levels.
+ camp:Object.freeze([['behind','When not ahead in levels'],['always','Always'],['never','Never']])
 });
-const GAME_PLAN_LABELS=Object.freeze({titan:'Titan priority',style:'Style',siege:'Siege timing'});
-const DIALS=Object.keys(GAME_PLAN_OPTIONS);
-function validGamePlan(plan){return !!plan&&typeof plan==='object'&&!Array.isArray(plan)&&Object.keys(plan).length===DIALS.length&&DIALS.every(k=>GAME_PLAN_OPTIONS[k].some(([v])=>v===plan[k]));}
+const GAME_PLAN_LABELS=Object.freeze({titan:'Titan priority',style:'Style',siege:'Siege timing',camp:'Ember Wisps'});
+const DIALS=Object.keys(GAME_PLAN_OPTIONS),REQUIRED=Object.freeze(['titan','style','siege']);
+function validGamePlan(plan){return !!plan&&typeof plan==='object'&&!Array.isArray(plan)&&Object.keys(plan).every(k=>DIALS.includes(k))&&REQUIRED.every(k=>k in plan)&&Object.keys(plan).every(k=>GAME_PLAN_OPTIONS[k].some(([v])=>v===plan[k]));}
 const plan=(titan,style,siege)=>Object.freeze({titan,style,siege});
 // Coach personalities (team-league.js PERSONALITIES) and the tactics they map to.
 const PERSONALITY_PLANS=Object.freeze({
@@ -5304,12 +5307,14 @@ const PERSONALITY_PLANS=Object.freeze({
 });
 const TACTIC_PERSONALITY=Object.freeze({balanced:'balanced',defensive:'fortress',aggressive:'glass','focus-healer':'tactician','protect-carry':'star'});
 function defaultGamePlan(tactic){return {...PERSONALITY_PLANS[TACTIC_PERSONALITY[tactic]??'balanced']};}
-function personalityGamePlan(personality){return {...(PERSONALITY_PLANS[personality]??PERSONALITY_PLANS.balanced)};}
+// League coaches' Ember Wisp dial by personality.
+const PERSONALITY_CAMP=Object.freeze({balanced:'behind',fortress:'behind',glass:'never',tactician:'always',star:'behind',bargain:'always'});
+function personalityGamePlan(personality){return {...(PERSONALITY_PLANS[personality]??PERSONALITY_PLANS.balanced),camp:PERSONALITY_CAMP[personality]??'behind'};}
 // After a loss an AI coach changes one dial, chosen by personality; winners keep their plan. Deterministic.
 const ADAPT=Object.freeze({balanced:'titan',fortress:'siege',glass:'style',tactician:'style',star:'siege',bargain:'titan'});
 const NEXT=Object.freeze({titan:{always:'ahead',ahead:'always',never:'ahead'},style:{group:'flank',flank:'group'},siege:{forgefire:'numbers',numbers:'forgefire',late:'numbers'}});
 function adaptGamePlan(current,personality,lost){if(!lost)return {...current};const dial=ADAPT[personality]??'titan';return {...current,[dial]:NEXT[dial][current[dial]]};}
-function gamePlanSummary(p){return DIALS.map(k=>GAME_PLAN_OPTIONS[k].find(([v])=>v===p[k])?.[1]).join(' · ');}
+function gamePlanSummary(p){return DIALS.filter(k=>p[k]!=null).map(k=>GAME_PLAN_OPTIONS[k].find(([v])=>v===p[k])?.[1]).join(' · ');}
 
 
 
@@ -5927,7 +5932,7 @@ function validateSeriesGame(w,m,g,previous){
  if(gamePlans&&(!Array.isArray(gamePlans)||gamePlans.length!==2||gamePlans.some((p,side)=>!validGamePlan(p)||side!==m.userSide&&JSON.stringify(p)!==JSON.stringify(plan.gamePlans[side]))))throw new Error('The game plans must follow the series plan.');
  if(m.balance&&g.balanceId!==m.balance.id)throw new Error('This result used a different league patch.');
  if(!validGame(g,lineups,m.engineVersion))throw new Error('Invalid team-league game result.');
- return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege}))}:{})};
+ return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege,...(p.camp?{camp:p.camp}:{})}))}:{})};
 }
 function recordSeriesGame(w,matchId,game){
  const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
@@ -5967,7 +5972,7 @@ function setLineup(w,ids){
 }
 // Core siege game plan: the coached team's dials, otherwise the coach's personality.
 function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
-function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege};return w;}
+function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege,...(plan.camp?{camp:plan.camp}:{})};return w;}
 function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
 function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
@@ -6108,7 +6113,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){const members=ids.map(id=>w.fighters[id]),groups=lineupGroups(members);if(w.balance?.rulesVersion>=2)for(const f of members)for(const key of auditObservations(f))groups[key]=(groups[key]??0)+1;return groups;}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,AUDIT_RULES,AUDIT_STATS,auditHash,auditDefinition,auditBaseKey,auditScope,auditFeatures,auditObservations,auditCarries,auditSeasonRates,auditConcern,auditControl,auditFields,auditLever,auditCurrentValue,auditFamily,balanceAuditPlan,auditSuggestion,auditMidseasonProposal,auditCandidateSuggestion,auditCandidateProposals,validateBalanceAudit,auditWorse,auditResponse,balanceAuditProposal,auditBundleResult,nextAuditBundle,applyBalanceAudit,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setAutoBalance,setBattleMode,auditPlan,recordBalanceAudit});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
