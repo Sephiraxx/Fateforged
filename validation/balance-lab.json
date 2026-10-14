@@ -1,0 +1,1971 @@
+{
+ "games": 2000,
+ "seconds": 220.7,
+ "modes": {
+  "core": {
+   "games": 1000,
+   "medianSeconds": 242.3,
+   "timeouts": 0.7
+  },
+  "teamfight": {
+   "games": 1000,
+   "medianSeconds": 51.1,
+   "timeouts": 1.5
+  }
+ },
+ "levelLeaderWins": 92.2,
+ "subclass": {
+  "Warlock (Voidcaller)": {
+   "winRate": 58.4,
+   "ci": [
+    54.2,
+    62.4
+   ],
+   "games": 555,
+   "damage": 1397,
+   "healing": 0,
+   "cc": 2.2
+  },
+  "Warlock (Soulbinder)": {
+   "winRate": 55.9,
+   "ci": [
+    51.5,
+    60.1
+   ],
+   "games": 503,
+   "damage": 1297,
+   "healing": 58,
+   "cc": 2.6
+  },
+  "Mage (Chrono)": {
+   "winRate": 55.4,
+   "ci": [
+    50.6,
+    60.2
+   ],
+   "games": 404,
+   "damage": 1076,
+   "healing": 0,
+   "cc": 2.6
+  },
+  "Mage (Fire)": {
+   "winRate": 54.8,
+   "ci": [
+    49.7,
+    59.8
+   ],
+   "games": 365,
+   "damage": 1436,
+   "healing": 0,
+   "cc": 2.4
+  },
+  "Mage (Blood)": {
+   "winRate": 53.8,
+   "ci": [
+    48.9,
+    58.6
+   ],
+   "games": 400,
+   "damage": 1411,
+   "healing": 39,
+   "cc": 2.5
+  },
+  "Assassin (Executioner)": {
+   "winRate": 53.4,
+   "ci": [
+    48.7,
+    58
+   ],
+   "games": 429,
+   "damage": 1738,
+   "healing": 0,
+   "cc": 4
+  },
+  "Ranger (Beastmaster)": {
+   "winRate": 53.1,
+   "ci": [
+    48.8,
+    57.3
+   ],
+   "games": 518,
+   "damage": 1435,
+   "healing": 0,
+   "cc": 2.3
+  },
+  "Mage (Frost)": {
+   "winRate": 53,
+   "ci": [
+    48.1,
+    57.9
+   ],
+   "games": 394,
+   "damage": 1290,
+   "healing": 0,
+   "cc": 2.7
+  },
+  "Ranger (Marksman)": {
+   "winRate": 52.8,
+   "ci": [
+    48.4,
+    57.2
+   ],
+   "games": 494,
+   "damage": 1458,
+   "healing": 0,
+   "cc": 3.2
+  },
+  "Cleric (Light)": {
+   "winRate": 52.2,
+   "ci": [
+    47.9,
+    56.4
+   ],
+   "games": 527,
+   "damage": 392,
+   "healing": 1266,
+   "cc": 2.8
+  },
+  "Paladin (Oathbreaker)": {
+   "winRate": 52.1,
+   "ci": [
+    47.9,
+    56.2
+   ],
+   "games": 555,
+   "damage": 1775,
+   "healing": 87,
+   "cc": 4
+  },
+  "Guardian (Aegis)": {
+   "winRate": 52,
+   "ci": [
+    47.7,
+    56.3
+   ],
+   "games": 523,
+   "damage": 752,
+   "healing": 0,
+   "cc": 6.4
+  },
+  "Guardian (Stoneguard)": {
+   "winRate": 51.9,
+   "ci": [
+    47.5,
+    56.2
+   ],
+   "games": 511,
+   "damage": 878,
+   "healing": 0,
+   "cc": 5.8
+  },
+  "Paladin (Crusader)": {
+   "winRate": 51.6,
+   "ci": [
+    47.4,
+    55.8
+   ],
+   "games": 533,
+   "damage": 1718,
+   "healing": 0,
+   "cc": 4.1
+  },
+  "Cleric (Ward)": {
+   "winRate": 51.1,
+   "ci": [
+    47.1,
+    55.2
+   ],
+   "games": 579,
+   "damage": 418,
+   "healing": 1448,
+   "cc": 2.9
+  },
+  "Warlock (Hexer)": {
+   "winRate": 51.1,
+   "ci": [
+    46.9,
+    55.2
+   ],
+   "games": 556,
+   "damage": 1157,
+   "healing": 0,
+   "cc": 2.6
+  },
+  "Cleric (Mercy)": {
+   "winRate": 50.3,
+   "ci": [
+    45.9,
+    54.7
+   ],
+   "games": 501,
+   "damage": 350,
+   "healing": 1263,
+   "cc": 2.7
+  },
+  "Druid (Moon)": {
+   "winRate": 50.2,
+   "ci": [
+    46,
+    54.4
+   ],
+   "games": 536,
+   "damage": 1316,
+   "healing": 0,
+   "cc": 2.3
+  },
+  "Bard (Siren)": {
+   "winRate": 50.1,
+   "ci": [
+    45.8,
+    54.4
+   ],
+   "games": 519,
+   "damage": 1328,
+   "healing": 0,
+   "cc": 2.7
+  },
+  "Assassin (Venomblade)": {
+   "winRate": 48.9,
+   "ci": [
+    44.2,
+    53.7
+   ],
+   "games": 417,
+   "damage": 1391,
+   "healing": 0,
+   "cc": 3.7
+  },
+  "Druid (Forest)": {
+   "winRate": 47.7,
+   "ci": [
+    43.5,
+    51.8
+   ],
+   "games": 556,
+   "damage": 1182,
+   "healing": 0,
+   "cc": 2.7
+  },
+  "Bard (Maestro)": {
+   "winRate": 47.6,
+   "ci": [
+    43.3,
+    51.9
+   ],
+   "games": 513,
+   "damage": 892,
+   "healing": 0,
+   "cc": 2.6
+  },
+  "Assassin (Shadowblade)": {
+   "winRate": 47.5,
+   "ci": [
+    42.4,
+    52.5
+   ],
+   "games": 373,
+   "damage": 1480,
+   "healing": 0,
+   "cc": 4.7
+  },
+  "Druid (Grove)": {
+   "winRate": 47.3,
+   "ci": [
+    43,
+    51.6
+   ],
+   "games": 516,
+   "damage": 402,
+   "healing": 1303,
+   "cc": 3
+  },
+  "Warrior (Vanguard)": {
+   "winRate": 46.9,
+   "ci": [
+    42.6,
+    51.2
+   ],
+   "games": 516,
+   "damage": 840,
+   "healing": 0,
+   "cc": 6.2
+  },
+  "Paladin (Justiciar)": {
+   "winRate": 46.4,
+   "ci": [
+    42.3,
+    50.7
+   ],
+   "games": 534,
+   "damage": 1507,
+   "healing": 0,
+   "cc": 4.4
+  },
+  "Guardian (Warden)": {
+   "winRate": 46,
+   "ci": [
+    41.9,
+    50.1
+   ],
+   "games": 559,
+   "damage": 850,
+   "healing": 0,
+   "cc": 6
+  },
+  "Ranger (Trapper)": {
+   "winRate": 45.8,
+   "ci": [
+    41.6,
+    50
+   ],
+   "games": 535,
+   "damage": 1030,
+   "healing": 0,
+   "cc": 3
+  },
+  "Warrior (Berserker)": {
+   "winRate": 45.7,
+   "ci": [
+    41.6,
+    49.7
+   ],
+   "games": 576,
+   "damage": 1482,
+   "healing": 0,
+   "cc": 4.2
+  },
+  "Bard (Skald)": {
+   "winRate": 44,
+   "ci": [
+    39.9,
+    48.1
+   ],
+   "games": 557,
+   "damage": 936,
+   "healing": 0,
+   "cc": 2.4
+  },
+  "Warrior (Duelist)": {
+   "winRate": 43.5,
+   "ci": [
+    39.4,
+    47.7
+   ],
+   "games": 543,
+   "damage": 1390,
+   "healing": 0,
+   "cc": 5
+  },
+  "Assassin (Riftwalker)": {
+   "winRate": 43.4,
+   "ci": [
+    38.7,
+    48.3
+   ],
+   "games": 403,
+   "damage": 1482,
+   "healing": 0,
+   "cc": 4
+  }
+ },
+ "cls": {
+  "Warlock": {
+   "winRate": 55.1,
+   "ci": [
+    52.6,
+    57.5
+   ],
+   "games": 1614,
+   "damage": 1283,
+   "healing": 18,
+   "cc": 2.5
+  },
+  "Mage": {
+   "winRate": 54.3,
+   "ci": [
+    51.8,
+    56.7
+   ],
+   "games": 1563,
+   "damage": 1300,
+   "healing": 10,
+   "cc": 2.5
+  },
+  "Cleric": {
+   "winRate": 51.2,
+   "ci": [
+    48.8,
+    53.7
+   ],
+   "games": 1607,
+   "damage": 388,
+   "healing": 1331,
+   "cc": 2.8
+  },
+  "Ranger": {
+   "winRate": 50.5,
+   "ci": [
+    48,
+    53
+   ],
+   "games": 1547,
+   "damage": 1302,
+   "healing": 0,
+   "cc": 2.8
+  },
+  "Paladin": {
+   "winRate": 50.1,
+   "ci": [
+    47.6,
+    52.5
+   ],
+   "games": 1622,
+   "damage": 1668,
+   "healing": 30,
+   "cc": 4.2
+  },
+  "Guardian": {
+   "winRate": 49.8,
+   "ci": [
+    47.4,
+    52.3
+   ],
+   "games": 1593,
+   "damage": 826,
+   "healing": 0,
+   "cc": 6
+  },
+  "Assassin": {
+   "winRate": 48.4,
+   "ci": [
+    46,
+    50.8
+   ],
+   "games": 1622,
+   "damage": 1526,
+   "healing": 0,
+   "cc": 4.1
+  },
+  "Druid": {
+   "winRate": 48.4,
+   "ci": [
+    45.9,
+    50.8
+   ],
+   "games": 1608,
+   "damage": 976,
+   "healing": 418,
+   "cc": 2.7
+  },
+  "Bard": {
+   "winRate": 47.1,
+   "ci": [
+    44.7,
+    49.6
+   ],
+   "games": 1589,
+   "damage": 1050,
+   "healing": 0,
+   "cc": 2.6
+  },
+  "Warrior": {
+   "winRate": 45.3,
+   "ci": [
+    42.9,
+    47.7
+   ],
+   "games": 1635,
+   "damage": 1249,
+   "healing": 0,
+   "cc": 5.1
+  }
+ },
+ "role": {
+  "controller": {
+   "winRate": 53,
+   "ci": [
+    51.3,
+    54.6
+   ],
+   "games": 3504,
+   "damage": 1249,
+   "healing": 8,
+   "cc": 2.5
+  },
+  "healer": {
+   "winRate": 50.3,
+   "ci": [
+    48.1,
+    52.4
+   ],
+   "games": 2123,
+   "damage": 392,
+   "healing": 1324,
+   "cc": 2.9
+  },
+  "bruiser": {
+   "winRate": 50.1,
+   "ci": [
+    47.6,
+    52.5
+   ],
+   "games": 1622,
+   "damage": 1668,
+   "healing": 30,
+   "cc": 4.2
+  },
+  "tank": {
+   "winRate": 49.1,
+   "ci": [
+    47,
+    51.3
+   ],
+   "games": 2109,
+   "damage": 830,
+   "healing": 0,
+   "cc": 6.1
+  },
+  "damage": {
+   "winRate": 49.1,
+   "ci": [
+    47.7,
+    50.5
+   ],
+   "games": 5053,
+   "damage": 1422,
+   "healing": 3,
+   "cc": 3.6
+  },
+  "support": {
+   "winRate": 47.1,
+   "ci": [
+    44.7,
+    49.6
+   ],
+   "games": 1589,
+   "damage": 1050,
+   "healing": 0,
+   "cc": 2.6
+  }
+ },
+ "subclassBySize": {
+  "3": {
+   "Warlock (Voidcaller)": {
+    "winRate": 59,
+    "ci": [
+     51.6,
+     66
+    ],
+    "games": 178,
+    "damage": 1112,
+    "healing": 0,
+    "cc": 2.4
+   },
+   "Mage (Chrono)": {
+    "winRate": 58.6,
+    "ci": [
+     50.9,
+     65.9
+    ],
+    "games": 162,
+    "damage": 1070,
+    "healing": 0,
+    "cc": 2.7
+   },
+   "Mage (Blood)": {
+    "winRate": 58.4,
+    "ci": [
+     50.4,
+     66
+    ],
+    "games": 149,
+    "damage": 1250,
+    "healing": 39,
+    "cc": 2.4
+   },
+   "Warlock (Soulbinder)": {
+    "winRate": 56.5,
+    "ci": [
+     49.4,
+     63.3
+    ],
+    "games": 193,
+    "damage": 1199,
+    "healing": 56,
+    "cc": 2.9
+   },
+   "Cleric (Ward)": {
+    "winRate": 55.5,
+    "ci": [
+     48.9,
+     61.9
+    ],
+    "games": 218,
+    "damage": 374,
+    "healing": 1257,
+    "cc": 2.7
+   },
+   "Druid (Moon)": {
+    "winRate": 55.4,
+    "ci": [
+     48.2,
+     62.3
+    ],
+    "games": 186,
+    "damage": 1355,
+    "healing": 0,
+    "cc": 2.4
+   },
+   "Paladin (Oathbreaker)": {
+    "winRate": 54.3,
+    "ci": [
+     47.5,
+     60.9
+    ],
+    "games": 210,
+    "damage": 1629,
+    "healing": 75,
+    "cc": 3.7
+   },
+   "Guardian (Aegis)": {
+    "winRate": 54.2,
+    "ci": [
+     47.1,
+     61.1
+    ],
+    "games": 192,
+    "damage": 750,
+    "healing": 0,
+    "cc": 5.6
+   },
+   "Guardian (Stoneguard)": {
+    "winRate": 53.8,
+    "ci": [
+     46.8,
+     60.6
+    ],
+    "games": 197,
+    "damage": 889,
+    "healing": 0,
+    "cc": 5.6
+   },
+   "Ranger (Beastmaster)": {
+    "winRate": 53.4,
+    "ci": [
+     46.3,
+     60.4
+    ],
+    "games": 189,
+    "damage": 1312,
+    "healing": 0,
+    "cc": 2
+   },
+   "Mage (Fire)": {
+    "winRate": 52.8,
+    "ci": [
+     44.6,
+     60.8
+    ],
+    "games": 142,
+    "damage": 1209,
+    "healing": 0,
+    "cc": 2.3
+   },
+   "Mage (Frost)": {
+    "winRate": 52.4,
+    "ci": [
+     44.3,
+     60.4
+    ],
+    "games": 145,
+    "damage": 1167,
+    "healing": 0,
+    "cc": 2.5
+   },
+   "Assassin (Executioner)": {
+    "winRate": 51.6,
+    "ci": [
+     43.9,
+     59.2
+    ],
+    "games": 159,
+    "damage": 1485,
+    "healing": 0,
+    "cc": 3.6
+   },
+   "Bard (Siren)": {
+    "winRate": 50.9,
+    "ci": [
+     44.3,
+     57.6
+    ],
+    "games": 214,
+    "damage": 1286,
+    "healing": 0,
+    "cc": 2.7
+   },
+   "Cleric (Light)": {
+    "winRate": 50.8,
+    "ci": [
+     43.8,
+     57.7
+    ],
+    "games": 195,
+    "damage": 348,
+    "healing": 1148,
+    "cc": 2.5
+   },
+   "Warlock (Hexer)": {
+    "winRate": 50.7,
+    "ci": [
+     43.9,
+     57.6
+    ],
+    "games": 201,
+    "damage": 1067,
+    "healing": 0,
+    "cc": 2.4
+   },
+   "Paladin (Crusader)": {
+    "winRate": 50.7,
+    "ci": [
+     44.1,
+     57.3
+    ],
+    "games": 217,
+    "damage": 1623,
+    "healing": 0,
+    "cc": 3.8
+   },
+   "Ranger (Marksman)": {
+    "winRate": 50.6,
+    "ci": [
+     43.3,
+     57.8
+    ],
+    "games": 180,
+    "damage": 1154,
+    "healing": 0,
+    "cc": 3.1
+   },
+   "Druid (Forest)": {
+    "winRate": 48,
+    "ci": [
+     41.2,
+     54.9
+    ],
+    "games": 200,
+    "damage": 987,
+    "healing": 0,
+    "cc": 2.5
+   },
+   "Warrior (Berserker)": {
+    "winRate": 47.8,
+    "ci": [
+     41.3,
+     54.3
+    ],
+    "games": 224,
+    "damage": 1396,
+    "healing": 0,
+    "cc": 4.4
+   },
+   "Cleric (Mercy)": {
+    "winRate": 47.6,
+    "ci": [
+     40.5,
+     54.7
+    ],
+    "games": 185,
+    "damage": 328,
+    "healing": 1152,
+    "cc": 2.8
+   },
+   "Assassin (Riftwalker)": {
+    "winRate": 47.2,
+    "ci": [
+     39.2,
+     55.3
+    ],
+    "games": 144,
+    "damage": 1477,
+    "healing": 0,
+    "cc": 2.9
+   },
+   "Assassin (Venomblade)": {
+    "winRate": 47,
+    "ci": [
+     39.1,
+     55
+    ],
+    "games": 149,
+    "damage": 1389,
+    "healing": 0,
+    "cc": 3.1
+   },
+   "Assassin (Shadowblade)": {
+    "winRate": 46.9,
+    "ci": [
+     38.9,
+     55
+    ],
+    "games": 143,
+    "damage": 1439,
+    "healing": 0,
+    "cc": 4.7
+   },
+   "Bard (Maestro)": {
+    "winRate": 46.8,
+    "ci": [
+     40.1,
+     53.7
+    ],
+    "games": 205,
+    "damage": 805,
+    "healing": 0,
+    "cc": 2.5
+   },
+   "Paladin (Justiciar)": {
+    "winRate": 46.8,
+    "ci": [
+     40.3,
+     53.4
+    ],
+    "games": 218,
+    "damage": 1455,
+    "healing": 0,
+    "cc": 4.2
+   },
+   "Ranger (Trapper)": {
+    "winRate": 44.1,
+    "ci": [
+     37.8,
+     50.7
+    ],
+    "games": 222,
+    "damage": 917,
+    "healing": 0,
+    "cc": 2.8
+   },
+   "Druid (Grove)": {
+    "winRate": 43.9,
+    "ci": [
+     36.9,
+     51
+    ],
+    "games": 187,
+    "damage": 375,
+    "healing": 1052,
+    "cc": 3
+   },
+   "Warrior (Vanguard)": {
+    "winRate": 43.5,
+    "ci": [
+     36.7,
+     50.6
+    ],
+    "games": 193,
+    "damage": 858,
+    "healing": 0,
+    "cc": 5.8
+   },
+   "Guardian (Warden)": {
+    "winRate": 42.7,
+    "ci": [
+     36.2,
+     49.4
+    ],
+    "games": 211,
+    "damage": 900,
+    "healing": 0,
+    "cc": 6
+   },
+   "Warrior (Duelist)": {
+    "winRate": 42.5,
+    "ci": [
+     35.9,
+     49.4
+    ],
+    "games": 200,
+    "damage": 1372,
+    "healing": 0,
+    "cc": 5.1
+   },
+   "Bard (Skald)": {
+    "winRate": 40.6,
+    "ci": [
+     33.9,
+     47.7
+    ],
+    "games": 192,
+    "damage": 946,
+    "healing": 0,
+    "cc": 2.7
+   }
+  },
+  "5": {
+   "Warlock (Voidcaller)": {
+    "winRate": 58.1,
+    "ci": [
+     53.1,
+     63
+    ],
+    "games": 377,
+    "damage": 1532,
+    "healing": 0,
+    "cc": 2.1
+   },
+   "Mage (Fire)": {
+    "winRate": 56.1,
+    "ci": [
+     49.5,
+     62.4
+    ],
+    "games": 223,
+    "damage": 1581,
+    "healing": 0,
+    "cc": 2.5
+   },
+   "Warlock (Soulbinder)": {
+    "winRate": 55.5,
+    "ci": [
+     49.9,
+     60.9
+    ],
+    "games": 310,
+    "damage": 1358,
+    "healing": 60,
+    "cc": 2.4
+   },
+   "Assassin (Executioner)": {
+    "winRate": 54.4,
+    "ci": [
+     48.5,
+     60.3
+    ],
+    "games": 270,
+    "damage": 1887,
+    "healing": 0,
+    "cc": 4.2
+   },
+   "Ranger (Marksman)": {
+    "winRate": 54.1,
+    "ci": [
+     48.6,
+     59.6
+    ],
+    "games": 314,
+    "damage": 1632,
+    "healing": 0,
+    "cc": 3.2
+   },
+   "Mage (Frost)": {
+    "winRate": 53.4,
+    "ci": [
+     47.2,
+     59.5
+    ],
+    "games": 249,
+    "damage": 1361,
+    "healing": 0,
+    "cc": 2.8
+   },
+   "Mage (Chrono)": {
+    "winRate": 53.3,
+    "ci": [
+     47,
+     59.5
+    ],
+    "games": 242,
+    "damage": 1080,
+    "healing": 0,
+    "cc": 2.5
+   },
+   "Cleric (Light)": {
+    "winRate": 53,
+    "ci": [
+     47.6,
+     58.3
+    ],
+    "games": 332,
+    "damage": 418,
+    "healing": 1336,
+    "cc": 3
+   },
+   "Ranger (Beastmaster)": {
+    "winRate": 52.9,
+    "ci": [
+     47.5,
+     58.2
+    ],
+    "games": 329,
+    "damage": 1506,
+    "healing": 0,
+    "cc": 2.4
+   },
+   "Paladin (Crusader)": {
+    "winRate": 52.2,
+    "ci": [
+     46.7,
+     57.7
+    ],
+    "games": 316,
+    "damage": 1784,
+    "healing": 0,
+    "cc": 4.3
+   },
+   "Cleric (Mercy)": {
+    "winRate": 51.9,
+    "ci": [
+     46.4,
+     57.4
+    ],
+    "games": 316,
+    "damage": 363,
+    "healing": 1328,
+    "cc": 2.7
+   },
+   "Warlock (Hexer)": {
+    "winRate": 51.3,
+    "ci": [
+     46.1,
+     56.4
+    ],
+    "games": 355,
+    "damage": 1208,
+    "healing": 0,
+    "cc": 2.6
+   },
+   "Mage (Blood)": {
+    "winRate": 51,
+    "ci": [
+     44.8,
+     57.1
+    ],
+    "games": 251,
+    "damage": 1507,
+    "healing": 39,
+    "cc": 2.6
+   },
+   "Guardian (Aegis)": {
+    "winRate": 50.8,
+    "ci": [
+     45.4,
+     56.1
+    ],
+    "games": 331,
+    "damage": 752,
+    "healing": 0,
+    "cc": 6.8
+   },
+   "Paladin (Oathbreaker)": {
+    "winRate": 50.7,
+    "ci": [
+     45.5,
+     56
+    ],
+    "games": 345,
+    "damage": 1864,
+    "healing": 95,
+    "cc": 4.2
+   },
+   "Guardian (Stoneguard)": {
+    "winRate": 50.6,
+    "ci": [
+     45.1,
+     56.1
+    ],
+    "games": 314,
+    "damage": 870,
+    "healing": 0,
+    "cc": 5.9
+   },
+   "Assassin (Venomblade)": {
+    "winRate": 50,
+    "ci": [
+     44.1,
+     55.9
+    ],
+    "games": 268,
+    "damage": 1392,
+    "healing": 0,
+    "cc": 4
+   },
+   "Bard (Siren)": {
+    "winRate": 49.5,
+    "ci": [
+     43.9,
+     55.1
+    ],
+    "games": 305,
+    "damage": 1358,
+    "healing": 0,
+    "cc": 2.7
+   },
+   "Druid (Grove)": {
+    "winRate": 49.2,
+    "ci": [
+     43.9,
+     54.6
+    ],
+    "games": 329,
+    "damage": 417,
+    "healing": 1445,
+    "cc": 3
+   },
+   "Warrior (Vanguard)": {
+    "winRate": 48.9,
+    "ci": [
+     43.5,
+     54.3
+    ],
+    "games": 323,
+    "damage": 829,
+    "healing": 0,
+    "cc": 6.5
+   },
+   "Cleric (Ward)": {
+    "winRate": 48.5,
+    "ci": [
+     43.4,
+     53.6
+    ],
+    "games": 361,
+    "damage": 445,
+    "healing": 1564,
+    "cc": 3.1
+   },
+   "Bard (Maestro)": {
+    "winRate": 48.1,
+    "ci": [
+     42.5,
+     53.6
+    ],
+    "games": 308,
+    "damage": 949,
+    "healing": 0,
+    "cc": 2.7
+   },
+   "Guardian (Warden)": {
+    "winRate": 48,
+    "ci": [
+     42.8,
+     53.2
+    ],
+    "games": 348,
+    "damage": 819,
+    "healing": 0,
+    "cc": 6
+   },
+   "Assassin (Shadowblade)": {
+    "winRate": 47.8,
+    "ci": [
+     41.5,
+     54.3
+    ],
+    "games": 230,
+    "damage": 1505,
+    "healing": 0,
+    "cc": 4.8
+   },
+   "Druid (Forest)": {
+    "winRate": 47.5,
+    "ci": [
+     42.3,
+     52.7
+    ],
+    "games": 356,
+    "damage": 1292,
+    "healing": 0,
+    "cc": 2.8
+   },
+   "Druid (Moon)": {
+    "winRate": 47.4,
+    "ci": [
+     42.3,
+     52.7
+    ],
+    "games": 350,
+    "damage": 1295,
+    "healing": 0,
+    "cc": 2.2
+   },
+   "Ranger (Trapper)": {
+    "winRate": 47,
+    "ci": [
+     41.5,
+     52.5
+    ],
+    "games": 313,
+    "damage": 1110,
+    "healing": 0,
+    "cc": 3.1
+   },
+   "Paladin (Justiciar)": {
+    "winRate": 46.2,
+    "ci": [
+     40.8,
+     51.7
+    ],
+    "games": 316,
+    "damage": 1543,
+    "healing": 0,
+    "cc": 4.5
+   },
+   "Bard (Skald)": {
+    "winRate": 45.8,
+    "ci": [
+     40.7,
+     50.9
+    ],
+    "games": 365,
+    "damage": 930,
+    "healing": 0,
+    "cc": 2.3
+   },
+   "Warrior (Berserker)": {
+    "winRate": 44.3,
+    "ci": [
+     39.2,
+     49.5
+    ],
+    "games": 352,
+    "damage": 1537,
+    "healing": 0,
+    "cc": 4.1
+   },
+   "Warrior (Duelist)": {
+    "winRate": 44,
+    "ci": [
+     38.9,
+     49.3
+    ],
+    "games": 343,
+    "damage": 1401,
+    "healing": 0,
+    "cc": 5
+   },
+   "Assassin (Riftwalker)": {
+    "winRate": 41.3,
+    "ci": [
+     35.5,
+     47.4
+    ],
+    "games": 259,
+    "damage": 1485,
+    "healing": 0,
+    "cc": 4.5
+   }
+  }
+ },
+ "subclassByMode": {
+  "core": {
+   "Warlock (Soulbinder)": {
+    "winRate": 59.8,
+    "ci": [
+     53.7,
+     65.7
+    ],
+    "games": 254,
+    "damage": 2058,
+    "healing": 89,
+    "cc": 4.5
+   },
+   "Assassin (Executioner)": {
+    "winRate": 58.2,
+    "ci": [
+     51.6,
+     64.5
+    ],
+    "games": 220,
+    "damage": 3036,
+    "healing": 0,
+    "cc": 6.9
+   },
+   "Mage (Blood)": {
+    "winRate": 57.5,
+    "ci": [
+     50,
+     64.6
+    ],
+    "games": 174,
+    "damage": 2534,
+    "healing": 65,
+    "cc": 4.8
+   },
+   "Warlock (Voidcaller)": {
+    "winRate": 57.1,
+    "ci": [
+     51,
+     62.9
+    ],
+    "games": 261,
+    "damage": 2309,
+    "healing": 0,
+    "cc": 4.1
+   },
+   "Mage (Fire)": {
+    "winRate": 56.7,
+    "ci": [
+     49.4,
+     63.8
+    ],
+    "games": 178,
+    "damage": 2368,
+    "healing": 0,
+    "cc": 4
+   },
+   "Paladin (Oathbreaker)": {
+    "winRate": 54.8,
+    "ci": [
+     49.2,
+     60.3
+    ],
+    "games": 301,
+    "damage": 2917,
+    "healing": 138,
+    "cc": 6.7
+   },
+   "Ranger (Beastmaster)": {
+    "winRate": 53.8,
+    "ci": [
+     47.8,
+     59.8
+    ],
+    "games": 260,
+    "damage": 2261,
+    "healing": 0,
+    "cc": 3.7
+   },
+   "Ranger (Marksman)": {
+    "winRate": 53.3,
+    "ci": [
+     47,
+     59.5
+    ],
+    "games": 240,
+    "damage": 2431,
+    "healing": 0,
+    "cc": 5.6
+   },
+   "Warlock (Hexer)": {
+    "winRate": 52.8,
+    "ci": [
+     46.8,
+     58.8
+    ],
+    "games": 265,
+    "damage": 1949,
+    "healing": 0,
+    "cc": 4.7
+   },
+   "Druid (Moon)": {
+    "winRate": 51.8,
+    "ci": [
+     45.9,
+     57.6
+    ],
+    "games": 276,
+    "damage": 2071,
+    "healing": 0,
+    "cc": 3.8
+   },
+   "Mage (Frost)": {
+    "winRate": 51.8,
+    "ci": [
+     44.8,
+     58.7
+    ],
+    "games": 195,
+    "damage": 2077,
+    "healing": 0,
+    "cc": 4.6
+   },
+   "Bard (Siren)": {
+    "winRate": 51.7,
+    "ci": [
+     45.7,
+     57.6
+    ],
+    "games": 265,
+    "damage": 2091,
+    "healing": 0,
+    "cc": 4.7
+   },
+   "Paladin (Crusader)": {
+    "winRate": 51.5,
+    "ci": [
+     45.5,
+     57.4
+    ],
+    "games": 266,
+    "damage": 3010,
+    "healing": 0,
+    "cc": 7.3
+   },
+   "Mage (Chrono)": {
+    "winRate": 51.3,
+    "ci": [
+     44.2,
+     58.4
+    ],
+    "games": 187,
+    "damage": 1814,
+    "healing": 0,
+    "cc": 4.7
+   },
+   "Guardian (Aegis)": {
+    "winRate": 50.9,
+    "ci": [
+     45,
+     56.9
+    ],
+    "games": 265,
+    "damage": 1232,
+    "healing": 0,
+    "cc": 10.7
+   },
+   "Guardian (Stoneguard)": {
+    "winRate": 50.6,
+    "ci": [
+     44.5,
+     56.6
+    ],
+    "games": 259,
+    "damage": 1446,
+    "healing": 0,
+    "cc": 9.6
+   },
+   "Warrior (Berserker)": {
+    "winRate": 50.4,
+    "ci": [
+     44.5,
+     56.2
+    ],
+    "games": 276,
+    "damage": 2699,
+    "healing": 0,
+    "cc": 7.2
+   },
+   "Druid (Forest)": {
+    "winRate": 49,
+    "ci": [
+     43.3,
+     54.7
+    ],
+    "games": 290,
+    "damage": 1844,
+    "healing": 0,
+    "cc": 4.3
+   },
+   "Assassin (Shadowblade)": {
+    "winRate": 48.2,
+    "ci": [
+     41.2,
+     55.2
+    ],
+    "games": 193,
+    "damage": 2502,
+    "healing": 0,
+    "cc": 7.8
+   },
+   "Bard (Maestro)": {
+    "winRate": 48.1,
+    "ci": [
+     42.1,
+     54.1
+    ],
+    "games": 262,
+    "damage": 1401,
+    "healing": 0,
+    "cc": 4.5
+   },
+   "Cleric (Light)": {
+    "winRate": 48.1,
+    "ci": [
+     42.1,
+     54.1
+    ],
+    "games": 260,
+    "damage": 597,
+    "healing": 1840,
+    "cc": 4.8
+   },
+   "Assassin (Riftwalker)": {
+    "winRate": 47.8,
+    "ci": [
+     41,
+     54.6
+    ],
+    "games": 203,
+    "damage": 2673,
+    "healing": 0,
+    "cc": 6.8
+   },
+   "Assassin (Venomblade)": {
+    "winRate": 47.5,
+    "ci": [
+     40.8,
+     54.4
+    ],
+    "games": 204,
+    "damage": 2476,
+    "healing": 0,
+    "cc": 6.6
+   },
+   "Ranger (Trapper)": {
+    "winRate": 47.3,
+    "ci": [
+     41.5,
+     53.2
+    ],
+    "games": 279,
+    "damage": 1554,
+    "healing": 0,
+    "cc": 4.9
+   },
+   "Bard (Skald)": {
+    "winRate": 46.8,
+    "ci": [
+     41.1,
+     52.6
+    ],
+    "games": 282,
+    "damage": 1472,
+    "healing": 0,
+    "cc": 3.9
+   },
+   "Cleric (Ward)": {
+    "winRate": 46.3,
+    "ci": [
+     40.6,
+     52
+    ],
+    "games": 294,
+    "damage": 642,
+    "healing": 2136,
+    "cc": 4.9
+   },
+   "Guardian (Warden)": {
+    "winRate": 46,
+    "ci": [
+     40.2,
+     51.9
+    ],
+    "games": 276,
+    "damage": 1441,
+    "healing": 0,
+    "cc": 10.2
+   },
+   "Paladin (Justiciar)": {
+    "winRate": 45.8,
+    "ci": [
+     40,
+     51.7
+    ],
+    "games": 275,
+    "damage": 2581,
+    "healing": 0,
+    "cc": 7.4
+   },
+   "Warrior (Vanguard)": {
+    "winRate": 44.8,
+    "ci": [
+     38.9,
+     50.9
+    ],
+    "games": 259,
+    "damage": 1411,
+    "healing": 0,
+    "cc": 10.2
+   },
+   "Cleric (Mercy)": {
+    "winRate": 43.3,
+    "ci": [
+     37.2,
+     49.7
+    ],
+    "games": 240,
+    "damage": 541,
+    "healing": 1871,
+    "cc": 4.8
+   },
+   "Warrior (Duelist)": {
+    "winRate": 41.8,
+    "ci": [
+     36.3,
+     47.6
+    ],
+    "games": 287,
+    "damage": 2328,
+    "healing": 0,
+    "cc": 8.4
+   },
+   "Druid (Grove)": {
+    "winRate": 41.3,
+    "ci": [
+     35.5,
+     47.5
+    ],
+    "games": 254,
+    "damage": 620,
+    "healing": 1907,
+    "cc": 5.1
+   }
+  },
+  "teamfight": {
+   "Warlock (Voidcaller)": {
+    "winRate": 59.5,
+    "ci": [
+     53.8,
+     65
+    ],
+    "games": 294,
+    "damage": 588,
+    "healing": 0,
+    "cc": 0.5
+   },
+   "Mage (Chrono)": {
+    "winRate": 59,
+    "ci": [
+     52.3,
+     65.3
+    ],
+    "games": 217,
+    "damage": 440,
+    "healing": 0,
+    "cc": 0.7
+   },
+   "Cleric (Mercy)": {
+    "winRate": 56.7,
+    "ci": [
+     50.6,
+     62.6
+    ],
+    "games": 261,
+    "damage": 174,
+    "healing": 704,
+    "cc": 0.8
+   },
+   "Cleric (Light)": {
+    "winRate": 56.2,
+    "ci": [
+     50.2,
+     62
+    ],
+    "games": 267,
+    "damage": 192,
+    "healing": 708,
+    "cc": 0.9
+   },
+   "Cleric (Ward)": {
+    "winRate": 56.1,
+    "ci": [
+     50.3,
+     61.8
+    ],
+    "games": 285,
+    "damage": 187,
+    "healing": 739,
+    "cc": 0.9
+   },
+   "Mage (Frost)": {
+    "winRate": 54.3,
+    "ci": [
+     47.3,
+     61
+    ],
+    "games": 199,
+    "damage": 519,
+    "healing": 0,
+    "cc": 0.8
+   },
+   "Guardian (Stoneguard)": {
+    "winRate": 53.2,
+    "ci": [
+     47,
+     59.2
+    ],
+    "games": 252,
+    "damage": 294,
+    "healing": 0,
+    "cc": 1.9
+   },
+   "Guardian (Aegis)": {
+    "winRate": 53.1,
+    "ci": [
+     47,
+     59.1
+    ],
+    "games": 258,
+    "damage": 258,
+    "healing": 0,
+    "cc": 1.9
+   },
+   "Druid (Grove)": {
+    "winRate": 53.1,
+    "ci": [
+     47,
+     59
+    ],
+    "games": 262,
+    "damage": 190,
+    "healing": 717,
+    "cc": 1.1
+   },
+   "Mage (Fire)": {
+    "winRate": 52.9,
+    "ci": [
+     45.8,
+     60
+    ],
+    "games": 187,
+    "damage": 549,
+    "healing": 0,
+    "cc": 0.9
+   },
+   "Ranger (Marksman)": {
+    "winRate": 52.4,
+    "ci": [
+     46.2,
+     58.4
+    ],
+    "games": 254,
+    "damage": 538,
+    "healing": 0,
+    "cc": 0.9
+   },
+   "Ranger (Beastmaster)": {
+    "winRate": 52.3,
+    "ci": [
+     46.2,
+     58.3
+    ],
+    "games": 258,
+    "damage": 602,
+    "healing": 0,
+    "cc": 0.8
+   },
+   "Warlock (Soulbinder)": {
+    "winRate": 51.8,
+    "ci": [
+     45.6,
+     57.9
+    ],
+    "games": 249,
+    "damage": 521,
+    "healing": 27,
+    "cc": 0.8
+   },
+   "Paladin (Crusader)": {
+    "winRate": 51.7,
+    "ci": [
+     45.7,
+     57.6
+    ],
+    "games": 267,
+    "damage": 431,
+    "healing": 0,
+    "cc": 0.9
+   },
+   "Mage (Blood)": {
+    "winRate": 50.9,
+    "ci": [
+     44.4,
+     57.3
+    ],
+    "games": 226,
+    "damage": 547,
+    "healing": 19,
+    "cc": 0.8
+   },
+   "Assassin (Venomblade)": {
+    "winRate": 50.2,
+    "ci": [
+     43.6,
+     56.9
+    ],
+    "games": 213,
+    "damage": 352,
+    "healing": 0,
+    "cc": 0.9
+   },
+   "Warlock (Hexer)": {
+    "winRate": 49.5,
+    "ci": [
+     43.8,
+     55.2
+    ],
+    "games": 291,
+    "damage": 436,
+    "healing": 0,
+    "cc": 0.6
+   },
+   "Warrior (Vanguard)": {
+    "winRate": 49,
+    "ci": [
+     43,
+     55.1
+    ],
+    "games": 257,
+    "damage": 264,
+    "healing": 0,
+    "cc": 2.2
+   },
+   "Paladin (Oathbreaker)": {
+    "winRate": 48.8,
+    "ci": [
+     42.7,
+     54.9
+    ],
+    "games": 254,
+    "damage": 422,
+    "healing": 27,
+    "cc": 0.9
+   },
+   "Druid (Moon)": {
+    "winRate": 48.5,
+    "ci": [
+     42.5,
+     54.5
+    ],
+    "games": 260,
+    "damage": 514,
+    "healing": 0,
+    "cc": 0.6
+   },
+   "Bard (Siren)": {
+    "winRate": 48.4,
+    "ci": [
+     42.3,
+     54.5
+    ],
+    "games": 254,
+    "damage": 533,
+    "healing": 0,
+    "cc": 0.7
+   },
+   "Assassin (Executioner)": {
+    "winRate": 48.3,
+    "ci": [
+     41.6,
+     55.1
+    ],
+    "games": 209,
+    "damage": 371,
+    "healing": 0,
+    "cc": 1
+   },
+   "Paladin (Justiciar)": {
+    "winRate": 47.1,
+    "ci": [
+     41.1,
+     53.2
+    ],
+    "games": 259,
+    "damage": 366,
+    "healing": 0,
+    "cc": 1.2
+   },
+   "Bard (Maestro)": {
+    "winRate": 47,
+    "ci": [
+     40.9,
+     53.2
+    ],
+    "games": 251,
+    "damage": 360,
+    "healing": 0,
+    "cc": 0.7
+   },
+   "Assassin (Shadowblade)": {
+    "winRate": 46.7,
+    "ci": [
+     39.5,
+     53.9
+    ],
+    "games": 180,
+    "damage": 384,
+    "healing": 0,
+    "cc": 1.4
+   },
+   "Druid (Forest)": {
+    "winRate": 46.2,
+    "ci": [
+     40.3,
+     52.2
+    ],
+    "games": 266,
+    "damage": 461,
+    "healing": 0,
+    "cc": 0.8
+   },
+   "Guardian (Warden)": {
+    "winRate": 45.9,
+    "ci": [
+     40.2,
+     51.8
+    ],
+    "games": 283,
+    "damage": 273,
+    "healing": 0,
+    "cc": 2
+   },
+   "Warrior (Duelist)": {
+    "winRate": 45.3,
+    "ci": [
+     39.3,
+     51.4
+    ],
+    "games": 256,
+    "damage": 339,
+    "healing": 0,
+    "cc": 1.3
+   },
+   "Ranger (Trapper)": {
+    "winRate": 44.1,
+    "ci": [
+     38.2,
+     50.3
+    ],
+    "games": 256,
+    "damage": 459,
+    "healing": 0,
+    "cc": 0.9
+   },
+   "Warrior (Berserker)": {
+    "winRate": 41.3,
+    "ci": [
+     35.9,
+     47
+    ],
+    "games": 300,
+    "damage": 363,
+    "healing": 0,
+    "cc": 1.4
+   },
+   "Bard (Skald)": {
+    "winRate": 41.1,
+    "ci": [
+     35.4,
+     47
+    ],
+    "games": 275,
+    "damage": 386,
+    "healing": 0,
+    "cc": 1
+   },
+   "Assassin (Riftwalker)": {
+    "winRate": 39,
+    "ci": [
+     32.5,
+     45.9
+    ],
+    "games": 200,
+    "damage": 273,
+    "healing": 0,
+    "cc": 1.1
+   }
+  }
+ }
+}
