@@ -642,7 +642,7 @@ Plan share in 3v3: Siege 41%, Contest 23%, Defend 19%, Flank 7%, Regroup 4%, Ste
 | Focus their healer | 33% | 37% |
 | Protect the carry | 30% | 30% |
 
-The design target is 35–65%. Balanced is currently the strongest siege style. Tuning the brain's style weights barely moved these numbers, because the gap comes from the formation postures shared with classic teamfight, which stay frozen for replays. Making each style competitive in siege is follow-up work (coach intent, `AI-IMPROVEMENT-PLAN.md` stage A4).
+The design target is 35–65%. Balanced is currently the strongest siege style. Tuning the brain's style weights barely moved these numbers, because the gap comes from the formation postures shared with classic teamfight, which stay frozen for replays. Making each style competitive in siege is follow-up work.
 
 
 ## Coach game plans (team-3.6, objective phase 4)
@@ -815,6 +815,27 @@ Fighters could wedge between rocks in Core siege. The Core siege field rearrange
 | Open | 0 | 0 |
 
 Core siege plays as before: 80 games of 5v5 on the same seeds give the same median length (263 s against 269 s) and the same backdoor-loss rate (10%).
+
+## Siege AI: fighters that fight back (team-4.0)
+
+Before this change a team on the siege plan kept hitting the enemy Core while defenders hit them, and fighters often ignored whoever attacked them. `public/siege-ai-combat.js` sits on top of the team brain in team-4.0. It changes the engine in place, because old replays don't need to play back exactly.
+
+- **Retaliate:** a fighter hit by an enemy fighter in the last 1.5 s turns on that attacker when it is within its weapon range + 120. A fighter finishing a Core under 15% keeps going, and healers keep healing.
+- **Peel:** a tank, or a melee fighter on an objective, turns on an enemy who is hitting a back-liner (a healer, controller or ranged damage dealer) within 260 of it.
+- **Siege with care:** a fighter on the enemy Core first fights the defenders who are hitting its team near that Core, and anyone within 120 of it.
+- **When to siege:** a team sieges with an edge, meaning more fighters alive, Forgefire, an enemy Core under 20%, or the Titan down with even numbers. From 3:20 it sieges regardless. Cores carry less health (3v3 2,880, 5v5 3,250), so a won fight turns into a Core kill.
+
+**Measured** (`validation/siege-ai.json`, `scripts/evaluate-siege-ai.mjs --record`): 32 games per size on the same seeds. team-3.9 has the same rules without this layer.
+
+| | 3v3 before | 3v3 after | 5v5 before | 5v5 after |
+| --- | --- | --- | --- | --- |
+| Attacks answered within 2 s | 53% | 92% | 41% | 88% |
+| Core damage taken with a defender beside it | 76% | 61% | 81% | 58% |
+| Median length | 251 s | 268 s | 282 s | 280 s |
+| Sudden death | 0% | 0% | 13% | 13% |
+| Kills per game | 13.4 | 15.9 | 26.8 | 27.4 |
+
+"Answered" means that a fighter hit by an enemy fighter (healers aside) targets that attacker within 2 s.
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 

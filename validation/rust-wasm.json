@@ -5,7 +5,7 @@
  ],
  "games": 28,
  "rebuilt": true,
- "jsSeconds": 34.76,
- "rustSeconds": 6.89,
- "speedup": 5.05
+ "jsSeconds": 39.89,
+ "rustSeconds": 8.11,
+ "speedup": 4.92
 }
