@@ -3,9 +3,9 @@
   "team-4.0",
   "team-2.9"
  ],
- "games": 32,
+ "games": 38,
  "rebuilt": true,
- "jsSeconds": 40.03,
- "rustSeconds": 8.23,
- "speedup": 4.87
+ "jsSeconds": 32.81,
+ "rustSeconds": 9.27,
+ "speedup": 3.54
 }
