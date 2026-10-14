@@ -954,6 +954,12 @@ Team balance is set by hand. No league audits or patches itself any more: the pr
   - `--record` writes `validation/balance-lab.json`.
 - **Lever:** `CAST_BONUS` in `public/team-classes.js` gives a subclass extra stats (strength, speed, durability, IQ, magic) on top of the shared kit allowance. It counts in the fighter's stats and rating but not in its tier, so every tier is the same body budget. About 45 stats move a subclass one point of win rate.
 - **Target:** every subclass between 46% and 54%. `check-cast-balance` checks the recorded lab: enough games, every subclass inside the band, and the lever's entries naming real subclasses.
+- **Recorded (6000 games, fresh seeds after tuning):**
+  - all 32 subclasses win between 46.1% and 53.7%, and the six cast roles between 48.8% and 51%;
+  - median Core siege 4:02, classic teamfight 52 s;
+  - 0.3% (Core siege) and 1.6% (classic) of games reach the time limit.
+  
+  Before tuning they ranged from 37% (Warrior Duelist) to 67% (Warlock Voidcaller). Retune after any change to the cast, its abilities or the engines: run the lab with `--record` and adjust `CAST_BONUS` until the check passes.
 
 ## Enhanced renderer (PixiJS, objective phase 5)
 
