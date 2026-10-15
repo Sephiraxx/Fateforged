@@ -1012,7 +1012,7 @@ Each of the 32 team cast subclasses can have an animated sheet, `public/sprites/
 
 ### Spell effects (animated)
 
-Each of the 57 abilities the team cast uses can have a short effect, `public/sprites/fx-<ability id>.webp`: 4 frames of 256 px in one row, played over 0.45 s (`sprite-art.js` `ABILITY_FX`).
+Each subclass ability can have a short effect drawn in that character's colours, `public/sprites/fx-<subclass>-<ability id>.webp` (64 in all, for example `fx-soulbinder-blood`): 4 frames of 256 px in one row, played over 0.45 s. A shared ability such as Taunt shout has one effect per subclass, so the Vanguard's, the Warden's and the Justiciar's each match their caster (`sprite-art.js` `CAST_FX`, `fighterFx`; placement in `ABILITY_FX`).
 - **Trigger:** the renderer sees a new use when a fighter's `powerUsed[id]` stamp changes. It waits for the rest of the cast's windup (`releaseDelay`), then plays the effect.
 - **Placement:**
   - on the enemy hit (the cast's target, or the fighter's target);
@@ -1022,5 +1022,5 @@ Each of the 57 abilities the team cast uses can have a short effect, `public/spr
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
 - **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
-- **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect. `node scripts/sprite-sheet.mjs --fx <id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
+- **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect, each telling GPT to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 
