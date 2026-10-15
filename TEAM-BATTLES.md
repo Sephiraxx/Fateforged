@@ -1007,7 +1007,7 @@ Each of the 32 team cast subclasses can have an animated sheet, `public/sprites/
   - an attack or cast follows its windup (frames 1–4), then shows its release (frame 5) until the action ends;
   - walking (moving faster than 8 px/s) and idling loop at 10 and 6 frames a second.
 - **Rendering:** a fighter drawn from a sheet shows no separate weapon prop. Fighters without a sheet keep the archetype art. Sheets may be up to 2 MB.
-- **Making them:** `ART-PROMPTS.md` ("Team cast sheets") has the ChatGPT workflow, one row strip per message with the idle row attached as the reference. It also has the row prompts and a description per subclass. `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>` turns the five strips into a sheet, using Chromium's canvas: it cuts out each frame, applies one scale for the whole sheet, and puts every frame on a shared feet line, centred on its feet.
+- **Making them:** `ART-PROMPTS.md` ("Team cast sheets") has the ChatGPT workflow, one row strip per message with the idle row attached as the reference. It also has the row prompts and a description per subclass. `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>` turns the five strips into a sheet, using Chromium's canvas: it cuts out each figure by its connected pixels, scales each row so the character stands `SHEET_STANDING` (160 px) tall in every sheet (hit and down rows by area), and puts every frame on a shared feet line, centred on its feet. A row that would not fit its cells shrinks on its own, never the whole sheet, so every character is drawn at one size.
 
 
 ### Spell effects (animated)
@@ -1021,6 +1021,6 @@ Each of the 57 abilities the team cast uses can have a short effect, `public/spr
   - around the caster, larger, for area abilities.
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
-- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
+- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
 - **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect. `node scripts/sprite-sheet.mjs --fx <id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 

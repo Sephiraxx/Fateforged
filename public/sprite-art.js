@@ -51,6 +51,8 @@ export const SHEET_FRAME=256;
 export const SHEET_ROWS=Object.freeze([['idle',4],['walk',6],['attack',5],['hit',2],['down',4]]);
 export const SHEET_COLUMNS=Math.max(...SHEET_ROWS.map(([,n])=>n));
 export const SHEET_MAX_BYTES=2*1024*1024;
+// Every sheet's character stands this tall (feet 12 px above the cell's bottom), so the whole cast is drawn at one size.
+export const SHEET_STANDING=160,SHEET_FEET=12;
 const slug=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 export const sheetName=(className,subclass)=>`cast-${slug(className)}-${slug(subclass)}`;
 export const SHEET_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.map(s=>sheetName(c.name,s.name))));

@@ -154,7 +154,7 @@ Team fighters (2v2, 3v3, 5v5) come from the team cast: 10 classes, 32 subclasses
 1. Generate the subclass's **idle row** first, with the prompt below. When it looks right, save it as `idle.png` in a folder for that subclass.
 2. For every other row, **attach the idle image** and start with: "Same character, same outfit, colours, proportions, size and camera as the attached image." Then paste the row prompt. Save each as `walk.png`, `attack.png`, `hit.png` and `down.png`.
 3. Each row is ONE image: the frames side by side, left to right, evenly spaced, on a transparent background. Ask for "a horizontal strip of N frames, each frame the same width, nothing between them".
-4. Build the sheet: `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>`, for example `node scripts/sprite-sheet.mjs Mage Blood art/mage-blood`. It cuts out every frame, scales the whole sheet by one factor, stands every frame on the same feet line, centres it on its feet and writes the WebP. Then rebuild.
+4. Build the sheet: `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>`, for example `node scripts/sprite-sheet.mjs Mage Blood art/mage-blood`. It cuts out every figure (figures that overlap side by side still separate), scales each row so the character stands `SHEET_STANDING` (160 px) tall, the same for the whole cast (hit and down rows by area, since a recoil or a fall changes the height), stands every frame on the same feet line, centres it on its feet and writes the WebP. Then run `node scripts/audit-sprites.mjs` and rebuild.
 5. Start with **Mage (Blood)**, check it in a watched game (Enhanced graphics), then do one class at a time.
 
 **Row prompt (paste after the preamble and the subclass description):**
