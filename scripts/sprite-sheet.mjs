@@ -60,8 +60,15 @@ try{
    const used=[];for(let x=0;x<W;x++){let on=false;for(let y=0;y<H&&!on;y++)on=alpha(x,y)>16;used.push(on);}
    let runs=[];for(let x=0;x<W;x++)if(used[x]){if(runs.length&&runs.at(-1)[1]===x-1)runs.at(-1)[1]=x;else runs.push([x,x]);}
    while(runs.length>n){let best=1;for(let i=2;i<runs.length;i++)if(runs[i][0]-runs[i-1][1]<runs[best][0]-runs[best-1][1])best=i;runs.splice(best-1,2,[runs[best-1][0],runs[best][1]]);}
-   const cells=runs.length===n?runs.map(([a,b])=>[a,b+1]):Array.from({length:n},(_,k)=>[Math.round(k*W/n),Math.round((k+1)*W/n)]);
-   if(runs.length!==n)warnings.push(`${row}: found ${runs.length} separate figures for ${n} frames, so the strip was cut into equal parts; leave clear space between the figures if frames look cut.`);
+   // Figures that overlap side by side (a spark reaching the next frame): cut at the emptiest column near each expected
+   // boundary instead.
+   let cells;
+   if(runs.length===n)cells=runs.map(([a,b])=>[a,b+1]);
+   else{const fill=[];for(let x=0;x<W;x++){let c=0;for(let y=0;y<H;y++)if(alpha(x,y)>48)c++;fill.push(c);}
+    const r=Math.max(2,Math.round(W/200)),smooth=fill.map((_,x)=>{let t=0;for(let d=-r;d<=r;d++)t+=fill[Math.min(W-1,Math.max(0,x+d))];return t;});
+    const cuts=[0];for(let k=1;k<n;k++){let best=Math.round(k*W/n);for(let x=Math.round((k-.4)*W/n);x<=Math.round((k+.4)*W/n);x++)if(smooth[x]<smooth[best])best=x;cuts.push(best);}cuts.push(W);
+    cells=Array.from({length:n},(_,k)=>[cuts[k],cuts[k+1]]);
+    warnings.push(`${row}: found ${runs.length} separate figures for ${n} frames, so the strip was cut at the emptiest columns between them; leave clear space between the figures if frames look cut.`);}
    return cells.map(([x0,x1],k)=>{let minX=Infinity,minY=Infinity,maxX=-1,maxY=-1;
     for(let y=0;y<H;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>16){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
     if(maxX<0)return null;
