@@ -5,9 +5,9 @@ import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
-import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS} from '../public/pixi-arena-model.js';
+import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS,newAbilityUses,releaseDelay,fxFrame,FX_DURATION} from '../public/pixi-arena-model.js';
 import {Battle} from '../public/combat.js';
-import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet} from '../public/sprite-art.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES} from '../public/sprite-art.js';
 import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
 import {collectSprites} from './sprites.mjs';
 import {MAP_IDS} from '../public/team-maps.js';
@@ -88,6 +88,13 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  assert.deepEqual(sheetFrame({...f,hitFlash:.1,action:{elapsed:0,windup:.4}},memo,0,false),{row:'hit',frame:0});
  assert.deepEqual(sheetFrame({...f,hp:0},memo,10,false),{row:'down',frame:0});assert.deepEqual(sheetFrame({...f,hp:0},memo,10+1/SHEET_FPS.down*2,false),{row:'down',frame:2});assert.deepEqual(sheetFrame({...f,hp:0},memo,20,false),{row:'down',frame:3},'down holds its last frame');
  sheetFrame(f,memo,21,false);assert.equal(memo.downSince,null,'a respawn resets the fall');}
+// Spell effects: one per subclass ability, listed in SPELL-FX-PROMPTS.md, triggered by new powerUsed stamps when the cast releases.
+{const {TEAM_CLASSES}=await import('../public/team-classes.js');const C=globalThis.CURRENT_CLASS_ABILITIES,ids=new Set(TEAM_CLASSES.flatMap(c=>c.subclasses.flatMap(s=>s.powers.map(p=>C.definition(p)?.id))));
+ assert.deepEqual([...ids].sort(),Object.keys(ABILITY_FX).sort(),'every subclass ability has an effect entry');assert(Object.values(ABILITY_FX).every(on=>['target','ally','self','area'].includes(on)));
+ const fxPrompts=fs.readFileSync('SPELL-FX-PROMPTS.md','utf8');for(const name of FX_NAMES)assert(fxPrompts.includes('`'+name+'`'),`${name} is in SPELL-FX-PROMPTS.md`);assert.equal(FX_FRAMES,4);
+ const seen={},f={powerUsed:{smite:1}};assert.deepEqual(newAbilityUses(seen,f),[],'the first look only records');f.powerUsed.smite=4;f.powerUsed.zeal=4;assert.deepEqual(newAbilityUses(seen,f).sort(),['smite','zeal']);assert.deepEqual(newAbilityUses(seen,f),[]);
+ assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:false}},'smite').toFixed(2),'0.20');assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:true}},'smite'),0);assert.equal(releaseDelay({action:null},'smite'),0);
+ assert.equal(fxFrame(0),0);assert.equal(fxFrame(FX_DURATION*.6),2);assert.equal(fxFrame(FX_DURATION),null);assert.equal(fxFrame(-.1),null);}
 
 // Sprite collection: known names only, one file per name, size-capped.
 {const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sprites-'));const warn=console.warn;console.warn=()=>{};
