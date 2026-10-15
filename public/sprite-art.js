@@ -55,5 +55,17 @@ const slug=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/
 export const sheetName=(className,subclass)=>`cast-${slug(className)}-${slug(subclass)}`;
 export const SHEET_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.map(s=>sheetName(c.name,s.name))));
 export const fighterSheet=f=>{const t=f.traits;if(!t?.subclass)return null;const name=sheetName(t.class,t.subclass);return SHEET_NAMES.includes(name)?name:null;};
+// Spell effects for the team cast's abilities (SPELL-FX-PROMPTS.md): one 4-frame strip per ability, fx-<ability id>,
+// played where the ability lands when its cast releases. `on` places it: target (the enemy hit), ally (the ally
+// helped), self (the caster) or area (around the caster, larger).
+export const FX_FRAMES=4;
+const fx=(on,...ids)=>ids.map(id=>[id,on]);
+export const ABILITY_FX=Object.freeze(Object.fromEntries([
+ ...fx('target','moonfire','roots','bramble','dream','cleave','charge','drivingStrike','knockUp','fire','ember','bloodBolt','venom','ice','frostTouch','time','silence','aimedShot','chainShot','cripplingStrike','disarmShot','beast','backstab','death','execute','toxicBlade','shadowstep','discord','charm','sound','smite','judgment','blood','curse','enfeeble','soulLink','singularity','dispel'),
+ ...fx('ally','healing','mendingWave','resurrection','barrier','regeneration','life','aegisShield','haste','force','spiritArmor'),
+ ...fx('self','guard','parry','lastStand','invisible','teleport','zeal'),
+ ...fx('area','tauntShout','battleHymn','warCry','dreadAura')
+]));
+export const FX_NAMES=Object.freeze(Object.keys(ABILITY_FX).map(id=>'fx-'+id));
 // Which sprite files are usable: the manifest maps a sprite name to its file; unknown names are ignored.
-export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}
+export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES,...FX_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}

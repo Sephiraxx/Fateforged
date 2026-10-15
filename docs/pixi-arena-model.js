@@ -60,3 +60,16 @@ export function sheetFrame(f,memo,time,moving){
  if(moving)return {row:'walk',frame:Math.floor(time*SHEET_FPS.walk)%6};
  return {row:'idle',frame:Math.floor(time*SHEET_FPS.idle)%4};
 }
+// Spell effects (sprite-art.js ABILITY_FX). Every ability use stamps the fighter's powerUsed[id] with the battle
+// time, so a changed stamp is a new use. `seen` is the renderer's copy for that fighter; the first look only records.
+export const FX_DURATION=.45;
+export function newAbilityUses(seen,f){
+ const used=f.powerUsed??{},out=[];
+ if(!seen.ready){for(const [id,t]of Object.entries(used))seen[id]=t;seen.ready=true;return out;}
+ for(const [id,t]of Object.entries(used))if(seen[id]!==t){seen[id]=t;out.push(id);}
+ return out;
+}
+// Seconds until a use lands: the rest of its windup while the cast is still winding up, otherwise now.
+export function releaseDelay(f,id){const a=f.action;return a&&a.power?.id===id&&!a.released&&a.windup>0?Math.max(0,a.windup-(a.elapsed??0)):0;}
+// The frame an effect shows at `age` seconds, or null once it is over.
+export function fxFrame(age,frames=4,duration=FX_DURATION){return age<0||age>=duration?null:Math.min(frames-1,Math.floor(age/duration*frames));}

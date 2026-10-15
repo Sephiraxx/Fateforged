@@ -1009,3 +1009,18 @@ Each of the 32 team cast subclasses can have an animated sheet, `public/sprites/
 - **Rendering:** a fighter drawn from a sheet shows no separate weapon prop. Fighters without a sheet keep the archetype art. Sheets may be up to 2 MB.
 - **Making them:** `ART-PROMPTS.md` ("Team cast sheets") has the ChatGPT workflow, one row strip per message with the idle row attached as the reference. It also has the row prompts and a description per subclass. `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>` turns the five strips into a sheet, using Chromium's canvas: it cuts out each frame, applies one scale for the whole sheet, and puts every frame on a shared feet line, centred on its feet.
 
+
+### Spell effects (animated)
+
+Each of the 57 abilities the team cast uses can have a short effect, `public/sprites/fx-<ability id>.webp`: 4 frames of 256 px in one row, played over 0.45 s (`sprite-art.js` `ABILITY_FX`).
+- **Trigger:** the renderer sees a new use when a fighter's `powerUsed[id]` stamp changes. It waits for the rest of the cast's windup (`releaseDelay`), then plays the effect.
+- **Placement:**
+  - on the enemy hit (the cast's target, or the fighter's target);
+  - on the ally helped (the cast's target, or the healer's support target);
+  - on the caster;
+  - around the caster, larger, for area abilities.
+  
+  The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
+- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
+- **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect. `node scripts/sprite-sheet.mjs --fx <id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
+

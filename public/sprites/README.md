@@ -9,3 +9,7 @@ Put the sprite art from `ART-PROMPTS.md` here, named exactly as in its checklist
 ## Team cast sheets
 
 Animated sheets for the team cast are named `cast-<class>-<subclass>.webp` (for example `cast-mage-blood.webp`, 32 in all; see `ART-PROMPTS.md`). Build them from five row strips with `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>`, which writes the file here. Sheets may be up to 2 MB.
+
+## Spell effects
+
+One short effect per team cast ability, named `fx-<ability id>.webp` (for example `fx-bloodBolt.webp`, 57 in all; see `SPELL-FX-PROMPTS.md`). Build each from a 4-frame strip with `node scripts/sprite-sheet.mjs --fx <id> <strip.png>`.

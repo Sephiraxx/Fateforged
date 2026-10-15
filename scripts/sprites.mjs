@@ -2,14 +2,14 @@
 // under SPRITE_MAX_BYTES (team cast sheets: SHEET_MAX_BYTES). Returns the files to ship and the manifest module that tells the renderer what exists.
 import {readdir,readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {SPRITE_NAMES,SPRITE_EXTENSIONS,SPRITE_MAX_BYTES,SHEET_NAMES,SHEET_MAX_BYTES} from '../public/sprite-art.js';
+import {SPRITE_NAMES,SPRITE_EXTENSIONS,SPRITE_MAX_BYTES,SHEET_NAMES,SHEET_MAX_BYTES,FX_NAMES} from '../public/sprite-art.js';
 export async function collectSprites(dir='public/sprites'){
  let entries=[];try{entries=(await readdir(dir)).sort();}catch{}
  const files=[],manifest={},skipped=[];
  for(const file of entries){
   const match=/^(.+)\.([a-z]+)$/.exec(file);if(!match||file==='README.md')continue;const [,name,ext]=match;
   const sheet=SHEET_NAMES.includes(name),limit=sheet?SHEET_MAX_BYTES:SPRITE_MAX_BYTES;
-  if(!SPRITE_NAMES.includes(name)&&!sheet||!SPRITE_EXTENSIONS.includes(ext)){skipped.push(`${file}: not a sprite name from ART-PROMPTS.md (.webp or .png)`);continue;}
+  if(!SPRITE_NAMES.includes(name)&&!sheet&&!FX_NAMES.includes(name)||!SPRITE_EXTENSIONS.includes(ext)){skipped.push(`${file}: not a sprite name from ART-PROMPTS.md (.webp or .png)`);continue;}
   if(manifest[name]){skipped.push(`${file}: ${name} already has a file`);continue;}
   const data=await readFile(`${dir}/${file}`);
   if(data.length>limit){skipped.push(`${file}: ${Math.round(data.length/1024)} KB is over ${limit/1024} KB; ${sheet?'build sheets with scripts/sprite-sheet.mjs (WebP)':'resize to 256 px (512 px for the Titan and pit) and save as WebP'}`);continue;}
