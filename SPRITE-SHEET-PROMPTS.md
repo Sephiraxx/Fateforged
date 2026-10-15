@@ -12,7 +12,7 @@ There are 32 characters (one per subclass), each with 5 rows (idle, walk, attack
 5. **Build the sheet:** `node scripts/sprite-sheet.mjs Mage Blood art/mage-blood`. It writes `public/sprites/cast-mage-blood.webp`. Then run `npm run build` (and `node scripts/build-pages.mjs`), and watch a game with Enhanced graphics.
 6. Do **Mage (Blood)** first, check it in the game, then the rest one character at a time.
 
-You don't need to resize or crop anything: the build script finds each figure by the empty space between them, scales the character and lines up the feet. It only needs a clear gap between the figures.
+You don't need to resize or crop anything: the build script finds each figure, scales the character to the same height as the rest of the cast and lines up the feet. Never crop the frames into boxes or tiles yourself: a frame cut by a straight edge shows that edge in the game, and `node scripts/audit-sprites.mjs` flags it.
 
 ## Quick checks before you save an image
 
