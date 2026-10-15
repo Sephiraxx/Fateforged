@@ -2,8 +2,8 @@
 // positions are eased for display, particles come from state differences, and the camera frames the field or
 // follows the action. Sprite art from public/sprites/ replaces the drawn shapes wherever a file exists
 // (sprite-art.js). The 2D canvas renderer in arena.js stays the fallback and the "Classic" option.
-import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES,sheetFrame} from './pixi-arena-model.js';
-import {fighterArt,coreArt,spriteUrls,TERRAIN_ART,fighterSheet,SHEET_ROWS,SHEET_COLUMNS} from './sprite-art.js';
+import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES,sheetFrame,newAbilityUses,releaseDelay,fxFrame} from './pixi-arena-model.js';
+import {fighterArt,coreArt,spriteUrls,TERRAIN_ART,fighterSheet,SHEET_ROWS,SHEET_COLUMNS,ABILITY_FX,FX_FRAMES} from './sprite-art.js';
 import {SPRITE_MANIFEST} from './sprite-manifest.js';
 const TEAM_COLORS=[0x3ee0ff,0xff5a6a],GOLD=0xf4c96b,ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const colorOf=f=>TEAM_COLORS[teamOf(f)]??0xffffff;
@@ -30,6 +30,9 @@ export async function createPixiArena(frame,images,{onFail}={}){
  const art={};let artCount=0,staticArt=-1;
  // Team cast sheets: one texture per frame, cut from the sheet on first use (rows from sprite-art.js SHEET_ROWS).
  const sheetFrames=new Map(),sheetMemo=new Map();
+ // Spell effects: uses seen per fighter, effects waiting for their cast to release, and effects playing.
+ const fxSeen=new Map(),fxPending=[],fxLive=[],fxFrames=new Map();let fxBattle=null;
+ const fxTex=(id,frame)=>{const key=id+':'+frame;let t=fxFrames.get(key);if(!t){const base=art['fx-'+id],size=base.width/FX_FRAMES;t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,0,size,base.height)});fxFrames.set(key,t);}return t;};
  const sheetTex=(name,{row,frame})=>{const id=`${name}:${row}:${frame}`;let t=sheetFrames.get(id);if(!t){const base=art[name],size=base.width/SHEET_COLUMNS,y=SHEET_ROWS.findIndex(([r])=>r===row);t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,y*size,size,size)});sheetFrames.set(id,t);}return t;};
  for(const [name,url]of Object.entries(spriteUrls(SPRITE_MANIFEST,import.meta.url))){const img=new Image();img.decoding='async';img.onload=()=>{art[name]=PIXI.Texture.from(img);artCount++;};img.onerror=()=>console.warn('Sprite failed to load: '+name);img.src=url;}
  // Scene graph: world (camera) > ground, terrain, zones, objectives, trails, effects, projectiles, fighters, particles, overlay.
@@ -99,6 +102,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
   // dt is battle time for particles and easing (0 while paused); realDt drives the camera so it still moves when paused.
   render(b,dt,{W,H,portrait},realDt=dt){
    dt=Math.max(0,Math.min(.1,dt||0));realDt=Math.max(0,Math.min(.1,realDt||0));clock+=dt;
+   if(fxBattle!==b){fxBattle=b;fxSeen.clear();fxPending.length=0;fxLive.length=0;}
    const team=b.mode==='team',sw=portrait?H:W,sh=portrait?W:H;if(app.renderer.width!==sw*app.renderer.resolution||app.renderer.height!==sh*app.renderer.resolution||view.W!==W||view.portrait!==portrait){app.renderer.resize(sw,sh);view={W,H,portrait};battleRef=null;}
    if(b!==battleRef){battleRef=b;prevSnap=null;lastTitan=null;shown.clear();for(const v of bodies.values())v.root.destroy({children:true});bodies.clear();buildStatic(b);camera=fullView(W,H);}
    else if(staticArt!==artCount)buildStatic(b);
@@ -157,7 +161,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
    shots.begin();for(const p of b.projectiles??[]){if(p.molten){lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.08,p.y-p.vy*.08).stroke({width:6,color:0xff7a2a,alpha:.45});lineG.circle(p.x,p.y,13).fill({color:0xffb347,alpha:.3}).circle(p.x,p.y,7).fill({color:0xff6a1a,alpha:.95});continue;}const owner=b.actorFor?.(p.owner)??b.fighters[p.owner],color=owner?colorOf(owner):0xffe27a;lineG.moveTo(p.x,p.y).lineTo(p.x-p.vx*.06,p.y-p.vy*.06).stroke({width:3,color,alpha:.35});if(p.sprite>=0){const s=shots.get(),tex=frameTex('effects',p.sprite);if(tex)s.texture=tex;s.x=p.x;s.y=p.y;s.width=s.height=18;s.rotation=0;}}shots.end();
    // Fighters, eased toward their simulated positions; respawns and teleports snap.
    bars.clear();const keys=new Set();
-   b.fighters.forEach((f,i)=>{if(f.isObjective)return;const key=fighterKey(f,i);keys.add(key);const v=body(key),r=f.radius||9,color=colorOf(f),looks=fighterArt(f),sheet=fighterSheet(f),cell=sheet&&art[sheet]?sheetFrame(f,sheetMemo.get(key)??sheetMemo.set(key,{}).get(key),clock,Math.hypot(f.vx??0,f.vy??0)>8):null,charTex=cell?sheetTex(sheet,cell):art[looks.character],propTex=cell?null:art[looks.prop];
+   b.fighters.forEach((f,i)=>{if(f.isObjective)return;const key=fighterKey(f,i);keys.add(key);if(team)for(const id of newAbilityUses(fxSeen.get(key)??fxSeen.set(key,{}).get(key),f))if(ABILITY_FX[id]&&art['fx-'+id])fxPending.push({id,on:ABILITY_FX[id],caster:f,at:b.time+releaseDelay(f,id),targets:f.action?.power?.id===id?f.action.targets:null});const v=body(key),r=f.radius||9,color=colorOf(f),looks=fighterArt(f),sheet=fighterSheet(f),cell=sheet&&art[sheet]?sheetFrame(f,sheetMemo.get(key)??sheetMemo.set(key,{}).get(key),clock,Math.hypot(f.vx??0,f.vy??0)>8):null,charTex=cell?sheetTex(sheet,cell):art[looks.character],propTex=cell?null:art[looks.prop];
     drawBody(v,f,!!charTex);let pos=shown.get(key);if(!pos||Math.hypot(pos.x-f.x,pos.y-f.y)>120)pos={x:f.x,y:f.y};pos={x:ease(pos.x,f.x,dt,30),y:ease(pos.y,f.y,dt,30)};shown.set(key,pos);
     const root=v.root;root.x=pos.x;root.y=pos.y;root.alpha=f.hp>0?(f.invisible>0?.35:1):.3;v.flash.alpha=f.hitFlash>0?.9:0;v.glow.alpha=f.hp>0?.5:.15;
     if(f.hp>0&&b.empowered?.(f)){const k=.6+.4*Math.sin(clock*6+key);if(!artAt('fx-forgefire',pos.x,pos.y,r*6,{alpha:.55+.35*k,rotation:clock*1.5,add:true})){glowAt(pos.x,pos.y,r*6,GOLD,.35*k+.2);objG.circle(pos.x,pos.y,r+7).stroke({width:f.forgeShield>0?3:1.5,color:0xffc45c,alpha:.85});}else if(f.forgeShield>0)objG.circle(pos.x,pos.y,r+7).stroke({width:2,color:0xffc45c,alpha:.7});}
@@ -175,6 +179,13 @@ export async function createPixiArena(frame,images,{onFail}={}){
      bars.rect(bx,by,bw,bh).fill({color:0x05070d,alpha:.8});if(view.portrait)bars.rect(bx,by,bw,bh*pct).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});else bars.rect(bx,by,bw*pct,bh).fill({color:pct>.5?color:pct>.25?0xffd23f:0xff5a6a});
      const glyph=labels.get();setLabel(glyph,(ROLE_GLYPH[f.role]||'')+(f.level>1?' '+f.level:''),color);const [gx,gy]=view.portrait?[pos.x+(27+lift)*k,pos.y]:[pos.x,pos.y-(27+lift)*k];glyph.x=gx;glyph.y=gy;upright(glyph);glyph.scale.set(glyph.scale.x*.5);}});
    for(const [key,v]of bodies)if(!keys.has(key)){v.root.destroy({children:true});bodies.delete(key);}
+   // Spell effects land when their cast releases: on the enemy hit, the ally helped, the caster, or around the caster.
+   for(let i=fxPending.length-1;i>=0;i--){const p=fxPending[i];if(b.time<p.at)continue;fxPending.splice(i,1);
+    const bySide=side=>b.fighters.find(x=>!x.isObjective&&x.side===side),actor=index=>index==null?null:b.actorFor?.(index)??b.fighters[index];
+    const ent=p.on==='target'?(p.targets?.length?bySide(p.targets[0]):actor(p.caster.target)):p.on==='ally'?(p.targets?.length?bySide(p.targets[0]):actor(p.caster.supportTarget)??p.caster):p.caster;
+    if(ent)fxLive.push({id:p.id,ent,start:b.time,size:p.on==='area'?200:Math.max(56,(ent.radius||9)*7)});}
+   for(let i=fxLive.length-1;i>=0;i--){const e=fxLive[i],frame=fxFrame(b.time-e.start,FX_FRAMES);if(frame==null){fxLive.splice(i,1);continue;}
+    const s=objArt.get();s.texture=fxTex(e.id,frame);s.x=e.ent.x;s.y=e.ent.y;s.width=s.height=e.size;s.alpha=1;s.rotation=0;s.blendMode='normal';s.tint=0xffffff;}
    objGlow.end();objArt.end();labels.end();
    // Weather.
    weatherG.clear();const env=b.environment??{};if(['rain','storm'].includes(env.weather)){for(let i=0;i<Math.round(40*W*H/360000);i++){const x=(i*137+b.time*25)%W,y=(i*73+b.time*95)%H;weatherG.moveTo(x,y).lineTo(x-3,y+9);}weatherG.stroke({width:1,color:0xb9d5e5,alpha:.16});}if(env.weather==='frost')weatherG.rect(13,13,W-26,H-26).stroke({width:1,color:0xb0d5e9,alpha:.15});
