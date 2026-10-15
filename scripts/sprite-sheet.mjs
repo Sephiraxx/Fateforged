@@ -1,9 +1,9 @@
 // Builds a team cast sprite sheet (ART-PROMPTS.md, "Team cast sheets") from ChatGPT row strips, or a spell effect
 // strip (SPELL-FX-PROMPTS.md).
 // node scripts/sprite-sheet.mjs <class> <subclass> <folder>
-// node scripts/sprite-sheet.mjs --fx <ability id> <strip.png>
+// node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>
 // Effects: one strip of FX_FRAMES frames; each frame is centred on its own box and the strip keeps one scale, so the
-// effect's growth stays visible; written to public/sprites/fx-<ability id>.webp (256 px frames in one row).
+// effect's growth stays visible; written to public/sprites/fx-<subclass>-<ability id>.webp (256 px frames in one row).
 // The folder holds one PNG per row: idle.png, walk.png, attack.png, hit.png and down.png, each a strip with that row's
 // frames side by side on a transparent background (any size, any spacing). ChatGPT draws every strip at its own size,
 // so each row is measured and scaled on its own:
@@ -20,20 +20,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,sheetName,SHEET_NAMES,ABILITY_FX,FX_FRAMES} from '../public/sprite-art.js';
+import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,sheetName,SHEET_NAMES,CAST_FX,fxName,FX_FRAMES} from '../public/sprite-art.js';
 
 const args=process.argv.slice(2),effect=args[0]==='--fx';
 const png=file=>'data:image/png;base64,'+fs.readFileSync(file).toString('base64');
 let name,rows,limit;
 if(effect){
- const [,id,file]=args;
- if(!id||!file){console.error('Usage: node scripts/sprite-sheet.mjs --fx <ability id> <strip.png>');process.exit(2);}
- if(!ABILITY_FX[id]){console.error(`${id} has no spell effect. Effects: ${Object.keys(ABILITY_FX).join(', ')}`);process.exit(2);}
+ const [,sub,id,file]=args;
+ if(!sub||!id||!file){console.error('Usage: node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>');process.exit(2);}
+ const subclass=Object.keys(CAST_FX).find(k=>k.toLowerCase()===sub.toLowerCase());
+ if(!subclass||!CAST_FX[subclass].includes(id)){console.error(`${sub} has no effect for ${id}. Effects: ${Object.entries(CAST_FX).map(([k,ids])=>k+' '+ids.join('/')).join(', ')}`);process.exit(2);}
  if(!fs.existsSync(file)){console.error(`Missing ${file} (${FX_FRAMES} frames).`);process.exit(2);}
- name='fx-'+id;rows=[{row:'fx',frames:FX_FRAMES,data:png(file)}];limit=SPRITE_MAX_BYTES;
+ name=fxName(subclass,id);rows=[{row:'fx',frames:FX_FRAMES,data:png(file)}];limit=SPRITE_MAX_BYTES;
 }else{
  const [cls,sub,dir]=args;
- if(!cls||!sub||!dir){console.error('Usage: node scripts/sprite-sheet.mjs <class> <subclass> <folder with idle.png walk.png attack.png hit.png down.png>\n       node scripts/sprite-sheet.mjs --fx <ability id> <strip.png>');process.exit(2);}
+ if(!cls||!sub||!dir){console.error('Usage: node scripts/sprite-sheet.mjs <class> <subclass> <folder with idle.png walk.png attack.png hit.png down.png>\n       node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>');process.exit(2);}
  name=sheetName(cls,sub);
  if(!SHEET_NAMES.includes(name)){console.error(`${cls} (${sub}) is not in the team cast. Sheets: ${SHEET_NAMES.join(', ')}`);process.exit(2);}
  rows=SHEET_ROWS.map(([row,frames])=>{const file=path.join(dir,row+'.png');if(!fs.existsSync(file)){console.error(`Missing ${file} (${frames} frames).`);process.exit(2);}return {row,frames,data:png(file)};});

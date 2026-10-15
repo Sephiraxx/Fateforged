@@ -7,7 +7,7 @@ import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
 import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS,newAbilityUses,releaseDelay,fxFrame,FX_DURATION} from '../public/pixi-arena-model.js';
 import {Battle} from '../public/combat.js';
-import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES} from '../public/sprite-art.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES,CAST_FX,fighterFx} from '../public/sprite-art.js';
 import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
 import {collectSprites} from './sprites.mjs';
 import {MAP_IDS} from '../public/team-maps.js';
@@ -91,6 +91,10 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
 // Spell effects: one per subclass ability, listed in SPELL-FX-PROMPTS.md, triggered by new powerUsed stamps when the cast releases.
 {const {TEAM_CLASSES}=await import('../public/team-classes.js');const C=globalThis.CURRENT_CLASS_ABILITIES,ids=new Set(TEAM_CLASSES.flatMap(c=>c.subclasses.flatMap(s=>s.powers.map(p=>C.definition(p)?.id))));
  assert.deepEqual([...ids].sort(),Object.keys(ABILITY_FX).sort(),'every subclass ability has an effect entry');assert(Object.values(ABILITY_FX).every(on=>['target','ally','self','area'].includes(on)));
+ for(const c of TEAM_CLASSES)for(const s of c.subclasses)assert.deepEqual([...CAST_FX[s.name]].sort(),s.powers.map(p=>C.definition(p).id).sort(),`CAST_FX lists ${s.name}'s abilities`);
+ assert.equal(FX_NAMES.length,64);assert.equal(new Set(FX_NAMES).size,64,'one effect per subclass ability');
+ assert.equal(fighterFx({traits:{class:'Warlock',subclass:'Soulbinder'}},'blood'),'fx-soulbinder-blood');assert.equal(fighterFx({traits:{class:'Paladin',subclass:'Oathbreaker'}},'blood'),'fx-oathbreaker-blood','a shared ability has one effect per subclass');
+ assert.equal(fighterFx({traits:{class:'Warlock',subclass:'Hexer'}},'blood'),null);assert.equal(fighterFx({traits:{class:'Mage'}},'fire'),null,'wheel fighters have no cast effects');
  const fxPrompts=fs.readFileSync('SPELL-FX-PROMPTS.md','utf8');for(const name of FX_NAMES)assert(fxPrompts.includes('`'+name+'`'),`${name} is in SPELL-FX-PROMPTS.md`);assert.equal(FX_FRAMES,4);
  const seen={},f={powerUsed:{smite:1}};assert.deepEqual(newAbilityUses(seen,f),[],'the first look only records');f.powerUsed.smite=4;f.powerUsed.zeal=4;assert.deepEqual(newAbilityUses(seen,f).sort(),['smite','zeal']);assert.deepEqual(newAbilityUses(seen,f),[]);
  assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:false}},'smite').toFixed(2),'0.20');assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:true}},'smite'),0);assert.equal(releaseDelay({action:null},'smite'),0);

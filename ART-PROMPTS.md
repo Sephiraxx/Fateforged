@@ -146,7 +146,7 @@ Team fighters (2v2, 3v3, 5v5) come from the team cast: 10 classes, 32 subclasses
 - the weapon is part of the drawing (the game adds no prop on top of a sheet);
 - the file is `public/sprites/cast-<class>-<subclass>.webp`, for example `cast-mage-blood.webp`.
 
-**Spell effects:** [SPELL-FX-PROMPTS.md](SPELL-FX-PROMPTS.md) has one prompt per ability effect (57); build each with `node scripts/sprite-sheet.mjs --fx <id> <strip.png>`.
+**Spell effects:** [SPELL-FX-PROMPTS.md](SPELL-FX-PROMPTS.md) has one prompt per subclass ability (64), each matched to its caster's attack row; build each with `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>`.
 
 **Ready-to-paste prompts:** [SPRITE-SHEET-PROMPTS.md](SPRITE-SHEET-PROMPTS.md) has all 160 prompts written out in full (32 subclasses × 5 rows), plus fix-up replies for GPT's common mistakes. The rest of this section explains the format.
 
@@ -221,6 +221,6 @@ Use these `{ROW}`/`{FRAMES}` texts (pick the attack line that matches the subcla
 - [ ] 5 terrain pieces
 - [ ] 5 effects
 - [ ] Team cast sheets (32, one per subclass; 5 row strips each, built with `scripts/sprite-sheet.mjs`)
-- [ ] Spell effects (57, one per ability; one 4-frame strip each, built with `scripts/sprite-sheet.mjs --fx`)
+- [ ] Spell effects (64, one per subclass ability; one 4-frame strip each, built with `scripts/sprite-sheet.mjs --fx`)
 
 That is 40 images. The class icons already in the game (plus, hat, bow, shield) remain the fallback, so the sprites can arrive gradually.

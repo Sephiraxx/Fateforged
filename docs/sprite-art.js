@@ -57,9 +57,10 @@ const slug=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/
 export const sheetName=(className,subclass)=>`cast-${slug(className)}-${slug(subclass)}`;
 export const SHEET_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.map(s=>sheetName(c.name,s.name))));
 export const fighterSheet=f=>{const t=f.traits;if(!t?.subclass)return null;const name=sheetName(t.class,t.subclass);return SHEET_NAMES.includes(name)?name:null;};
-// Spell effects for the team cast's abilities (SPELL-FX-PROMPTS.md): one 4-frame strip per ability, fx-<ability id>,
-// played where the ability lands when its cast releases. `on` places it: target (the enemy hit), ally (the ally
-// helped), self (the caster) or area (around the caster, larger).
+// Spell effects for the team cast's abilities (SPELL-FX-PROMPTS.md): one 4-frame strip per subclass ability,
+// fx-<subclass>-<ability id>, drawn in that character's colours (so a shared ability such as Taunt shout looks different
+// for each subclass), played where the ability lands when its cast releases. `on` places it: target (the enemy hit),
+// ally (the ally helped), self (the caster) or area (around the caster, larger).
 export const FX_FRAMES=4;
 const fx=(on,...ids)=>ids.map(id=>[id,on]);
 export const ABILITY_FX=Object.freeze(Object.fromEntries([
@@ -68,6 +69,22 @@ export const ABILITY_FX=Object.freeze(Object.fromEntries([
  ...fx('self','guard','parry','lastStand','invisible','teleport','zeal'),
  ...fx('area','tauntShout','battleHymn','warCry','dreadAura')
 ]));
-export const FX_NAMES=Object.freeze(Object.keys(ABILITY_FX).map(id=>'fx-'+id));
+// Each subclass's two abilities (ids from class-abilities.js; check-pixi-arena keeps this in step with TEAM_CLASSES).
+export const CAST_FX=Object.freeze({
+ Light:['healing','mendingWave'],Mercy:['healing','resurrection'],Ward:['barrier','healing'],
+ Grove:['regeneration','life'],Forest:['roots','bramble'],Moon:['dream','moonfire'],
+ Vanguard:['guard','tauntShout'],Berserker:['cleave','charge'],Duelist:['parry','drivingStrike'],
+ Stoneguard:['lastStand','spiritArmor'],Warden:['knockUp','tauntShout'],Aegis:['aegisShield','force'],
+ Fire:['fire','ember'],Blood:['bloodBolt','venom'],Frost:['ice','frostTouch'],Chrono:['time','silence'],
+ Marksman:['aimedShot','chainShot'],Trapper:['cripplingStrike','disarmShot'],Beastmaster:['beast','aimedShot'],
+ Shadowblade:['invisible','backstab'],Riftwalker:['teleport','silence'],Executioner:['death','execute'],Venomblade:['toxicBlade','shadowstep'],
+ Skald:['battleHymn','warCry'],Maestro:['haste','discord'],Siren:['charm','sound'],
+ Crusader:['smite','zeal'],Justiciar:['judgment','tauntShout'],Oathbreaker:['blood','dreadAura'],
+ Hexer:['curse','enfeeble'],Soulbinder:['soulLink','blood'],Voidcaller:['singularity','dispel']
+});
+export const fxName=(subclass,id)=>`fx-${slug(subclass)}-${id}`;
+export const FX_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.flatMap(s=>(CAST_FX[s.name]??[]).map(id=>fxName(s.name,id)))));
+// The effect a fighter's ability plays: its subclass's version, or null (wheel fighters and unknown abilities).
+export const fighterFx=(f,id)=>{const sub=f?.traits?.subclass;if(!sub||!CAST_FX[sub]?.includes(id))return null;return fxName(sub,id);};
 // Which sprite files are usable: the manifest maps a sprite name to its file; unknown names are ignored.
 export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES,...FX_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}
