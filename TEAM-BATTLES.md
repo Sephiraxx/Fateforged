@@ -1021,5 +1021,6 @@ Each of the 57 abilities the team cast uses can have a short effect, `public/spr
   - around the caster, larger, for area abilities.
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
+- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
 - **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect. `node scripts/sprite-sheet.mjs --fx <id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 
