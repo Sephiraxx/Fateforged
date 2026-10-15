@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>Guardian (Warden) — animation review</title>
+<style>body{font:16px system-ui;background:#162229;color:#edf1ed;margin:32px}h1{font-size:26px}p{color:#bbc9cb}main{display:flex;flex-wrap:wrap;gap:18px}section{background:#22343c;padding:16px;border-radius:12px;text-align:center}canvas{display:block;background:repeating-conic-gradient(#31454b 0% 25%,#2b3e44 0% 50%) 0/24px 24px}button{padding:10px 18px;border:0;border-radius:7px;cursor:pointer}small{display:block;margin:12px}a{color:#a9dded}</style>
+<h1>Guardian (Warden)</h1><p>Five animation rows · 21 frames · 256 px cells. Large view and game-size view use the same finished WebP.</p>
+<button id="pause">Pause</button> <button id="restart">Restart</button><p><a href="../../public/sprites/cast-guardian-warden.webp">Finished sprite sheet</a></p><main></main>
+<script>
+const rows=[['Idle',4],['Walk',6],['Attack',5],['Hit',2],['Down',4]],img=new Image();img.src='cast-guardian-warden.webp';let running=true,t=0,last=0;
+const views=rows.map(([name,n],r)=>{const section=document.createElement('section');section.innerHTML=`<h2>${name}</h2><canvas width="256" height="256"></canvas><small>Game-size view</small><canvas width="80" height="80" style="margin:auto"></canvas><small class="frame"></small>`;document.querySelector('main').append(section);return {section,n,r,canvases:[...section.querySelectorAll('canvas')]};});
+function draw(now){if(last&&running)t+=(now-last)/1000;last=now;for(const v of views){const cycle=t%(v.n/6+1),k=Math.min(v.n-1,Math.floor(cycle*6));for(const c of v.canvases){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);if(img.complete&&img.naturalWidth)g.drawImage(img,k*256,v.r*256,256,256,0,0,c.width,c.height);}v.section.querySelector('.frame').textContent=`Frame ${k+1} / ${v.n}`;}requestAnimationFrame(draw);}requestAnimationFrame(draw);
+document.querySelector('#pause').onclick=e=>{running=!running;e.target.textContent=running?'Pause':'Play';};document.querySelector('#restart').onclick=()=>{t=0;};
+</script>
+

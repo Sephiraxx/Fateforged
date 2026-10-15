@@ -1,0 +1,8 @@
+{
+  "alphaThreshold": 32,
+  "minimumFigurePixels": 10000,
+  "standingHeight": 160,
+  "downScaleRelativeToIdle": 1.45,
+  "padding": 12,
+  "notes": "Normalize upright rows by median full figure height. Preserve collapse height changes using one down-row scale. Separate connected figures, never equal-width source cells."
+}
