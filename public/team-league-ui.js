@@ -116,6 +116,7 @@ export function mountTeamLeague(host,hooks){
   const f=snapshot??world?.fighters[id];if(!f)return;const t=f.traits,stats=snapshot?f.seasonStats:world.stats?.[id],ability=x=>x&&!/^no (second )?(power|ability)$/i.test(x)?x:null;dialog.replaceChildren();
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
   const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));
+  if(!title&&f.careerStart!==undefined){const n=LEAGUE.careerSeason(world,f);info.append(el('p',`Career season ${n} of ${LEAGUE.CAREER.retireAfter}${n>=LEAGUE.CAREER.retireAfter?' · retires after this season':n>=LEAGUE.CAREER.declineFrom?' · declining with age':''}`,'muted fighter-career'));}
   const sprite=mountSpritePreview(f),identity=el('div','','fighter-dialog-id');identity.append(...(sprite?[sprite]:[]),info);head.append(identity,close);
   const traits=el('dl','','fighter-traits');
   for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
@@ -281,8 +282,9 @@ export function mountTeamLeague(host,hooks){
   const box=el('div','','offseason-report'),released=Object.values(o.releases).reduce((n,ids)=>n+ids.length,0);
   box.append(el('h4',`Season ${o.season} offseason report`));
   const facts=el('div','','offseason-facts');
-  for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
+  for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],...(o.veterans?.length?[[o.veterans.length,'veterans retired']]:[]),[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
   box.append(facts);
+  if(o.veterans?.length){const list=el('p',`Retired after ${LEAGUE.CAREER.retireAfter} seasons: ${o.veterans.map(v=>`${v.name}${v.team?` (${name(v.team)})`:''}`).join(', ')}.`,'muted');box.append(list);}
   // The season's meta: which lineups won, which role made the difference, and which coaches changed course.
   if(o.meta?.games){
    const meta=el('div','','offseason-meta'),role={tank:'tanks',healer:'healers',controller:'controllers',damage:'damage dealers'};meta.append(el('h4','Season meta'));

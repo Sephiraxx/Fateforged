@@ -386,13 +386,16 @@ Phase 4 lets you coach one team yourself and adds the offseason between seasons.
 1. **Rookie class.**
    - The browser rolls 2 rookies per team for 3v3 and 3 per team for 5v5. It uses the same role mix and S/A/SS odds as the founding pool, and the plan is seeded by league and season.
    - The server checks that each rookie is an unedited roll of its planned tier.
+   - The class also holds one extra rookie for every veteran about to retire (see Careers below).
 2. **Value updates.**
    - A fighter's impact per game is compared with every other fighter in the same role (a z-score). Each standard deviation is worth about 2 OVR, capped at ±4, and scaled down for fighters who played fewer than half the games.
    - A seeded drift of −1 to +1 is added. Fighters who did not play only drift down.
    - Gains above 90 are halved (rounded up), and the total change is capped at ±5 per offseason.
    - Every contract is repriced at the new OVR, so kept fighters cost their **new** salary.
 3. **New cap.** The salary cap is recomputed with the founding formula: the average salary of the top roster-worth of fighters, divided by the number of teams.
-4. **Free agency and retirement.** Free agents left unsigned for two offseasons retire. Former MVPs never retire. This keeps the pool at a steady size.
+4. **Free agency and retirement.**
+   - Free agents left unsigned for two offseasons retire, except former MVPs. This keeps the pool at a steady size.
+   - Veterans who just finished their 10th season retire, MVPs included, and older fighters lose a step (see Careers below).
 5. **Coaching changes.** An AI team that won 25% or fewer of its games fires its coach. A new coach with a fresh personality takes over. Your team is never affected.
 6. **Keep or release.**
    - AI coaches release anyone a cheaper free agent of the same role could replace almost as well. How much of a roster a coach will turn over depends on personality:
@@ -429,6 +432,15 @@ Phase 4 lets you coach one team yourself and adds the offseason between seasons.
    - coaching changes;
    - retirements;
    - rookies.
+
+### Careers
+
+Fighters age, so a league turns over its cast every few seasons (`team-league.js` `CAREER`, checked by `check-careers`).
+- **Career seasons** count every league season since a fighter's debut, on any team and through trades. The fighter details dialog shows "Career season N of 10".
+- **Decline:** every offseason that starts a fighter's 7th or later season costs 6% of their strength, speed, durability and magic. IQ stays. Combat scales with the square root of each stat, so every decline costs up to 3% of health, damage and speed, and a 10th-season fighter is roughly 10% weaker than in their prime. Their OVR drops by the rating change (at least 1), and their salary follows.
+- **Retirement:** after their 10th season a fighter retires and leaves their roster. The offseason report lists them, and the rookie class grows by one for each, so every roster can refill in the draft.
+- **Founding pools** are mixed ages: each fighter starts in a seeded career season from 1 to 6, so the first generation retires over several years instead of all at once.
+- **Older leagues** give each fighter, on load, the seasons they have played, capped at a seeded 1 to 8. Long-running leagues therefore see their veterans retire over the next few offseasons, not all in one.
 
 Everything above is deterministic from the league seed, the season and the choices made, except the rookies' random roll, which is part of the command.
 
