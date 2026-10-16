@@ -159,6 +159,13 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 .offseason-fact{display:flex;flex-direction:column;padding:8px 10px;background:#ffffff05;border:1px solid var(--line)}
 .offseason-fact strong{font:700 1.3rem/1.1 var(--display);color:var(--text)}
 .offseason-fact span{font-size:.74rem;color:var(--muted)}
+/* Hall of Fame: one card per retired legend. */
+.hall-card{padding:12px;margin:8px 0;background:#ffffff04;border:1px solid var(--line)}
+.hall-card-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px}
+.hall-card-head h4{margin:0;font:700 1.05rem/1.2 var(--display);letter-spacing:.04em}
+.hall-honours{font:600 .78rem/1.2 var(--display);color:var(--accent)}
+.hall-excelled{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.hall-chip{padding:4px 8px;font-size:.76rem;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
 .offseason-notes{margin:0;padding-left:18px;font-size:.84rem;line-height:1.5}
 .team-league-table td.up{color:var(--lime)}
 .team-league-table td.down{color:var(--red)}
