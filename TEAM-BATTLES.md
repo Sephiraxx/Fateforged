@@ -464,9 +464,25 @@ Fighters age, so a league turns over its cast every few seasons (`team-league.js
 - **Lifetime stats** (`fighter.career`): each offseason adds the season's games, wins, damage, healing, KOs, downs and control seconds, plus titles, MVPs, every team played for and the best season by impact per game. The fighter dialog shows a Career row. Older leagues rebuild these totals on load from the season log and the title history.
 - **Hall of Fame** (`w.hallOfFame`, newest first, at most 200): when any fighter retires, after 10 seasons or as an unsigned free agent, they are inducted if either holds:
   - they won an MVP;
-  - they played 40 or more career games and stood out in their cast role. One per-game number (damage, healing, KOs, control seconds or overall impact) must be at least 1.5 standard deviations above the league's other fighters with 20 or more career games in that role.
+  - they had a long, winning, standout career:
+    - 120 or more career games (about seven seasons as a starter);
+    - a career win rate of 52% or more;
+    - and either impact per game at least 1.5 standard deviations above their cast role, or one of their role's stats at least 2 standard deviations above it (about the top 2%).
+    
+    Role peers are the league's fighters in the same cast role with 20 or more career games.
   
-  Each entry keeps the legend's class and subclass, role, seasons, teams, titles, MVPs and lifetime numbers, and the categories they excelled at (z ≥ 1), shown as "top N% of their role". On the league screen, **Past champions**, **Hall of Fame** and **Balance report** are buttons that open their own window. A fighter tapped inside one opens on top of it.
+  Only what a role is for counts (`HALL_ROLE_STATS`), and overall impact counts for everyone:
+
+  | Role | Counted stats |
+  | --- | --- |
+  | Damage, bruiser | damage, KOs |
+  | Healer | healing |
+  | Tank | control, KOs |
+  | Controller | control, damage |
+  | Support | control, healing |
+
+  So a damage dealer's incidental healing never qualifies them. Halls built under the first, looser rules (40 games, any stat 1.5 SD up, no win requirement) keep their MVPs and drop everyone else who misses today's bar on load (`prepareHallOfFame`).
+  Each entry keeps the legend's class and subclass, role, seasons, teams, titles, MVPs and lifetime numbers, and the role categories they excelled at (z ≥ 1), shown as "top N% of their role". On the league screen, **Past champions**, **Hall of Fame** and **Balance report** are buttons that open their own window. A fighter tapped inside one opens on top of it.
 - **Founding pools** are mixed ages: each fighter starts in a seeded career season from 1 to 6, so the first generation retires over several years instead of all at once.
 - **Older leagues** give each fighter, on load, the seasons they have played, capped at a seeded 1 to 8. Long-running leagues therefore see their veterans retire over the next few offseasons, not all in one.
 
