@@ -5533,7 +5533,7 @@ function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  supportRulesVersion:1,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  supportRulesVersion:1,hallRulesVersion:HALL_RULES_VERSION,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -5796,15 +5796,22 @@ function backfillCareer(w,f){
  return c;
 }
 const HALL_STATS=Object.freeze([['damage','Damage'],['healing','Healing'],['kills','KOs'],['cc','Control seconds'],['impact','Impact']]);
-const HALL_OF_FAME_LIMIT=200,HALL_MIN_GAMES=40,HALL_PEER_GAMES=20,HALL_STANDOUT=1.5;
+// What each cast role is for: only these numbers (and overall impact) count toward the Hall of Fame and show as
+// "Excelled at", so a damage dealer's incidental healing never qualifies them.
+const HALL_ROLE_STATS=Object.freeze({damage:['damage','kills'],bruiser:['damage','kills'],healer:['healing'],tank:['cc','kills'],controller:['cc','damage'],support:['cc','healing']});
+// A non-MVP needs a long, winning career (120+ games, 52%+ wins) and a real standout: impact 1.5 SD above their role,
+// or one role stat 2 SD above it (about the top 2%).
+const HALL_OF_FAME_LIMIT=200,HALL_MIN_GAMES=120,HALL_MIN_WIN=.52,HALL_PEER_GAMES=20,HALL_STANDOUT=1.5,HALL_SPECIALIST=2,HALL_RULES_VERSION=2;
+const roleStat=(role,stat)=>stat==='impact'||(HALL_ROLE_STATS[role]??[]).includes(stat);
+const hallWorthy=(e,role)=>e.games>=HALL_MIN_GAMES&&e.wins/e.games>=HALL_MIN_WIN&&e.excelled.some(x=>x.stat==='impact'?x.z>=HALL_STANDOUT:roleStat(role,x.stat)&&x.z>=HALL_SPECIALIST);
 const perGame=(c,key)=>(key==='impact'?lifetimeImpact(c):c[key])/c.games;
 const careerRole=f=>f.castRole??f.role;
 // Role peers: every fighter in the league with 20 or more career games, per cast role.
 function careerPeers(w){const peers={};for(const f of Object.values(w.fighters))if(f.career?.games>=HALL_PEER_GAMES)(peers[careerRole(f)]??=[]).push(f.career);return peers;}
 function hallEntry(w,f,peers=careerPeers(w)){
  const c=f.career;if(!c?.games)return null;const role=careerRole(f),group=peers[role]??[];
- const excelled=group.length>=3?HALL_STATS.map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
- const reason=c.mvps>0?'mvp':c.games>=HALL_MIN_GAMES&&excelled.some(x=>x.z>=HALL_STANDOUT)?'great':null;if(!reason)return null;
+ const excelled=group.length>=3?HALL_STATS.filter(([key])=>roleStat(role,key)).map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
+ const reason=c.mvps>0?'mvp':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
  return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,best:c.best,
   stats:{games:c.games,wins:c.wins,damage:c.damage,healing:c.healing,kills:c.kills,deaths:c.deaths,cc:Math.round(c.cc)},excelled,reason};
 }
@@ -5814,6 +5821,12 @@ const careerRoll=(seed,id,n)=>{let h=(seed^0x51ed270b)>>>0;for(const ch of id)h=
 const founderStart=(seed,id)=>1-careerRoll(seed,id,CAREER.founders);
 // Leagues saved before careers give each fighter the seasons they have played, at most a seeded 1–8, so veterans
 // retire over several offseasons instead of all together.
+// Halls built under the first, looser rules keep their MVPs and re-check everyone else against today's bar.
+function prepareHallOfFame(w){
+ if(!w||w.pendingSeries||w.hallRulesVersion===HALL_RULES_VERSION)return w;
+ if(w.hallOfFame)w.hallOfFame=w.hallOfFame.map(e=>({...e,excelled:(e.excelled??[]).filter(x=>roleStat(e.role,x.stat))})).filter(e=>e.reason==='mvp'||e.mvps>0||hallWorthy({games:e.stats.games,wins:e.stats.wins,excelled:e.excelled},e.role));
+ w.hallRulesVersion=HALL_RULES_VERSION;return w;
+}
 function prepareCareers(w){
  if(!w?.fighters||w.pendingSeries)return w;
  for(const f of Object.values(w.fighters)){f.career??=backfillCareer(w,f);if(f.careerStart!==undefined)continue;const played=Math.max(1,w.season-(f.rookie??1)+1);f.careerStart=w.season-Math.min(played,1+careerRoll(w.seed,f.id,CAREER.migrated))+1;}
@@ -6043,7 +6056,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){return lineupGroups(ids.map(id=>w.fighters[id]));}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,SOLO_ROLES,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,CAST_RATING_MODEL,CAST_RATING_VERSION,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,prepareCastRatings,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,CAREER,careerSeason,earnedExtension,retiringVeterans,lifetimeImpact,HALL_OF_FAME_LIMIT,hallEntry,prepareCareers,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,seasonPerformance,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,balanceReport,balanceReportText,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setBattleMode});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,SOLO_ROLES,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,CAST_RATING_MODEL,CAST_RATING_VERSION,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,prepareCastRatings,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,CAREER,careerSeason,earnedExtension,retiringVeterans,lifetimeImpact,HALL_ROLE_STATS,HALL_OF_FAME_LIMIT,hallEntry,prepareHallOfFame,prepareCareers,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,seasonPerformance,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,balanceReport,balanceReportText,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setBattleMode});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -6051,7 +6064,7 @@ async function teamApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save team leagues.',401);storage(env);
  const formatOf=value=>{const n=Number(value);if(![2,3,5].includes(n))fail('Choose 2v2, 3v3 or 5v5.');return n;};
  const get=format=>env.DB.prepare('SELECT * FROM team_worlds WHERE owner_id = ? AND format = ?').bind(owner,format).first();
- const response=async format=>{const row=await get(format);return json({world:row?TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))):null,revision:row?.revision??0});};
+ const response=async format=>{const row=await get(format);return json({world:row?TEAM_LEAGUE.prepareHallOfFame(TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json)))))):null,revision:row?.revision??0});};
  if(request.method==='GET'){if(url.pathname!=='/api/teams')fail('Not found.',404);return response(formatOf(url.searchParams.get('format')));}
  if(request.method!=='POST'||url.pathname!=='/api/teams')fail('Method not allowed.',405);
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
@@ -6063,7 +6076,7 @@ async function teamApi(request,env,url){
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
- let world=row?TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))):null;
+ let world=row?TEAM_LEAGUE.prepareHallOfFame(TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json)))))):null;
  // Old-format leagues (before the team cast) can only be deleted.
  if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This team league uses the old format. Delete it to start a new league with the team cast.',409);
  if(input.action==='start'){

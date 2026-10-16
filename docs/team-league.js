@@ -148,7 +148,7 @@ export function create({id,format:formatSize,teams,seed,fighters,battleMode='tea
  // Cap: an average team can afford the average salary of the fighters who will be drafted.
  const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
  return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'draft',
-  supportRulesVersion:1,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  supportRulesVersion:1,hallRulesVersion:HALL_RULES_VERSION,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
 }
@@ -411,15 +411,22 @@ function backfillCareer(w,f){
  return c;
 }
 const HALL_STATS=Object.freeze([['damage','Damage'],['healing','Healing'],['kills','KOs'],['cc','Control seconds'],['impact','Impact']]);
-export const HALL_OF_FAME_LIMIT=200,HALL_MIN_GAMES=40,HALL_PEER_GAMES=20,HALL_STANDOUT=1.5;
+// What each cast role is for: only these numbers (and overall impact) count toward the Hall of Fame and show as
+// "Excelled at", so a damage dealer's incidental healing never qualifies them.
+export const HALL_ROLE_STATS=Object.freeze({damage:['damage','kills'],bruiser:['damage','kills'],healer:['healing'],tank:['cc','kills'],controller:['cc','damage'],support:['cc','healing']});
+// A non-MVP needs a long, winning career (120+ games, 52%+ wins) and a real standout: impact 1.5 SD above their role,
+// or one role stat 2 SD above it (about the top 2%).
+export const HALL_OF_FAME_LIMIT=200,HALL_MIN_GAMES=120,HALL_MIN_WIN=.52,HALL_PEER_GAMES=20,HALL_STANDOUT=1.5,HALL_SPECIALIST=2,HALL_RULES_VERSION=2;
+const roleStat=(role,stat)=>stat==='impact'||(HALL_ROLE_STATS[role]??[]).includes(stat);
+const hallWorthy=(e,role)=>e.games>=HALL_MIN_GAMES&&e.wins/e.games>=HALL_MIN_WIN&&e.excelled.some(x=>x.stat==='impact'?x.z>=HALL_STANDOUT:roleStat(role,x.stat)&&x.z>=HALL_SPECIALIST);
 const perGame=(c,key)=>(key==='impact'?lifetimeImpact(c):c[key])/c.games;
 const careerRole=f=>f.castRole??f.role;
 // Role peers: every fighter in the league with 20 or more career games, per cast role.
 function careerPeers(w){const peers={};for(const f of Object.values(w.fighters))if(f.career?.games>=HALL_PEER_GAMES)(peers[careerRole(f)]??=[]).push(f.career);return peers;}
 export function hallEntry(w,f,peers=careerPeers(w)){
  const c=f.career;if(!c?.games)return null;const role=careerRole(f),group=peers[role]??[];
- const excelled=group.length>=3?HALL_STATS.map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
- const reason=c.mvps>0?'mvp':c.games>=HALL_MIN_GAMES&&excelled.some(x=>x.z>=HALL_STANDOUT)?'great':null;if(!reason)return null;
+ const excelled=group.length>=3?HALL_STATS.filter(([key])=>roleStat(role,key)).map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
+ const reason=c.mvps>0?'mvp':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
  return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,best:c.best,
   stats:{games:c.games,wins:c.wins,damage:c.damage,healing:c.healing,kills:c.kills,deaths:c.deaths,cc:Math.round(c.cc)},excelled,reason};
 }
@@ -429,6 +436,12 @@ const careerRoll=(seed,id,n)=>{let h=(seed^0x51ed270b)>>>0;for(const ch of id)h=
 const founderStart=(seed,id)=>1-careerRoll(seed,id,CAREER.founders);
 // Leagues saved before careers give each fighter the seasons they have played, at most a seeded 1–8, so veterans
 // retire over several offseasons instead of all together.
+// Halls built under the first, looser rules keep their MVPs and re-check everyone else against today's bar.
+export function prepareHallOfFame(w){
+ if(!w||w.pendingSeries||w.hallRulesVersion===HALL_RULES_VERSION)return w;
+ if(w.hallOfFame)w.hallOfFame=w.hallOfFame.map(e=>({...e,excelled:(e.excelled??[]).filter(x=>roleStat(e.role,x.stat))})).filter(e=>e.reason==='mvp'||e.mvps>0||hallWorthy({games:e.stats.games,wins:e.stats.wins,excelled:e.excelled},e.role));
+ w.hallRulesVersion=HALL_RULES_VERSION;return w;
+}
 export function prepareCareers(w){
  if(!w?.fighters||w.pendingSeries)return w;
  for(const f of Object.values(w.fighters)){f.career??=backfillCareer(w,f);if(f.careerStart!==undefined)continue;const played=Math.max(1,w.season-(f.rookie??1)+1);f.careerStart=w.season-Math.min(played,1+careerRoll(w.seed,f.id,CAREER.migrated))+1;}
