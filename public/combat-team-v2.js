@@ -221,7 +221,8 @@ export class TeamBattle extends DuelBattle{
   let x=nx*radial-ny*strafe,y=ny*radial+nx*strafe;
   if(formed){
    // Pull towards the formation slot, harder the further away it is.
-   const sx=intent.slot.x-f.x,sy=intent.slot.y-f.y,sd=Math.hypot(sx,sy);if(sd>1&&intent.pull>0){const pull=intent.pull*clamp((sd-22)/70,0,1.6);x+=sx/sd*pull;y+=sy/sd*pull;if(pull>.6&&!f.action)f.actionLabel='Formation';}
+   // A diving fighter or a tank can be formed without a slot (none left in the plan): no pull then.
+   if(intent.slot){const sx=intent.slot.x-f.x,sy=intent.slot.y-f.y,sd=Math.hypot(sx,sy);if(sd>1&&intent.pull>0){const pull=intent.pull*clamp((sd-22)/70,0,1.6);x+=sx/sd*pull;y+=sy/sd*pull;if(pull>.6&&!f.action)f.actionLabel='Formation';}}
    // Leash: never run further forward than the posture allows.
    if(intent.leash){const u=intent.u,ahead=(f.x-intent.leash.ref.x)*u.x+(f.y-intent.leash.ref.y)*u.y,forward=x*u.x+y*u.y;if(ahead>intent.leash.max&&forward>0){const back=Math.min(1,(ahead-intent.leash.max)/40)*.6;x-=u.x*(forward+back);y-=u.y*(forward+back);}}
   }

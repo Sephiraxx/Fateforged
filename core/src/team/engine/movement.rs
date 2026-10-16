@@ -429,17 +429,19 @@ impl Engine {
         let mut y = ny * radial + nx * strafe;
         if formed {
             let i = intent.as_ref().unwrap();
-            let slot = i.slot.as_ref().expect("a formed intent has a slot");
-            let fe = self.f(f);
-            let (sx, sy) = (slot.x - fe.x, slot.y - fe.y);
-            let sd = hypot2(sx, sy);
-            let pull_v = i.pull.unwrap_or(f64::NAN);
-            if sd > 1.0 && pull_v > 0.0 {
-                let pull = pull_v * clamp((sd - 22.0) / 70.0, 0.0, 1.6);
-                x += sx / sd * pull;
-                y += sy / sd * pull;
-                if pull > 0.6 && fe.action.is_none() {
-                    self.fm(f).action_label = "Formation".into();
+            // A diving fighter or a tank can be formed without a slot (none left in the plan): no pull then.
+            if let Some(slot) = i.slot.as_ref() {
+                let fe = self.f(f);
+                let (sx, sy) = (slot.x - fe.x, slot.y - fe.y);
+                let sd = hypot2(sx, sy);
+                let pull_v = i.pull.unwrap_or(f64::NAN);
+                if sd > 1.0 && pull_v > 0.0 {
+                    let pull = pull_v * clamp((sd - 22.0) / 70.0, 0.0, 1.6);
+                    x += sx / sd * pull;
+                    y += sy / sd * pull;
+                    if pull > 0.6 && fe.action.is_none() {
+                        self.fm(f).action_label = "Formation".into();
+                    }
                 }
             }
             if let Some(leash) = i.leash.as_ref() {
