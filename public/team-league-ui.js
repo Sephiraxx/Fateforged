@@ -360,7 +360,7 @@ export function mountTeamLeague(host,hooks){
   if(!report.seasons.length)balance.append(el('p','Finish a season to start the report. Every season from then on is kept here: rosters, results and win rates by class and subclass.','muted'));
   else{const copy=button('Copy report'),text=el('textarea','','balance-report-text');text.readOnly=true;text.hidden=true;text.rows=8;text.style.width='100%';
    copy.onclick=async()=>{const value=LEAGUE.balanceReportText(world);try{await navigator.clipboard.writeText(value);say('Balance report copied: paste it into a chat.');}catch{text.value=value;text.hidden=false;text.focus();text.select();say('Copy the selected report text.');}};
-   const rows=list=>list.map(e=>{const row=el('tr');row.append(el('td',e.key),el('td',String(e.games)),el('td',e.pct.toFixed(1)+'%'),el('td',`${e.ci[0]}–${e.ci[1]}`));return row;});
+   const rows=list=>list.map(e=>{const row=el('tr');row.append(el('td',e.key),el('td',String(e.games)),el('td',e.pct.toFixed(1)+'%'),el('td',`${e.ci[0].toFixed(1)}–${e.ci[1].toFixed(1)}`));return row;});
    balance.append(el('p',`${report.seasons.length} season${report.seasons.length===1?'':'s'} logged (${report.games} games).`,'muted'),copy,text,table(['Subclass','Games','Win %','95% range'],rows(report.subclass),'Win rate by subclass (fighter games)'),table(['Class','Games','Win %','95% range'],rows(report.class),'Win rate by class'));}
   body.append(balance);
   if(world.phase==='draft'){renderDraft();renderTeams();return;}

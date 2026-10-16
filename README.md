@@ -10,9 +10,9 @@ Fantasy character generator, saved roster, top-down combat arena and multi-stage
 
 The interface uses one app shell across both pages: a navigation rail (a bottom tab bar on phones) for Forge, Roster, Fight, Cups, Leagues and Champions, with the Arena screens addressable as `arena.html#fight`, `#cups`, `#leagues` and `#champions`. Rules and reference text live in the **How it works** drawer (the `?` and ⓘ buttons). Styles are `style.css` (shared design system and shell) plus `forge.css`, `arena.css`, `leagues.css` and `roster.css`.
 
-The class-identity release adds class/subclass-aware equipment, 54 spells and 10 stamina techniques. See [the release report](CLASS-ABILITIES.md) for rules, validation, compatibility and reproducible evaluations. New worlds use combat 12 and generation 3; existing competitions finish on their pinned engine before season rollover adopts the release.
+The class-identity release adds class/subclass-aware equipment, 54 spells and 10 stamina techniques. New worlds use combat 12 and generation 3; existing competitions finish on their pinned engine before season rollover adopts the release.
 
-Crownfire Convergence and Emberveil Challenge use [double elimination](INTERLEAGUE-CUPS.md): Bo3 brackets, Bo5 grand finals, and a Bo5 reset when needed.
+Crownfire Convergence and Emberveil Challenge use double elimination: Bo3 brackets, Bo5 grand finals, and a Bo5 reset when needed.
 
 Fighter championship totals expand into counts for each league, division cup, interleague cup and custom tournament category in both collections, arena profiles and league tables. Each stat's details include its original roll and bonus; the five separate roll entries are removed from the detail picker and character reveal. Fixture lists omit entrant and first-round bye paragraphs.
 

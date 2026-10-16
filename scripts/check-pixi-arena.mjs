@@ -88,14 +88,14 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  assert.deepEqual(sheetFrame({...f,hitFlash:.1,action:{elapsed:0,windup:.4}},memo,0,false),{row:'hit',frame:0});
  assert.deepEqual(sheetFrame({...f,hp:0},memo,10,false),{row:'down',frame:0});assert.deepEqual(sheetFrame({...f,hp:0},memo,10+1/SHEET_FPS.down*2,false),{row:'down',frame:2});assert.deepEqual(sheetFrame({...f,hp:0},memo,20,false),{row:'down',frame:3},'down holds its last frame');
  sheetFrame(f,memo,21,false);assert.equal(memo.downSince,null,'a respawn resets the fall');}
-// Spell effects: one per subclass ability, listed in SPELL-FX-PROMPTS.md, triggered by new powerUsed stamps when the cast releases.
+// Spell effects: one per subclass ability, triggered by new powerUsed stamps when the cast releases.
 {const {TEAM_CLASSES}=await import('../public/team-classes.js');const C=globalThis.CURRENT_CLASS_ABILITIES,ids=new Set(TEAM_CLASSES.flatMap(c=>c.subclasses.flatMap(s=>s.powers.map(p=>C.definition(p)?.id))));
  assert.deepEqual([...ids].sort(),Object.keys(ABILITY_FX).sort(),'every subclass ability has an effect entry');assert(Object.values(ABILITY_FX).every(on=>['target','ally','self','area'].includes(on)));
  for(const c of TEAM_CLASSES)for(const s of c.subclasses)assert.deepEqual([...CAST_FX[s.name]].sort(),s.powers.map(p=>C.definition(p).id).sort(),`CAST_FX lists ${s.name}'s abilities`);
  assert.equal(FX_NAMES.length,64);assert.equal(new Set(FX_NAMES).size,64,'one effect per subclass ability');
  assert.equal(fighterFx({traits:{class:'Warlock',subclass:'Soulbinder'}},'blood'),'fx-soulbinder-blood');assert.equal(fighterFx({traits:{class:'Paladin',subclass:'Oathbreaker'}},'blood'),'fx-oathbreaker-blood','a shared ability has one effect per subclass');
  assert.equal(fighterFx({traits:{class:'Warlock',subclass:'Hexer'}},'blood'),null);assert.equal(fighterFx({traits:{class:'Mage'}},'fire'),null,'wheel fighters have no cast effects');
- const fxPrompts=fs.readFileSync('SPELL-FX-PROMPTS.md','utf8');for(const name of FX_NAMES)assert(fxPrompts.includes('`'+name+'`'),`${name} is in SPELL-FX-PROMPTS.md`);assert.equal(FX_FRAMES,4);
+ assert.equal(FX_FRAMES,4);
  const seen={},f={powerUsed:{smite:1}};assert.deepEqual(newAbilityUses(seen,f),[],'the first look only records');f.powerUsed.smite=4;f.powerUsed.zeal=4;assert.deepEqual(newAbilityUses(seen,f).sort(),['smite','zeal']);assert.deepEqual(newAbilityUses(seen,f),[]);
  assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:false}},'smite').toFixed(2),'0.20');assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:true}},'smite'),0);assert.equal(releaseDelay({action:null},'smite'),0);
  assert.equal(fxFrame(0),0);assert.equal(fxFrame(FX_DURATION*.6),2);assert.equal(fxFrame(FX_DURATION),null);assert.equal(fxFrame(-.1),null);}

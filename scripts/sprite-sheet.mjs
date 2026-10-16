@@ -1,5 +1,5 @@
 // Builds a team cast sprite sheet (ART-PROMPTS.md, "Team cast sheets") from ChatGPT row strips, or a spell effect
-// strip (SPELL-FX-PROMPTS.md).
+// strip.
 // node scripts/sprite-sheet.mjs <class> <subclass> <folder>
 // node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>
 // Effects: one strip of FX_FRAMES frames; each frame is centred on its own box and the strip keeps one scale, so the

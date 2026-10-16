@@ -456,9 +456,9 @@ export function balanceReport(w){
 // The report as plain text, compact enough to paste into a chat.
 export function balanceReportText(w){
  const r=balanceReport(w),span=r.seasons.length?`seasons ${r.seasons[0]}–${r.seasons.at(-1)} (${r.seasons.length})`:'no seasons logged yet';
- const table=(title,list)=>[title,...list.map(e=>`${String(e.key).padEnd(26)} ${String(e.games).padStart(5)}  ${e.pct.toFixed(1).padStart(5)}%  [${e.ci[0]}–${e.ci[1]}]`)].join('\n');
+ const table=(title,list)=>[title,...list.map(e=>`${String(e.key).padEnd(26)} ${String(e.games).padStart(5)}  ${e.pct.toFixed(1).padStart(5)}%  [${e.ci[0].toFixed(1)}–${e.ci[1].toFixed(1)}]`)].join('\n');
  const modes=[...new Set(r.history.map(h=>h.battleMode))].join('/');
- return [`Fateforge balance report · ${r.format} · ${modes||'—'} · ${span} · ${r.games} games`,
+ return [`Fateforge balance report · ${r.format}v${r.format} · ${modes||'—'} · ${span} · ${r.games} games`,
   table('Subclasses (fighter games, win %, 95% interval)',r.subclass),table('Classes',r.class),table('Roles',r.role),table('Compositions (team games, at least 10)',r.comp),
   'Seasons (W-L, playoff finish, roster; * champion)',...r.history.map(h=>`S${h.season} ${h.battleMode}: `+h.teams.map(t=>`${t.champion?'*':''}${t.name} ${t.wins}-${t.losses}${t.playoff?' '+t.playoff:''} [${t.roster.join(', ')}]`).join('; '))].join('\n\n');
 }

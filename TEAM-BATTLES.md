@@ -4,7 +4,7 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
 
 ## Current ability rules
 
-Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
+Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit.
 
 Team balance is set by hand with the balance lab (see "Hand balance"); leagues no longer audit or patch themselves.
 
@@ -573,7 +573,7 @@ The phase-two AI contests a living Titan when no enemy is very close, allows mob
 - **Measured** (20-game 5v5 sample, per game): damage dealer 592, tank 354 (60%), controller 366 (62%), healer 128 (22%). Matches run longer, so per-game totals rise. Per second of fighting, controllers deal about 70% of their old damage.
 - **Late game:** weaker non-damage roles make even fights last longer. Classic teamfight therefore adds +5% damage per second from 60 s, on top of the existing overtime rules from 75 s. Every evaluation row now times out at 8.3% or less (`validation/team-combat.json`).
 
-**Healer kits.** See `ROLLED-SUPPORT-ABILITIES.md`: about 60% of newly generated healers carry Mending wave, Chain heal, Resurrection, Cleanse or Barrier in their second slot, on top of a sustained heal.
+**Healer kits.** About 60% of newly generated healers carry Mending wave, Chain heal, Resurrection, Cleanse or Barrier in their second slot, on top of a sustained heal.
 
 **Core siege is the default for 3v3/5v5** exhibitions and new leagues; "Classic teamfight" stays selectable.
 - **Switching:** existing leagues switch with *Battle rules* in the league header between seasons (`setBattleMode`, worker action `rules`).
@@ -1032,5 +1032,5 @@ Each subclass ability can have a short effect drawn in that character's colours,
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
 - **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
-- **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect, each telling GPT to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
+- **Making them:** each effect is a 4-frame GPT strip drawn to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 

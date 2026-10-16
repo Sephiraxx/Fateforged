@@ -12,4 +12,4 @@ Animated sheets for the team cast are named `cast-<class>-<subclass>.webp` (for 
 
 ## Spell effects
 
-One short effect per subclass ability, drawn in that character's colours, named `fx-<subclass>-<ability id>.webp` (for example `fx-blood-bloodBolt.webp`, 64 in all; see `SPELL-FX-PROMPTS.md`). Build each from a 4-frame strip with `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>`.
+One short effect per subclass ability, drawn in that character's colours, named `fx-<subclass>-<ability id>.webp` (for example `fx-blood-bloodBolt.webp`, 64 in all). Build each from a 4-frame strip with `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>`.
