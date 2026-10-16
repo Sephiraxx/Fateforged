@@ -1070,11 +1070,10 @@ The renderer uses sprite art from `public/sprites/` wherever a file exists, and 
 | 10 character archetypes (`char-*`) | each fighter, by class (all 56 classes map to one), mirrored to face its direction, on a team-coloured base ring | team-coloured disc with the class icon |
 | 12 weapon props (`prop-*`) | the fighter's weapon, by name (bare hands, claws and arcane gauntlets have none) | the `weapons.webp` sheet |
 | 4 Cores (`core-*`) | each Core, cracked below 50% health | drawn crystal |
-| 3 Titan poses (`titan-*`) | idle, raised fists during the slam warning, and kneeling for 3 seconds after it falls | drawn body |
 | Terrain (`rock-*`, `wall-stone`, `pit-rim`) | rocks by map (pillar hall → pillar, broken ruins → wall stone, crossroads → boulder, stone groves → cluster), and the Titan pit | shaded rocks and a gold ring |
 | Effects (`fx-*`) | the Forgefire aura; respawn and revive columns; slam shockwave; Core hits; Titan steals | glows, rings and particles |
 
-- **Adding art:** save files as `<name>.webp` (preferred) or `.png`, under 400 KB each (256 px, 512 px for the Titan and pit), then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
+- **Adding art:** save files as `<name>.webp` (preferred) or `.png`, under 400 KB each (256 px, 512 px for the pit rim), then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
 - **Builds:** they list the files in a generated `sprite-manifest.js` (empty in source), serve them from `/sprites/` (the worker embeds them like the other images), and add content hashes so updated art isn't cached.
 - **Loading:** sprites load in the background, and a fight that starts first switches over as each one arrives.
 
@@ -1105,4 +1104,29 @@ Each subclass ability can have a short effect drawn in that character's colours,
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
 - **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
 - **Making them:** each effect is a 4-frame GPT strip drawn to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
+
+### Core siege creatures (animated)
+
+The Forge Titan, the Ember Wisps and the summons can have animated sheets, `public/sprites/creature-<name>.webp` (`sprite-art.js` `CREATURE_SHEETS`). Each has 256 px frames facing right and its own rows and standing height:
+
+| Sheet | Rows (frames) | Drawn | Without it |
+| --- | --- | --- | --- |
+| `creature-titan` | idle 4, walk 6, punch 5, slam 5, hit 2, down 4 | about 100 px tall | drawn body |
+| `creature-wisp` | idle 4, zap 4, hit 2, fade 4 | about 35 px, floating | orange ember circle |
+| `creature-beast` | idle 4, walk 6, bite 4 | about 25 px | `effects.webp` icon |
+| `creature-spirit` | idle 4, cast 4 | about 20 px, floating | `effects.webp` icon |
+
+- **Frame choice** (`pixi-arena-model.js` `creatureFrame`, tested in `check-pixi-arena` on scripted states and over whole Core siege games):
+  - **What it reads:** only what the battle already shows (`titanState`, `campState`, `summonState`); the engines are untouched.
+  - **Titan:**
+    - it punches when its next-attack time moves;
+    - during the slam warning it winds up through slam frames 1–4 with the telegraph, then holds frame 5 for 0.35 s as the slam lands;
+    - it walks while it moves (walking comes before flinching);
+    - down plays once when it falls, and the body lies where it fell for 3 seconds, fading;
+    - when it rises in the pit, down plays in reverse.
+  - **Wisp:** it zaps on a pulse when its last attacker is in reach and fought it lately (`CAMP_RULES`). Fade plays when it is cleared, and in reverse when it returns.
+  - **Beast and spirit:** they attack when their cooldown resets.
+  - **All of them:** a creature under fire flinches at most once every 0.8 s, and the hit flash still tints every hit. Each faces its target (the Titan's, the wisp's attacker, the summon owner's target), or else the way it moves.
+- **Health bars and rings** stay as they are.
+- **Making them:** `ART-PROMPTS.md` ("Core siege creatures") has a description and row prompts per creature. Build each with `node scripts/sprite-sheet.mjs --creature <sheet> <folder>`. It scales the death row (down or fade) by area and the hit and slam rows halfway, as for the cast. It puts standing creatures on the feet line and centres floaters (wisp, spirit) in their cells. `scripts/audit-sprites.mjs` checks creature sheets too: the creature's own standing height, size jumps, a down row that ends lying down and a fade that shrinks.
 

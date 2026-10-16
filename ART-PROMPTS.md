@@ -9,7 +9,7 @@ These prompts produce sprites for team battles and Core siege. Paste them into C
 2. Generate one asset per message. When one looks right, say "Perfect. Now make the next one with exactly the same style, size, angle and lighting" and paste the next prompt.
 3. Ask for a **transparent background PNG** every time. If ChatGPT adds a background, reply: "Remove the background completely; transparent PNG, nothing behind the character."
 4. Check each image at small size: shrink it to 48×48 px. If you can't tell the class at that size, ask for "a bolder silhouette, larger head and props, fewer small details".
-5. Save files with the names in the checklist, resize them to 256 px (512 px for the Titan sprites and `pit-rim`), export as WebP under 400 KB (for example with squoosh.app), and put them in `public/sprites/` as `<name>.webp`. Rebuild, and the enhanced renderer uses each sprite that exists, keeping the drawn look for the rest (see `public/sprites/README.md`). You can add them a few at a time.
+5. Save files with the names in the checklist, resize them to 256 px (512 px for `pit-rim`), export as WebP under 400 KB (for example with squoosh.app), and put them in `public/sprites/` as `<name>.webp`. Rebuild, and the enhanced renderer uses each sprite that exists, keeping the drawn look for the rest (see `public/sprites/README.md`). You can add them a few at a time.
 
 ## Shared style preamble (paste at the start of every prompt)
 ```
@@ -107,20 +107,7 @@ view. <STATE>. Output: 256x256 transparent PNG.
 | `core-blue-cracked.png` | blue | cracked crystal, flickering glow, small floating shards |
 | `core-red-cracked.png` | red | cracked crystal, flickering glow, small floating shards |
 
-**Forge Titan, the monster (3 sprites, 512×512):**
-```
-[preamble, canvas 512x512]
-A huge neutral boss monster, the Forge Titan: a hulking molten-iron golem with a
-furnace glowing in its chest, cooling-slag armour plates, chains on its wrists, ember
-eyes. Neutral palette (charcoal iron, orange-gold molten glow) — no team colours.
-Pose: <POSE>. Output: 512x512 transparent PNG.
-```
-
-| File | Pose |
-| --- | --- |
-| `titan-idle.png` | standing, arms lowered, steam rising |
-| `titan-slam.png` | both fists raised high above the head, about to slam the ground |
-| `titan-down.png` | collapsed and kneeling, the furnace light fading |
+**Forge Titan:** animated, see "Core siege creatures" below.
 
 **Terrain (5 sprites, 128×128).** Each must read as a solid obstacle from above:
 - `rock-pillar.png`: round stone pillar seen from above, with moss and cracks.
@@ -210,15 +197,72 @@ Use these `{ROW}`/`{FRAMES}` texts (pick the attack line that matches the subcla
 | `cast-warlock-soulbinder` | spell | pale robe with soul chains, crystal orb with a trapped wisp, ghostly links [spectral blue-grey] |
 | `cast-warlock-voidcaller` | spell | starry void-black robe, staff with a black orb, swirling singularity [void violet] |
 
+## Core siege creatures (animated)
+
+The neutral monsters of Core siege and the summons get animated sheets like the cast. Until a sheet exists, the game draws the creature as it does today, so the sheets can arrive one at a time.
+
+**Sheet layout** (`public/sprite-art.js`, `CREATURE_SHEETS`): 256×256 frames, facing RIGHT, same camera and style as the preamble. Each creature has its own rows, listed below. The file is `public/sprites/<name>.webp`.
+
+| Sheet | Creature | Rows (frames) | Stands |
+| --- | --- | --- | --- |
+| `creature-titan` | the Forge Titan, the Core siege boss | idle 4, walk 6, punch 5, slam 5, hit 2, down 4 | 200 px, feet on the ground line |
+| `creature-wisp` | Ember Wisp, the XP camp | idle 4, zap 4, hit 2, fade 4 | 90 px, floating, centred |
+| `creature-beast` | the beast Beastmaster calls (Beast command) | idle 4, walk 6, bite 4 | 120 px, feet on the ground line |
+| `creature-spirit` | a guardian spirit that orbits its owner | idle 4, cast 4 | 90 px, floating, centred |
+
+**How the game plays them:**
+- **Titan:** it walks after its attacker and punches. During the slam warning it winds up through slam frames 1–4, then holds frame 5 (the impact) as the slam lands. It flinches when hit. Down plays once when it falls, and plays in reverse when it rises in the pit.
+- **Wisp:** it zaps its attacker and flinches when hit. Fade plays when it is cleared, and in reverse when it returns.
+- **Beast:** it walks to its owner's target and bites it.
+- **Spirit:** it casts each time it shoots a bolt.
+
+**Workflow** (the same as the cast, one row per message):
+1. Generate the **idle row** first with the creature's description. Save it as `art/<sheet>/idle.png`, for example `art/creature-titan/idle.png`.
+2. For every other row, **attach the idle image** and start with: "Same creature, same colours, proportions, size and camera as the attached image." Then paste the row prompt. Save each row by its name, for example `art/creature-titan/slam.png`.
+3. Build the sheet with `node scripts/sprite-sheet.mjs --creature <sheet> <folder>`, for example `node scripts/sprite-sheet.mjs --creature creature-titan art/creature-titan`. Then run `node scripts/audit-sprites.mjs` and rebuild.
+
+**Row prompt** (paste after the preamble and the creature's description):
+```
+Draw a HORIZONTAL STRIP of {N} animation frames of this creature, left to right,
+evenly spaced, each frame the same width, transparent background, facing right,
+same size in every frame, clear empty space between frames, no boxes or borders.
+{GROUND}
+Row: {ROW}. Frames: {FRAMES}
+```
+For `{GROUND}`, use "Feet on the same ground line in every frame." for the Titan and the beast. Use "Floating in the middle of each frame, nothing below it." for the wisp and the spirit.
+
+**Forge Titan** (`creature-titan`). Neutral palette, no team colours. Description: "a huge neutral boss monster, the Forge Titan: a hulking molten-iron golem with a furnace glowing in its chest, cooled-slag armour plates, chains hanging from its wrists, ember eyes; charcoal iron with orange-gold molten seams; massive fists, short legs, broad shoulders."
+- `creature-titan/idle.png` (4): 1 standing, fists lowered, furnace glowing; 2 chest swells, steam rising from the shoulders; 3 settles, furnace dims a little; 4 small weight shift back toward frame 1.
+- `creature-titan/walk.png` (6): a heavy stomping walk cycle to the right: 1 right foot forward, contact; 2 weight drops; 3 passing; 4 left foot forward, contact; 5 weight drops; 6 passing. Fists swing a little.
+- `creature-titan/punch.png` (5): 1 right fist drawn back; 2 torso coiled; 3 swing starts; 4 fist fully extended to the right, molten sparks at the knuckles; 5 recovering.
+- `creature-titan/slam.png` (5): 1 crouching, both fists pulled in; 2 fists rising; 3 fists above the head, the furnace flaring; 4 at the top, about to slam, body arched back; 5 both fists smashed into the ground in front of it, cracks and a molten burst at its feet.
+- `creature-titan/hit.png` (2): 1 recoil, head and shoulders snapped back, slag chips flying; 2 recovering, braced.
+- `creature-titan/down.png` (4): 1 staggering, one knee buckling; 2 dropped to one knee, the furnace flickering; 3 falling forward onto its fists; 4 collapsed in a heap, the furnace dark, faint steam.
+
+**Ember Wisp** (`creature-wisp`). Neutral palette, no team colours. Description: "a small floating ember spirit: a bright flame core with two dark coal eyes, a ring of flickering orange-gold flames, and a short tail of cinders and smoke trailing behind it; no body, no arms."
+- `creature-wisp/idle.png` (4): 1 floating, core bright; 2 drifting up, the flames licking upward; 3 top of the bob, the tail curling; 4 drifting down.
+- `creature-wisp/zap.png` (4): 1 flames drawn inward, the core brightening; 2 the core flaring white-hot; 3 spitting a short crackling ember bolt to the right (inside the frame); 4 settling, sparks fading.
+- `creature-wisp/hit.png` (2): 1 squashed, flames blown back to the left, sparks scattering; 2 reforming.
+- `creature-wisp/fade.png` (4): 1 flames sputtering; 2 shrinking, the core dimming; 3 a small ember with smoke; 4 a few last sparks and a curl of smoke.
+
+**Beast** (`creature-beast`). Description: "a lean dire wolf companion in teal-green and leather: grey-green fur, a leather harness with a small teal charm, glowing teal eyes, bushy tail; seen from the side, in the same top-down three-quarter camera."
+- `creature-beast/idle.png` (4): 1 standing alert; 2 breathing in, ears up; 3 breathing out, tail sways; 4 small head turn back toward frame 1.
+- `creature-beast/walk.png` (6): a trotting cycle to the right, legs in clear alternating steps.
+- `creature-beast/bite.png` (4): 1 crouched, ears back, lips curled; 2 lunging forward; 3 jaws snapping shut at the right, head fully extended; 4 pulling back.
+
+**Spirit** (`creature-spirit`). Description: "a small pale-blue guardian spirit: a glowing ghostly orb with a calm face, two small wisp arms and a trailing misty tail; soft blue-white light."
+- `creature-spirit/idle.png` (4): 1 floating; 2 bobbing up, the tail swaying; 3 top of the bob; 4 bobbing down.
+- `creature-spirit/cast.png` (4): 1 gathering light between its arms; 2 glowing bright; 3 shooting a small blue bolt to the right (inside the frame); 4 settling, the glow fading.
+
 ## Checklist
 - [ ] S1 style sheet
 - [ ] 10 class-archetype characters
 - [ ] 12 weapon props
 - [ ] 4 Core sprites
-- [ ] 3 Titan sprites
 - [ ] 5 terrain pieces
 - [ ] 5 effects
 - [ ] Team cast sheets (32, one per subclass; 5 row strips each, built with `scripts/sprite-sheet.mjs`)
 - [ ] Spell effects (64, one per subclass ability; one 4-frame strip each, built with `scripts/sprite-sheet.mjs --fx`)
+- [ ] Core siege creatures (4 sheets: Titan, Ember Wisp, beast, spirit; one strip per row, built with `scripts/sprite-sheet.mjs --creature`)
 
-That is 40 images. The class icons already in the game (plus, hat, bow, shield) remain the fallback, so the sprites can arrive gradually.
+That is 37 single images, plus the animated sheets. The class icons already in the game (plus, hat, bow, shield) remain the fallback, so the sprites can arrive gradually.

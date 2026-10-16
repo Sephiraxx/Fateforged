@@ -1,25 +1,26 @@
-// Audits the team cast sheets and spell effects in public/sprites/ before they ship.
+// Audits the team cast sheets, spell effects and Core siege creature sheets in public/sprites/ before they ship.
 // node scripts/audit-sprites.mjs [--out <folder>]
-// For every cast-*.webp and fx-*.webp it reports problems a careless generation leaves behind:
+// For every cast-*, fx-* and creature-* file it reports problems a careless generation leaves behind:
 // - wrong size, or a name the game does not know;
 // - empty frames, art touching the cell edges (cut off), or a frame that is mostly opaque (a background left in);
 // - frames cropped by a box in the source strip (long straight vertical edges);
 // - the character's height changing between frames of a row (walk, attack, hit) or between rows, or an idle height
-//   that is not the cast's (SHEET_STANDING);
+//   that is not the cast's (SHEET_STANDING; a creature's own height from CREATURE_SHEETS);
 // - a frame whose colours drift from the idle frames (often a different outfit or character; attacks may glow more);
 // - frames that repeat the previous one (no motion);
-// - in effects, frames that do not grow and then fade.
+// - in effects, frames that do not grow and then fade; a down row that does not end lying down, or a fade row that
+//   does not shrink.
 // It also writes a contact sheet per file (every frame on a dark and a light background) to the output folder for
 // a visual pass. Image work runs in Chromium (Playwright), like scripts/sprite-sheet.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_STANDING,SHEET_NAMES,FX_NAMES,FX_FRAMES} from '../public/sprite-art.js';
+import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_STANDING,SHEET_NAMES,FX_NAMES,FX_FRAMES,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
 
 const args=process.argv.slice(2),out=args.includes('--out')?args[args.indexOf('--out')+1]:'validation/sprite-audit';
-const dir='public/sprites',files=fs.readdirSync(dir).filter(f=>/\.(webp|png)$/.test(f)&&/^(cast|fx)-/.test(f)).sort();
-if(!files.length){console.log('No team cast sheets or spell effects in public/sprites/ yet.');process.exit(0);}
+const dir='public/sprites',files=fs.readdirSync(dir).filter(f=>/\.(webp|png)$/.test(f)&&/^(cast|fx|creature)-/.test(f)).sort();
+if(!files.length){console.log('No team cast sheets, spell effects or creature sheets in public/sprites/ yet.');process.exit(0);}
 fs.mkdirSync(out,{recursive:true});
 async function chromium(){
  try{return (await import('playwright')).chromium;}catch{}
@@ -29,8 +30,13 @@ async function chromium(){
 const browser=await (await chromium()).launch(),page=await browser.newPage(),report=[];
 try{
  for(const file of files){
-  const name=file.replace(/\.(webp|png)$/,''),sheet=name.startsWith('cast-'),known=sheet?SHEET_NAMES.includes(name):FX_NAMES.includes(name);
-  const layout=sheet?SHEET_ROWS.map(([row,n])=>({row,n})):[{row:'fx',n:FX_FRAMES}],cols=sheet?SHEET_COLUMNS:FX_FRAMES;
+  const name=file.replace(/\.(webp|png)$/,''),creature=name.startsWith('creature-'),sheet=name.startsWith('cast-')||creature,known=creature?CREATURE_NAMES.includes(name):sheet?SHEET_NAMES.includes(name):FX_NAMES.includes(name);
+  // What a sheet is checked for: rows that keep the idle height, attack rows (taller or shorter poses allowed), the
+  // fall (down lies down, fade shrinks) and the standing height.
+  const play=creature&&known?CREATURE_SHEETS[name].play:null,rowList=creature?(known?CREATURE_SHEETS[name].rows:[]):SHEET_ROWS;
+  const spec=play?{steady:['idle',play.walk,play.hit].filter(Boolean),attack:[play.attack,play.windup].filter(Boolean),fall:play.death,standing:CREATURE_SHEETS[name].standing}:{steady:['idle','walk','hit'],attack:['attack'],fall:'down',standing:SHEET_STANDING};
+  const layout=sheet?rowList.map(([row,n])=>({row,n})):[{row:'fx',n:FX_FRAMES}],cols=creature?(known?creatureColumns(name):1):sheet?SHEET_COLUMNS:FX_FRAMES;
+  if(creature&&!known){report.push({file,issues:[`not a name the game uses (see CREATURE_NAMES)`]});continue;}
   const data=`data:image/${file.endsWith('png')?'png':'webp'};base64,`+fs.readFileSync(path.join(dir,file)).toString('base64');
   const r=await page.evaluate(async({data,layout,cols,FRAME,sheet})=>{
    const img=new Image();await new Promise((ok,fail)=>{img.onload=ok;img.onerror=()=>fail(new Error('unreadable'));img.src=data;});
@@ -55,7 +61,7 @@ try{
   },{data,layout,cols,FRAME:SHEET_FRAME,sheet});
   const issues=[],warn=(text)=>issues.push(text);
   if(!known)warn(`not a name the game uses (see ${sheet?'SHEET_NAMES':'FX_NAMES'})`);
-  const expected=sheet?[SHEET_FRAME*SHEET_COLUMNS,SHEET_FRAME*SHEET_ROWS.length]:[SHEET_FRAME*FX_FRAMES,SHEET_FRAME];
+  const expected=sheet?[SHEET_FRAME*cols,SHEET_FRAME*layout.length]:[SHEET_FRAME*FX_FRAMES,SHEET_FRAME];
   if(r.width!==expected[0]||r.height!==expected[1])warn(`size ${r.width}×${r.height}, expected ${expected.join('×')} (build it with scripts/sprite-sheet.mjs)`);
   for(const f of r.frames){
    const at=`${f.row} frame ${f.k+1}`;
@@ -70,15 +76,18 @@ try{
   const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
   if(sheet){
    const idle=r.frames.filter(f=>f.row==='idle'&&!f.empty),idleH=idle.map(f=>f.h).sort((a,b)=>a-b)[Math.floor(idle.length/2)]||1,idleMean=idle.length?idle.map(f=>f.mean).reduce((a,m)=>a.map((v,i)=>v+m[i]/idle.length),[0,0,0]):null;
-   // One size for the cast: the idle character stands SHEET_STANDING tall (a staff or a raised weapon adds to the box).
-   if(idleH<SHEET_STANDING*.92||idleH>SHEET_STANDING*1.4)warn(`idle is ${idleH} px tall, the cast stands ${SHEET_STANDING} px: rebuild it with scripts/sprite-sheet.mjs so it matches the other characters`);
+   // One size for the cast: the idle character stands SHEET_STANDING tall (a staff or a raised weapon adds to the box);
+   // each creature stands its own height.
+   if(idleH<spec.standing*.92||idleH>spec.standing*1.4)warn(`idle is ${idleH} px tall, ${creature?'this creature':'the cast'} stands ${spec.standing} px: rebuild it with scripts/sprite-sheet.mjs${creature?'':' so it matches the other characters'}`);
+   const fallRow=r.frames.filter(f=>f.row===spec.fall),last=fallRow.at(-1);
    for(const f of r.frames.filter(f=>!f.empty)){
     const at=`${f.row} frame ${f.k+1}`;
-    if(['idle','walk','hit'].includes(f.row)&&Math.abs(f.h/idleH-1)>.15)warn(`${at} is ${Math.round(f.h/idleH*100)}% of the idle height: the character changed size`);
-    if(f.row==='attack'&&(f.h/idleH<.75||f.h/idleH>1.45))warn(`${at} is ${Math.round(f.h/idleH*100)}% of the idle height`);
-    if(f.row==='down'&&f.k===3&&f.h/idleH>.8)warn(`down frame 4 is ${Math.round(f.h/idleH*100)}% of the idle height: the character may not be lying down`);
-    if(idleMean&&f.row!=='hit'&&dist(f.mean,idleMean)>(f.row==='attack'?60:38))warn(`${at} colours drift from the idle frames (distance ${Math.round(dist(f.mean,idleMean))}): check the outfit and character match`);
+    if(spec.steady.includes(f.row)&&Math.abs(f.h/idleH-1)>.15)warn(`${at} is ${Math.round(f.h/idleH*100)}% of the idle height: the ${creature?'creature':'character'} changed size`);
+    if(spec.attack.includes(f.row)&&(f.h/idleH<.75||f.h/idleH>1.45))warn(`${at} is ${Math.round(f.h/idleH*100)}% of the idle height`);
+    if(idleMean&&f.row!=='hit'&&f.row!=='fade'&&dist(f.mean,idleMean)>(spec.attack.includes(f.row)?60:38))warn(`${at} colours drift from the idle frames (distance ${Math.round(dist(f.mean,idleMean))}): check the outfit and character match`);
    }
+   if(spec.fall==='down'&&last&&!last.empty&&last.h/idleH>.8)warn(`down frame ${last.k+1} is ${Math.round(last.h/idleH*100)}% of the idle height: the ${creature?'creature':'character'} may not be lying down`);
+   if(spec.fall==='fade'&&last&&!fallRow[0].empty&&!last.empty&&last.opaque>fallRow[0].opaque*.6)warn(`fade frame ${last.k+1} is ${Math.round(last.opaque/fallRow[0].opaque*100)}% of frame 1's size: the creature should shrink away`);
    for(const f of r.frames)if(f.change!=null&&f.change<.01)warn(`${f.row} frame ${f.k+1} repeats frame ${f.k}: no motion`);
   }else{
    const areas=r.frames.map(f=>f.empty?0:f.opaque),peak=areas.indexOf(Math.max(...areas));
@@ -93,5 +102,5 @@ try{
 const bad=report.filter(x=>x.issues.length);
 fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,1)+'\n');
 for(const x of report)console.log(`${x.issues.length?'✗':'✓'} ${x.file}${x.issues.map(i=>'\n    - '+i).join('')}`);
-const missingSheets=SHEET_NAMES.filter(n=>!files.some(f=>f.startsWith(n+'.'))),missingFx=FX_NAMES.filter(n=>!files.some(f=>f.startsWith(n+'.')));
-console.log(`\n${report.length} files audited, ${bad.length} with issues. Missing: ${missingSheets.length} of ${SHEET_NAMES.length} sheets, ${missingFx.length} of ${FX_NAMES.length} effects. Contact sheets in ${out}/.`);
+const missing=list=>list.filter(n=>!files.some(f=>f.startsWith(n+'.'))),missingSheets=missing(SHEET_NAMES),missingFx=missing(FX_NAMES),missingCreatures=missing(CREATURE_NAMES);
+console.log(`\n${report.length} files audited, ${bad.length} with issues. Missing: ${missingSheets.length} of ${SHEET_NAMES.length} sheets, ${missingFx.length} of ${FX_NAMES.length} effects, ${missingCreatures.length} of ${CREATURE_NAMES.length} creatures. Contact sheets in ${out}/.`);

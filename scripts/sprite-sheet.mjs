@@ -1,7 +1,11 @@
-// Builds a team cast sprite sheet (ART-PROMPTS.md, "Team cast sheets") from ChatGPT row strips, or a spell effect
-// strip.
+// Builds a team cast sprite sheet (ART-PROMPTS.md, "Team cast sheets") or a Core siege creature sheet ("Core siege
+// creatures") from ChatGPT row strips, or a spell effect strip.
 // node scripts/sprite-sheet.mjs <class> <subclass> <folder>
+// node scripts/sprite-sheet.mjs --creature <sheet> <folder>
 // node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>
+// Creatures: the rows and standing height come from CREATURE_SHEETS; the death row (down or fade) is scaled like the
+// cast's down row, the hit row and a windup (the Titan's slam, fists raised) like hit, and floaters (wisp, spirit) are
+// centred in their cells instead of standing on the feet line. Written to public/sprites/<sheet>.webp.
 // Effects: one strip of FX_FRAMES frames; each frame is centred on its own box and the strip keeps one scale, so the
 // effect's growth stays visible; written to public/sprites/fx-<subclass>-<ability id>.webp (256 px frames in one row).
 // The folder holds one PNG per row: idle.png, walk.png, attack.png, hit.png and down.png, each a strip with that row's
@@ -20,12 +24,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,sheetName,SHEET_NAMES,CAST_FX,fxName,FX_FRAMES} from '../public/sprite-art.js';
+import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,sheetName,SHEET_NAMES,CAST_FX,fxName,FX_FRAMES,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
 
-const args=process.argv.slice(2),effect=args[0]==='--fx';
+const args=process.argv.slice(2),effect=args[0]==='--fx',creature=args[0]==='--creature';
 const png=file=>'data:image/png;base64,'+fs.readFileSync(file).toString('base64');
-let name,rows,limit;
-if(effect){
+const readRows=(dir,list)=>list.map(([row,frames])=>{const file=path.join(dir,row+'.png');if(!fs.existsSync(file)){console.error(`Missing ${file} (${frames} frames).`);process.exit(2);}return {row,frames,data:png(file)};});
+// How rows are laid out: the standing height, the columns, which rows scale by area or halfway, and floating.
+let name,rows,limit,layout={STANDING:SHEET_STANDING,COLUMNS:SHEET_COLUMNS,areaRows:['down'],halfRows:['hit'],centered:false};
+if(creature){
+ const [,which,dir]=args;name=CREATURE_NAMES.find(n=>n===which||n==='creature-'+which);
+ if(!name||!dir){console.error(`Usage: node scripts/sprite-sheet.mjs --creature <${CREATURE_NAMES.join('|')}> <folder with one PNG per row>`);process.exit(2);}
+ const sheet=CREATURE_SHEETS[name];rows=readRows(dir,sheet.rows);limit=SHEET_MAX_BYTES;
+ layout={STANDING:sheet.standing,COLUMNS:creatureColumns(name),areaRows:[sheet.play.death].filter(Boolean),halfRows:[sheet.play.hit,sheet.play.windup].filter(Boolean),centered:!!sheet.centered};
+}else if(effect){
  const [,sub,id,file]=args;
  if(!sub||!id||!file){console.error('Usage: node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>');process.exit(2);}
  const subclass=Object.keys(CAST_FX).find(k=>k.toLowerCase()===sub.toLowerCase());
@@ -34,11 +45,10 @@ if(effect){
  name=fxName(subclass,id);rows=[{row:'fx',frames:FX_FRAMES,data:png(file)}];limit=SPRITE_MAX_BYTES;
 }else{
  const [cls,sub,dir]=args;
- if(!cls||!sub||!dir){console.error('Usage: node scripts/sprite-sheet.mjs <class> <subclass> <folder with idle.png walk.png attack.png hit.png down.png>\n       node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>');process.exit(2);}
+ if(!cls||!sub||!dir){console.error('Usage: node scripts/sprite-sheet.mjs <class> <subclass> <folder with idle.png walk.png attack.png hit.png down.png>\n       node scripts/sprite-sheet.mjs --creature <sheet> <folder>\n       node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>');process.exit(2);}
  name=sheetName(cls,sub);
  if(!SHEET_NAMES.includes(name)){console.error(`${cls} (${sub}) is not in the team cast. Sheets: ${SHEET_NAMES.join(', ')}`);process.exit(2);}
- rows=SHEET_ROWS.map(([row,frames])=>{const file=path.join(dir,row+'.png');if(!fs.existsSync(file)){console.error(`Missing ${file} (${frames} frames).`);process.exit(2);}return {row,frames,data:png(file)};});
- limit=SHEET_MAX_BYTES;
+ rows=readRows(dir,SHEET_ROWS);limit=SHEET_MAX_BYTES;
 }
 
 async function chromium(){
@@ -49,7 +59,7 @@ async function chromium(){
 const browser=await (await chromium()).launch();
 try{
  const page=await browser.newPage();
- const result=await page.evaluate(async({rows,FRAME,COLUMNS,STANDING,FEET,effect})=>{
+ const result=await page.evaluate(async({rows,FRAME,FEET,effect,layout:{STANDING,COLUMNS,areaRows,halfRows,centered}})=>{
   const load=src=>new Promise((ok,fail)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>fail(new Error('Unreadable image'));i.src=src;});
   const median=list=>{const s=[...list].sort((a,b)=>a-b);return s[Math.floor(s.length/2)];};
   const SOLID=32,FAINT=8;
@@ -73,7 +83,7 @@ try{
     for(let y=0;y<H;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>16){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
     if(maxX<0)return null;
     const footTop=maxY-Math.max(1,Math.round((maxY-minY)*.15));let sum=0,c=0,area=0;for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++)if(alpha(x,y)>SOLID){area++;if(y>=footTop){sum+=x;c++;}}
-    return {src:img,ox:0,oy:0,minX,minY,maxX,maxY,foot:sum/c,bodyH:maxY-minY+1,bodyBottom:maxY,area};});
+    return {src:img,ox:0,oy:0,minX,minY,maxX,maxY,foot:sum/c,bodyH:maxY-minY+1,bodyTop:minY,bodyBottom:maxY,bodyX:(minX+maxX)/2,area};});
   }
   // Connected regions: solid pixels (8-connected) grouped into regions; regions of at least a fifth of the largest are
   // figure candidates, merged into the closest neighbour until there is one per frame; smaller ones near a figure join
@@ -112,7 +122,7 @@ try{
     const thin=median(widths.filter(n=>n))*.2;let top=widths.findIndex(n=>n>=thin),bot=widths.length-1;while(bot>top&&widths[bot]<thin/2)bot--;top+=m.minY;bot+=m.minY;
     const footTop=bot-Math.max(1,Math.round((bot-top)*.15));let sum=0,cnt=0;
     for(let y=footTop;y<=bot;y++)for(let x=m.minX;x<=m.maxX;x++)if(lab[y*W+x]===m.id){sum+=x;cnt++;}
-    return {src:c,ox:minX,oy:minY,minX,minY,maxX,maxY,foot:sum/cnt,bodyH:bot-top+1,bodyBottom:bot,area:f.size};});
+    return {src:c,ox:minX,oy:minY,minX,minY,maxX,maxY,foot:sum/cnt,bodyH:bot-top+1,bodyTop:top,bodyBottom:bot,bodyX:(m.minX+m.maxX)/2,area:f.size};});
   }
   const frames=[],warnings=[];
   for(const r of rows){
@@ -130,28 +140,29 @@ try{
    for(const f of frames){const w=f.maxX-f.minX+1,h=f.maxY-f.minY+1;draw(s,f,f.k*FRAME+(FRAME-w*scale)/2,(FRAME-h*scale)/2,scale);}
    return {webp:strip.toDataURL('image/webp',.9),summary:`scale ${scale.toFixed(3)}`,width:strip.width,height:strip.height,warnings};
   }
-  // Row scales: idle, walk and attack by the character's median height; down by area (the idle area at the idle
-  // scale), since the fall changes the height; hit halfway between the two (geometric mean), since a recoil crouches a
-  // little and a flung cape adds area.
+  // Row scales: idle, walk and attack by the character's median height; down (areaRows) by area (the idle area at the
+  // idle scale), since the fall changes the height; hit (halfRows) halfway between the two (geometric mean), since a
+  // recoil crouches a little and a flung cape adds area.
   const of=row=>frames.filter(f=>f.row===row),scales={},byArea=row=>scales.idle*Math.sqrt(median(of('idle').map(f=>f.area))/median(of(row).map(f=>f.area)));
-  for(const r of rows)if(r.row!=='down')scales[r.row]=STANDING/median(of(r.row).map(f=>f.bodyH));
-  scales.down=byArea('down');scales.hit=Math.sqrt(scales.hit*byArea('hit'));
+  for(const r of rows)if(!areaRows.includes(r.row))scales[r.row]=STANDING/median(of(r.row).map(f=>f.bodyH));
+  for(const row of areaRows)scales[row]=byArea(row);for(const row of halfRows)scales[row]=Math.sqrt(scales[row]*byArea(row));
   // Placement: feet on the feet line, centred on the feet (down: on the box), pushed sideways to stay inside the cell;
-  // a row that is still too big shrinks.
-  const place=(f,scale)=>{const w=(f.maxX-f.minX+1)*scale,top=FRAME-FEET-(f.bodyBottom-f.minY+1)*scale,bottom=top+(f.maxY-f.minY+1)*scale;
-   let left=f.row==='down'?(FRAME-w)/2:FRAME/2-(f.foot-f.minX)*scale;left=Math.min(Math.max(left,4),FRAME-4-w);return {left,top,w,bottom};};
+  // floaters centre their body in the cell. A row that is still too big shrinks.
+  const middle=f=>(f.bodyTop+f.bodyBottom)/2;
+  const place=(f,scale)=>{const w=(f.maxX-f.minX+1)*scale,top=centered?FRAME/2-(middle(f)-f.minY)*scale:FRAME-FEET-(f.bodyBottom-f.minY+1)*scale,bottom=top+(f.maxY-f.minY+1)*scale;
+   let left=areaRows.includes(f.row)?(FRAME-w)/2:FRAME/2-((centered?f.bodyX:f.foot)-f.minX)*scale;left=Math.min(Math.max(left,4),FRAME-4-w);return {left,top,w,bottom};};
   const fits={};
-  for(const r of rows){let s=scales[r.row];for(const f of of(r.row)){const w=(f.maxX-f.minX+1)*s,h=(f.maxY-f.minY+1)*s,above=(f.bodyBottom-f.minY+1)*s,below=h-above;
-    s*=Math.min(1,(FRAME-8)/w,(FRAME-FEET-4)/above,below>FEET-2?(FEET-2)/below:1);}
+  for(const r of rows){let s=scales[r.row];for(const f of of(r.row)){const w=(f.maxX-f.minX+1)*s,h=(f.maxY-f.minY+1)*s,above=(f.bodyBottom-f.minY+1)*s,below=h-above,reach=Math.max(middle(f)-f.minY,f.maxY-middle(f))*s;
+    s*=centered?Math.min(1,(FRAME-8)/w,(FRAME/2-4)/reach):Math.min(1,(FRAME-8)/w,(FRAME-FEET-4)/above,below>FEET-2?(FEET-2)/below:1);}
    fits[r.row]=s/scales[r.row];scales[r.row]=s;if(fits[r.row]<.9)warnings.push(`${r.row}: shrunk to ${Math.round(fits[r.row]*100)}% to fit the cells (a wide or tall pose); check it does not look small next to idle.`);}
   const sheet=document.createElement('canvas');sheet.width=FRAME*COLUMNS;sheet.height=FRAME*rows.length;const s=sheet.getContext('2d');s.imageSmoothingQuality='high';
   const report=[];
   for(const f of frames){const y=rows.findIndex(r=>r.row===f.row),scale=scales[f.row],p=place(f,scale);draw(s,f,f.k*FRAME+p.left,y*FRAME+p.top,scale);
    report.push({row:f.row,frame:f.k,height:Math.round(f.bodyH*scale),box:[p.left,p.top,p.w,p.bottom-p.top].map(Math.round)});}
-  const idleH=STANDING,downFirst=report.find(x=>x.row==='down'&&x.frame===0).height;
-  const summary=rows.map(r=>`${r.row} ×${(scales[r.row]/scales.idle).toFixed(2)}${fits[r.row]<1?` (fit ${Math.round(fits[r.row]*100)}%)`:''}`).join(', ')+`; down frame 1 is ${Math.round(downFirst/idleH*100)}% of idle height`;
+  const fall=areaRows[0],fallFirst=report.find(x=>x.row===fall&&x.frame===0)?.height;
+  const summary=rows.map(r=>`${r.row} ×${(scales[r.row]/scales.idle).toFixed(2)}${fits[r.row]<1?` (fit ${Math.round(fits[r.row]*100)}%)`:''}`).join(', ')+(fallFirst?`; ${fall} frame 1 is ${Math.round(fallFirst/STANDING*100)}% of idle height`:'');
   return {webp:sheet.toDataURL('image/webp',.9),summary,report,width:sheet.width,height:sheet.height,warnings};
- },{rows,FRAME:SHEET_FRAME,COLUMNS:SHEET_COLUMNS,STANDING:SHEET_STANDING,FEET:SHEET_FEET,effect});
+ },{rows,FRAME:SHEET_FRAME,FEET:SHEET_FEET,effect,layout});
  if(result.error){console.error(result.error);process.exit(1);}
  if(!result.webp.startsWith('data:image/webp')){console.error('This browser cannot write WebP.');process.exit(1);}
  const data=Buffer.from(result.webp.split(',')[1],'base64');

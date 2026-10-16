@@ -1,8 +1,8 @@
 # Sprites
 
-Put the sprite art from `ART-PROMPTS.md` here, named exactly as in its checklist, as `.webp` (preferred) or `.png`, for example `char-plate.webp` or `titan-slam.webp`.
+Put the sprite art from `ART-PROMPTS.md` here, named exactly as in its checklist, as `.webp` (preferred) or `.png`, for example `char-plate.webp` or `core-blue.webp`.
 
-- Keep each file under 400 KB. Resize to 256 px (512 px for the Titan sprites and `pit-rim`) and export as WebP, for example with squoosh.app. Larger files are skipped by the build with a warning.
+- Keep each file under 400 KB. Resize to 256 px (512 px for `pit-rim`) and export as WebP, for example with squoosh.app. Larger files are skipped by the build with a warning.
 - The build lists the files it finds, and the enhanced renderer uses them. Anything missing keeps today's look: the class icons, sprite-sheet weapons, the drawn Cores and Titan, and the shaded rocks.
 - Run `npm run build` (and `node scripts/build-pages.mjs` for GitHub Pages) after adding files.
 
@@ -13,3 +13,7 @@ Animated sheets for the team cast are named `cast-<class>-<subclass>.webp` (for 
 ## Spell effects
 
 One short effect per subclass ability, drawn in that character's colours, named `fx-<subclass>-<ability id>.webp` (for example `fx-blood-bloodBolt.webp`, 64 in all). Build each from a 4-frame strip with `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>`.
+
+## Core siege creatures
+
+Animated sheets for the Forge Titan, the Ember Wisps and the summons: `creature-titan.webp`, `creature-wisp.webp`, `creature-beast.webp` and `creature-spirit.webp` (see `ART-PROMPTS.md`, "Core siege creatures"). Build each from its row strips with `node scripts/sprite-sheet.mjs --creature <sheet> <folder>` and check it with `node scripts/audit-sprites.mjs`. Sheets may be up to 2 MB.

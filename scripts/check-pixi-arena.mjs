@@ -5,9 +5,10 @@ import fs from 'node:fs';
 import {squad,COMPOSITIONS} from './team-fixtures.mjs';
 import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
-import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS,newAbilityUses,releaseDelay,fxFrame,FX_DURATION} from '../public/pixi-arena-model.js';
+import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS,newAbilityUses,releaseDelay,fxFrame,FX_DURATION,creatureFrame,titanState,campState,summonState,CREATURE_TIMES} from '../public/pixi-arena-model.js';
 import {Battle} from '../public/combat.js';
-import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES,CAST_FX,fighterFx} from '../public/sprite-art.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES,CAST_FX,fighterFx,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
+import {CAMP_RULES} from '../public/level-combat.js';
 import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
 import {collectSprites} from './sprites.mjs';
 import {MAP_IDS} from '../public/team-maps.js';
@@ -50,8 +51,13 @@ assert.deepEqual(types(snap(1,[],{titan:{x:640,y:300,hp:500},slamAt:1.05}),snap(
 for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_COMBAT_VERSION,'balanced3'],[TEAM_COMBAT_VERSION,'balanced2']]){
  const Engine=teamEngine(version),make=()=>new Engine([squad(COMPOSITIONS[comp],41),squad(COMPOSITIONS[comp],42)],41,{headless:true});
  const plain=make();while(!plain.done)plain.step(1/60);
- const watched=make();let prev=null,events=0,followed=0;
- while(!watched.done){const s=snapshot(watched);events+=diffEvents(prev,s).length;prev=s;const v=frameView(actionPoints(watched),watched.width,watched.height);if(v.zoom>1)followed++;assert(inside(v,watched.width,watched.height));watched.step(1/60);}
+ const watched=make();let prev=null,events=0,followed=0;const creatureRows={titan:new Set(),wisp:new Set()},memos=new Map(),memo=o=>memos.get(o)??memos.set(o,{}).get(o);
+ while(!watched.done){const s=snapshot(watched);events+=diffEvents(prev,s).length;prev=s;const v=frameView(actionPoints(watched),watched.width,watched.height);if(v.zoom>1)followed++;assert(inside(v,watched.width,watched.height));
+  // Creature sheets read the same battle: the Titan's and wisps' rows over the whole game.
+  if(watched.titan){const c=creatureFrame(CREATURE_SHEETS['creature-titan'],titanState(watched),memo(watched.titan),watched.time);if(c.since!==Infinity)creatureRows.titan.add(c.row);if(watched.slamAt!=null&&watched.titan.hp>0)assert.equal(c.row,'slam','the Titan winds up through the slam telegraph');}
+  for(const camp of watched.camps??[]){const c=creatureFrame(CREATURE_SHEETS['creature-wisp'],campState(watched,camp,CAMP_RULES),memo(camp),watched.time);if(c.since!==Infinity)creatureRows.wisp.add(c.row);}
+  watched.step(1/60);}
+ if(watched.titan){assert.deepEqual([...creatureRows.titan].sort(),['down','hit','idle','punch','slam','walk'],`${version} ${comp}: the Titan shows every row`);assert.deepEqual([...creatureRows.wisp].sort(),['fade','hit','idle','zap'],`${version} ${comp}: the wisps show every row`);}
  assert.deepEqual(watched.result(),plain.result(),`${version} ${comp}: rendering reads must not change the result`);
  assert(events>50,`${version} ${comp}: the particle layer sees the fight (${events} events)`);
  assert(followed>0,`${version} ${comp}: the follow camera zooms in at some point`);
@@ -72,7 +78,7 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  for(const list of [Object.values(CHARACTER_ART).flat(),Object.values(PROP_ART).flat()])assert.equal(new Set(list).size,list.length,'no name maps twice');
  for(const name of Object.values(PROP_ART).flat())assert(weapons.includes(name),`prop weapon ${name} exists`);
  for(const id of MAP_IDS.filter(id=>id!=='open'))assert(TERRAIN_ART[id],id);
- const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SPRITE_NAMES.length,39);for(const name of SPRITE_NAMES)assert(prompts.includes('`'+name+'.png`'),`${name} is in ART-PROMPTS.md`);
+ const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SPRITE_NAMES.length,36);for(const name of SPRITE_NAMES)assert(prompts.includes('`'+name+'.png`'),`${name} is in ART-PROMPTS.md`);
  assert.deepEqual(fighterArt({traits:{class:'Priest'},weapon:{name:'Mace'},original:{weapon:{name:'Blessed mace'}}}),{character:'char-holy',prop:'prop-heavy'});
  assert.equal(coreArt({team:0,hp:900,maxHp:1000}),'core-blue');assert.equal(coreArt({team:1,hp:400,maxHp:1000}),'core-red-cracked');
  assert.deepEqual(spriteUrls({'char-plate':'char-plate.webp?v=1',nope:'x.webp'},'https://example.test/Fateforged/pixi-arena.js'),{'char-plate':'https://example.test/Fateforged/sprites/char-plate.webp?v=1'});
@@ -100,11 +106,36 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:false}},'smite').toFixed(2),'0.20');assert.equal(releaseDelay({action:{power:{id:'smite'},windup:.3,elapsed:.1,released:true}},'smite'),0);assert.equal(releaseDelay({action:null},'smite'),0);
  assert.equal(fxFrame(0),0);assert.equal(fxFrame(FX_DURATION*.6),2);assert.equal(fxFrame(FX_DURATION),null);assert.equal(fxFrame(-.1),null);}
 
+// Core siege creatures and summons: four sheets listed in ART-PROMPTS.md, rows that name every action, and the frame
+// each state shows.
+{const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.deepEqual(CREATURE_NAMES,['creature-titan','creature-wisp','creature-beast','creature-spirit']);
+ for(const name of CREATURE_NAMES){const sheet=CREATURE_SHEETS[name],rows=Object.fromEntries(sheet.rows);assert(prompts.includes('`'+name+'`'),`${name} is in ART-PROMPTS.md`);assert.equal(sheet.rows[0][0],'idle');
+  for(const row of Object.values(sheet.play))assert(rows[row]>=2,`${name} has its ${row} row`);if(sheet.play.windup)assert(rows[sheet.play.windup]>=3);assert(sheet.standing>0&&sheet.standing<=220);
+  for(const row of sheet.rows.map(([r])=>r))assert(prompts.includes(`${name}/${row}.png`),`${name} ${row} has a prompt`);
+  assert.equal(spriteUrls({[name]:name+'.webp?v=1'},'https://example.test/a.js')[name],`https://example.test/sprites/${name}.webp?v=1`);}
+ assert.equal(creatureColumns('creature-titan'),6);assert.equal(creatureColumns('creature-spirit'),4);
+ const titan=CREATURE_SHEETS['creature-titan'],m={},at=(state,time)=>creatureFrame(titan,{alive:true,attack:0,windup:null,...state},m,time);
+ assert.equal(at({x:0,y:0},0).row,'idle');assert.deepEqual([at({x:5,y:0},.1).row,at({x:10,y:0},.2).row],['walk','walk'],'moving walks');assert.equal(at({x:10,y:0},.3).row,'idle');
+ assert.equal(at({x:10,y:0,face:{x:-50,y:0}},.3).dir,Math.PI,'faces its target');
+ assert.deepEqual([at({attack:1.2},1).row,at({attack:1.2},1).frame,at({attack:1.2},1+CREATURE_TIMES.attack*.9).frame,at({attack:1.2},1.01+CREATURE_TIMES.attack).row],['punch',0,4,'idle'],'a punch plays once when the next attack time moves');
+ assert.deepEqual([0,.3,.6,.99].map(w=>at({windup:w},2).frame),[0,1,2,3],'the slam winds up through frames 1–4 with the telegraph');assert.deepEqual([at({},2.1).row,at({},2.1).frame,at({},2.11+CREATURE_TIMES.impact).row],['slam',4,'idle'],'then lands on frame 5');
+ assert.deepEqual(at({hitFlash:.1},3),{row:'hit',frame:0,dir:Math.PI});assert.deepEqual([at({hitFlash:.1},3.15).frame,at({hitFlash:.1},3.3).row,at({hitFlash:.1},3.81).row],[1,'idle','hit'],'a flinch at most every 0.8 s');
+ assert.equal(at({hitFlash:.1,windup:.5},3.85).row,'slam','a hit never interrupts the telegraph');
+ assert.deepEqual([at({alive:false},4).frame,at({alive:false},4+2/CREATURE_TIMES.death).frame,at({alive:false},9).frame,at({alive:false},9).since],[0,2,3,5],'the fall plays once and holds');
+ assert.deepEqual([at({},20).row,at({},20).frame,at({},20+3/CREATURE_TIMES.death).frame,at({},20+4/CREATURE_TIMES.death).row],['down',3,0,'idle'],'rising plays the fall in reverse');
+ const fresh={};assert.equal(creatureFrame(titan,{alive:false},fresh,0).since,Infinity,'dead on the first look: nothing to show');assert.equal(creatureFrame(titan,{alive:true},fresh,1).rising,true,'its first appearance rises');
+ const wisp=CREATURE_SHEETS['creature-wisp'],wm={},hitter={hp:100,x:10,y:0},b={time:5,combatants:[hitter]},camp={hp:600,x:0,y:0,hitter:0,lastHitAt:4,nextPulse:6};
+ creatureFrame(wisp,campState(b,camp,CAMP_RULES),wm,5);camp.nextPulse=7.5;assert.equal(creatureFrame(wisp,campState(b,camp,CAMP_RULES),wm,5.1).row,'zap','a wisp zaps its attacker');
+ b.time=20;camp.nextPulse=9;creatureFrame(wisp,campState(b,camp,CAMP_RULES),wm,20);camp.nextPulse=10.5;assert.equal(creatureFrame(wisp,campState(b,camp,CAMP_RULES),wm,20.1).row,'idle','no zap once the fight moved on');
+ camp.hp=0;assert.equal(creatureFrame(wisp,campState(b,camp,CAMP_RULES),wm,21).row,'fade');
+ for(const [kind,cd,act]of [['beast',.8,'bite'],['spirit',1.15,'cast']]){const sheet=CREATURE_SHEETS['creature-'+kind],sm={},owner={hp:100,x:0,y:0,target:1},foe={hp:100,x:-40,y:0},sb={mode:'team',fighters:[owner,foe],actorFor:i=>sb.fighters[i]},s={type:kind,owner:0,x:0,y:0,cooldown:.3};
+  const look=time=>creatureFrame(sheet,summonState(sb,s,sm),sm,time);assert.equal(look(0).row,'idle');s.cooldown=.1;assert.equal(look(.1).row,'idle');s.cooldown=cd;const c=look(.2);assert.equal(c.row,act,`a ${kind} attacks when its cooldown resets`);assert.equal(c.dir,Math.PI,`a ${kind} faces its owner's target`);}}
+
 // Sprite collection: known names only, one file per name, size-capped.
 {const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sprites-'));const warn=console.warn;console.warn=()=>{};
- try{fs.writeFileSync(path.join(dir,'char-plate.webp'),Buffer.alloc(100,1));fs.writeFileSync(path.join(dir,'char-plate.png'),Buffer.alloc(100,2));fs.writeFileSync(path.join(dir,'titan-idle.png'),Buffer.alloc(200,3));
+ try{fs.writeFileSync(path.join(dir,'char-plate.webp'),Buffer.alloc(100,1));fs.writeFileSync(path.join(dir,'char-plate.png'),Buffer.alloc(100,2));fs.writeFileSync(path.join(dir,'pit-rim.png'),Buffer.alloc(200,3));
   fs.writeFileSync(path.join(dir,'hero.webp'),Buffer.alloc(10));fs.writeFileSync(path.join(dir,'core-red.gif'),Buffer.alloc(10));fs.writeFileSync(path.join(dir,'core-blue.webp'),Buffer.alloc(SPRITE_MAX_BYTES+1));fs.writeFileSync(path.join(dir,'README.md'),'notes');
-  const out=await collectSprites(dir);assert.deepEqual(out.files.map(f=>f.file),['char-plate.png','titan-idle.png']);assert.equal(out.skipped.length,4);assert.match(out.manifest['char-plate'],/^char-plate\.png\?v=[0-9a-f]{10}$/);
+  const out=await collectSprites(dir);assert.deepEqual(out.files.map(f=>f.file),['char-plate.png','pit-rim.png']);assert.equal(out.skipped.length,4);assert.match(out.manifest['char-plate'],/^char-plate\.png\?v=[0-9a-f]{10}$/);
   assert(out.module.includes('export const SPRITE_MANIFEST={'));
   assert.deepEqual((await collectSprites(path.join(dir,'missing'))).manifest,{});}
  finally{console.warn=warn;fs.rmSync(dir,{recursive:true,force:true});}}
