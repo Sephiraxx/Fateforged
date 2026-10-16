@@ -58,7 +58,15 @@ export function compTargets(comp,n){const sharp=r=>Math.pow(comp?.[r]??1,1.8),to
  for(const i of raw.map((x,i)=>[x-Math.floor(x),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[1])){if(left<=0)break;out[ROLE_KEYS[i]]++;left--;}return out;}
 const teamComp=team=>team.coach.comp??COMP_TEMPLATES[team.coach.personality]??COMP_TEMPLATES.balanced;
 export const rosterTargets=(w,team)=>compTargets(teamComp(team),w.settings.rosterSize);
-export const starterTargets=(w,team)=>compTargets(teamComp(team),FORMATS[w.format].size);
+// In 2v2 and 3v3 a second tank or healer costs a lineup dearly (3v3 Core siege lab, random teams: 1D·2T 37%,
+// 1C·2T 28%, 1C·2H 34%, against 54% for 2D·1T), so coaches start at most one of each there and give the spare slot
+// to whichever of damage and control they like more. Rosters may still carry a spare.
+export const SOLO_ROLES=Object.freeze(['tank','healer']);
+export const starterTargets=(w,team)=>{
+ const size=FORMATS[w.format].size,comp=teamComp(team),out=compTargets(comp,size);if(size>3)return out;
+ const next=(comp.damage??1)>=(comp.controller??1)?'damage':'controller';for(const r of SOLO_ROLES)while(out[r]>1){out[r]--;out[next]++;}
+ return out;
+};
 const ROLE_LETTER={tank:'T',healer:'H',controller:'C',damage:'D'};
 export function compKey(counts){return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]}${ROLE_LETTER[r]}`).join('·')||'—';}
 export function compLabel(counts){const names={tank:['tank','tanks'],healer:['healer','healers'],controller:['controller','controllers'],damage:['damage','damage']};return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]} ${names[r][counts[r]>1?1:0]}`).join(' · ');}
@@ -214,7 +222,9 @@ export function draftPicks(w,count){const made=[];for(let i=0;i<count&&!w.draft.
 export function bestLineup(w,team){
  const f=FORMATS[w.format],left=team.roster.map(id=>w.fighters[id]).sort((a,b)=>b.ovr-a.ovr||(a.id<b.id?-1:1)),lineup=[],plan=starterTargets(w,team);
  for(const role of ROLE_KEYS)for(let n=0;n<plan[role];n++){const i=left.findIndex(x=>x.role===role);if(i>=0)lineup.push(left.splice(i,1)[0].id);}
- while(lineup.length<f.size&&left.length)lineup.push(left.shift().id);
+ // The rest by OVR, skipping a second tank or healer in 2v2 and 3v3 while anyone else is left.
+ const doubled=x=>f.size<=3&&SOLO_ROLES.includes(x.role)&&lineup.some(id=>w.fighters[id].role===x.role);
+ while(lineup.length<f.size&&left.length){const i=left.findIndex(x=>!doubled(x));lineup.push(left.splice(Math.max(0,i),1)[0].id);}
  return lineup;
 }
 export const teamOverall=(w,team)=>{const ids=team.lineup.length?team.lineup:bestLineup(w,team);return ids.length?Math.round(ids.reduce((n,id)=>n+w.fighters[id].ovr,0)/ids.length):0;};
