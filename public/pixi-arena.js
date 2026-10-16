@@ -2,8 +2,9 @@
 // positions are eased for display, particles come from state differences, and the camera frames the field or
 // follows the action. Sprite art from public/sprites/ replaces the drawn shapes wherever a file exists
 // (sprite-art.js). The 2D canvas renderer in arena.js stays the fallback and the "Classic" option.
-import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES,sheetFrame,newAbilityUses,releaseDelay,fxFrame} from './pixi-arena-model.js';
-import {fighterArt,coreArt,spriteUrls,TERRAIN_ART,fighterSheet,SHEET_ROWS,SHEET_COLUMNS,ABILITY_FX,FX_FRAMES,fighterFx} from './sprite-art.js';
+import {fullView,frameView,actionPoints,stepCamera,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,CAMERA_RULES,sheetFrame,newAbilityUses,releaseDelay,fxFrame,creatureFrame,titanState,campState,summonState} from './pixi-arena-model.js';
+import {fighterArt,coreArt,spriteUrls,TERRAIN_ART,fighterSheet,SHEET_ROWS,SHEET_COLUMNS,ABILITY_FX,FX_FRAMES,fighterFx,CREATURE_SHEETS,creatureColumns,SHEET_FRAME,SHEET_FEET} from './sprite-art.js';
+import {CAMP_RULES} from './level-combat.js';
 import {SPRITE_MANIFEST} from './sprite-manifest.js';
 const TEAM_COLORS=[0x3ee0ff,0xff5a6a],GOLD=0xf4c96b,ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦'};
 const colorOf=f=>TEAM_COLORS[teamOf(f)]??0xffffff;
@@ -34,6 +35,9 @@ export async function createPixiArena(frame,images,{onFail}={}){
  const fxSeen=new Map(),fxPending=[],fxLive=[],fxFrames=new Map();let fxBattle=null;
  const fxTex=(name,frame)=>{const key=name+':'+frame;let t=fxFrames.get(key);if(!t){const base=art[name],size=base.width/FX_FRAMES;t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,0,size,base.height)});fxFrames.set(key,t);}return t;};
  const sheetTex=(name,{row,frame})=>{const id=`${name}:${row}:${frame}`;let t=sheetFrames.get(id);if(!t){const base=art[name],size=base.width/SHEET_COLUMNS,y=SHEET_ROWS.findIndex(([r])=>r===row);t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,y*size,size,size)});sheetFrames.set(id,t);}return t;};
+ // Core siege creatures and summons: frames cut the same way (rows from CREATURE_SHEETS), and a memo per creature.
+ const creatureFrames=new Map(),creatureMemo=new WeakMap(),memoFor=o=>creatureMemo.get(o)??creatureMemo.set(o,{}).get(o);
+ const creatureTex=(name,{row,frame})=>{const id=`${name}:${row}:${frame}`;let t=creatureFrames.get(id);if(!t){const base=art[name],size=base.width/creatureColumns(name),y=CREATURE_SHEETS[name].rows.findIndex(([r])=>r===row);t=new PIXI.Texture({source:base.source,frame:new PIXI.Rectangle(frame*size,y*size,size,size)});creatureFrames.set(id,t);}return t;};
  for(const [name,url]of Object.entries(spriteUrls(SPRITE_MANIFEST,import.meta.url))){const img=new Image();img.decoding='async';img.onload=()=>{art[name]=PIXI.Texture.from(img);artCount++;};img.onerror=()=>console.warn('Sprite failed to load: '+name);img.src=url;}
  // Scene graph: world (camera) > ground, terrain, zones, objectives, trails, effects, projectiles, fighters, particles, overlay.
  const world=new PIXI.Container();app.stage.addChild(world);
@@ -43,6 +47,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
  ground.addChild(groundG);zones.addChild(zoneG);objectives.addChild(objG);trails.addChild(trailG,lineG);overlay.addChild(weatherG);
  const objGlow=pool(objectives,()=>{const s=new PIXI.Sprite(glowTex);s.anchor.set(.5);s.blendMode='add';return s;});
  const objArt=pool(objectives,()=>{const s=new PIXI.Sprite();s.anchor.set(.5);return s;});
+ const creatureArt=pool(objectives,()=>{const s=new PIXI.Sprite();s.anchor.set(.5);return s;});
  const sprites=pool(effects,()=>{const s=new PIXI.Sprite();s.anchor.set(.5);return s;});
  const shots=pool(projectiles,()=>{const s=new PIXI.Sprite();s.anchor.set(.5);return s;});
  const labels=pool(overlay,()=>new PIXI.Text({text:'',anchor:.5,resolution:2,style:{fontFamily:'Chakra Petch, system-ui, sans-serif',fontSize:20,fontWeight:'700',fill:0xffffff,stroke:{color:0x05070d,width:4}}}));
@@ -117,24 +122,30 @@ export async function createPixiArena(frame,images,{onFail}={}){
    for(const f of b.fighters){if(f.isObjective)continue;if(f.illusionTime>0&&f.decoy?.hp>0)zoneG.circle(f.decoy.x,f.decoy.y,9).fill({color:colorOf(f),alpha:.5});if(f.portalTime>0&&f.gates)for(const gate of f.gates)sheetSprite('effects',15,gate.x,gate.y,30);
     if(f.soul>0){const owner=b.fighters[f.soulOwner];if(owner)zoneG.moveTo(owner.x,owner.y).lineTo(f.x,f.y).stroke({width:1,color:0x9871c5,alpha:.9});}
     if(f.flight>0||f.foreseen>0||f.wardHits>0)sheetSprite('effects',f.flight>0?7:f.foreseen>0?10:14,f.x,f.y,30,0,.45);}
-   for(const s of b.summons??[])sheetSprite('effects',s.type==='spirit'?4:7,s.x,s.y,s.type==='spirit'?13:16);
+   const summonArt=s=>s.type==='spirit'?'creature-spirit':'creature-beast';
+   for(const s of b.summons??[])if(!art[summonArt(s)])sheetSprite('effects',s.type==='spirit'?4:7,s.x,s.y,s.type==='spirit'?13:16);
    for(const w of b.wisps??[])if(w.hp>0)zoneG.circle(w.x,w.y,4).fill({color:0xd4e4c5});
    for(const food of b.food??[])if(food.ready<=b.time)zoneG.rect(food.x-4,food.y-4,8,8).stroke({width:1,color:0x9cc578});
    if(b.relic?.active){sheetSprite('effects',4,b.relic.x,b.relic.y,28,0,.5);zoneG.circle(b.relic.x,b.relic.y,b.relic.radius).stroke({width:1,color:0xad86d5,alpha:.3});}
    for(const f of b.fighters)if(!f.isObjective&&f.shield>0)sheetSprite('effects',14,f.x,f.y,33,0,(f.hp>0?.7:.25));
    // Objectives: Cores, the Titan and Forgefire auras.
-   objG.clear();objGlow.begin();objArt.begin();labels.begin();
+   objG.clear();objGlow.begin();objArt.begin();creatureArt.begin();labels.begin();
    const glowAt=(x,y,size,color,alpha)=>{const s=objGlow.get();s.x=x;s.y=y;s.width=s.height=size;s.tint=color;s.alpha=alpha;};
    // Screen-up in field units: -y in landscape, +x in portrait. Upright art turns with the portrait view.
    const up=(x,y,d)=>view.portrait?[x+d,y]:[x,y-d],turn=view.portrait?Math.PI/2:0;
    const artAt=(name,x,y,size,{alpha=1,rotation=0,add=false,tint=0xffffff}={})=>{const tex=art[name];if(!tex)return false;const s=objArt.get();s.texture=tex;s.x=x;s.y=y;s.width=s.height=size;s.alpha=alpha;s.rotation=rotation;s.blendMode=add?'add':'normal';s.tint=tint;return true;};
+   // Creature sheets face right and mirror to face left on screen; the creature's body sits `lift` above (x, y) on
+   // screen (a standing creature's feet are SHEET_FEET above the cell's bottom, a floater is centred).
+   const creatureAt=(name,cell,x,y,size,lift,{alpha=1,tint=0xffffff}={})=>{const sheet=CREATURE_SHEETS[name],s=creatureArt.get(),body=sheet.centered?0:(SHEET_FRAME/2-SHEET_FEET-sheet.standing/2)/SHEET_FRAME*size,left=view.portrait?Math.sin(cell.dir)<0:Math.cos(cell.dir)<0;
+    s.texture=creatureTex(name,cell);[s.x,s.y]=up(x,y,lift+body);s.width=s.height=size;s.scale.x=Math.abs(s.scale.x)*(left?-1:1);s.rotation=turn;s.alpha=alpha;s.tint=tint;s.blendMode='normal';};
+   for(const s of b.summons??[]){const name=summonArt(s);if(!art[name])continue;const memo=memoFor(s);creatureAt(name,creatureFrame(CREATURE_SHEETS[name],summonState(b,s,memo),memo,clock),s.x,s.y,54,s.type==='spirit'?8:3);}
    for(const c of b.cores??[]){const color=TEAM_COLORS[c.team],pct=Math.max(0,c.hp/c.maxHp),pulse=.85+.15*Math.sin(clock*3+c.team);
     objG.circle(c.x,c.y,b.objectiveRules?.guardRadius??160).fill({color,alpha:.08});glowAt(c.x,c.y,150*pulse,color,c.hitFlash>0?.9:.55);
     if(!artAt(coreArt(c),c.x,c.y,92,{rotation:turn,tint:c.hitFlash>0?0xffd0d0:0xffffff})){
      objG.poly([c.x,c.y-30,c.x+20,c.y,c.x,c.y+30,c.x-20,c.y]).fill({color}).stroke({width:2,color:0xffffff});if(c.hitFlash>0)objG.poly([c.x,c.y-30,c.x+20,c.y,c.x,c.y+30,c.x-20,c.y]).fill({color:0xffffff,alpha:.4});
      objG.poly([c.x,c.y-30,c.x+8,c.y-6,c.x,c.y+4,c.x-6,c.y-8]).fill({color:0xffffff,alpha:.45});}
     objG.moveTo(c.x,c.y-48).arc(c.x,c.y,48,-Math.PI/2,-Math.PI/2+Math.PI*2*pct).stroke({width:5,color,alpha:.95});}
-   const t=b.titan,pit=b.pit?.()??{x:640,y:300};if(t){if(!art['pit-rim'])objG.circle(pit.x,pit.y,110).stroke({width:2,color:GOLD,alpha:.3});
+   const t=b.titan,pit=b.pit?.()??{x:640,y:300};if(t){const titanCell=art['creature-titan']?creatureFrame(CREATURE_SHEETS['creature-titan'],titanState(b),memoFor(t),clock):null;if(!art['pit-rim'])objG.circle(pit.x,pit.y,110).stroke({width:2,color:GOLD,alpha:.3});
     if(t.hp>0){lastTitan={x:t.x,y:t.y,radius:t.radius};
      if(b.slamAt!=null){const k=1-Math.max(0,(b.slamAt-b.time)/(b.titanRules?.telegraph??.8));objG.circle(t.x,t.y,(b.titanRules?.range??90)).fill({color:0xff784a,alpha:.12+.25*k}).circle(t.x,t.y,(b.titanRules?.range??90)*k).stroke({width:3,color:0xff784a,alpha:.8});}
      // Fissure: the telegraphed line fills from the Titan outward until it splits.
@@ -142,17 +153,18 @@ export async function createPixiArena(frame,images,{onFail}={}){
       objG.poly([z.x+nx,z.y+ny,ex+nx,ey+ny,ex-nx,ey-ny,z.x-nx,z.y-ny]).fill({color:0xff3b2f,alpha:.1+.25*k}).stroke({width:2,color:0xff784a,alpha:.8});objG.moveTo(z.x,z.y).lineTo(z.x+ux*z.length*k,z.y+uy*z.length*k).stroke({width:5,color:0xffc45c,alpha:.9});}
      glowAt(t.x,t.y,t.radius*5,0xff9a3c,.45+.15*Math.sin(clock*4));
      for(let i=0;i<6;i++){const a=clock*.6+i*Math.PI/3;objG.moveTo(t.x+Math.cos(a)*(t.radius+6),t.y+Math.sin(a)*(t.radius+6)).arc(t.x,t.y,t.radius+6,a,a+.6);}objG.stroke({width:2,color:0xffc45c,alpha:.7});
-     const titanArt=!!art['titan-idle'],[ax,ay]=up(t.x,t.y,t.radius*.3);
-     if(!artAt(b.slamAt!=null&&art['titan-slam']?'titan-slam':'titan-idle',ax,ay,t.radius*3.4,{rotation:turn,tint:t.hitFlash>0?0xffd0b0:0xffffff})){
-      objG.circle(t.x,t.y,t.radius).fill({color:0x806047}).stroke({width:3,color:GOLD});objG.circle(t.x,t.y+4,t.radius*.38).fill({color:0xffb347,alpha:.85});if(t.hitFlash>0)objG.circle(t.x,t.y,t.radius).fill({color:0xffffff,alpha:.3});}
+     const titanArt=!!titanCell;if(titanCell)creatureAt('creature-titan',titanCell,t.x,t.y,t.radius*3.6,t.radius*.3,{tint:t.hitFlash>0?0xffd0b0:0xffffff});
+     else{objG.circle(t.x,t.y,t.radius).fill({color:0x806047}).stroke({width:3,color:GOLD});objG.circle(t.x,t.y+4,t.radius*.38).fill({color:0xffb347,alpha:.85});if(t.hitFlash>0)objG.circle(t.x,t.y,t.radius).fill({color:0xffffff,alpha:.3});}
      // In portrait the screen's up is the field's +x, so the bar and label sit on that side to read upright.
      // The sprite stands taller than the drawn body, so its bar and label sit higher.
      const tp=Math.max(0,t.hp/t.maxHp),barUp=titanArt?t.radius*2+6:t.radius+12;if(view.portrait)objG.rect(t.x+barUp,t.y-35,6,70).fill({color:0x171621}).rect(t.x+barUp,t.y-35,6,70*tp).fill({color:GOLD});else objG.rect(t.x-35,t.y-barUp-6,70,6).fill({color:0x171621}).rect(t.x-35,t.y-barUp-6,70*tp,6).fill({color:GOLD});
      const label=labels.get();setLabel(label,'FORGE TITAN',GOLD);[label.x,label.y]=up(t.x,t.y,barUp+22);upright(label);label.scale.set(label.scale.x*.55);}
-    else{const death=b.titanDeaths?.at(-1),since=death?b.time-death.time:Infinity;if(lastTitan&&since<3){const [ax,ay]=up(lastTitan.x,lastTitan.y,lastTitan.radius*.3);artAt('titan-down',ax,ay,lastTitan.radius*3.4,{rotation:turn,alpha:1-since/3});}}}
-   // Ember Wisps (level-combat.js): a flickering ember with a health ring while up, a faint mark while away.
-   for(const c of b.camps??[]){if(c.hp>0){glowAt(c.x,c.y,c.radius*3.2,0xff7a2a,.4+.15*Math.sin(clock*5+c.index));objG.circle(c.x,c.y,c.radius*.8).fill({color:c.hitFlash>0?0xffffff:0xff8a3d,alpha:.9}).stroke({width:2,color:0xffd27a});objG.moveTo(c.x,c.y-c.radius-6).arc(c.x,c.y,c.radius+6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,c.hp/c.maxHp)).stroke({width:3,color:0xffc45c,alpha:.9});}
-    else objG.circle(c.x,c.y,c.radius*.6).stroke({width:2,color:0xff8a3d,alpha:.25});}
+    // A fallen Titan lies where it fell for 3 seconds, fading after its fall.
+    else if(titanCell&&lastTitan&&titanCell.since<3)creatureAt('creature-titan',titanCell,lastTitan.x,lastTitan.y,lastTitan.radius*3.6,lastTitan.radius*.3,{alpha:Math.min(1,(3-titanCell.since)/2.4)});}
+   // Ember Wisps (level-combat.js): a flickering ember (or its sheet) with a health ring while up, a faint mark while away.
+   for(const c of b.camps??[]){const wisp=art['creature-wisp']?creatureFrame(CREATURE_SHEETS['creature-wisp'],campState(b,c,CAMP_RULES),memoFor(c),clock):null;
+    if(c.hp>0){glowAt(c.x,c.y,c.radius*3.2,0xff7a2a,.4+.15*Math.sin(clock*5+c.index));if(wisp)creatureAt('creature-wisp',wisp,c.x,c.y,c.radius*4.2,c.radius*.25,{tint:c.hitFlash>0?0xffe0c0:0xffffff});else objG.circle(c.x,c.y,c.radius*.8).fill({color:c.hitFlash>0?0xffffff:0xff8a3d,alpha:.9}).stroke({width:2,color:0xffd27a});objG.moveTo(c.x,c.y-c.radius-6).arc(c.x,c.y,c.radius+6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(0,c.hp/c.maxHp)).stroke({width:3,color:0xffc45c,alpha:.9});}
+    else{if(wisp&&wisp.since<.6)creatureAt('creature-wisp',wisp,c.x,c.y,c.radius*4.2,c.radius*.25);objG.circle(c.x,c.y,c.radius*.6).stroke({width:2,color:0xff8a3d,alpha:.25});}}
    // Trails, weapon swings and effect sprites.
    trailG.clear();lineG.clear();
    for(const f of b.fighters)for(const p of f.trail??[])trailG.circle(p.x,p.y,7).fill({color:colorOf(f),alpha:p.life/.16*.16});
@@ -186,7 +198,7 @@ export async function createPixiArena(frame,images,{onFail}={}){
     if(ent)fxLive.push({id:p.id,name:p.name,ent,start:b.time,size:p.on==='area'?200:Math.max(56,(ent.radius||9)*7)});}
    for(let i=fxLive.length-1;i>=0;i--){const e=fxLive[i],frame=fxFrame(b.time-e.start,FX_FRAMES);if(frame==null){fxLive.splice(i,1);continue;}
     const s=objArt.get();s.texture=fxTex(e.name,frame);s.x=e.ent.x;s.y=e.ent.y;s.width=s.height=e.size;s.alpha=1;s.rotation=0;s.blendMode='normal';s.tint=0xffffff;}
-   objGlow.end();objArt.end();labels.end();
+   objGlow.end();objArt.end();creatureArt.end();labels.end();
    // Weather.
    weatherG.clear();const env=b.environment??{};if(['rain','storm'].includes(env.weather)){for(let i=0;i<Math.round(40*W*H/360000);i++){const x=(i*137+b.time*25)%W,y=(i*73+b.time*95)%H;weatherG.moveTo(x,y).lineTo(x-3,y+9);}weatherG.stroke({width:1,color:0xb9d5e5,alpha:.16});}if(env.weather==='frost')weatherG.rect(13,13,W-26,H-26).stroke({width:1,color:0xb0d5e9,alpha:.15});
    app.render();
