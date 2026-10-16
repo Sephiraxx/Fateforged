@@ -15,13 +15,14 @@ import {mountSpritePreview} from './sprite-preview.js';
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦',support:'♪',bruiser:'⚔'};
 // Cast fighters show their cast role (Support, Bruiser); the engine role still drives the team's composition.
 const roleText=f=>`${ROLE_GLYPH[f.castRole??f.role]} ${ROLE_LABELS[f.castRole??f.role]}`;
+const ROLE_PLURAL={tank:'tanks',healer:'healers',controller:'controllers',damage:'damage dealers',support:'supports',bruiser:'bruisers'};
 const money=n=>`${n.toFixed(1)}M`;
 const TACTIC_TEXT={balanced:['Balanced','Default target choice.'],'protect-carry':['Protect the carry','Peel harder for teammates under attack.'],'focus-healer':['Focus their healer','Prioritise enemy healers.'],aggressive:['All-out aggression','Chase wounded targets across the arena.'],defensive:['Hold the line','Fight near your own side instead of chasing.']};
 const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f.summary.generationVersion??3,wheelRarity:f.summary.wheelRarity}});
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,balanceOpen=false,historyOpen=false,unsavedGame=null;
+ let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,balanceOpen=false,historyOpen=false,hallOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const championSeasonsOpen=new Set();
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
@@ -116,7 +117,7 @@ export function mountTeamLeague(host,hooks){
   const f=snapshot??world?.fighters[id];if(!f)return;const t=f.traits,stats=snapshot?f.seasonStats:world.stats?.[id],ability=x=>x&&!/^no (second )?(power|ability)$/i.test(x)?x:null;dialog.replaceChildren();
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
   const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));
-  if(!title&&f.careerStart!==undefined){const n=LEAGUE.careerSeason(world,f);info.append(el('p',`Career season ${n} of ${LEAGUE.CAREER.retireAfter}${n>=LEAGUE.CAREER.retireAfter?' · retires after this season':n>=LEAGUE.CAREER.declineFrom?' · declining with age':''}`,'muted fighter-career'));}
+  if(!title&&f.careerStart!==undefined){const n=LEAGUE.careerSeason(world,f);info.append(el('p',`Career season ${n} of ${LEAGUE.CAREER.retireAfter}${n>LEAGUE.CAREER.retireAfter?' · earned another season':n===LEAGUE.CAREER.retireAfter?' · retires after this season unless MVP or in top form':n>=LEAGUE.CAREER.declineFrom?' · declining with age':''}`,'muted fighter-career'));}
   const sprite=mountSpritePreview(f),identity=el('div','','fighter-dialog-id');identity.append(...(sprite?[sprite]:[]),info);head.append(identity,close);
   const traits=el('dl','','fighter-traits');
   for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
@@ -126,8 +127,10 @@ export function mountTeamLeague(host,hooks){
   const season=el('div','','fighter-season');
   if(stats?.games){for(const [label,value]of [['Games',stats.games],['Damage',stats.damage],['Healing',stats.healing],['KOs',stats.kills],['Downs',stats.deaths],['Control',`${stats.ccSeconds}s`],['Impact / game',Math.round(LEAGUE.impact(stats)/stats.games)]]){const cell=el('div','','offseason-fact');cell.append(el('strong',String(value)),el('span',label));season.append(cell);}}
   else season.append(el('p',`No games recorded in season ${title?.season??world.season}.`,'muted'));
+  const c=!title&&f.career?.games?f.career:null,career=el('div','','fighter-season');
+  if(c)for(const [label,value]of [['Seasons',c.seasons],['Games',c.games],['Win %',Math.round(c.wins/c.games*100)],['Damage',c.damage],['Healing',c.healing],['KOs',c.kills],['Control',`${Math.round(c.cc)}s`],['Titles',c.titles],['MVPs',c.mvps]]){const cell=el('div','','offseason-fact');cell.append(el('strong',String(value)),el('span',label));career.append(cell);}
   const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,role:f.role,traits:f.traits,summary:f.summary},'overview');};
-  dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${title?.season??world.season}`),season,breakdown);dialog.showModal();
+  dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${title?.season??world.season}`),season,...(c?[el('h4','Career'),career]:[]),breakdown);dialog.showModal();
  }
  function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
@@ -284,7 +287,9 @@ export function mountTeamLeague(host,hooks){
   const facts=el('div','','offseason-facts');
   for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],...(o.veterans?.length?[[o.veterans.length,'veterans retired']]:[]),[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
   box.append(facts);
-  if(o.veterans?.length){const list=el('p',`Retired after ${LEAGUE.CAREER.retireAfter} seasons: ${o.veterans.map(v=>`${v.name}${v.team?` (${name(v.team)})`:''}`).join(', ')}.`,'muted');box.append(list);}
+  if(o.veterans?.length)box.append(el('p',`Retired after ${LEAGUE.CAREER.retireAfter}+ seasons: ${o.veterans.map(v=>`${v.name}${v.team?` (${name(v.team)})`:''}`).join(', ')}.`,'muted'));
+  if(o.extended?.length)box.append(el('p',`Earned another season: ${o.extended.map(v=>`${v.name} (${v.reason==='mvp'?'season MVP':'top form'})`).join(', ')}.`,'muted'));
+  if(o.inducted?.length)box.append(el('p',`Into the Hall of Fame: ${o.inducted.map(v=>v.name).join(', ')}.`,'muted'));
   // The season's meta: which lineups won, which role made the difference, and which coaches changed course.
   if(o.meta?.games){
    const meta=el('div','','offseason-meta'),role={tank:'tanks',healer:'healers',controller:'controllers',damage:'damage dealers'};meta.append(el('h4','Season meta'));
@@ -358,6 +363,17 @@ export function mountTeamLeague(host,hooks){
   const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
   const side=el('div','','team-league-side');side.append(coachControl(),rulesControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);if(!wins.length)champions.append(el('p','No champions yet.','muted'));for(const title of wins){const season=el('details','','champion-season');season.open=championSeasonsOpen.has(title.season);season.ontoggle=()=>{season.open?championSeasonsOpen.add(title.season):championSeasonsOpen.delete(title.season);};season.append(el('summary',`Season ${title.season} \u00b7 ${title.championName??name(title.champion)}`));if(title.roster?.length){const rows=[...title.roster].sort((a,b)=>Number(b.starter)-Number(a.starter)||b.ovr-a.ovr).map(f=>{const row=el('tr');row.append(cell(fighterLink(f,title)),el('td',ROLE_LABELS[f.role]),el('td',String(f.ovr)),el('td',f.starter?'Final lineup':'Bench'));return row;});season.append(table(['Fighter','Role','OVR','Lineup'],rows,'Championship roster'));}else season.append(el('p','The winning roster was not recorded for this older season.','muted'));champions.append(season);} body.append(champions);
+  // Hall of Fame (TEAM-BATTLES.md, "Careers"): retired MVPs and role standouts with their lifetime numbers.
+  const hall=el('details','','module hall-of-fame');hall.open=hallOpen;hall.ontoggle=()=>{hallOpen=hall.open;};hall.append(el('summary',`Hall of Fame${world.hallOfFame?.length?` (${world.hallOfFame.length})`:''}`));
+  if(!world.hallOfFame?.length)hall.append(el('p','No legends yet. MVPs and standout veterans join when they retire.','muted'));
+  for(const e of world.hallOfFame??[]){
+   const card=el('article','','hall-card'),head=el('div','','hall-card-head');head.append(el('h4',e.name),el('span',[e.mvps?`${'★'.repeat(Math.min(5,e.mvps))} ${e.mvps} MVP`:'',e.titles?`${e.titles} title${e.titles>1?'s':''}`:''].filter(Boolean).join(' · '),'hall-honours'));
+   card.append(head,el('p',`${e.class} (${e.subclass}) · ${ROLE_LABELS[e.role]??e.role} · ${e.debut!=null?`seasons ${Math.max(1,e.debut)}–${e.retired}`:`retired season ${e.retired}`} · ${e.teams.join(', ')||'no team'}`,'muted'));
+   const facts=el('div','','offseason-facts');for(const [label,value]of [['Games',e.stats.games],['Win %',Math.round(e.stats.wins/Math.max(1,e.stats.games)*100)],['Damage',e.stats.damage],['Healing',e.stats.healing],['KOs',e.stats.kills],['Control',`${e.stats.cc}s`]]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}card.append(facts);
+   if(e.excelled.length){const chips=el('div','','hall-excelled');chips.append(el('span','Excelled at','eyebrow'));for(const x of e.excelled.slice(0,3))chips.append(el('span',`${x.label} ${x.perGame}/game · top ${x.top}% of ${ROLE_PLURAL[e.role]??e.role}`,'hall-chip'));card.append(chips);}
+   hall.append(card);
+  }
+  body.append(hall);
   // Balance report (TEAM-BATTLES.md, "Season log and balance report"): win rates over every logged season, and a
   // plain-text copy to share.
   const balance=el('details','','module balance-report');balance.open=balanceOpen;balance.ontoggle=()=>{balanceOpen=balance.open;};balance.append(el('summary','Balance report'));const report=LEAGUE.balanceReport(world);

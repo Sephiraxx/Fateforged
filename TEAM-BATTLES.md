@@ -456,6 +456,17 @@ Fighters age, so a league turns over its cast every few seasons (`team-league.js
 - **Career seasons** count every league season since a fighter's debut, on any team and through trades. The fighter details dialog shows "Career season N of 10".
 - **Decline:** every offseason that starts a fighter's 7th or later season costs 6% of their strength, speed, durability and magic. IQ stays. Combat scales with the square root of each stat, so every decline costs up to 3% of health, damage and speed, and a 10th-season fighter is roughly 10% weaker than in their prime. Their OVR drops by the rating change (at least 1), and their salary follows.
 - **Retirement:** after their 10th season a fighter retires and leaves their roster. The offseason report lists them, and the rookie class grows by one for each, so every roster can refill in the draft.
+- **Earning another season:** a veteran past their 10th season stays one more season if either holds (`earnedExtension`), checked again every offseason:
+  - they were this season's MVP;
+  - they were in top form, with impact per game at least one standard deviation above their role (`seasonPerformance`, the same measure the rating update uses) over at least half the busiest fighter's games.
+  
+  They keep declining, so few last long. The offseason report lists who stayed and why, and the fighter dialog shows "earned another season". In a 12-season, 8-team test, 5 of 35 veterans earned at least one more season.
+- **Lifetime stats** (`fighter.career`): each offseason adds the season's games, wins, damage, healing, KOs, downs and control seconds, plus titles, MVPs, every team played for and the best season by impact per game. The fighter dialog shows a Career row. Older leagues rebuild these totals on load from the season log and the title history.
+- **Hall of Fame** (`w.hallOfFame`, newest first, at most 200): when any fighter retires, after 10 seasons or as an unsigned free agent, they are inducted if either holds:
+  - they won an MVP;
+  - they played 40 or more career games and stood out in their cast role. One per-game number (damage, healing, KOs, control seconds or overall impact) must be at least 1.5 standard deviations above the league's other fighters with 20 or more career games in that role.
+  
+  Each entry keeps the legend's class and subclass, role, seasons, teams, titles, MVPs and lifetime numbers, and the categories they excelled at (z ≥ 1), shown as "top N% of their role". The league screen has a **Hall of Fame** section next to Past champions.
 - **Founding pools** are mixed ages: each fighter starts in a seeded career season from 1 to 6, so the first generation retires over several years instead of all at once.
 - **Older leagues** give each fighter, on load, the seasons they have played, capped at a seeded 1 to 8. Long-running leagues therefore see their veterans retire over the next few offseasons, not all in one.
 

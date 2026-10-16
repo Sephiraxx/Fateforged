@@ -380,9 +380,50 @@ export const FREE_AGENT_SEASONS=2;
 // A career season counts every league season since the fighter's debut, on any team. Each offseason that starts a
 // 7th or later season costs 6% of strength, speed, durability and magic (IQ stays), and the OVR drops with them.
 // After the 10th season the fighter retires; the rookie class grows to replace them.
-export const CAREER=Object.freeze({declineFrom:7,retireAfter:10,decline:.06,stats:Object.freeze([0,1,2,4]),founders:6,migrated:8});
+export const CAREER=Object.freeze({declineFrom:7,retireAfter:10,decline:.06,stats:Object.freeze([0,1,2,4]),founders:6,migrated:8,extendForm:1,extendShare:.5});
 export const careerSeason=(w,f)=>w.season-(f.careerStart??w.season)+1;
-export const retiringVeterans=w=>Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter);
+// A veteran past their 10th season stays one more season if they were this season's MVP, or in top form: impact
+// per game at least one standard deviation above their role, over at least half the busiest fighter's games.
+export function earnedExtension(w,f,form=seasonPerformance(w)){
+ if(careerSeason(w,f)<CAREER.retireAfter)return null;const title=w.titles?.at(-1);
+ if(title?.season===w.season&&title.mvp===f.id)return 'mvp';
+ const p=form.get(f.id);return p&&p.z>=CAREER.extendForm&&p.share>=CAREER.extendShare?'form':null;
+}
+export const retiringVeterans=w=>{const form=seasonPerformance(w);return Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter&&!earnedExtension(w,f,form));};
+// ---------- Lifetime stats and the Hall of Fame ----------
+const newCareer=()=>({seasons:0,games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,cc:0,titles:0,mvps:0,teams:[],best:null});
+export const lifetimeImpact=c=>c.damage+c.healing*1.1+c.kills*120+c.cc*30;
+function addSeason(c,s,season,team){
+ if(!s?.games)return;const r={cc:Math.round(s.cc??s.ccSeconds??0)};for(const k of ['games','wins','damage','healing','kills','deaths'])r[k]=Math.round(s[k]??0);
+ c.seasons++;for(const k in r)c[k]+=r[k];if(team&&!c.teams.includes(team))c.teams.push(team);
+ const per=Math.round(lifetimeImpact(r)/r.games);if(!c.best||per>c.best.impact)c.best={season,impact:per};
+}
+function addTitle(c,title,id){if(title.roster?.some(r=>r.id===id))c.titles++;if(title.mvp===id)c.mvps++;}
+// Each offseason adds the season to every fighter's lifetime totals, before the stats reset.
+function recordCareers(w){
+ const title=w.titles?.at(-1)?.season===w.season?w.titles.at(-1):null;
+ for(const f of Object.values(w.fighters)){f.career??=newCareer();addSeason(f.career,w.stats?.[f.id],w.season,f.team);if(title)addTitle(f.career,title,f.id);}
+}
+// Old saves rebuild lifetime totals from the season log and the title history.
+function backfillCareer(w,f){
+ const c=newCareer();for(const entry of w.seasonLog??[]){const s=entry.fighters?.find(x=>x.id===f.id);if(s)addSeason(c,s,entry.season,s.team);}
+ for(const title of w.titles??[])if(title.season<w.season||w.phase==='offseason')addTitle(c,title,f.id);
+ return c;
+}
+const HALL_STATS=Object.freeze([['damage','Damage'],['healing','Healing'],['kills','KOs'],['cc','Control seconds'],['impact','Impact']]);
+export const HALL_OF_FAME_LIMIT=200,HALL_MIN_GAMES=40,HALL_PEER_GAMES=20,HALL_STANDOUT=1.5;
+const perGame=(c,key)=>(key==='impact'?lifetimeImpact(c):c[key])/c.games;
+const careerRole=f=>f.castRole??f.role;
+// Role peers: every fighter in the league with 20 or more career games, per cast role.
+function careerPeers(w){const peers={};for(const f of Object.values(w.fighters))if(f.career?.games>=HALL_PEER_GAMES)(peers[careerRole(f)]??=[]).push(f.career);return peers;}
+export function hallEntry(w,f,peers=careerPeers(w)){
+ const c=f.career;if(!c?.games)return null;const role=careerRole(f),group=peers[role]??[];
+ const excelled=group.length>=3?HALL_STATS.map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
+ const reason=c.mvps>0?'mvp':c.games>=HALL_MIN_GAMES&&excelled.some(x=>x.z>=HALL_STANDOUT)?'great':null;if(!reason)return null;
+ return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,best:c.best,
+  stats:{games:c.games,wins:c.wins,damage:c.damage,healing:c.healing,kills:c.kills,deaths:c.deaths,cc:Math.round(c.cc)},excelled,reason};
+}
+function induct(w,retirees,peers){const entries=retirees.map(f=>hallEntry(w,f,peers)).filter(Boolean);if(entries.length)w.hallOfFame=[...entries,...(w.hallOfFame??[])].slice(0,HALL_OF_FAME_LIMIT);return entries;}
 const careerRoll=(seed,id,n)=>{let h=(seed^0x51ed270b)>>>0;for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return Math.floor(rng(h>>>0)()*n);};
 // A founding pool is a mix of ages (career seasons 1–6 in season 1), so the first generation does not retire at once.
 const founderStart=(seed,id)=>1-careerRoll(seed,id,CAREER.founders);
@@ -390,12 +431,14 @@ const founderStart=(seed,id)=>1-careerRoll(seed,id,CAREER.founders);
 // retire over several offseasons instead of all together.
 export function prepareCareers(w){
  if(!w?.fighters||w.pendingSeries)return w;
- for(const f of Object.values(w.fighters)){if(f.careerStart!==undefined)continue;const played=Math.max(1,w.season-(f.rookie??1)+1);f.careerStart=w.season-Math.min(played,1+careerRoll(w.seed,f.id,CAREER.migrated))+1;}
+ for(const f of Object.values(w.fighters)){f.career??=backfillCareer(w,f);if(f.careerStart!==undefined)continue;const played=Math.max(1,w.season-(f.rookie??1)+1);f.careerStart=w.season-Math.min(played,1+careerRoll(w.seed,f.id,CAREER.migrated))+1;}
  return w;
 }
-function ageFighters(w){
- const retired=[],declined=[],mode=w.settings.battleMode;
- for(const f of retiringVeterans(w)){
+function ageFighters(w,peers){
+ const retired=[],declined=[],mode=w.settings.battleMode,form=seasonPerformance(w),leaving=retiringVeterans(w);
+ const extended=Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter&&!leaving.includes(f)).map(f=>({id:f.id,name:f.name,team:f.team,seasons:careerSeason(w,f),reason:earnedExtension(w,f,form)}));
+ const inducted=induct(w,leaving,peers);
+ for(const f of leaving){
   const team=f.team&&teamById(w,f.team);if(team){team.roster=team.roster.filter(id=>id!==f.id);team.lineup=team.lineup.filter(id=>id!==f.id);}
   retired.push({id:f.id,name:f.name,team:f.team,seasons:careerSeason(w,f)});delete w.fighters[f.id];
  }
@@ -405,7 +448,7 @@ function ageFighters(w){
   f.summary={...f.summary,stats,total:stats.reduce((a,b)=>a+b,0)};
   const from=f.ovr;f.ovr=Math.max(40,f.ovr-Math.max(1,before-overall(f,f.role,mode)));f.salary=salaryFor(f.ovr);declined.push({id:f.id,from,to:f.ovr});
  }
- return {retired,declined};
+ return {retired,declined,extended,inducted};
 }
 export function teamTactic(w,team){return team.tactic??COACH_TACTICS[team.coach.personality]??'balanced';}
 function userTeam(w){const team=w.settings.userTeam&&teamById(w,w.settings.userTeam);if(!team)throw new Error('Take control of a team first.');return team;}
@@ -431,12 +474,19 @@ export function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROO
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
 // Offseason value updates move a fighter at most ±RATING_CHANGE_CAP OVR.
 export const RATING_CHANGE_CAP=5;
-function updateRatings(w){
- const byRole={};for(const [id,s]of Object.entries(w.stats??{}))if(s.games){const f=w.fighters[id];(byRole[f.role]??=[]).push(impact(s)/s.games);}
+// This season's form per fighter: impact per game as a z-score within their role, and the share of the busiest
+// fighter's games they played (full share at half of it).
+export function seasonPerformance(w){
+ const byRole={};for(const [id,s]of Object.entries(w.stats??{}))if(s.games&&w.fighters[id]){const f=w.fighters[id];(byRole[f.role]??=[]).push(impact(s)/s.games);}
  const spread=Object.fromEntries(Object.entries(byRole).map(([role,list])=>{const mean=list.reduce((a,b)=>a+b,0)/list.length,sd=Math.sqrt(list.reduce((n,x)=>n+(x-mean)**2,0)/list.length)||1;return [role,{mean,sd}];}));
- const changes=[],maxGames=Math.max(1,...Object.values(w.stats??{}).map(s=>s.games||0));
+ const maxGames=Math.max(1,...Object.values(w.stats??{}).map(s=>s.games||0)),out=new Map();
+ for(const f of Object.values(w.fighters)){const s=w.stats?.[f.id];if(!s?.games||!spread[f.role])continue;out.set(f.id,{z:(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd,share:Math.min(1,s.games/(maxGames*.5))});}
+ return out;
+}
+function updateRatings(w){
+ const form=seasonPerformance(w),changes=[],maxGames=Math.max(1,...Object.values(w.stats??{}).map(s=>s.games||0));
  for(const f of Object.values(w.fighters)){
-  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*3)-1,z=s?.games&&spread[f.role]?(impact(s)/s.games-spread[f.role].mean)/spread[f.role].sd:0;
+  const s=w.stats?.[f.id],drift=Math.floor(rng(matchSeed(w,'drift:'+f.id))()*3)-1,z=form.get(f.id)?.z??0;
   // About 2 OVR per standard deviation (at most ±4), scaled down for fighters who played few games; drift −1..+1.
   const share=s?.games?Math.min(1,s.games/(maxGames*.5)):0,performance=Math.max(-4,Math.min(4,Math.round(z*2*share)));
   const delta=Math.max(-RATING_CHANGE_CAP,Math.min(RATING_CHANGE_CAP,performance+(s?.games?drift:Math.min(0,drift))));
@@ -535,10 +585,12 @@ export function startOffseason(w,rookies){
  balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
  w.seasonLog=[...(w.seasonLog??[]),seasonLogEntry(w,history)].slice(-SEASON_LOG_LIMIT);
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
+ recordCareers(w);const peers=careerPeers(w);
  const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
- const aging=ageFighters(w);
+ const aging=ageFighters(w,peers);
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
+ const inducted=[...aging.inducted,...induct(w,retired.map(id=>w.fighters[id]),peers)];
  for(const id of retired)delete w.fighters[id];
  for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,w.settings.battleMode),ratingVersion:CAST_RATING_VERSION,team:null,rookie:w.season+1,careerStart:w.season+1,freeAgentSince:w.season};
  // The cap follows the market: the average salary of the best roster-worth of fighters.
@@ -547,7 +599,7 @@ export function startOffseason(w,rookies){
  const fired=[],records=new Map(history.standings.map(r=>[r.id,r]));
  for(const team of w.teams){const r=records.get(team.id);if(isUser(w,team.id)||!r||r.wins/(r.wins+r.losses||1)>.25)continue;const random=rng(matchSeed(w,'coach:'+team.id)),style=Object.keys(PERSONALITIES)[Math.floor(random()*6)],coach={name:`${COACH_FIRST[Math.floor(random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(random()*COACH_LAST.length)]}`,personality:style,hired:w.season+1,comp:coachComp(style,random,meta.edge)};fired.push({team:team.id,from:team.coach.name,to:coach.name});team.coach=coach;delete team.tactic;}
  const releases={};for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
- w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,meta,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,veterans:aging.retired,declined:aging.declined,rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
+ w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,meta,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,veterans:aging.retired,declined:aging.declined,extended:aging.extended,inducted:inducted.map(e=>({id:e.id,name:e.name,reason:e.reason})),rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
  if(!w.settings.userTeam){aiTrades(w);startOffseasonDraft(w);}
  return w;
 }
