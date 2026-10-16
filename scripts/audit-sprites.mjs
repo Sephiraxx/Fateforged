@@ -1,5 +1,5 @@
-// Audits the team cast sheets and spell effects in public/sprites/ before they ship (SPRITE-SHEET-PROMPTS.md,
-// SPELL-FX-PROMPTS.md). node scripts/audit-sprites.mjs [--out <folder>]
+// Audits the team cast sheets and spell effects in public/sprites/ before they ship.
+// node scripts/audit-sprites.mjs [--out <folder>]
 // For every cast-*.webp and fx-*.webp it reports problems a careless generation leaves behind:
 // - wrong size, or a name the game does not know;
 // - empty frames, art touching the cell edges (cut off), or a frame that is mostly opaque (a background left in);

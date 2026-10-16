@@ -57,7 +57,7 @@ const slug=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/
 export const sheetName=(className,subclass)=>`cast-${slug(className)}-${slug(subclass)}`;
 export const SHEET_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.map(s=>sheetName(c.name,s.name))));
 export const fighterSheet=f=>{const t=f.traits;if(!t?.subclass)return null;const name=sheetName(t.class,t.subclass);return SHEET_NAMES.includes(name)?name:null;};
-// Spell effects for the team cast's abilities (SPELL-FX-PROMPTS.md): one 4-frame strip per subclass ability,
+// Spell effects for the team cast's abilities: one 4-frame strip per subclass ability,
 // fx-<subclass>-<ability id>, drawn in that character's colours (so a shared ability such as Taunt shout looks different
 // for each subclass), played where the ability lands when its cast releases. `on` places it: target (the enemy hit),
 // ally (the ally helped), self (the caster) or area (around the caster, larger).

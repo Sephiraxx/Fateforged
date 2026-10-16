@@ -408,10 +408,15 @@ function aiReleases(w,team){
 function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.team=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
 // The season's meta: win rate by starting composition, and for each role whether fielding more of it than the
 // opponent won games. Coaches lean towards what worked, each at their own pace (META_ADAPTATION).
-export function seasonMeta(w){
- const games=[],toCounts=a=>Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]])),byKey=new Map(),more=Object.fromEntries(ROLE_KEYS.map(r=>[r,{wins:0,games:0}])),edge={};
+// Every game of the season with both starting compositions (role counts, ROLE_KEYS order) and the winning side.
+function seasonGames(w){
+ const games=[];
  for(const r of w.results??[])if(r.comps)games.push({comps:r.comps,winner:r.winner===r.home?0:1});
  for(const round of w.playoffs?.rounds??[])for(const s of round.series)if(s.comps)for(const g of s.games??[])games.push({comps:g.comps??s.comps,winner:g.winnerTeam});
+ return games;
+}
+export function seasonMeta(w){
+ const games=seasonGames(w),toCounts=a=>Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]])),byKey=new Map(),more=Object.fromEntries(ROLE_KEYS.map(r=>[r,{wins:0,games:0}])),edge={};
  for(const g of games){
   g.comps.forEach((a,side)=>{const counts=toCounts(a),key=compKey(counts),e=byKey.get(key)??{key,label:compLabel(counts),wins:0,games:0};e.games++;if(g.winner===side)e.wins++;byKey.set(key,e);});
   ROLE_KEYS.forEach((r,i)=>{const d=g.comps[0][i]-g.comps[1][i];if(!d)return;more[r].games++;if(g.winner===(d>0?0:1))more[r].wins++;});
@@ -420,6 +425,42 @@ export function seasonMeta(w){
  const top=[...byKey.values()].filter(e=>e.games>=4).map(e=>({...e,pct:Math.round(e.wins/e.games*1000)/10})).sort((a,b)=>b.pct-a.pct||b.games-a.games||(a.key<b.key?-1:1)).slice(0,3);
  const role=ROLE_KEYS.slice().sort((a,b)=>Math.abs(edge[b])-Math.abs(edge[a]))[0];
  return {games:games.length,top,edge,roleRates:ROLE_KEYS.filter(r=>more[r].games).map(r=>({key:'role:'+r,...more[r],rate:more[r].wins/more[r].games})),shift:edge[role]?{role,winPct:Math.round((edge[role]+.5)*1000)/10,games:more[role].games}:null};
+}
+// Season log (TEAM-BATTLES.md, "Season log and balance report"): each finished season's teams with their rosters,
+// every fighter who played with their results, and every game's compositions. A season's stats and results reset
+// when the next one starts, so this is what balance checks across many seasons read (balanceReport).
+export const SEASON_LOG_LIMIT=40;
+const castLabel=f=>f?.traits?.subclass?`${f.traits.class} (${f.traits.subclass})`:f?.traits?.class??'?';
+export function seasonLogEntry(w,history){
+ const finish=new Map(),record=new Map(history.standings.map(r=>[r.id,r]));
+ for(const round of w.playoffs?.rounds??[])for(const s of round.series)for(const id of [s.home,s.away])finish.set(id,round.key);
+ return {season:w.season,format:w.format,battleMode:w.settings.battleMode,engine:w.teamEngine,
+  teams:w.teams.map(t=>({id:t.id,name:t.name,wins:record.get(t.id)?.wins??0,losses:record.get(t.id)?.losses??0,playoff:finish.get(t.id)??null,champion:t.id===history.champion,roster:t.roster.map(id=>`${castLabel(w.fighters[id])} ${w.fighters[id]?.summary?.tier??''}`.trim())})),
+  fighters:Object.entries(w.stats??{}).filter(([,s])=>s.games).map(([id,s])=>{const f=w.fighters[id]??{};return {id,team:f.team??null,class:f.traits?.class??null,subclass:f.traits?.subclass??null,race:f.traits?.race??null,tier:f.summary?.tier??null,role:f.castRole??f.role??null,games:s.games,wins:s.wins,damage:Math.round(s.damage),healing:Math.round(s.healing),kills:s.kills,deaths:s.deaths,cc:Math.round(s.ccSeconds)};}),
+  games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner])};
+}
+// Win rates over the logged seasons, with Wilson 95% intervals: per subclass, class and role (fighter games), per
+// starting composition (team games, at least 10), and each season's teams.
+function wilson(wins,n){if(!n)return [0,0];const z=1.96,p=wins/n,c=p+z*z/(2*n),m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n)),d=1+z*z/n;return [Math.round((c-m)/d*1000)/10,Math.round((c+m)/d*1000)/10];}
+export function balanceReport(w){
+ const log=w.seasonLog??[],rate=()=>new Map(),add=(m,k,win)=>{const e=m.get(k)??{key:k,games:0,wins:0};e.games++;if(win)e.wins++;m.set(k,e);};
+ const subclass=rate(),cls=rate(),role=rate(),comp=rate();
+ for(const season of log){
+  for(const f of season.fighters){for(const [m,k]of [[subclass,f.subclass?`${f.class} (${f.subclass})`:f.class],[cls,f.class],[role,f.role]]){const e=m.get(k)??{key:k,games:0,wins:0};e.games+=f.games;e.wins+=f.wins;m.set(k,e);}}
+  for(const [a,b,winner]of season.games){add(comp,compKey(Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]]))),winner===0);add(comp,compKey(Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,b[i]]))),winner===1);}
+ }
+ const rows=(m,min=1)=>[...m.values()].filter(e=>e.games>=min).map(e=>({...e,pct:Math.round(e.wins/e.games*1000)/10,ci:wilson(e.wins,e.games)})).sort((a,b)=>b.pct-a.pct||b.games-a.games||(a.key<b.key?-1:1));
+ return {format:w.format,seasons:log.map(s=>s.season),games:log.reduce((n,s)=>n+s.games.length,0),subclass:rows(subclass),class:rows(cls),role:rows(role),comp:rows(comp,10),
+  history:log.map(s=>({season:s.season,battleMode:s.battleMode,teams:[...s.teams].sort((a,b)=>Number(b.champion)-Number(a.champion)||b.wins-a.wins||(a.name<b.name?-1:1))}))};
+}
+// The report as plain text, compact enough to paste into a chat.
+export function balanceReportText(w){
+ const r=balanceReport(w),span=r.seasons.length?`seasons ${r.seasons[0]}–${r.seasons.at(-1)} (${r.seasons.length})`:'no seasons logged yet';
+ const table=(title,list)=>[title,...list.map(e=>`${String(e.key).padEnd(26)} ${String(e.games).padStart(5)}  ${e.pct.toFixed(1).padStart(5)}%  [${e.ci[0].toFixed(1)}–${e.ci[1].toFixed(1)}]`)].join('\n');
+ const modes=[...new Set(r.history.map(h=>h.battleMode))].join('/');
+ return [`Fateforge balance report · ${r.format}v${r.format} · ${modes||'—'} · ${span} · ${r.games} games`,
+  table('Subclasses (fighter games, win %, 95% interval)',r.subclass),table('Classes',r.class),table('Roles',r.role),table('Compositions (team games, at least 10)',r.comp),
+  'Seasons (W-L, playoff finish, roster; * champion)',...r.history.map(h=>`S${h.season} ${h.battleMode}: `+h.teams.map(t=>`${t.champion?'*':''}${t.name} ${t.wins}-${t.losses}${t.playoff?' '+t.playoff:''} [${t.roster.join(', ')}]`).join('; '))].join('\n\n');
 }
 export function adaptCoaches(w,meta){
  const changed=[];
@@ -433,6 +474,7 @@ export function startOffseason(w,rookies){
  const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);if(!castFighters(rookies))throw new Error('Rookies come from the team cast.');
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
  balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
+ w.seasonLog=[...(w.seasonLog??[]),seasonLogEntry(w,history)].slice(-SEASON_LOG_LIMIT);
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
  const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}

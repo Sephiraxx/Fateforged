@@ -4,7 +4,7 @@ Team battles put every fighter on the field at once. This is Phase 1 of the team
 
 ## Current ability rules
 
-Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit. See [ROLLED-SUPPORT-ABILITIES.md](ROLLED-SUPPORT-ABILITIES.md) for the correction and migration details.
+Fighters have two rolled ability slots. Support and control moves are part of those rolls, with class affinities and equipment restrictions. Current engines are duel 13, team 2.5 and Core siege 3.2. Existing extra kits are removed without changing rolled traits; older replays retain their recorded engine and kit.
 
 Team balance is set by hand with the balance lab (see "Hand balance"); leagues no longer audit or patch themselves.
 
@@ -473,6 +473,16 @@ Rating calibration uses separate regularized kit coefficients, with each subject
 
 The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.
 
+## Season log and balance report
+
+A season's per-fighter stats and match results reset when the next season starts. So that balance can be checked across many seasons, each league keeps a **season log** (`w.seasonLog`, the last 40 seasons, written when the offseason starts; `team-league.js` `seasonLogEntry`). Each entry holds:
+
+- every team's record, playoff finish and roster (`Class (Subclass) tier`), with the champion marked;
+- every fighter who played, with class, subclass, race, tier, role, games, wins, damage, healing, KOs, downs and control time;
+- every game's two starting compositions and the winning side.
+
+The league screen's **Balance report** section (`balanceReport`) shows win rates with 95% intervals by subclass and by class over every logged season. **Copy report** copies the full report as plain text (`balanceReportText`), so it can be pasted into a chat for a balance review: subclass, class, role and composition win rates, then each season's teams and rosters. Where the clipboard is unavailable, the text appears selected in a box to copy by hand. Leagues started before the log only log seasons that finish after it. `scripts/check-season-log.mjs` plays two seasons and checks that the log and the report add up.
+
 ## League-specific patches (removed)
 
 Leagues made with the team cast no longer audit or patch themselves (see "Hand balance"). The notes below describe the old per-save system.
@@ -563,7 +573,7 @@ The phase-two AI contests a living Titan when no enemy is very close, allows mob
 - **Measured** (20-game 5v5 sample, per game): damage dealer 592, tank 354 (60%), controller 366 (62%), healer 128 (22%). Matches run longer, so per-game totals rise. Per second of fighting, controllers deal about 70% of their old damage.
 - **Late game:** weaker non-damage roles make even fights last longer. Classic teamfight therefore adds +5% damage per second from 60 s, on top of the existing overtime rules from 75 s. Every evaluation row now times out at 8.3% or less (`validation/team-combat.json`).
 
-**Healer kits.** See `ROLLED-SUPPORT-ABILITIES.md`: about 60% of newly generated healers carry Mending wave, Chain heal, Resurrection, Cleanse or Barrier in their second slot, on top of a sustained heal.
+**Healer kits.** About 60% of newly generated healers carry Mending wave, Chain heal, Resurrection, Cleanse or Barrier in their second slot, on top of a sustained heal.
 
 **Core siege is the default for 3v3/5v5** exhibitions and new leagues; "Classic teamfight" stays selectable.
 - **Switching:** existing leagues switch with *Battle rules* in the league header between seasons (`setBattleMode`, worker action `rules`).
@@ -1022,5 +1032,5 @@ Each subclass ability can have a short effect drawn in that character's colours,
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
 - **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
-- **Making them:** `SPELL-FX-PROMPTS.md` has one complete GPT prompt per effect, each telling GPT to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
+- **Making them:** each effect is a 4-frame GPT strip drawn to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 
