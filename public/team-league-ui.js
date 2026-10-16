@@ -11,6 +11,7 @@ import {createSimulationPool} from './simulation-client.js';
 import {compactTeamResult} from './team-sim-worker.js';
 import {openTraitDetails} from './trait-detail-ui.js';
 import {STAT_KEYS} from './trait-details.js';
+import {mountSpritePreview} from './sprite-preview.js';
 const ROLE_GLYPH={tank:'⛨',healer:'✚',controller:'◎',damage:'✦',support:'♪',bruiser:'⚔'};
 // Cast fighters show their cast role (Support, Bruiser); the engine role still drives the team's composition.
 const roleText=f=>`${ROLE_GLYPH[f.castRole??f.role]} ${ROLE_LABELS[f.castRole??f.role]}`;
@@ -114,7 +115,8 @@ export function mountTeamLeague(host,hooks){
  function showFighter(id,snapshot,title){
   const f=snapshot??world?.fighters[id];if(!f)return;const t=f.traits,stats=snapshot?f.seasonStats:world.stats?.[id],ability=x=>x&&!/^no (second )?(power|ability)$/i.test(x)?x:null;dialog.replaceChildren();
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
-  const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));head.append(info,close);
+  const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));
+  const sprite=mountSpritePreview(f),id=el('div','','fighter-dialog-id');id.append(...(sprite?[sprite]:[]),info);head.append(id,close);
   const traits=el('dl','','fighter-traits');
   for(const [label,value]of [['Race',[t.race,t.subrace].filter(Boolean).join(' · ')],['Class',[t.class,t.subclass].filter(Boolean).join(' · ')],['Weapon',[t.weapon,t.mastery].filter(Boolean).join(' · ')],['Abilities',[ability(t.power),ability(t.power2)].filter(Boolean).join(' · ')||'None'],['Weakness',t.weakness||'None']]){const row=el('div');row.append(el('dt',label),el('dd',value));traits.append(row);}
   const bars=el('div','','fighter-stats'),values=f.summary.stats??[],top=Math.max(800,...values);

@@ -1017,6 +1017,7 @@ Each of the 32 team cast subclasses can have an animated sheet, `public/sprites/
   - an attack or cast follows its windup (frames 1–4), then shows its release (frame 5) until the action ends;
   - walking (moving faster than 8 px/s) and idling loop at 10 and 6 frames a second.
 - **Rendering:** a fighter drawn from a sheet shows no separate weapon prop. Fighters without a sheet keep the archetype art. Sheets may be up to 2 MB.
+- **Fighter details:** tapping a fighter's name in a league shows their sheet next to the name (`sprite-preview.js`, timing tested in `check-sprite-preview`). It loops idle, walk, a cast of each of the subclass's two abilities with its effect, and a hit; with reduced motion it shows the first idle frame.
 - **Making them:** `ART-PROMPTS.md` ("Team cast sheets") has the ChatGPT workflow, one row strip per message with the idle row attached as the reference. It also has the row prompts and a description per subclass. `node scripts/sprite-sheet.mjs <Class> <Subclass> <folder>` turns the five strips into a sheet, using Chromium's canvas: it cuts out each figure by its connected pixels, scales each row so the character stands `SHEET_STANDING` (160 px) tall in every sheet (hit and down rows by area), and puts every frame on a shared feet line, centred on its feet. A row that would not fit its cells shrinks on its own, never the whole sheet, so every character is drawn at one size.
 
 
