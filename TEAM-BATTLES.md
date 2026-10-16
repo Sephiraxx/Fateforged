@@ -233,6 +233,16 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
   - **Fit** (`node scripts/evaluate-cast-values.mjs`, writes `validation/cast-values.json`): 4,000 lab games per mode between random cast teams (3v3 and 5v5) on the Rust core. A ridge logistic regression explains each game's winner from the difference of the two teams' summed fighter values. A value is the rating features above plus one offset per subclass. The fit predicts the winner of 74.5% of Core siege games and 73.4% of teamfight games.
   - **Scale:** values are rescaled so a fresh pool keeps the old spread. A 3v3 pool averages OVR 71.5 ± 10.6 in Core siege, against 73.4 ± 10.6 before.
   - **Effect:** Skald drops from about 84 to 75 and Warden from 81 to 75. Blood Mage rises from 70 to 78, and the controllers from 58–72 to 71–79.
+  - **Lineups:** in 2v2 and 3v3, AI coaches start at most one tank and one healer (`starterTargets`, `bestLineup`). In 3v3 Core siege lab games between random teams, a second tank or healer drops a lineup to 28–37%, against 54% for two damage dealers and a tank.
+  - **Measured** in an 8-season, 32-team 3v3 Core siege AI league on the real engine (same seed, about 2,430 games each):
+
+    | | Old ratings | Cast ratings | Plus lineup rule |
+    | --- | --- | --- | --- |
+    | Spread of subclass win rates (game-weighted SD from 50%) | 7.9 | 7.0 | 6.1 |
+    | Classes, lowest to highest | 34.6–63.9% | 40.0–55.9% | 39.9–55.7% |
+    | Controller games | 237 | 2,009 | 1,910 |
+
+    Controllers and supports now play and win about half their games. Tanks and healers still win about 41% in 3v3 Core siege. In the lab they also trail there (about 47% with random teammates) while sitting near 50% across all sizes and modes, so the rest of that gap belongs to combat tuning for 3v3 Core siege, not to prices.
   - **Existing leagues** re-rate on load (`prepareCastRatings`). Each fighter keeps the progress earned over their old base rating, and a paused series finishes first. Contracts keep their price until the next offseason re-prices them.
   - **Re-fit** after any change to the cast, its abilities or the engines, then copy the `model` into `CAST_RATING_MODEL`. `check-cast-ratings` checks that the two match.
 - **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
