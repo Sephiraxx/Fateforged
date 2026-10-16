@@ -5443,7 +5443,15 @@ function compTargets(comp,n){const sharp=r=>Math.pow(comp?.[r]??1,1.8),total=ROL
  for(const i of raw.map((x,i)=>[x-Math.floor(x),i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[1])){if(left<=0)break;out[ROLE_KEYS[i]]++;left--;}return out;}
 const teamComp=team=>team.coach.comp??COMP_TEMPLATES[team.coach.personality]??COMP_TEMPLATES.balanced;
 const rosterTargets=(w,team)=>compTargets(teamComp(team),w.settings.rosterSize);
-const starterTargets=(w,team)=>compTargets(teamComp(team),FORMATS[w.format].size);
+// In 2v2 and 3v3 a second tank or healer costs a lineup dearly (3v3 Core siege lab, random teams: 1D·2T 37%,
+// 1C·2T 28%, 1C·2H 34%, against 54% for 2D·1T), so coaches start at most one of each there and give the spare slot
+// to whichever of damage and control they like more. Rosters may still carry a spare.
+const SOLO_ROLES=Object.freeze(['tank','healer']);
+const starterTargets=(w,team)=>{
+ const size=FORMATS[w.format].size,comp=teamComp(team),out=compTargets(comp,size);if(size>3)return out;
+ const next=(comp.damage??1)>=(comp.controller??1)?'damage':'controller';for(const r of SOLO_ROLES)while(out[r]>1){out[r]--;out[next]++;}
+ return out;
+};
 const ROLE_LETTER={tank:'T',healer:'H',controller:'C',damage:'D'};
 function compKey(counts){return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]}${ROLE_LETTER[r]}`).join('·')||'—';}
 function compLabel(counts){const names={tank:['tank','tanks'],healer:['healer','healers'],controller:['controller','controllers'],damage:['damage','damage']};return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]} ${names[r][counts[r]>1?1:0]}`).join(' · ');}
@@ -5466,10 +5474,16 @@ function ratingFeatures(character){
  const ability=[traits.power,traits.power2].reduce((sum,name)=>sum+(ABILITY_WEIGHT[name&&catalog.definition(name)?.rarity]??0),0);
  return {ehp:Math.log(n.effectiveHp),dps:Math.log(Math.max(1,n.dps)),spell:n.spell/50,ability,speed:s[1]/20,iq:s[3]/20,...Object.fromEntries(Object.keys(TEAM_KITS).map(id=>['kit_'+id,character.teamKit===id?1:0]))};
 }
-function rawRating(character,role=teamRole(character).role){const x=ratingFeatures(character),m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+(m.roles[role]??0);}
+// OVR for the team cast, per battle mode (scripts/evaluate-cast-values.mjs, validation/cast-values.json): rating
+// features plus one value per subclass, fitted on lab games so a fighter's rating follows what it adds to a team's
+// chance to win, and scaled to the spread above. Leagues pass their battle mode; without one the model above applies.
+const CAST_RATING_MODEL=Object.freeze({core:Object.freeze({"intercept":-3.528,"ehp":0.326,"dps":0.356,"spell":0.249,"ability":0.031,"speed":0.227,"iq":0.103,"subclass":{"Cleric (Light)":-0.031,"Cleric (Mercy)":-0.024,"Cleric (Ward)":0.01,"Druid (Grove)":-0.071,"Druid (Forest)":0.083,"Druid (Moon)":0.207,"Warrior (Vanguard)":-0.173,"Warrior (Berserker)":-0.197,"Warrior (Duelist)":-0.249,"Guardian (Stoneguard)":-0.128,"Guardian (Warden)":-0.182,"Guardian (Aegis)":0.011,"Mage (Fire)":0.187,"Mage (Blood)":0.254,"Mage (Frost)":0.24,"Mage (Chrono)":0.163,"Ranger (Marksman)":0.101,"Ranger (Trapper)":-0.122,"Ranger (Beastmaster)":0.178,"Assassin (Shadowblade)":-0.159,"Assassin (Riftwalker)":-0.05,"Assassin (Executioner)":0.044,"Assassin (Venomblade)":-0.224,"Bard (Skald)":-0.171,"Bard (Maestro)":-0.051,"Bard (Siren)":0.16,"Paladin (Crusader)":-0.092,"Paladin (Justiciar)":-0.144,"Paladin (Oathbreaker)":-0.003,"Warlock (Hexer)":0.093,"Warlock (Soulbinder)":0.187,"Warlock (Voidcaller)":0.234}}),teamfight:Object.freeze({"intercept":-3.436,"ehp":0.316,"dps":0.332,"spell":0.288,"ability":0.026,"speed":0.213,"iq":0.157,"subclass":{"Cleric (Light)":0.159,"Cleric (Mercy)":0.192,"Cleric (Ward)":0.173,"Druid (Grove)":0.006,"Druid (Forest)":-0.039,"Druid (Moon)":0.052,"Warrior (Vanguard)":-0.068,"Warrior (Berserker)":-0.196,"Warrior (Duelist)":-0.213,"Guardian (Stoneguard)":0.037,"Guardian (Warden)":-0.142,"Guardian (Aegis)":0.007,"Mage (Fire)":0.072,"Mage (Blood)":0.202,"Mage (Frost)":0.187,"Mage (Chrono)":0.125,"Ranger (Marksman)":0.065,"Ranger (Trapper)":-0.123,"Ranger (Beastmaster)":0.208,"Assassin (Shadowblade)":-0.161,"Assassin (Riftwalker)":-0.174,"Assassin (Executioner)":-0.035,"Assassin (Venomblade)":-0.17,"Bard (Skald)":-0.291,"Bard (Maestro)":-0.147,"Bard (Siren)":0.116,"Paladin (Crusader)":-0.138,"Paladin (Justiciar)":-0.136,"Paladin (Oathbreaker)":-0.035,"Warlock (Hexer)":0.03,"Warlock (Soulbinder)":0.139,"Warlock (Voidcaller)":0.268}})});
+const CAST_RATING_VERSION=3;
+const castModel=(character,mode)=>mode&&(character.summary?.generationVersion??0)>=5?CAST_RATING_MODEL[mode==='core'?'core':'teamfight']??null:null;
+function rawRating(character,role=teamRole(character).role,mode=null){const x=ratingFeatures(character),c=castModel(character,mode);if(c)return c.intercept+c.ehp*x.ehp+c.dps*x.dps+c.spell*x.spell+c.ability*x.ability+c.speed*x.speed+c.iq*x.iq+(c.subclass[`${character.traits?.class} (${character.traits?.subclass})`]??0);const m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+(m.roles[role]??0);}
 // A smooth scale preserves differences between strong recruits instead of
 // flattening every prediction above .75 to 99. Career progression still applies.
-function overall(character,role){return Math.max(40,Math.min(99,Math.round(40+59/(1+Math.exp(-5*(rawRating(character,role)-.5))))));}
+function overall(character,role,mode=null){return Math.max(40,Math.min(99,Math.round(40+59/(1+Math.exp(-5*(rawRating(character,role,mode)-.5))))));}
 function previousOverall(character,role){const x=ratingFeatures(character),kit=Object.entries(RATING_MODEL.kits).reduce((n,[id,weight])=>n+weight*x['kit_'+id],0);return Math.max(40,Math.min(99,Math.round(40+(rawRating(character,role)+kit-.25)*118)));}
 function prepareSupportRules(w){
  if(!w||w.supportRulesVersion===1||w.pendingSeries)return w;
@@ -5492,7 +5506,7 @@ const ROLE_RULE_UPGRADES=Object.freeze({'team-2.6':'team-2.9','team-2.7':'team-2
 function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEngine])w.teamEngine=ROLE_RULE_UPGRADES[w.teamEngine];return w;}
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
-function scoutFighter(character){const {role,secondary,castRole}=teamRole(character),ovr=overall(character,role);return {role,secondary,...(castRole?{castRole}:{}),ovr,salary:salaryFor(ovr)};}
+function scoutFighter(character,mode=null){const {role,secondary,castRole}=teamRole(character),ovr=overall(character,role,mode);return {role,secondary,...(castRole?{castRole}:{}),ovr,salary:salaryFor(ovr)};}
 function structure(teams){
  const divisions=teams===32?4:teams===16?2:1,perDivision=teams/(2*divisions);
  return CONFERENCES.map((name,c)=>({name,divisions:DIVISIONS.slice(0,divisions).map((division,d)=>({name:division,slots:Array.from({length:perDivision},(_,i)=>c*divisions*perDivision+d*perDivision+i)}))}));
@@ -5510,7 +5524,7 @@ function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
   if(!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Pool fighters need all fourteen traits.');
   if(c.summary?.tier!==plan[i].tier)throw new Error('A pool fighter does not match its planned tier.');
-  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),ratingVersion:2,team:null};
+  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,battleMode),ratingVersion:CAST_RATING_VERSION,team:null,careerStart:founderStart(seed,c.id)};
  });
  const layout=structure(teams),identities=teamIdentities(teams,seed),list=[];
  identities.forEach((x,i)=>{x.coach.comp=coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0));});
@@ -5522,6 +5536,17 @@ function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'
   supportRulesVersion:1,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
   conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
   teams:list,fighters:roster,draft:{order:shuffle(list.map(t=>t.id),seed^0x5eed),picks:[],complete:false}};
+}
+// Leagues rated before the cast model move every cast fighter onto it, keeping the career progress each one earned
+// (OVR above or below its old base rating). Contracts keep their price until the next offseason re-prices them.
+function prepareCastRatings(w){
+ if(!w?.fighters||w.pendingSeries)return w;
+ for(const f of Object.values(w.fighters)){
+  if(f.ratingVersion===CAST_RATING_VERSION||(f.summary?.generationVersion??0)<5)continue;
+  const before=f.ovr,progress=f.ovr-overall(f,f.role);f.ovr=Math.max(40,Math.min(99,overall(f,f.role,w.settings?.battleMode)+progress));f.ratingVersion=CAST_RATING_VERSION;
+  if(f.ovr!==before)f.lastOvr=before;
+ }
+ return w;
 }
 const teamById=(w,id)=>w.teams.find(t=>t.id===id);
 const payroll=(w,team)=>round1(team.roster.reduce((n,id)=>n+w.fighters[id].salary,0));
@@ -5582,7 +5607,9 @@ function draftPicks(w,count){const made=[];for(let i=0;i<count&&!w.draft.complet
 function bestLineup(w,team){
  const f=FORMATS[w.format],left=team.roster.map(id=>w.fighters[id]).sort((a,b)=>b.ovr-a.ovr||(a.id<b.id?-1:1)),lineup=[],plan=starterTargets(w,team);
  for(const role of ROLE_KEYS)for(let n=0;n<plan[role];n++){const i=left.findIndex(x=>x.role===role);if(i>=0)lineup.push(left.splice(i,1)[0].id);}
- while(lineup.length<f.size&&left.length)lineup.push(left.shift().id);
+ // The rest by OVR, skipping a second tank or healer in 2v2 and 3v3 while anyone else is left.
+ const doubled=x=>f.size<=3&&SOLO_ROLES.includes(x.role)&&lineup.some(id=>w.fighters[id].role===x.role);
+ while(lineup.length<f.size&&left.length){const i=left.findIndex(x=>!doubled(x));lineup.push(left.splice(Math.max(0,i),1)[0].id);}
  return lineup;
 }
 const teamOverall=(w,team)=>{const ids=team.lineup.length?team.lineup:bestLineup(w,team);return ids.length?Math.round(ids.reduce((n,id)=>n+w.fighters[id].ovr,0)/ids.length):0;};
@@ -5734,6 +5761,37 @@ const TACTICS=Object.freeze(['balanced','protect-carry','focus-healer','aggressi
 const COACH_TACTICS=Object.freeze({bargain:'balanced',star:'protect-carry',glass:'aggressive',fortress:'defensive',tactician:'focus-healer',balanced:'balanced'});
 const ROOKIES_PER_TEAM=Object.freeze({2:1,3:2,5:3});
 const FREE_AGENT_SEASONS=2;
+// ---------- Careers: fighters age, decline from their 7th season and retire after their 10th ----------
+// A career season counts every league season since the fighter's debut, on any team. Each offseason that starts a
+// 7th or later season costs 6% of strength, speed, durability and magic (IQ stays), and the OVR drops with them.
+// After the 10th season the fighter retires; the rookie class grows to replace them.
+const CAREER=Object.freeze({declineFrom:7,retireAfter:10,decline:.06,stats:Object.freeze([0,1,2,4]),founders:6,migrated:8});
+const careerSeason=(w,f)=>w.season-(f.careerStart??w.season)+1;
+const retiringVeterans=w=>Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter);
+const careerRoll=(seed,id,n)=>{let h=(seed^0x51ed270b)>>>0;for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return Math.floor(rng(h>>>0)()*n);};
+// A founding pool is a mix of ages (career seasons 1–6 in season 1), so the first generation does not retire at once.
+const founderStart=(seed,id)=>1-careerRoll(seed,id,CAREER.founders);
+// Leagues saved before careers give each fighter the seasons they have played, at most a seeded 1–8, so veterans
+// retire over several offseasons instead of all together.
+function prepareCareers(w){
+ if(!w?.fighters||w.pendingSeries)return w;
+ for(const f of Object.values(w.fighters)){if(f.careerStart!==undefined)continue;const played=Math.max(1,w.season-(f.rookie??1)+1);f.careerStart=w.season-Math.min(played,1+careerRoll(w.seed,f.id,CAREER.migrated))+1;}
+ return w;
+}
+function ageFighters(w){
+ const retired=[],declined=[],mode=w.settings.battleMode;
+ for(const f of retiringVeterans(w)){
+  const team=f.team&&teamById(w,f.team);if(team){team.roster=team.roster.filter(id=>id!==f.id);team.lineup=team.lineup.filter(id=>id!==f.id);}
+  retired.push({id:f.id,name:f.name,team:f.team,seasons:careerSeason(w,f)});delete w.fighters[f.id];
+ }
+ for(const f of Object.values(w.fighters)){
+  if(careerSeason(w,f)+1<CAREER.declineFrom)continue;
+  const before=overall(f,f.role,mode),stats=f.summary.stats.map((v,i)=>CAREER.stats.includes(i)?Math.round(v*(1-CAREER.decline)):v);
+  f.summary={...f.summary,stats,total:stats.reduce((a,b)=>a+b,0)};
+  const from=f.ovr;f.ovr=Math.max(40,f.ovr-Math.max(1,before-overall(f,f.role,mode)));f.salary=salaryFor(f.ovr);declined.push({id:f.id,from,to:f.ovr});
+ }
+ return {retired,declined};
+}
 function teamTactic(w,team){return team.tactic??COACH_TACTICS[team.coach.personality]??'balanced';}
 function userTeam(w){const team=w.settings.userTeam&&teamById(w,w.settings.userTeam);if(!team)throw new Error('Take control of a team first.');return team;}
 // Coach mode: take over any team before the draft starts or between seasons; hand it back at any time.
@@ -5753,7 +5811,8 @@ function setLineup(w,ids){
 function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
 function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege,...(plan.camp?{camp:plan.camp}:{})};return w;}
 function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
-function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format],weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
+// The rookie class also replaces every veteran about to retire, so rosters can always be refilled.
+function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format]+(w.phase==='complete'?retiringVeterans(w).length:0),weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
 // Offseason value updates move a fighter at most ±RATING_CHANGE_CAP OVR.
 const RATING_CHANGE_CAP=5;
@@ -5862,17 +5921,18 @@ function startOffseason(w,rookies){
  w.seasonLog=[...(w.seasonLog??[]),seasonLogEntry(w,history)].slice(-SEASON_LOG_LIMIT);
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
  const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
+ const aging=ageFighters(w);
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
  for(const id of retired)delete w.fighters[id];
- for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c),ratingVersion:2,team:null,rookie:w.season+1,freeAgentSince:w.season};
+ for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,w.settings.battleMode),ratingVersion:CAST_RATING_VERSION,team:null,rookie:w.season+1,careerStart:w.season+1,freeAgentSince:w.season};
  // The cap follows the market: the average salary of the best roster-worth of fighters.
  const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,w.teams.length*w.settings.rosterSize);w.settings.salaryCap=round1(top.reduce((n,x)=>n+x.salary,0)/w.teams.length);
  // Coaches with dismal seasons are replaced (never the user's team).
  const fired=[],records=new Map(history.standings.map(r=>[r.id,r]));
  for(const team of w.teams){const r=records.get(team.id);if(isUser(w,team.id)||!r||r.wins/(r.wins+r.losses||1)>.25)continue;const random=rng(matchSeed(w,'coach:'+team.id)),style=Object.keys(PERSONALITIES)[Math.floor(random()*6)],coach={name:`${COACH_FIRST[Math.floor(random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(random()*COACH_LAST.length)]}`,personality:style,hired:w.season+1,comp:coachComp(style,random,meta.edge)};fired.push({team:team.id,from:team.coach.name,to:coach.name});team.coach=coach;delete team.tactic;}
  const releases={};for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
- w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,meta,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
+ w.history=[...(w.history??[]),history];w.phase='offseason';w.offseason={season:w.season,meta,step:w.settings.userTeam?'decisions':'market',ratingChanges:changes,retired:retired.length,veterans:aging.retired,declined:aging.declined,rookies:rookies.map(c=>c.id),fired,releases,trades:[]};
  if(!w.settings.userTeam){aiTrades(w);startOffseasonDraft(w);}
  return w;
 }
@@ -5931,7 +5991,7 @@ function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.
 
 function lineupEvidence(w,ids){return lineupGroups(ids.map(id=>w.fighters[id]));}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,balanceReport,balanceReportText,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setBattleMode});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,SOLO_ROLES,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,CAST_RATING_MODEL,CAST_RATING_VERSION,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,prepareCastRatings,teamById,payroll,capSpace,available,roleCounts,draftSlot,totalPicks,RESERVE_MARGIN,eligible,coachValue,coachChoice,onTheClock,draftPick,draftPicks,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,CAREER,careerSeason,retiringVeterans,prepareCareers,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,balanceReport,balanceReportText,adaptCoaches,startOffseason,decideReleases,proposeTrade,closeMarket,offseasonOrder,setBattleMode});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every draft pick.
@@ -5939,7 +5999,7 @@ async function teamApi(request,env,url){
  const owner=request.headers.get('oai-authenticated-user-id');if(!owner)fail('Sign in to save team leagues.',401);storage(env);
  const formatOf=value=>{const n=Number(value);if(![2,3,5].includes(n))fail('Choose 2v2, 3v3 or 5v5.');return n;};
  const get=format=>env.DB.prepare('SELECT * FROM team_worlds WHERE owner_id = ? AND format = ?').bind(owner,format).first();
- const response=async format=>{const row=await get(format);return json({world:row?TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))):null,revision:row?.revision??0});};
+ const response=async format=>{const row=await get(format);return json({world:row?TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))):null,revision:row?.revision??0});};
  if(request.method==='GET'){if(url.pathname!=='/api/teams')fail('Not found.',404);return response(formatOf(url.searchParams.get('format')));}
  if(request.method!=='POST'||url.pathname!=='/api/teams')fail('Method not allowed.',405);
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
@@ -5951,7 +6011,7 @@ async function teamApi(request,env,url){
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
- let world=row?TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))):null;
+ let world=row?TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))):null;
  // Old-format leagues (before the team cast) can only be deleted.
  if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This team league uses the old format. Delete it to start a new league with the team cast.',409);
  if(input.action==='start'){
