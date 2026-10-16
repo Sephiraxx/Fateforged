@@ -466,7 +466,7 @@ Fighters age, so a league turns over its cast every few seasons (`team-league.js
   - they won an MVP;
   - they played 40 or more career games and stood out in their cast role. One per-game number (damage, healing, KOs, control seconds or overall impact) must be at least 1.5 standard deviations above the league's other fighters with 20 or more career games in that role.
   
-  Each entry keeps the legend's class and subclass, role, seasons, teams, titles, MVPs and lifetime numbers, and the categories they excelled at (z ≥ 1), shown as "top N% of their role". The league screen has a **Hall of Fame** section next to Past champions.
+  Each entry keeps the legend's class and subclass, role, seasons, teams, titles, MVPs and lifetime numbers, and the categories they excelled at (z ≥ 1), shown as "top N% of their role". On the league screen, **Past champions**, **Hall of Fame** and **Balance report** are buttons that open their own window. A fighter tapped inside one opens on top of it.
 - **Founding pools** are mixed ages: each fighter starts in a seeded career season from 1 to 6, so the first generation retires over several years instead of all at once.
 - **Older leagues** give each fighter, on load, the seasons they have played, capped at a seeded 1 to 8. Long-running leagues therefore see their veterans retire over the next few offseasons, not all in one.
 
