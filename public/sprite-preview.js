@@ -21,9 +21,10 @@ export function previewFrame(script,t){
  const last=script.at(-1);return {row:last.row,frame:last.frames.at(-1),fx:null};
 }
 // The view, in sheet pixels: wider than a cell so an effect on the target (in front, to the right) fits. The cell
-// sits with the body at BODY_X; the figure's band (it stands 160 px, feet 12 px up) fills the height.
-const VIEW_W=320,VIEW_H=214,BODY_X=110,BODY_Y=164,TARGET_X=242;
-const FX_PLACE={target:{x:TARGET_X,y:BODY_Y,size:120},area:{x:BODY_X,y:BODY_Y-6,size:210},ally:{x:BODY_X,y:BODY_Y-8,size:140},self:{x:BODY_X,y:BODY_Y-8,size:140}};
+// sits with the body at BODY_X; the figure's band (it stands 160 px, feet 12 px up) fills the height. BODY_Y is the
+// middle of the body in view pixels.
+const VIEW_W=280,VIEW_H=196,BODY_X=100,BODY_Y=VIEW_H-SHEET_FRAME+164,TARGET_X=222;
+const FX_PLACE={target:{x:TARGET_X,y:BODY_Y,size:110},area:{x:BODY_X+16,y:BODY_Y,size:190},ally:{x:BODY_X,y:BODY_Y,size:130},self:{x:BODY_X,y:BODY_Y,size:130}};
 const images=new Map();
 const image=url=>{let img=images.get(url);if(!img){img=new Image();img.decoding='async';img.src=url;images.set(url,img);}return img;};
 const ready=img=>img?.complete&&img.naturalWidth>0;
