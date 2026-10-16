@@ -473,6 +473,16 @@ Rating calibration uses separate regularized kit coefficients, with each subject
 
 The kit calibration covers 160 subjects (40 per role), eight paired seeds per subject, 2,560 battles and at least eight subjects per kit. The model explains 26.8% of sampled win-share variance; predicted quartiles won 37.2%, 44.7%, 55.8% and 72.2%. Regression coefficients describe conditional scouting estimates, while the report also records the raw paired kit differences. Those differences can disagree with a coefficient when other features correlate with the kit.
 
+## Season log and balance report
+
+A season's per-fighter stats and match results reset when the next season starts. So that balance can be checked across many seasons, each league keeps a **season log** (`w.seasonLog`, the last 40 seasons, written when the offseason starts; `team-league.js` `seasonLogEntry`). Each entry holds:
+
+- every team's record, playoff finish and roster (`Class (Subclass) tier`), with the champion marked;
+- every fighter who played, with class, subclass, race, tier, role, games, wins, damage, healing, KOs, downs and control time;
+- every game's two starting compositions and the winning side.
+
+The league screen's **Balance report** section (`balanceReport`) shows win rates with 95% intervals by subclass and by class over every logged season. **Copy report** copies the full report as plain text (`balanceReportText`), so it can be pasted into a chat for a balance review: subclass, class, role and composition win rates, then each season's teams and rosters. Where the clipboard is unavailable, the text appears selected in a box to copy by hand. Leagues started before the log only log seasons that finish after it. `scripts/check-season-log.mjs` plays two seasons and checks that the log and the report add up.
+
 ## League-specific patches (removed)
 
 Leagues made with the team cast no longer audit or patch themselves (see "Hand balance"). The notes below describe the old per-save system.

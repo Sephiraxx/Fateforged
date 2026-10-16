@@ -20,7 +20,7 @@ const wire=f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f
 export function mountTeamLeague(host,hooks){
  const el=(tag,text='',className='')=>{const e=document.createElement(tag);e.textContent=text;e.className=className;return e;};
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
- let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,historyOpen=false,unsavedGame=null;
+ let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,balanceOpen=false,historyOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
  const championSeasonsOpen=new Set();
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
@@ -354,6 +354,15 @@ export function mountTeamLeague(host,hooks){
   const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
   const side=el('div','','team-league-side');side.append(coachControl(),rulesControl(),reset);head.append(info,side);body.append(head);const champions=el('details','','module past-champions');champions.open=historyOpen;champions.ontoggle=()=>{historyOpen=champions.open;};champions.append(el('summary','Past champions'));const wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);if(!wins.length)champions.append(el('p','No champions yet.','muted'));for(const title of wins){const season=el('details','','champion-season');season.open=championSeasonsOpen.has(title.season);season.ontoggle=()=>{season.open?championSeasonsOpen.add(title.season):championSeasonsOpen.delete(title.season);};season.append(el('summary',`Season ${title.season} \u00b7 ${title.championName??name(title.champion)}`));if(title.roster?.length){const rows=[...title.roster].sort((a,b)=>Number(b.starter)-Number(a.starter)||b.ovr-a.ovr).map(f=>{const row=el('tr');row.append(cell(fighterLink(f,title)),el('td',ROLE_LABELS[f.role]),el('td',String(f.ovr)),el('td',f.starter?'Final lineup':'Bench'));return row;});season.append(table(['Fighter','Role','OVR','Lineup'],rows,'Championship roster'));}else season.append(el('p','The winning roster was not recorded for this older season.','muted'));champions.append(season);} body.append(champions);
+  // Balance report (TEAM-BATTLES.md, "Season log and balance report"): win rates over every logged season, and a
+  // plain-text copy to share.
+  const balance=el('details','','module balance-report');balance.open=balanceOpen;balance.ontoggle=()=>{balanceOpen=balance.open;};balance.append(el('summary','Balance report'));const report=LEAGUE.balanceReport(world);
+  if(!report.seasons.length)balance.append(el('p','Finish a season to start the report. Every season from then on is kept here: rosters, results and win rates by class and subclass.','muted'));
+  else{const copy=button('Copy report'),text=el('textarea','','balance-report-text');text.readOnly=true;text.hidden=true;text.rows=8;text.style.width='100%';
+   copy.onclick=async()=>{const value=LEAGUE.balanceReportText(world);try{await navigator.clipboard.writeText(value);say('Balance report copied: paste it into a chat.');}catch{text.value=value;text.hidden=false;text.focus();text.select();say('Copy the selected report text.');}};
+   const rows=list=>list.map(e=>{const row=el('tr');row.append(el('td',e.key),el('td',String(e.games)),el('td',e.pct.toFixed(1)+'%'),el('td',`${e.ci[0]}–${e.ci[1]}`));return row;});
+   balance.append(el('p',`${report.seasons.length} season${report.seasons.length===1?'':'s'} logged (${report.games} games).`,'muted'),copy,text,table(['Subclass','Games','Win %','95% range'],rows(report.subclass),'Win rate by subclass (fighter games)'),table(['Class','Games','Win %','95% range'],rows(report.class),'Win rate by class'));}
+  body.append(balance);
   if(world.phase==='draft'){renderDraft();renderTeams();return;}
   if(world.phase==='offseason'){renderOffseason();renderTeams();return;}
   const season=el('section','','team-draft');season.append(seasonActions());
