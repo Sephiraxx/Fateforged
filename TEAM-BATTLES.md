@@ -242,7 +242,20 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
     | Classes, lowest to highest | 34.6–63.9% | 40.0–55.9% | 39.9–55.7% |
     | Controller games | 237 | 2,009 | 1,910 |
 
-    Controllers and supports now play and win about half their games. Tanks and healers still win about 41% in 3v3 Core siege. In the lab they also trail there (about 47% with random teammates) while sitting near 50% across all sizes and modes, so the rest of that gap belongs to combat tuning for 3v3 Core siege, not to prices.
+    Controllers and supports now play and win about half their games.
+  - **3v3 Core siege boost** (`combat-team.js` `formatTeams`, `TRIO_SIEGE_BONUS`):
+    - **Why:** even fairly priced, tanks and healers still won only about 44% in 3v3 Core siege, against about 46.5% in lab games between random teams there and about 50% in 5v5 and classic teamfight.
+    - **What:** in 3v3 games on team-4.0 alone, cast tanks enter with +72 strength, +48 speed and +144 durability, and healers with +40 speed, +80 durability, +40 IQ and +80 magic. The stats are added before the battle is built, so the JavaScript engine and the Rust core play the same input. Every battle entry uses it: simulations, watched games and the lab.
+    - **Sweep** (2,400 random 3v3 Core siege lab games per step):
+
+      | Boost | Tanks | Healers | All-damage teams |
+      | --- | --- | --- | --- |
+      | None | 46.4% | 46.9% | 54.2% |
+      | The one chosen (tanks 1.2×) | about 49% | 49.9% | 51.6% |
+      | Double | 54.6% | 52.5% | 41.7% |
+
+    - **Same 8-season league:** tanks went from 40.9% to 47.7% and healers from 41.5% to 45.2%. Tank + healer + damage lineups now win 48.4% and all-damage teams 53.2%, and the subclass spread fell from 6.1 to 5.3. The cast ratings were re-fitted with the boost in place.
+    - **Small trim:** Cleric (Ward) lost 50 stats, because the boost pushed its lab win rate over all modes past the 54% band.
   - **Existing leagues** re-rate on load (`prepareCastRatings`). Each fighter keeps the progress earned over their old base rating, and a paused series finishes first. Contracts keep their price until the next offseason re-prices them.
   - **Re-fit** after any change to the cast, its abilities or the engines, then copy the `model` into `CAST_RATING_MODEL`. `check-cast-ratings` checks that the two match.
 - **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
