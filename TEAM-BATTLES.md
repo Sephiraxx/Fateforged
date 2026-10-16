@@ -228,6 +228,23 @@ Each format (3v3 and 5v5) has one franchise league per player. You create it fro
   - Recalibrated on team engine 2: fighters in the top predicted quarter win 62.7% of their battles, against 43% for the bottom quarter (R² 0.16 with 16 games each; engine 1 gave 67.3% vs 40.6%, R² 0.27). Formation play makes results depend more on the team and less on any one fighter's numbers.
   - Durability (effective HP) and speed matter most, then spell power and IQ. Healers rate highest and damage dealers next, matching their measured team impact. Raw damage per second adds nothing once the rest is known: in formation, a ranged dealer's output depends on staying alive behind the front.
   - A 384-fighter pool spreads from OVR 47 to 95 (median 74). Fighters already in a league keep their stored OVR; offseasons move it with performance.
+- **Cast fighters** (every team-league fighter since the team cast) are rated by a newer model, one per battle mode (`team-league.js` `CAST_RATING_MODEL`):
+  - **Why:** the model above was fitted before the cast existed and ignores what each subclass kit is worth. In a 15-season 3v3 Core siege league it priced Skald, Warden, Trapper and Shadowblade high and Blood Mage, Oathbreaker and the controllers low. Overpriced fighters ate cap and starting spots, so their teams lost (Skald 36%, Warden 37%), while underpriced ones won (Blood Mage 61%). Meanwhile the balance lab, with no prices involved, measured every subclass at 46–54%.
+  - **Fit** (`node scripts/evaluate-cast-values.mjs`, writes `validation/cast-values.json`): 4,000 lab games per mode between random cast teams (3v3 and 5v5) on the Rust core. A ridge logistic regression explains each game's winner from the difference of the two teams' summed fighter values. A value is the rating features above plus one offset per subclass. The fit predicts the winner of 74.5% of Core siege games and 73.4% of teamfight games.
+  - **Scale:** values are rescaled so a fresh pool keeps the old spread. A 3v3 pool averages OVR 71.5 ± 10.6 in Core siege, against 73.4 ± 10.6 before.
+  - **Effect:** Skald drops from about 84 to 75 and Warden from 81 to 75. Blood Mage rises from 70 to 78, and the controllers from 58–72 to 71–79.
+  - **Lineups:** in 2v2 and 3v3, AI coaches start at most one tank and one healer (`starterTargets`, `bestLineup`). In 3v3 Core siege lab games between random teams, a second tank or healer drops a lineup to 28–37%, against 54% for two damage dealers and a tank.
+  - **Measured** in an 8-season, 32-team 3v3 Core siege AI league on the real engine (same seed, about 2,430 games each):
+
+    | | Old ratings | Cast ratings | Plus lineup rule |
+    | --- | --- | --- | --- |
+    | Spread of subclass win rates (game-weighted SD from 50%) | 7.9 | 7.0 | 6.1 |
+    | Classes, lowest to highest | 34.6–63.9% | 40.0–55.9% | 39.9–55.7% |
+    | Controller games | 237 | 2,009 | 1,910 |
+
+    Controllers and supports now play and win about half their games. Tanks and healers still win about 41% in 3v3 Core siege. In the lab they also trail there (about 47% with random teammates) while sitting near 50% across all sizes and modes, so the rest of that gap belongs to combat tuning for 3v3 Core siege, not to prices.
+  - **Existing leagues** re-rate on load (`prepareCastRatings`). Each fighter keeps the progress earned over their old base rating, and a paused series finishes first. Contracts keep their price until the next offseason re-prices them.
+  - **Re-fit** after any change to the cast, its abilities or the engines, then copy the `model` into `CAST_RATING_MODEL`. `check-cast-ratings` checks that the two match.
 - **Salary** (millions of crowns) rises steeply with OVR: `0.8 + 13.2 × ((OVR − 50) / 49)^2.3`, capped at 14M. Stars cost several times an average starter.
 - **Salary cap.** Every team gets the same cap: the average salary of the fighters who will be drafted, multiplied by roster size. An average team can afford an average roster, but nobody can stack stars.
 
@@ -386,13 +403,16 @@ Phase 4 lets you coach one team yourself and adds the offseason between seasons.
 1. **Rookie class.**
    - The browser rolls 2 rookies per team for 3v3 and 3 per team for 5v5. It uses the same role mix and S/A/SS odds as the founding pool, and the plan is seeded by league and season.
    - The server checks that each rookie is an unedited roll of its planned tier.
+   - The class also holds one extra rookie for every veteran about to retire (see Careers below).
 2. **Value updates.**
    - A fighter's impact per game is compared with every other fighter in the same role (a z-score). Each standard deviation is worth about 2 OVR, capped at ±4, and scaled down for fighters who played fewer than half the games.
    - A seeded drift of −1 to +1 is added. Fighters who did not play only drift down.
    - Gains above 90 are halved (rounded up), and the total change is capped at ±5 per offseason.
    - Every contract is repriced at the new OVR, so kept fighters cost their **new** salary.
 3. **New cap.** The salary cap is recomputed with the founding formula: the average salary of the top roster-worth of fighters, divided by the number of teams.
-4. **Free agency and retirement.** Free agents left unsigned for two offseasons retire. Former MVPs never retire. This keeps the pool at a steady size.
+4. **Free agency and retirement.**
+   - Free agents left unsigned for two offseasons retire, except former MVPs. This keeps the pool at a steady size.
+   - Veterans who just finished their 10th season retire, MVPs included, and older fighters lose a step (see Careers below).
 5. **Coaching changes.** An AI team that won 25% or fewer of its games fires its coach. A new coach with a fresh personality takes over. Your team is never affected.
 6. **Keep or release.**
    - AI coaches release anyone a cheaper free agent of the same role could replace almost as well. How much of a roster a coach will turn over depends on personality:
@@ -429,6 +449,15 @@ Phase 4 lets you coach one team yourself and adds the offseason between seasons.
    - coaching changes;
    - retirements;
    - rookies.
+
+### Careers
+
+Fighters age, so a league turns over its cast every few seasons (`team-league.js` `CAREER`, checked by `check-careers`).
+- **Career seasons** count every league season since a fighter's debut, on any team and through trades. The fighter details dialog shows "Career season N of 10".
+- **Decline:** every offseason that starts a fighter's 7th or later season costs 6% of their strength, speed, durability and magic. IQ stays. Combat scales with the square root of each stat, so every decline costs up to 3% of health, damage and speed, and a 10th-season fighter is roughly 10% weaker than in their prime. Their OVR drops by the rating change (at least 1), and their salary follows.
+- **Retirement:** after their 10th season a fighter retires and leaves their roster. The offseason report lists them, and the rookie class grows by one for each, so every roster can refill in the draft.
+- **Founding pools** are mixed ages: each fighter starts in a seeded career season from 1 to 6, so the first generation retires over several years instead of all at once.
+- **Older leagues** give each fighter, on load, the seasons they have played, capped at a seeded 1 to 8. Long-running leagues therefore see their veterans retire over the next few offseasons, not all in one.
 
 Everything above is deterministic from the league seed, the season and the choices made, except the rookies' random roll, which is part of the command.
 
