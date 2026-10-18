@@ -37,6 +37,8 @@ export const SPRITE_NAMES=Object.freeze([...Object.keys(CHARACTER_ART),...Object
 export const SPRITE_EXTENSIONS=Object.freeze(['webp','png']);
 // Sprites ship inside the worker bundle and the Pages site, so each file must stay small (256 px WebP is ~20–60 KB).
 export const SPRITE_MAX_BYTES=400*1024;
+// Still sprites are square: 256 px, and 512 px for the Titan pit rim (drawn 250 world px wide).
+export const stillSize=name=>name==='pit-rim'?512:256;
 const byClass=new Map(Object.entries(CHARACTER_ART).flatMap(([art,list])=>list.map(name=>[name,art])));
 const byWeapon=new Map(Object.entries(PROP_ART).flatMap(([art,list])=>list.map(name=>[name,art])));
 export const characterArt=className=>byClass.get(className)??null;

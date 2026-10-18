@@ -7,7 +7,7 @@ import {teamEngine} from '../public/combat-team.js';
 import {OBJECTIVE_COMBAT_VERSION,TEAM_COMBAT_VERSION} from '../public/team-engine-versions.js';
 import {CAMERA_RULES,fullView,frameView,stepCamera,actionPoints,snapshot,diffEvents,shakeOffset,ease,teamOf,fighterKey,sheetFrame,SHEET_FPS,newAbilityUses,releaseDelay,fxFrame,FX_DURATION,creatureFrame,titanState,campState,summonState,CREATURE_TIMES} from '../public/pixi-arena-model.js';
 import {Battle} from '../public/combat.js';
-import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES,CAST_FX,fighterFx,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
+import {CHARACTER_ART,PROP_ART,TERRAIN_ART,SPRITE_NAMES,SPRITE_MAX_BYTES,characterArt,propArt,fighterArt,coreArt,spriteUrls,SHEET_NAMES,SHEET_ROWS,SHEET_COLUMNS,sheetName,fighterSheet,ABILITY_FX,FX_NAMES,FX_FRAMES,CAST_FX,fighterFx,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns,stillSize} from '../public/sprite-art.js';
 import {CAMP_RULES} from '../public/level-combat.js';
 import {SPRITE_MANIFEST} from '../public/sprite-manifest.js';
 import {collectSprites} from './sprites.mjs';
@@ -78,7 +78,7 @@ for(const [version,comp] of [[OBJECTIVE_COMBAT_VERSION,'balanced5'],[OBJECTIVE_C
  for(const list of [Object.values(CHARACTER_ART).flat(),Object.values(PROP_ART).flat()])assert.equal(new Set(list).size,list.length,'no name maps twice');
  for(const name of Object.values(PROP_ART).flat())assert(weapons.includes(name),`prop weapon ${name} exists`);
  for(const id of MAP_IDS.filter(id=>id!=='open'))assert(TERRAIN_ART[id],id);
- const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SPRITE_NAMES.length,36);for(const name of SPRITE_NAMES)assert(prompts.includes('`'+name+'.png`'),`${name} is in ART-PROMPTS.md`);
+ const prompts=fs.readFileSync('ART-PROMPTS.md','utf8');assert.equal(SPRITE_NAMES.length,36);assert.equal(stillSize('pit-rim'),512);assert.equal(stillSize('core-blue'),256);for(const name of SPRITE_NAMES)assert(prompts.includes('`'+name+'.png`'),`${name} is in ART-PROMPTS.md`);
  assert.deepEqual(fighterArt({traits:{class:'Priest'},weapon:{name:'Mace'},original:{weapon:{name:'Blessed mace'}}}),{character:'char-holy',prop:'prop-heavy'});
  assert.equal(coreArt({team:0,hp:900,maxHp:1000}),'core-blue');assert.equal(coreArt({team:1,hp:400,maxHp:1000}),'core-red-cracked');
  assert.deepEqual(spriteUrls({'char-plate':'char-plate.webp?v=1',nope:'x.webp'},'https://example.test/Fateforged/pixi-arena.js'),{'char-plate':'https://example.test/Fateforged/sprites/char-plate.webp?v=1'});

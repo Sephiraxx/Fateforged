@@ -3,6 +3,10 @@
 // node scripts/sprite-sheet.mjs <class> <subclass> <folder>
 // node scripts/sprite-sheet.mjs --creature <sheet> <folder>
 // node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>
+// node scripts/sprite-sheet.mjs --still <name> <image.png>
+// Stills (Cores, terrain, the pit rim and the objective effects in ART-PROMPTS.md): the art is cut to its visible
+// pixels, scaled to fill the square (stillSize: 256 px, 512 for the pit rim) inside a 6% margin, centred, and written
+// to public/sprites/<name>.webp. An image whose corners are not transparent is refused (a background was left in).
 // Creatures: the rows and standing height come from CREATURE_SHEETS; the death row (down or fade) is scaled like the
 // cast's down row, the hit row and a windup (the Titan's slam, fists raised) like hit, and floaters (wisp, spirit) are
 // centred in their cells instead of standing on the feet line. Written to public/sprites/<sheet>.webp.
@@ -24,14 +28,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,sheetName,SHEET_NAMES,CAST_FX,fxName,FX_FRAMES,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
+import {SHEET_FRAME,SHEET_ROWS,SHEET_COLUMNS,SHEET_MAX_BYTES,SHEET_STANDING,SHEET_FEET,SPRITE_MAX_BYTES,SPRITE_NAMES,stillSize,sheetName,SHEET_NAMES,CAST_FX,fxName,FX_FRAMES,CREATURE_SHEETS,CREATURE_NAMES,creatureColumns} from '../public/sprite-art.js';
 
-const args=process.argv.slice(2),effect=args[0]==='--fx',creature=args[0]==='--creature';
+const args=process.argv.slice(2),effect=args[0]==='--fx',creature=args[0]==='--creature',still=args[0]==='--still';
 const png=file=>'data:image/png;base64,'+fs.readFileSync(file).toString('base64');
 const readRows=(dir,list)=>list.map(([row,frames])=>{const file=path.join(dir,row+'.png');if(!fs.existsSync(file)){console.error(`Missing ${file} (${frames} frames).`);process.exit(2);}return {row,frames,data:png(file)};});
 // How rows are laid out: the standing height, the columns, which rows scale by area or halfway, and floating.
 let name,rows,limit,layout={STANDING:SHEET_STANDING,COLUMNS:SHEET_COLUMNS,areaRows:['down'],halfRows:['hit'],centered:false};
-if(creature){
+if(still){
+ const [,which,file]=args;
+ if(!which||!file){console.error('Usage: node scripts/sprite-sheet.mjs --still <name> <image.png>');process.exit(2);}
+ if(!SPRITE_NAMES.includes(which)){console.error(`${which} is not a sprite name. Names: ${SPRITE_NAMES.join(', ')}`);process.exit(2);}
+ if(!fs.existsSync(file)){console.error(`Missing ${file}.`);process.exit(2);}
+ name=which;rows=[{row:'still',frames:1,data:png(file)}];limit=SPRITE_MAX_BYTES;
+}else if(creature){
  const [,which,dir]=args;name=CREATURE_NAMES.find(n=>n===which||n==='creature-'+which);
  if(!name||!dir){console.error(`Usage: node scripts/sprite-sheet.mjs --creature <${CREATURE_NAMES.join('|')}> <folder with one PNG per row>`);process.exit(2);}
  const sheet=CREATURE_SHEETS[name];rows=readRows(dir,sheet.rows);limit=SHEET_MAX_BYTES;
@@ -59,7 +69,18 @@ async function chromium(){
 const browser=await (await chromium()).launch();
 try{
  const page=await browser.newPage();
- const result=await page.evaluate(async({rows,FRAME,FEET,effect,layout:{STANDING,COLUMNS,areaRows,halfRows,centered}})=>{
+ const result=still?await page.evaluate(async({data,SIZE})=>{
+  const img=new Image();await new Promise((ok,fail)=>{img.onload=ok;img.onerror=()=>fail(new Error('Unreadable image'));img.src=data;});
+  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const g=c.getContext('2d');g.drawImage(img,0,0);
+  const W=img.width,H=img.height,px=g.getImageData(0,0,W,H).data,alpha=(x,y)=>px[(y*W+x)*4+3];
+  const corners=[[0,0],[W-1,0],[0,H-1],[W-1,H-1]].filter(([x,y])=>alpha(x,y)>16).length;
+  if(corners)return {error:`${corners} of 4 corners are not transparent: remove the background (transparent PNG, nothing behind the art).`};
+  let minX=W,minY=H,maxX=-1,maxY=-1;for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(alpha(x,y)>16){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+  if(maxX<0)return {error:'The image is empty.'};
+  const w=maxX-minX+1,h=maxY-minY+1,margin=Math.round(SIZE*.06),scale=(SIZE-2*margin)/Math.max(w,h),out=document.createElement('canvas');out.width=out.height=SIZE;
+  const o=out.getContext('2d');o.imageSmoothingQuality='high';o.drawImage(c,minX,minY,w,h,(SIZE-w*scale)/2,(SIZE-h*scale)/2,w*scale,h*scale);
+  return {webp:out.toDataURL('image/webp',.9),summary:`art ${w}×${h} scaled ×${scale.toFixed(3)}`,width:SIZE,height:SIZE,warnings:[]};
+ },{data:rows[0].data,SIZE:stillSize(name)}):await page.evaluate(async({rows,FRAME,FEET,effect,layout:{STANDING,COLUMNS,areaRows,halfRows,centered}})=>{
   const load=src=>new Promise((ok,fail)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>fail(new Error('Unreadable image'));i.src=src;});
   const median=list=>{const s=[...list].sort((a,b)=>a-b);return s[Math.floor(s.length/2)];};
   const SOLID=32,FAINT=8;
@@ -166,7 +187,7 @@ try{
  if(result.error){console.error(result.error);process.exit(1);}
  if(!result.webp.startsWith('data:image/webp')){console.error('This browser cannot write WebP.');process.exit(1);}
  const data=Buffer.from(result.webp.split(',')[1],'base64');
- if(data.length>limit){console.error(`The ${effect?'effect':'sheet'} is ${Math.round(data.length/1024)} KB, over ${limit/1024} KB. Simplify the art or trim the strips.`);process.exit(1);}
+ if(data.length>limit){console.error(`The ${still?'sprite':effect?'effect':'sheet'} is ${Math.round(data.length/1024)} KB, over ${limit/1024} KB. Simplify the art or trim the strips.`);process.exit(1);}
  for(const w of result.warnings)console.warn('Warning: '+w);
  const out=`public/sprites/${name}.webp`;fs.writeFileSync(out,data);
  console.log(`${out}: ${result.width}×${result.height}, ${Math.round(data.length/1024)} KB; ${result.summary}. Rebuild (npm run build, node scripts/build-pages.mjs) to use it.`);
