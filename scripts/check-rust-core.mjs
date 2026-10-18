@@ -1,4 +1,4 @@
-// Rust simulation core: JavaScript math, state, engine-method and whole-game parity (RUST-CORE.md).
+// Rust simulation core: JavaScript math, state, engine-method and whole-game parity.
 // Always: the recorded parity run (1M inputs, node and Chromium) has no mismatches and identical results in both
 // runtimes, the portable sin/cos is what node's Math gives and is only swapped in while an engine runs, and the
 // battle-state inventory exists. With cargo installed: the crate's unit tests pass and a fresh 200k-input run in this
@@ -35,7 +35,7 @@ for(const engine of ['team-3.9','team-2.8']){const e=inventory.find(x=>x.engine=
  for(const name of ['clamp','dist','segmentDistance','segment','angleGap','tickTimers'])assert(parity.helpers[name].cases>100,name);}
 
 // Parity policy: the quick runs below (and in CI) are the gate for every change; the recorded full runs are the last
-// big proof and are only re-recorded for large ports (RUST-CORE.md, "Commands"). Each worker's self-test also turns the
+// big proof and are only re-recorded for large ports. Each worker's self-test also turns the
 // core off if it ever disagrees with JavaScript.
 // Phase B2: the ported engine methods in the last full call recording were replayed in Rust and matched (return value
 // and the battle state afterwards). A method never called in the recorded games has to be listed here.

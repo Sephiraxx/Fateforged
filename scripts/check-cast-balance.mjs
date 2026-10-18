@@ -1,4 +1,4 @@
-// Hand balance (TEAM-BATTLES.md, "Hand balance"): the recorded balance lab (validation/balance-lab.json, from
+// Hand balance: the recorded balance lab (validation/balance-lab.json, from
 // node scripts/balance-lab.mjs --record) covers every subclass with enough games, every subclass wins 46–54%, and the
 // stat bonuses name real subclasses.
 import assert from 'node:assert/strict';

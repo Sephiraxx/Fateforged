@@ -1,4 +1,4 @@
-// Levels and XP camps in Core siege (TEAM-BATTLES.md, "Levels and XP camps"). Fighters start at level 1 and earn XP
+// Levels and XP camps in Core siege. Fighters start at level 1 and earn XP
 // from kills (assists too), the Forge Titan and two neutral Ember Wisps, one in each half of the field (mirrored, on
 // the bottom lane, clear of every map's rocks). Each level adds damage,
 // healing, health and speed; levels last the whole game, through respawns.

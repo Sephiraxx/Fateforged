@@ -31,12 +31,14 @@ export const PROP_ART=Object.freeze({
 });
 // Each team map's terrain pieces use one rock sprite.
 export const TERRAIN_ART=Object.freeze({pillars:'rock-pillar',ruins:'wall-stone',crossroads:'rock-boulder',groves:'rock-cluster'});
-export const OBJECTIVE_ART=Object.freeze(['core-blue','core-red','core-blue-cracked','core-red-cracked','titan-idle','titan-slam','titan-down','pit-rim']);
+export const OBJECTIVE_ART=Object.freeze(['core-blue','core-red','core-blue-cracked','core-red-cracked','pit-rim']);
 export const EFFECT_ART=Object.freeze(['fx-forgefire','fx-respawn','fx-slam','fx-core-hit','fx-steal']);
 export const SPRITE_NAMES=Object.freeze([...Object.keys(CHARACTER_ART),...Object.keys(PROP_ART),...OBJECTIVE_ART,...new Set(Object.values(TERRAIN_ART)),...EFFECT_ART]);
 export const SPRITE_EXTENSIONS=Object.freeze(['webp','png']);
 // Sprites ship inside the worker bundle and the Pages site, so each file must stay small (256 px WebP is ~20–60 KB).
 export const SPRITE_MAX_BYTES=400*1024;
+// Still sprites are square: 256 px, and 512 px for the Titan pit rim (drawn 250 world px wide).
+export const stillSize=name=>name==='pit-rim'?512:256;
 const byClass=new Map(Object.entries(CHARACTER_ART).flatMap(([art,list])=>list.map(name=>[name,art])));
 const byWeapon=new Map(Object.entries(PROP_ART).flatMap(([art,list])=>list.map(name=>[name,art])));
 export const characterArt=className=>byClass.get(className)??null;
@@ -86,5 +88,18 @@ export const fxName=(subclass,id)=>`fx-${slug(subclass)}-${id}`;
 export const FX_NAMES=Object.freeze(TEAM_CLASSES.flatMap(c=>c.subclasses.flatMap(s=>(CAST_FX[s.name]??[]).map(id=>fxName(s.name,id)))));
 // The effect a fighter's ability plays: its subclass's version, or null (wheel fighters and unknown abilities).
 export const fighterFx=(f,id)=>{const sub=f?.traits?.subclass;if(!sub||!CAST_FX[sub]?.includes(id))return null;return fxName(sub,id);};
+// Animated sheets for the Core siege creatures and summons (ART-PROMPTS.md, "Core siege creatures"): 256 px frames,
+// facing right, one row per entry and as many columns as the longest row. `standing` is how tall the creature stands in
+// its cell (feet SHEET_FEET above the bottom; `centered` floaters sit in the middle instead). `play` names the row for
+// each action (pixi-arena-model.js creatureFrame): attack, a telegraphed windup ending on its last frame, hit, death
+// (played once; reversed when the creature returns) and walk.
+export const CREATURE_SHEETS=Object.freeze({
+ 'creature-titan':Object.freeze({rows:Object.freeze([['idle',4],['walk',6],['punch',5],['slam',5],['hit',2],['down',4]]),standing:200,play:Object.freeze({attack:'punch',windup:'slam',hit:'hit',death:'down',walk:'walk'})}),
+ 'creature-wisp':Object.freeze({rows:Object.freeze([['idle',4],['zap',4],['hit',2],['fade',4]]),standing:90,centered:true,play:Object.freeze({attack:'zap',hit:'hit',death:'fade'})}),
+ 'creature-beast':Object.freeze({rows:Object.freeze([['idle',4],['walk',6],['bite',4]]),standing:120,play:Object.freeze({attack:'bite',walk:'walk'})}),
+ 'creature-spirit':Object.freeze({rows:Object.freeze([['idle',4],['cast',4]]),standing:90,centered:true,play:Object.freeze({attack:'cast'})})
+});
+export const CREATURE_NAMES=Object.freeze(Object.keys(CREATURE_SHEETS));
+export const creatureColumns=name=>Math.max(...CREATURE_SHEETS[name].rows.map(([,n])=>n));
 // Which sprite files are usable: the manifest maps a sprite name to its file; unknown names are ignored.
-export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES,...FX_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}
+export function spriteUrls(manifest,base){const out={};for(const name of [...SPRITE_NAMES,...SHEET_NAMES,...FX_NAMES,...CREATURE_NAMES])if(typeof manifest?.[name]==='string')out[name]=new URL('sprites/'+manifest[name],base).href;return out;}

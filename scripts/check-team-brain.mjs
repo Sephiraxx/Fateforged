@@ -44,6 +44,6 @@ const one=play(true);assert.deepEqual(one,play(true));assert.deepEqual(one,play(
 // Recorded measurements (validation/team-objectives-brain.json).
 const recorded=JSON.parse(fs.readFileSync('validation/team-objectives-brain.json','utf8'));assert.equal(recorded.engine,'team-3.5');
 for(const row of recorded.rows){assert(row.medianSeconds>=240&&row.medianSeconds<=360,`${row.size}v${row.size} median ${row.medianSeconds}s`);assert(row.suddenDeathRate<=20,`${row.size}v${row.size} sudden death ${row.suddenDeathRate}%`);assert(row.timeLimitRate<=10);assert(row.titanIgnoredRate<10);for(const p of TEAM_PLANS)assert(row.planShare[p]>0,`${row.size}v${row.size} never used ${p}`);}
-// Design target is 35–65%; styles other than All-out aggression currently trail Balanced (see TEAM-BATTLES.md).
+// Design target is 35–65%; styles other than All-out aggression currently trail Balanced.
 for(const row of recorded.tactics)assert(row.winRate>=25&&row.winRate<=75,`${row.size}v${row.size} ${row.tactic} vs balanced ${row.winRate}%`);
 console.log('Team brain passed: every plan reachable, hysteresis, Guarded by numbers, plan targets, determinism and recorded targets.');

@@ -1,4 +1,4 @@
-// Core siege fighters that fight back (TEAM-BATTLES.md, "Siege AI"). Before this layer a team on the siege plan kept
+// Core siege fighters that fight back. Before this layer a team on the siege plan kept
 // hitting the enemy Core while defenders hit them, and fighters ignored whoever attacked them.
 // - Retaliate: a fighter hit by an enemy fighter in the last 1.5 s turns on that attacker when it is in reach, unless
 //   it is finishing a Core that is nearly down. Healers keep healing.

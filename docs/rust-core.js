@@ -1,8 +1,8 @@
-// The Rust simulation core, compiled to WebAssembly (RUST-CORE.md, phases D and B4). Simulation workers load it once
+// The Rust simulation core, compiled to WebAssembly. Simulation workers load it once
 // and play headless Core siege (team-4.0) and classic teamfight (team-2.9) games through it instead of the JavaScript
 // engine. JavaScript still builds each
 // battle, so every fighter, ability and map is set up by the same code; the core only steps it to the end. Results
-// are bit-identical to the JavaScript engine (proven game by game in RUST-CORE.md), and every worker double-checks
+// are bit-identical to the JavaScript engine, and every worker double-checks
 // its first games against JavaScript anyway: any difference or error turns the core off for that worker, and the
 // JavaScript result is used. Older engine versions, watched games and replays always run in JavaScript.
 import {teamEngine} from './combat-team.js';

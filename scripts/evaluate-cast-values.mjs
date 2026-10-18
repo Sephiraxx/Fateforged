@@ -1,4 +1,4 @@
-// Calibrates team-league OVR for the team cast (TEAM-BATTLES.md, "Ratings and salaries"). Plays seeded games between
+// Calibrates team-league OVR for the team cast. Plays seeded games between
 // random cast teams on the Rust core (3v3 and 5v5, per battle mode) and fits a logistic model: a team's chance to win
 // follows the difference of its fighters' summed values, where a value is the rating features (team-league.js
 // ratingFeatures) plus one offset per subclass. Values are then rescaled so a fresh pool keeps the old OVR spread.

@@ -12,7 +12,7 @@ export const TEAM_TIME_LIMIT=120;
 export const TEAM_SIZES=Object.freeze([2,3,5]);
 export const TEAM_TACTICS=Object.freeze(['balanced','protect-carry','focus-healer','aggressive','defensive']);
 export const CC_IMMUNITY=2.5;
-// Team-only role mechanics (see TEAM-BATTLES.md).
+// Team-only role mechanics.
 export const TEAM_RULES=Object.freeze({provokeRange:110,provokeScore:3.5,fortified:.35,bulwarkRange:80,bulwarkShare:.25,exposedTime:3,exposedBonus:.15,overtime:75,overtimeHealing:.5,overtimeDamage:1.2});
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);

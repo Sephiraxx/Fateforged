@@ -1,4 +1,4 @@
-// Cast ratings (TEAM-BATTLES.md, "Ratings and salaries"): team-league OVR for cast fighters comes from the model
+// Cast ratings: team-league OVR for cast fighters comes from the model
 // fitted on lab games (scripts/evaluate-cast-values.mjs), per battle mode; leagues rated before it move onto it on
 // load and keep each fighter's career progress.
 import assert from 'node:assert/strict';

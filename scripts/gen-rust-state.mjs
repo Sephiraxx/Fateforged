@@ -1,5 +1,5 @@
 // Generates core/src/team/state.rs from core/schema/team.json: one Rust struct per object kind, loaded from the
-// JSON written by scripts/lib/team-state.mjs and digested exactly like digestState() (RUST-CORE.md, phase B).
+// JSON written by scripts/lib/team-state.mjs and digested exactly like digestState().
 // node scripts/gen-rust-state.mjs [--check]   (run after scripts/rust-schema.mjs; the output is committed;
 // --check only verifies that the committed file is what the schema generates)
 import fs from 'node:fs';

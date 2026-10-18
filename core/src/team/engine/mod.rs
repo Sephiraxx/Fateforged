@@ -1,4 +1,4 @@
-//! The team-4.0 (Core siege) and team-2.9 (classic teamfight) engines in Rust (RUST-CORE.md, phases B3 and B4).
+//! The team-4.0 (Core siege) and team-2.9 (classic teamfight) engines in Rust.
 //! JavaScript builds a battle; this runs it.
 //!
 //! The JavaScript engine is a chain of 23 class layers. Each ported method keeps that shape: `name` is the version
@@ -37,7 +37,7 @@ pub struct Engine {
     /// Entities by `index` (fighters, then the two Cores, then the Titan).
     pub e: Vec<Entity>,
     pub seed: f64,
-    /// A classic teamfight (team-2.9): the team-4.0 chain without its Core siege layers (RUST-CORE.md, B4).
+    /// A classic teamfight (team-2.9): the team-4.0 chain without its Core siege layers.
     pub classic: bool,
     rng: JsRandom,
     rng_calls: f64,
