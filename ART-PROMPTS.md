@@ -9,7 +9,7 @@ These prompts produce sprites for team battles and Core siege. Paste them into C
 2. Generate one asset per message. When one looks right, say "Perfect. Now make the next one with exactly the same style, size, angle and lighting" and paste the next prompt.
 3. Ask for a **transparent background PNG** every time. If ChatGPT adds a background, reply: "Remove the background completely; transparent PNG, nothing behind the character."
 4. Check each image at small size: shrink it to 48×48 px. If you can't tell the class at that size, ask for "a bolder silhouette, larger head and props, fewer small details".
-5. Save files with the names in the checklist, resize them to 256 px (512 px for `pit-rim`), export as WebP under 400 KB (for example with squoosh.app), and put them in `public/sprites/` as `<name>.webp`. Rebuild, and the enhanced renderer uses each sprite that exists, keeping the drawn look for the rest (see `public/sprites/README.md`). You can add them a few at a time.
+5. Save files with the names in the checklist. Turn each one into its game file with `node scripts/sprite-sheet.mjs --still <name> <image.png>`, which writes `public/sprites/<name>.webp` at the right size (or resize to 256 px, 512 px for `pit-rim`, and export as WebP under 400 KB yourself). Rebuild, and the enhanced renderer uses each sprite that exists, keeping the drawn look for the rest (see `public/sprites/README.md`). You can add them a few at a time.
 
 ## Shared style preamble (paste at the start of every prompt)
 ```
@@ -90,38 +90,58 @@ Details: <DETAILS>. Output: 128x128 transparent PNG, 8px margin.
 | `prop-polearm.png` | Polearms (spear, halberd, glaive) | long spear with a leaf blade and a pennant |
 | `prop-shield.png` | Shields | kite shield with a simple emblem, front view |
 
-## Objective mode pieces
-**Core (4 sprites).** These two are the only assets that use team colours:
+## Objective mode pieces (Core siege field)
+
+Fourteen still images make up the Core siege field: the two Cores (healthy and cracked), the terrain rocks, the Titan's pit rim, and five effects. Until a file exists, the game keeps its drawn version (diamonds, grey discs, rings and particles).
+
+**How to make them:**
+- **One image per message.** Use the preamble's style lines (camera, cel-shaded style, light from the top-left, no text or UI, transparent background), but not its character lines. Then paste the piece's prompt below.
+- **References:** generate `core-blue.png` first. Attach it to the other three Core prompts, so all four share one design.
+- **Build each one:** `node scripts/sprite-sheet.mjs --still <name> <image.png>`, for example `node scripts/sprite-sheet.mjs --still core-blue art/field/core-blue.png`. It cuts the art to its visible pixels, fits it into a 256 px square (512 for `pit-rim`) with a small margin, centres it, and writes `public/sprites/<name>.webp`. It refuses an image whose corners aren't transparent.
+- **Check:** run `node scripts/audit-sprites.mjs`, then rebuild.
+
+**Core (4 sprites).** These are the only assets in team colours. In game a Core is drawn about 92 px wide, with a health ring just outside it, so the crystal and pedestal should read as one compact round shape.
 ```
-[preamble, but replace the palette line with: "This asset IS team-coloured: <cyan
-#3ee0ff | red #ff5a6a> glowing energy on dark stone"]
+[preamble style lines, but replace the palette line with: "This asset IS team-coloured:
+<cyan #3ee0ff | red #ff5a6a> glowing energy on dark stone"]
 A team Core: a large floating crystal (about 60% of the canvas) above a carved stone
 pedestal with runes, energy veins glowing in the team colour, top-down three-quarter
-view. <STATE>. Output: 256x256 transparent PNG.
+view, compact round silhouette. <STATE>. Transparent background, nothing around it.
 ```
 
 | File | Team | State |
 | --- | --- | --- |
 | `core-blue.png` | blue | healthy, bright steady glow |
-| `core-red.png` | red | healthy, bright steady glow |
-| `core-blue-cracked.png` | blue | cracked crystal, flickering glow, small floating shards |
-| `core-red-cracked.png` | red | cracked crystal, flickering glow, small floating shards |
+| `core-red.png` | red | the attached blue Core redrawn in red: identical shape, pedestal and size, healthy, bright steady glow |
+| `core-blue-cracked.png` | blue | the attached blue Core, now cracked: dark fractures across the crystal, flickering glow, small floating shards close to it |
+| `core-red-cracked.png` | red | the attached red Core, now cracked: dark fractures across the crystal, flickering glow, small floating shards close to it |
 
 **Forge Titan:** animated, see "Core siege creatures" below.
 
-**Terrain (5 sprites, 128×128).** Each must read as a solid obstacle from above:
-- `rock-pillar.png`: round stone pillar seen from above, with moss and cracks.
-- `rock-boulder.png`: rough boulder.
-- `wall-stone.png`: one round section of a ruined wall (several are chained in game).
-- `rock-cluster.png`: three small rocks.
-- `pit-rim.png` (512×512): circular arena pit edge with a scorched centre where the Titan stands.
+**Terrain (4 rocks and the pit rim).** Each map uses one rock sprite for all its obstacles. It is drawn a little larger than the obstacle, with a soft shadow the game adds, so the rock should fill its square:
+```
+[preamble style lines] A terrain obstacle for a top-down arena, seen from directly above
+with a slight tilt: <PIECE>. Its footprint is roughly round and fills about 90% of the
+canvas. Neutral grey-brown stone, no team colours, no ground around it, no cast shadow.
+Transparent background.
+```
+- `rock-pillar.png`: a round stone pillar seen from above, with moss and cracks on its top (the Pillar hall map).
+- `rock-boulder.png`: a single rough boulder (Crossroads).
+- `wall-stone.png`: one round section of a ruined stone wall; several are chained in game (Broken ruins).
+- `rock-cluster.png`: three small rocks huddled together (Stone groves).
+- `pit-rim.png`: drawn 250 px wide around the Titan's pit, under everything, at 85% opacity. Prompt: "[preamble style lines] The edge of a circular arena pit seen from directly above: a ring of broken, scorched dark stone with glowing ember cracks, about 15% of the canvas wide, around a mostly empty centre with only faint scorch marks (fighters and the Titan stand there). Transparent background outside the ring."
 
-**Effects (5 sprites, 256×256, glowing, transparent):**
-- `fx-forgefire.png`: a ring aura of golden flame (the buff).
-- `fx-respawn.png`: a soft column of light.
-- `fx-slam.png`: a ground-crack shockwave ring.
-- `fx-core-hit.png`: a shard burst.
-- `fx-steal.png`: a sharp golden flash with a star.
+**Effects (5 sprites, glowing).** The game draws these with additive blending: bright colours glow, and dark colours or outlines vanish. So draw only light: no dark outline, no shadow, no background.
+```
+[preamble style lines, but no dark outline] A bright glowing game effect on a
+transparent background, seen from above, centred: <EFFECT>. Only light, fire and sparks;
+no dark outline, no black.
+```
+- `fx-forgefire.png`: a ring of golden flame with an empty centre (the fighter stands inside). Drawn around a buffed fighter and slowly rotated, so it should look good at any angle.
+- `fx-respawn.png`: a soft column of white-blue light rising from a glowing circle (it flashes when a fighter respawns).
+- `fx-slam.png`: an orange shockwave ring with ground cracks radiating outward; it grows from 60 to 220 px as the Titan's slam lands.
+- `fx-core-hit.png`: a burst of bright crystal shards flying outward from the centre.
+- `fx-steal.png`: a sharp golden flash with a four-pointed star (a team steals the Titan kill).
 
 ## Team cast sheets (animated, one per subclass)
 
@@ -259,7 +279,7 @@ For `{GROUND}`, use "Feet on the same ground line in every frame." for the Titan
 - [ ] 10 class-archetype characters
 - [ ] 12 weapon props
 - [ ] 4 Core sprites
-- [ ] 5 terrain pieces
+- [ ] 5 terrain pieces (4 rocks and the pit rim)
 - [ ] 5 effects
 - [ ] Team cast sheets (32, one per subclass; 5 row strips each, built with `scripts/sprite-sheet.mjs`)
 - [ ] Spell effects (64, one per subclass ability; one 4-frame strip each, built with `scripts/sprite-sheet.mjs --fx`)

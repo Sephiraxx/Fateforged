@@ -1073,7 +1073,7 @@ The renderer uses sprite art from `public/sprites/` wherever a file exists, and 
 | Terrain (`rock-*`, `wall-stone`, `pit-rim`) | rocks by map (pillar hall → pillar, broken ruins → wall stone, crossroads → boulder, stone groves → cluster), and the Titan pit | shaded rocks and a gold ring |
 | Effects (`fx-*`) | the Forgefire aura; respawn and revive columns; slam shockwave; Core hits; Titan steals | glows, rings and particles |
 
-- **Adding art:** save files as `<name>.webp` (preferred) or `.png`, under 400 KB each (256 px, 512 px for the pit rim), then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
+- **Adding art:** turn each image into its file with `node scripts/sprite-sheet.mjs --still <name> <image.png>`. It cuts the art to its visible pixels, fits and centres it in a 256 px square (512 px for the pit rim) and writes `public/sprites/<name>.webp`, refusing images with a background left in. Or save files as `<name>.webp` (preferred) or `.png` yourself, under 400 KB each. Then rebuild. `scripts/sprites.mjs` skips unknown names, duplicates and oversize files with a warning.
 - **Builds:** they list the files in a generated `sprite-manifest.js` (empty in source), serve them from `/sprites/` (the worker embeds them like the other images), and add content hashes so updated art isn't cached.
 - **Loading:** sprites load in the background, and a fight that starts first switches over as each one arrives.
 
@@ -1102,7 +1102,7 @@ Each subclass ability can have a short effect drawn in that character's colours,
   - around the caster, larger, for area abilities.
   
   The effect follows whoever it plays on. All of this is pure renderer logic (`pixi-arena-model.js`, tested in `check-pixi-arena`); the engines are untouched.
-- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also writes contact sheets to `validation/sprite-audit/` for a visual pass.
+- **Audit before shipping:** `node scripts/audit-sprites.mjs` checks every sheet and effect in `public/sprites/`. It flags wrong sizes, empty, cut-off or background-filled frames, frames cropped by a box in the source strip, a character that is not the cast's standing height, size jumps between frames, colour drift from the idle frames (a different outfit), frozen frames, and effects that don't grow and fade. It also checks the Core siege field stills: a background left in, rocks too small for their obstacle, effects too dark to show under additive blending, and Cores whose pairs differ in size or carry the wrong team colour. It writes contact sheets to `validation/sprite-audit/` for a visual pass.
 - **Making them:** each effect is a 4-frame GPT strip drawn to match the attached attack row of its character. `node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>` turns a 4-frame strip into the effect file: it uses one scale for the strip, so the effect visibly grows, and centres each frame on itself. Abilities without a file keep today's effects.
 
 ### Core siege creatures (animated)
