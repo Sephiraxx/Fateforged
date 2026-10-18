@@ -2,98 +2,98 @@
   "referenceEngine": "team-2",
   "currentEngine": "team-2.3",
   "games": 8,
-  "referenceMs": 206,
-  "currentMs": 244,
-  "ratio": 1.19,
-  "costPerSecondRatio": 1.14,
+  "referenceMs": 293,
+  "currentMs": 355,
+  "ratio": 1.21,
+  "costPerSecondRatio": 1.16,
   "maximumRatio": 2.5,
   "note": "Identical squads/seeds; same-run frozen team-2 reference; alternate timing order after warmup. Absolute milliseconds are informational. Test both whole-match and per-simulated-second cost ratios.",
   "samples": [
     {
       "seed": 9000,
       "reference": {
-        "ms": 150.06633699999998,
+        "ms": 197.84534800000006,
         "seconds": 43.19999999999883
       },
       "current": {
-        "ms": 165.71200499999986,
+        "ms": 254.67326599999978,
         "seconds": 65.4833333333309
       }
     },
     {
       "seed": 9001,
       "reference": {
-        "ms": 317.5178629999996,
+        "ms": 419.64223600000014,
         "seconds": 103.91666666666205
       },
       "current": {
-        "ms": 324.15649099999996,
+        "ms": 429.00641399999995,
         "seconds": 62.566666666664396
       }
     },
     {
       "seed": 9002,
       "reference": {
-        "ms": 123.43231700000024,
+        "ms": 164.84449300000006,
         "seconds": 36.76666666666586
       },
       "current": {
-        "ms": 227.69796399999996,
+        "ms": 305.55764499999987,
         "seconds": 65.81666666666422
       }
     },
     {
       "seed": 9003,
       "reference": {
-        "ms": 47.77263999999968,
+        "ms": 65.26961699999993,
         "seconds": 19.98333333333348
       },
       "current": {
-        "ms": 52.72040199999992,
+        "ms": 62.866363999999976,
         "seconds": 15.983333333333707
       }
     },
     {
       "seed": 9004,
       "reference": {
-        "ms": 227.2493669999999,
+        "ms": 303.1012819999996,
         "seconds": 35.14999999999929
       },
       "current": {
-        "ms": 269.2426610000002,
+        "ms": 388.66908800000056,
         "seconds": 37.733333333332475
       }
     },
     {
       "seed": 9005,
       "reference": {
-        "ms": 345.0665359999998,
+        "ms": 534.0526730000001,
         "seconds": 69.41666666666401
       },
       "current": {
-        "ms": 396.302948,
+        "ms": 527.4677149999998,
         "seconds": 64.33333333333097
       }
     },
     {
       "seed": 9006,
       "reference": {
-        "ms": 253.12392900000032,
+        "ms": 431.4916110000004,
         "seconds": 49.649999999998464
       },
       "current": {
-        "ms": 300.6515220000001,
+        "ms": 553.6164629999994,
         "seconds": 53.266666666664925
       }
     },
     {
       "seed": 9007,
       "reference": {
-        "ms": 180.92452500000036,
+        "ms": 225.67910500000016,
         "seconds": 45.66666666666536
       },
       "current": {
-        "ms": 214.0880189999998,
+        "ms": 319.4634019999994,
         "seconds": 55.84999999999811
       }
     }

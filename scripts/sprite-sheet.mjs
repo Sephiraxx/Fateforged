@@ -4,7 +4,7 @@
 // node scripts/sprite-sheet.mjs --creature <sheet> <folder>
 // node scripts/sprite-sheet.mjs --fx <subclass> <ability id> <strip.png>
 // Creatures: the rows and standing height come from CREATURE_SHEETS; the death row (down or fade) is scaled like the
-// cast's down row, the hit row and a windup (the Titan's slam, fists raised) like hit, and floaters (wisp, spirit) are
+// cast's down row (a fade by its first frame, since it shrinks), the hit row and a windup (the Titan's slam, fists raised) like hit, and floaters (wisp, spirit) are
 // centred in their cells instead of standing on the feet line. Written to public/sprites/<sheet>.webp.
 // Effects: one strip of FX_FRAMES frames; each frame is centred on its own box and the strip keeps one scale, so the
 // effect's growth stays visible; written to public/sprites/fx-<subclass>-<ability id>.webp (256 px frames in one row).
@@ -143,7 +143,8 @@ try{
   // Row scales: idle, walk and attack by the character's median height; down (areaRows) by area (the idle area at the
   // idle scale), since the fall changes the height; hit (halfRows) halfway between the two (geometric mean), since a
   // recoil crouches a little and a flung cape adds area.
-  const of=row=>frames.filter(f=>f.row===row),scales={},byArea=row=>scales.idle*Math.sqrt(median(of('idle').map(f=>f.area))/median(of(row).map(f=>f.area)));
+  // A fade shrinks by design, so it matches its first frame (the whole creature) to idle instead of its median.
+  const of=row=>frames.filter(f=>f.row===row),scales={},rowArea=row=>row==='fade'?of(row)[0].area:median(of(row).map(f=>f.area)),byArea=row=>scales.idle*Math.sqrt(median(of('idle').map(f=>f.area))/rowArea(row));
   for(const r of rows)if(!areaRows.includes(r.row))scales[r.row]=STANDING/median(of(r.row).map(f=>f.bodyH));
   for(const row of areaRows)scales[row]=byArea(row);for(const row of halfRows)scales[row]=Math.sqrt(scales[row]*byArea(row));
   // Placement: feet on the feet line, centred on the feet (down: on the box), pushed sideways to stay inside the cell;
