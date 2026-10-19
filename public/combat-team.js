@@ -32,11 +32,14 @@ export function useNativeSimulator(simulate){nativeSimulator=simulate??null;}
 // random teams, while sitting near 50% in 5v5 and classic teamfight. In that format alone they enter the battle with
 // extra stats (strength, speed, durability, IQ, magic). The stats are added before the battle is built, so the Rust
 // core plays the same input.
-export const TRIO_SIEGE_BONUS=Object.freeze({tank:Object.freeze([72,48,144,0,0]),healer:Object.freeze([0,40,80,40,80])});
+export const TRIO_SIEGE_BONUS=Object.freeze({tank:Object.freeze([130,80,260,0,0]),healer:Object.freeze([40,90,220,90,220]),controller:Object.freeze([0,25,50,25,50]),support:Object.freeze([0,80,160,80,160]),bruiser:Object.freeze([-30,-15,-45,0,0]),damage:Object.freeze([-25,0,-25,0,-25])});
+// On top of the role, a few subclasses that stood out in league seasons (scripts/league-lab.mjs) get their own nudge.
+export const TRIO_SIEGE_SUBCLASS=Object.freeze({'Bard (Siren)':[0,-40,-80,-40,-80],'Assassin (Riftwalker)':[-70,-35,-100,0,0],'Mage (Blood)':[0,-25,-50,-25,-75],'Ranger (Trapper)':[40,20,60,0,0],'Warrior (Vanguard)':[100,50,160,0,0],'Warlock (Hexer)':[0,40,80,40,80],'Cleric (Mercy)':[0,30,60,30,60],'Ranger (Marksman)':[50,25,75,0,0],'Bard (Maestro)':[0,30,60,30,60],'Druid (Forest)':[0,25,50,25,50]});
+const trioBonus=f=>{const s=castSubclass(f.traits?.class,f.traits?.subclass);if(!s||(f.summary?.generationVersion??0)<5)return null;const a=TRIO_SIEGE_BONUS[s.role],b=TRIO_SIEGE_SUBCLASS[`${f.traits.class} (${f.traits.subclass})`];return a||b?[0,1,2,3,4].map(i=>(a?.[i]??0)+(b?.[i]??0)):null;};
 export const TRIO_SIEGE_ENGINES=Object.freeze(['team-4.0']);
 export function formatTeams(teams,options={}){
  if(!TRIO_SIEGE_ENGINES.includes(options.engineVersion)||teams.length!==2||teams.some(t=>t.length!==3))return teams;
- return teams.map(t=>t.map(f=>{const bonus=(f.summary?.generationVersion??0)>=5?TRIO_SIEGE_BONUS[castSubclass(f.traits?.class,f.traits?.subclass)?.role]:null;return bonus?{...f,summary:{...f.summary,stats:f.summary.stats.map((v,i)=>v+bonus[i])}}:f;}));
+ return teams.map(t=>t.map(f=>{const bonus=trioBonus(f);return bonus?{...f,summary:{...f.summary,stats:f.summary.stats.map((v,i)=>Math.max(0,v+bonus[i]))}}:f;}));
 }
 export function simulateTeam(teams,seed,options={}){
  teams=formatTeams(teams,options);
