@@ -409,10 +409,11 @@ export function mountTeamLeague(host,hooks){
   wrap.append(table(['Team','Record','Status'],rows,'Standings'),grid);return wrap;
  }
  const phaseTitle=ph=>({'group-a':'Group A (GSL, Bo5)','group-b':'Group B (GSL, Bo5)',bracket:'Bracket stage (double elimination)',knockout:'Knockout stage'})[ph.key]??(ph.key==='play-in'?(ph.template==='double4'?'Play-in (double elimination, one team advances)':'Play-in (GSL group)'):ph.key);
- // An international event, live or archived: groups, play-ins, the Swiss stage and brackets in order.
+ // An international event, live or archived: groups, play-ins, the Swiss stage and brackets in order. A finished
+ // play-in moves to the bottom so the stage being played (or the main stage of an archived event) comes first.
  function eventView(key,ev,resolve,nameOf,groupRows){
-  const wrap=el('div','','event-view');
-  for(const ph of ev.phases){
+  const wrap=el('div','','event-view'),pi=ev.phases.findIndex(ph=>ph.key==='play-in'),order=pi>=0&&(ev.current==null||ev.current>pi)?[...ev.phases.filter((_,i)=>i!==pi),ev.phases[pi]]:ev.phases;
+  for(const ph of order){
    if(ph.format==='groups'){const grid=el('div','','draft-grid');for(const g of Object.keys(ph.groups)){const box=el('div');box.append(recordTable(groupRows(g),nameOf,`Group ${g}`,{games:true}));const list=el('div','','playoff-rounds');ph.rounds[g].forEach((round,i)=>{const col=el('div','','playoff-round');col.append(el('h4',`Round ${i+1}`));for(const x of round)col.append(seriesCard(resolve(x),nameOf));list.append(col);});box.append(list);grid.append(box);}wrap.append(el('h4','Group stage','bracket-row-label'),grid);}
    else if(ph.format==='swiss'&&!ph.teams)wrap.append(el('p',`Swiss stage: waiting for the play-in.`,'muted'));
    else if(ph.format==='swiss')wrap.append(swissBoard(ph,resolve,nameOf));
