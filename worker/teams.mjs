@@ -11,29 +11,30 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','market','offer','withdraw','claim','lineup','tactic','startSeason','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeTrades','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','market','offer','withdraw','claim','lineup','tactic','startSeason','advance','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeTrades','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
  let world=row?TEAM_LEAGUE.prepareContracts(TEAM_LEAGUE.prepareHallOfFame(TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))))):null;
- // Old-format leagues (before the team cast) can only be deleted.
- if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This team league uses the old format. Delete it to start a new league with the team cast.',409);
+ // Old-format leagues (before the team cast, or single leagues from before region circuits) can only be deleted.
+ if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This league uses the single-league format. Delete it to start a region circuit.',409);
  if(input.action==='start'){
   if(world)fail('This team league already exists. Refresh to continue it.',409);
   if(!UUID.test(input.worldId)||!Number.isSafeInteger(input.seed)||input.seed<0||input.seed>0xffffffff)fail('Invalid team league setup.');
-  if(!Array.isArray(input.fighters)||input.fighters.length>400)fail('Invalid fighter pool.');
-  try{world=TEAM_LEAGUE.create({id:input.worldId,format,teams:input.teams,seed:input.seed,fighters:input.fighters.map(teamPoolFighter),battleMode:input.battleMode});}catch(e){fail(e.message);}
+  if(!Array.isArray(input.fighters)||input.fighters.length>1000)fail('Invalid fighter pool.');
+  try{world=TEAM_LEAGUE.create({id:input.worldId,format,regionSize:input.regionSize,seed:input.seed,fighters:input.fighters.map(teamPoolFighter),battleMode:input.battleMode});}catch(e){fail(e.message);}
  }else if(!world)fail('Create the team league first.',409);
  else if(input.action==='market'){
   // Free-agency rounds: every AI offer and every signing is computed here from the shared rules.
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>100)fail('Invalid number of free-agency rounds.');
   if(!TEAM_LEAGUE.marketOpen(world))fail('Free agency is not open.');TEAM_LEAGUE.marketRounds(world,input.count);
  }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
+ else if(input.action==='advance'){try{TEAM_LEAGUE.advance(world);}catch(e){fail(e.message);}}
  else if(['offer','withdraw','claim','lineup','tactic','offseason','decide','trade','closeTrades'].includes(input.action)){
   // Coach-mode and offseason commands: the shared rules validate every choice.
-  if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>200))fail('Invalid rookie class.');
+  if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>400))fail('Invalid rookie class.');
   const rookies=input.action==='offseason'?input.rookies.map(teamPoolFighter):null;
   try{
    if(input.action==='offer'){if(typeof input.fighter!=='string')throw new Error('Choose a fighter.');TEAM_LEAGUE.makeOffer(world,input.fighter,input.salary,input.years);}

@@ -42,7 +42,7 @@ const version=createHash('sha256').update(JSON.stringify(assets)+JSON.stringify(
 const revision=createHash('sha256').update(JSON.stringify(catalog)+reconciliation).digest('hex');
 const leagueHelpers=(await readFile('public/leagues.js','utf8')).replaceAll('export const','const');
 const leagueStorage=await readFile('worker/leagues.mjs','utf8');
-const teamLeague=moduleBundle('TEAM_LEAGUE',[await readFile('public/team-kits.js','utf8'),await readFile('public/support-abilities.js','utf8'),await readFile('public/team-balance.js','utf8'),await readFile('public/team-classes.js','utf8'),await readFile('public/team-roles.js','utf8'),await readFile('public/team-engine-versions.js','utf8'),await readFile('public/team-game-plan.js','utf8'),await readFile('public/team-maps.js','utf8'),await readFile('public/team-series.js','utf8'),await readFile('public/team-league.js','utf8')])+'\n'+await readFile('worker/teams.mjs','utf8');
+const teamLeague=moduleBundle('TEAM_LEAGUE',[await readFile('public/team-kits.js','utf8'),await readFile('public/support-abilities.js','utf8'),await readFile('public/team-balance.js','utf8'),await readFile('public/team-classes.js','utf8'),await readFile('public/team-roles.js','utf8'),await readFile('public/team-engine-versions.js','utf8'),await readFile('public/team-game-plan.js','utf8'),await readFile('public/team-maps.js','utf8'),await readFile('public/team-series.js','utf8'),await readFile('public/team-events.js','utf8'),await readFile('public/team-league.js','utf8')])+'\n'+await readFile('worker/teams.mjs','utf8');
 const poolHelpers=await readFile('worker/pools.mjs','utf8');
 const paths=[...Object.keys(files).filter(p=>/\.(js|css)$/.test(p)),...Object.keys(binary)];
 for(const path of Object.keys(assets)){

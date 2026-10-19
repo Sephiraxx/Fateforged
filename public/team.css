@@ -251,3 +251,23 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 .offseason-meta{margin:6px 0 12px}
 
 .team-hud-kit{grid-column:1/-1;order:3;color:var(--muted);font-size:.62rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Region circuits: region tabs, the season calendar, stage summaries, brackets and the Swiss board. */
+.circuit-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 10px}
+.circuit-tab{min-height:38px;padding:6px 12px;font:600 .72rem/1.2 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:#ffffff06;border:1px solid var(--line)}
+.circuit-tab[aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+.circuit-tab.mine:not([aria-selected="true"]){border-color:var(--gold);color:var(--text)}
+.circuit-tab:not([aria-selected="true"]):hover{color:var(--text)}
+.calendar-strip{display:flex;gap:4px;margin:0 0 12px;padding:0 0 6px;list-style:none;overflow-x:auto}
+.calendar-strip li{flex:1 0 auto;padding:6px 8px;font:600 .62rem/1.3 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);white-space:nowrap}
+.calendar-strip li.stage-event{border-color:#ffd36a55}
+.calendar-strip li.done{color:var(--muted);background:#ffffff06}
+.calendar-strip li.active{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+.stage-banner ul{margin:8px 0;padding-left:18px;text-align:left;display:inline-block}
+.bracket-row-label{margin:12px 0 6px;font:700 .72rem/1.2 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.swiss-board .playoff-round{justify-content:flex-start}
+.swiss-record{display:block;margin-bottom:2px;font:600 .6rem/1 var(--display);letter-spacing:.1em;color:var(--gold)}
+.team-league-table tr.out td{color:var(--dim)}
+.event-head{margin:4px 0 8px}
+.event-head h3{font:700 1rem/1.2 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.region-view>h3{font:700 1rem/1.2 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:8px}
+.region-view .team-playoffs,.world-view .team-playoffs{margin-top:12px}

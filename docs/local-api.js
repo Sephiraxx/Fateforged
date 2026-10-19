@@ -5383,6 +5383,172 @@ function seriesGameOptions(match,games=[],choice=null){
  return {lineups,tactics,...(gamePlans?{gamePlans}:{})};
 }
 
+// Tournament formats for region circuits: round robins, bracket graphs (single and double elimination, GSL groups,
+// gauntlet ladders) and Swiss stages. Pure and deterministic. Every match is a series
+// {id, home, away, bestOf, games, winner}; a game is [winning side, home HP, away HP, seconds] once recorded.
+
+const hash=(seed,key)=>{let h=(seed^0x9e3779b9)>>>0;for(const ch of String(key))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
+function coin(seed,key){return hash(seed,key)/4294967296;}
+function seededOrder(list,seed,key){return [...list].sort((a,b)=>coin(seed,`${key}:${a}`)-coin(seed,`${key}:${b}`)||(a<b?-1:1));}
+const loserOf=m=>m.winner?m.winner===m.home?m.away:m.home:null;
+const seriesWins=m=>[0,1].map(side=>m.games.filter(g=>g[0]===side).length);
+
+// Circle method: every team meets every other once per leg; an odd group gets a bye each round.
+function roundRobinRounds(ids,legs=1){
+ const list=ids.length%2?[...ids,null]:[...ids],n=list.length,rounds=[];
+ for(let leg=0;leg<legs;leg++){
+  const ring=[...list];
+  for(let r=0;r<n-1;r++){
+   const pairs=[];for(let i=0;i<n/2;i++){const a=ring[i],b=ring[n-1-i];if(a&&b)pairs.push((r+i+leg)%2?[b,a]:[a,b]);}
+   rounds.push(pairs);ring.splice(1,0,ring.pop());
+  }
+ }
+ return rounds;
+}
+
+// A table from finished series: series wins, then head-to-head among the tied, game difference, HP margin and a
+// seeded coin. Rows carry the record, games, margin and streak.
+function table(ids,matches,seed,key='table'){
+ const done=matches.filter(m=>m.winner),rows=ids.map(id=>{
+  let wins=0,losses=0,gw=0,gl=0,margin=0;const form=[];
+  for(const m of done){if(m.home!==id&&m.away!==id)continue;const side=m.home===id?0:1;if(m.winner===id)wins++;else losses++;form.push(m.winner===id?'W':'L');
+   for(const g of m.games){if(g[0]===side)gw++;else gl++;margin+=(side?-1:1)*(g[1]-g[2]);}}
+  let streak='';for(const r of form.slice().reverse()){if(!streak)streak=r+'1';else if(streak[0]===r)streak=r+(Number(streak.slice(1))+1);else break;}
+  return {id,wins,losses,gamesWon:gw,gamesLost:gl,margin,streak};
+ });
+ const pct=r=>r.wins+r.losses?r.wins/(r.wins+r.losses):0;rows.sort((a,b)=>pct(b)-pct(a)||b.wins-a.wins);
+ const out=[];
+ for(let i=0;i<rows.length;){let j=i;while(j<rows.length&&pct(rows[j])===pct(rows[i])&&rows[j].wins===rows[i].wins)j++;
+  const group=rows.slice(i,j),members=new Set(group.map(r=>r.id)),h2h={};
+  for(const r of group){let w=0,n=0;for(const m of done)if(members.has(m.home)&&members.has(m.away)&&(m.home===r.id||m.away===r.id)){n++;if(m.winner===r.id)w++;}h2h[r.id]=n?w/n:0;}
+  group.sort((a,b)=>h2h[b.id]-h2h[a.id]||(b.gamesWon-b.gamesLost)-(a.gamesWon-a.gamesLost)||b.margin-a.margin||coin(seed,`${key}:${a.id}`)-coin(seed,`${key}:${b.id}`));out.push(...group);i=j;}
+ return out;
+}
+
+// ---------- Bracket graphs ----------
+// A template node is {key, label, bestOf, a, b}; a source is {seed: i}, {winner: key}, {loser: key}, or
+// {reseed: [keys], pick: 'low'|'high'}: the lowest or highest seed among the winners of those matches.
+// Side a is home. The bracket opens a match as soon as both its teams are known.
+const node=(key,label,bestOf,a,b)=>({key,label,bestOf,a,b});
+const gsl=bo=>({nodes:[node('o1','Opening match',bo,{seed:0},{seed:3}),node('o2','Opening match',bo,{seed:1},{seed:2}),node('wm','Winners\' match',bo,{winner:'o1'},{winner:'o2'}),
+  node('em','Elimination match',bo,{loser:'o1'},{loser:'o2'}),node('dm','Decider match',bo,{loser:'wm'},{winner:'em'})],
+  places:[[{winner:'wm'}],[{winner:'dm'}],[{loser:'dm'}],[{loser:'em'}]]});
+const TEMPLATES=Object.freeze({
+ // Split playoffs, top 4: semifinals Bo3 (1v4, 2v3), Bo5 final.
+ top4:{nodes:[node('sf1','Semifinal',3,{seed:0},{seed:3}),node('sf2','Semifinal',3,{seed:1},{seed:2}),node('final','Final',5,{winner:'sf1'},{winner:'sf2'})],
+  places:[[{winner:'final'}],[{loser:'final'}],[{loser:'sf1'},{loser:'sf2'}]]},
+ // Split 3 playoffs, top 6: quarterfinals Bo3 (3v6, 4v5); the top two seeds meet the lowest and highest survivors.
+ top6:{nodes:[node('qf1','Quarterfinal',3,{seed:2},{seed:5}),node('qf2','Quarterfinal',3,{seed:3},{seed:4}),
+  node('sf1','Semifinal',5,{seed:0},{reseed:['qf1','qf2'],pick:'low'}),node('sf2','Semifinal',5,{seed:1},{reseed:['qf1','qf2'],pick:'high'}),node('final','Final',5,{winner:'sf1'},{winner:'sf2'})],
+  places:[[{winner:'final'}],[{loser:'final'}],[{loser:'sf1'},{loser:'sf2'}],[{loser:'qf1'},{loser:'qf2'}]]},
+ // Regional qualifier ladders: the lowest seeds play first, the winner climbs.
+ ladder4:{nodes:[node('g1','Qualifier round 1',5,{seed:3},{seed:2}),node('g2','Qualifier round 2',5,{seed:1},{winner:'g1'}),node('g3','Qualifier final',5,{seed:0},{winner:'g2'})],
+  places:[[{winner:'g3'}],[{loser:'g3'}],[{loser:'g2'}],[{loser:'g1'}]]},
+ ladder3:{nodes:[node('g1','Qualifier round 1',5,{seed:2},{seed:1}),node('g2','Qualifier final',5,{seed:0},{winner:'g1'})],
+  places:[[{winner:'g2'}],[{loser:'g2'}],[{loser:'g1'}]]},
+ ladder2:{nodes:[node('g1','Qualifier final',5,{seed:0},{seed:1})],places:[[{winner:'g1'}],[{loser:'g1'}]]},
+ // GSL group (four teams, double elimination): two qualify. Bo3 (older MSI play-ins) or Bo5 (First Stand groups).
+ gsl:gsl(3),gsl5:gsl(5),
+ // Four-team double elimination, Bo5, that qualifies one team (MSI and Worlds play-ins).
+ double4:{nodes:[node('u1','Upper semifinal',5,{seed:0},{seed:3}),node('u2','Upper semifinal',5,{seed:1},{seed:2}),node('uf','Upper final',5,{winner:'u1'},{winner:'u2'}),
+  node('l1','Lower semifinal',5,{loser:'u1'},{loser:'u2'}),node('lf','Lower final',5,{loser:'uf'},{winner:'l1'}),node('gf','Play-in final',5,{winner:'uf'},{winner:'lf'})],
+  places:[[{winner:'gf'}],[{loser:'gf'}],[{loser:'lf'}],[{loser:'l1'}]]},
+ // Eight-team double elimination, Bo5: losers cross over so early rematches are avoided.
+ double8:{nodes:[node('u1','Upper round 1',5,{seed:0},{seed:7}),node('u2','Upper round 1',5,{seed:3},{seed:4}),node('u3','Upper round 1',5,{seed:1},{seed:6}),node('u4','Upper round 1',5,{seed:2},{seed:5}),
+  node('u5','Upper semifinal',5,{winner:'u1'},{winner:'u2'}),node('u6','Upper semifinal',5,{winner:'u3'},{winner:'u4'}),node('u7','Upper final',5,{winner:'u5'},{winner:'u6'}),
+  node('l1','Lower round 1',5,{loser:'u1'},{loser:'u2'}),node('l2','Lower round 1',5,{loser:'u3'},{loser:'u4'}),node('l3','Lower round 2',5,{loser:'u6'},{winner:'l1'}),node('l4','Lower round 2',5,{loser:'u5'},{winner:'l2'}),
+  node('l5','Lower round 3',5,{winner:'l3'},{winner:'l4'}),node('l6','Lower final',5,{loser:'u7'},{winner:'l5'}),node('gf','Grand final',5,{winner:'u7'},{winner:'l6'})],
+  places:[[{winner:'gf'}],[{loser:'gf'}],[{loser:'l6'}],[{loser:'l5'}],[{loser:'l3'},{loser:'l4'}],[{loser:'l1'},{loser:'l2'}]]},
+ // Single elimination, eight teams in fixed slots (seeds 0..7 are the quarterfinal pairs in order), all Bo5.
+ knockout8:{nodes:[node('q1','Quarterfinal',5,{seed:0},{seed:1}),node('q2','Quarterfinal',5,{seed:2},{seed:3}),node('q3','Quarterfinal',5,{seed:4},{seed:5}),node('q4','Quarterfinal',5,{seed:6},{seed:7}),
+  node('s1','Semifinal',5,{winner:'q1'},{winner:'q2'}),node('s2','Semifinal',5,{winner:'q3'},{winner:'q4'}),node('f','Final',5,{winner:'s1'},{winner:'s2'})],
+  places:[[{winner:'f'}],[{loser:'f'}],[{loser:'s1'},{loser:'s2'}],[{loser:'q1'},{loser:'q2'},{loser:'q3'},{loser:'q4'}]]},
+ // Four teams in fixed slots (0v1, 2v3), Bo5 semifinals and final.
+ knockout4:{nodes:[node('s1','Semifinal',5,{seed:0},{seed:1}),node('s2','Semifinal',5,{seed:2},{seed:3}),node('f','Final',5,{winner:'s1'},{winner:'s2'})],
+  places:[[{winner:'f'}],[{loser:'f'}],[{loser:'s1'},{loser:'s2'}]]}
+});
+const finalKey=template=>TEMPLATES[template].places[0][0].winner;
+// A bracket: {format:'bracket', template, seeds, matches: {nodeKey: matchId}}. `create(node, home, away)` makes the
+// series and returns its id; `get(id)` reads one. Opens every match whose teams are known; returns the new ids.
+function openBracket(b,get,create){
+ const t=TEMPLATES[b.template],made=[];
+ const resolve=src=>{
+  if(src.seed!=null)return b.seeds[src.seed]??null;
+  if(src.winner||src.loser){const id=b.matches[src.winner??src.loser],m=id&&get(id);return m?.winner?(src.winner?m.winner:loserOf(m)):null;}
+  if(src.reseed){const ms=src.reseed.map(k=>b.matches[k]&&get(b.matches[k]));if(ms.some(m=>!m?.winner))return null;const ws=ms.map(m=>m.winner).sort((x,y)=>b.seeds.indexOf(x)-b.seeds.indexOf(y));return src.pick==='low'?ws.at(-1):ws[0];}
+  return null;
+ };
+ for(const n of t.nodes){if(b.matches[n.key])continue;const home=resolve(n.a),away=resolve(n.b);if(!home||!away)continue;b.matches[n.key]=create(n,home,away);made.push(b.matches[n.key]);}
+ return made;
+}
+const bracketDone=(b,get)=>TEMPLATES[b.template].nodes.every(n=>b.matches[n.key]&&get(b.matches[n.key])?.winner);
+// Final placings, best first: groups of tied places (e.g. both semifinal losers), each ordered by seed.
+// Seeds for double8 from four tiers of two: tier 1 meets tier 4 and tier 2 meets tier 3 in upper round 1, the two
+// tier-1 teams in opposite halves. The draw inside each tier is seeded and avoids same-region pairs where it can.
+const DOUBLE8_ROUND1=[[0,7],[3,4],[1,6],[2,5]];
+function tieredDouble8(tiers,regionOf,seed){
+ const tries=[];for(let mask=0;mask<16;mask++){const t=tiers.map((pair,i)=>mask>>i&1?[pair[1],pair[0]]:pair),seeds=[t[0][0],t[0][1],t[1][0],t[1][1],t[2][0],t[2][1],t[3][1],t[3][0]];
+  tries.push({seeds,c:DOUBLE8_ROUND1.filter(([a,b])=>regionOf(seeds[a])===regionOf(seeds[b])).length,r:coin(seed,'draw:'+mask)});}
+ return tries.sort((a,b)=>a.c-b.c||a.r-b.r)[0].seeds;
+}
+function bracketPlaces(b,get){
+ return TEMPLATES[b.template].places.map(group=>group.map(src=>{const m=get(b.matches[src.winner??src.loser]);return src.winner?m?.winner:m&&loserOf(m);}).filter(Boolean).sort((x,y)=>b.seeds.indexOf(x)-b.seeds.indexOf(y)));
+}
+
+// ---------- Swiss stage ----------
+// Sixteen teams; three wins advance, three losses eliminate. Round 1 pairs pool 1 with pool 3 and pool 2 within itself
+// when the stage has `pools` (otherwise the top half of the seeding with the bottom half); later rounds pair equal records. Pairings avoid rematches always and the same region where they can.
+// Matches deciding advancement or elimination (either team on two wins or two losses) are Bo3, the rest Bo1.
+const SWISS_TARGET=3;
+function swissRecords(s,get){
+ const rec=Object.fromEntries(s.teams.map(id=>[id,[0,0]])),met=Object.fromEntries(s.teams.map(id=>[id,[]]));
+ for(const round of s.rounds)for(const id of round){const m=get(id);met[m.home].push(m.away);met[m.away].push(m.home);if(!m.winner)continue;rec[m.winner][0]++;rec[loserOf(m)][1]++;}
+ return {rec,met};
+}
+function matchGroup(list,ok){
+ // Depth-first perfect matching; the first team takes the first acceptable partner in order.
+ if(!list.length)return [];
+ const [a,...rest]=list;
+ for(let i=0;i<rest.length;i++){if(!ok(a,rest[i]))continue;const sub=matchGroup(rest.filter((_,j)=>j!==i),ok);if(sub)return [[a,rest[i]],...sub];}
+ return null;
+}
+function swissPairs(s,get,regionOf,seed){
+ const {rec,met}=swissRecords(s,get),round=s.rounds.length,alive=s.teams.filter(id=>rec[id][0]<SWISS_TARGET&&rec[id][1]<SWISS_TARGET);
+ if(!alive.length)return [];
+ const rules=[(a,b)=>!met[a].includes(b)&&regionOf(a)!==regionOf(b),(a,b)=>!met[a].includes(b),()=>true];
+ if(round===0){
+  const [top,middle,low]=s.pools??[s.teams.slice(0,s.teams.length/2),[],s.teams.slice(s.teams.length/2)],bottom=seededOrder(low,seed,'swiss:r1');
+  const cross=ok=>{const pairs=[],used=new Set();
+   const pick=i=>{if(i===top.length)return true;for(const b of bottom){if(used.has(b)||!ok(top[i],b))continue;used.add(b);pairs.push([top[i],b]);if(pick(i+1))return true;pairs.pop();used.delete(b);}return false;};
+   return pick(0)?pairs:null;};
+  const within=ok=>middle.length?matchGroup(seededOrder(middle,seed,'swiss:r1:pool2'),ok):[];
+  let a=null,b=null;for(const ok of rules){a??=cross(ok);b??=within(ok);}
+  if(!a||!b)return [];
+  return [...a,...b.map(([x,y])=>s.teams.indexOf(x)<=s.teams.indexOf(y)?[x,y]:[y,x])].map(([home,away])=>({home,away,bestOf:1}));
+ }
+ const groups=new Map();for(const id of alive){const k=rec[id].join('-');(groups.get(k)??groups.set(k,[]).get(k)).push(id);}
+ const out=[];
+ for(const [k,ids]of [...groups.entries()].sort((a,b)=>a[0]<b[0]?-1:1)){
+  const order=ids.slice().sort((a,b)=>s.teams.indexOf(a)-s.teams.indexOf(b)),[w,l]=k.split('-').map(Number),bestOf=w===SWISS_TARGET-1||l===SWISS_TARGET-1?3:1;
+  let pairs=null;for(const ok of rules){pairs=matchGroup(seededOrder(order,seed,`swiss:${round}:${k}`),ok);if(pairs)break;}
+  for(const [a,b]of pairs??[]){const [home,away]=s.teams.indexOf(a)<=s.teams.indexOf(b)?[a,b]:[b,a];out.push({home,away,bestOf});}
+ }
+ return out;
+}
+const swissRoundDone=(s,get)=>!s.rounds.length||s.rounds.at(-1).every(id=>get(id).winner);
+function swissDone(s,get){const {rec}=swissRecords(s,get);return s.teams.every(id=>rec[id][0]>=SWISS_TARGET||rec[id][1]>=SWISS_TARGET);}
+// Quarterfinal slots for knockout8 from the Swiss records: each 3–0 team against a 3–2 team, the third 3–2 team against
+// a 3–1 team, and the other two 3–1 teams together. Same-region pairs are avoided where possible.
+function swissKnockoutSeeds(s,get,regionOf,seed){
+ const {rec}=swissRecords(s,get),by=l=>s.teams.filter(id=>rec[id][0]>=SWISS_TARGET&&rec[id][1]===l);
+ const z=by(0),o=by(1),t=by(2);
+ const tries=[];for(const tp of permutations(t))for(const op of permutations(o))tries.push([[z[0],tp[0]],[op[0],op[1]],[z[1],tp[1]],[op[2],tp[2]]]);
+ const conflicts=pairs=>pairs.filter(([a,b])=>a&&b&&regionOf(a)===regionOf(b)).length;
+ const best=tries.map((p,i)=>({p,c:conflicts(p),r:coin(seed,'ko:'+i)})).sort((a,b)=>a.c-b.c||a.r-b.r)[0];
+ return best?best.p.flat():[];
+}
+function permutations(list){if(list.length<=1)return [list.slice()];const out=[];list.forEach((x,i)=>{for(const p of permutations(list.filter((_,j)=>j!==i)))out.push([x,...p]);});return out;}
+
 
 
 
@@ -5393,23 +5559,41 @@ function seriesGameOptions(match,games=[],choice=null){
 
 
 
+
 const TEAM_LEAGUE_VERSION=1;
-// Leagues from the team cast (team-classes.js) carry castVersion 5. Older leagues are the old format: they can only
-// be deleted.
+// Leagues from the team cast (team-classes.js) carry castVersion 5 and region circuits circuitVersion 1. Older leagues,
+// and single leagues from before region circuits, are the old format: they can only be deleted.
 const CAST_LEAGUE=5;
-const oldFormat=w=>!!w&&w.castVersion!==CAST_LEAGUE;
+const oldFormat=w=>!!w&&(w.castVersion!==CAST_LEAGUE||w.circuitVersion!==CIRCUIT_VERSION);
 const castFighters=list=>list.every(c=>c?.summary?.generationVersion===CAST_LEAGUE);
-const LEAGUE_SIZES=Object.freeze([8,16,32]);
+// ---------- Region circuits ----------
+// A league is a circuit of six regions, each with the same number of teams (6, 8 or 10). Every region grows its own
+// talent: the odds of SS, S, A and B fighters in its founding pool and in every rookie class. Rookies (and the founding
+// pool) sign only in their home region until their first contract ends; after that any team may sign them. The cap
+// factor scales the market cap for the region's teams. Qualification follows the current professional system: `fs` First
+// Stand teams, `msi` MSI teams, `worlds` the base Worlds seeds and `playIn` how many of them (the last) start in the
+// Worlds play-in. The MSI champion qualifies for Worlds on top, and the next-best region at MSI earns one more seed,
+// which starts in the play-in. Names are placeholders.
+const CIRCUIT_VERSION=1;
+const REGION_SIZES=Object.freeze([6,8,10]);
+const REGIONS=Object.freeze([
+ {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.31,A:.67,B:0},cap:1.05,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:1,worlds:2,playIn:0}
+].map(r=>Object.freeze({...r,odds:Object.freeze(r.odds)})));
+const REGION_IDS=Object.freeze(REGIONS.map(r=>r.id));
+const regionById=id=>REGIONS.find(r=>r.id===id);
 // mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
 const FORMATS=Object.freeze({
  2:Object.freeze({size:2,rosterSize:4,mix:Object.freeze({tank:1.1,healer:1.1,controller:.9,damage:2})}),
  3:Object.freeze({size:3,rosterSize:5,mix:Object.freeze({tank:1.2,healer:1.2,controller:.8,damage:2})}),
  5:Object.freeze({size:5,rosterSize:8,mix:Object.freeze({tank:2,healer:2,controller:1.2,damage:2.8})})
 });
-const POOL_FACTOR=1.5;
-const CONFERENCES=Object.freeze(['Sunward','Shadeward']);
-const DIVISIONS=Object.freeze(['Frostmark','Emberreach','Dawnvale','Duskhold']);
-const PLACES=['Ashhold','Brightwater','Cindermoor','Duskwall','Embervale','Frosthelm','Gloamreach','Hollowmere','Ironcrest','Jadeport','Kingsfall','Lanternfen','Mistral Bay','Nightbloom','Oakenshade','Pyrewatch','Quillmarsh','Ravenspire','Saltcairn','Thornfield','Umberkeep','Vellmoor','Wyrmrest','Yewbridge','Starfall','Coldharbor','Goldmere','Stormhollow','Mooncrest','Sunreach','Briarwood','Deepforge','Highmarch','Rimeholt','Shadowfen','Silverrun'];
+const POOL_FACTOR=1.3;
+const PLACES=['Ashhold','Brightwater','Cindermoor','Duskwall','Embervale','Frosthelm','Gloamreach','Hollowmere','Ironcrest','Jadeport','Kingsfall','Lanternfen','Mistral Bay','Nightbloom','Oakenshade','Pyrewatch','Quillmarsh','Ravenspire','Saltcairn','Thornfield','Umberkeep','Vellmoor','Wyrmrest','Yewbridge','Starfall','Coldharbor','Goldmere','Stormhollow','Mooncrest','Sunreach','Briarwood','Deepforge','Highmarch','Rimeholt','Shadowfen','Silverrun','Amberglen','Blackmoor','Coralhaven','Dawnmere','Eastwatch','Fallowmarch','Glimmerdeep','Highcliff','Ivoryspire','Jasperfall','Kelpstone','Lionsreach','Moonhollow','Northgale','Oldspring','Pinecrest','Quartzridge','Redwater','Silverbay','Tallowmere','Underpeak','Violetmoor','Westerhold','Yarrowdale'];
 const MASCOTS=['Wyverns','Revenants','Ironclads','Stormcallers','Gryphons','Basilisks','Wardens','Phoenixes','Direwolves','Sentinels','Manticores','Valkyries','Juggernauts','Specters','Krakens','Hexblades','Thunderhawks','Golems','Banshees','Chimeras','Dreadnoughts','Lightbringers','Nightstalkers','Runeguard','Sunspears','Frostbites','Emberwings','Shadowfangs','Spellbreakers','Wildhunt','Bloodmoons','Starforged','Grimwalkers','Tidecallers','Ashborn','Oathkeepers'];
 const COACH_FIRST=['Aldric','Brienne','Cassius','Delphine','Edric','Fenna','Gareth','Helena','Isolde','Jorah','Kestrel','Lysandra','Magnus','Nerys','Orrin','Petra','Quentin','Rowena','Soren','Tamsin','Ulric','Vesna','Wystan','Ysolde','Zarek','Mirela','Torvald','Anwen','Bastian','Corvina'];
 const COACH_LAST=['Ashworth','Blackthorn','Coldwell','Draven','Everhart','Fairwind','Graves','Hollowell','Ironside','Kingsley','Lockhart','Morrow','Northcott','Oakhart','Pendragon','Quill','Ravensworth','Stormont','Thorne','Underhill','Vance','Whitlock','Yarrow','Zephyr','Brightmore','Duskmantle','Embercroft','Frostmane'];
@@ -5456,15 +5640,21 @@ const ROLE_LETTER={tank:'T',healer:'H',controller:'C',damage:'D'};
 function compKey(counts){return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]}${ROLE_LETTER[r]}`).join('·')||'—';}
 function compLabel(counts){const names={tank:['tank','tanks'],healer:['healer','healers'],controller:['controller','controllers'],damage:['damage','damage']};return ROLE_KEYS.filter(r=>counts[r]).map(r=>`${counts[r]} ${names[r][counts[r]>1?1:0]}`).join(' · ');}
 const lineupCounts=(w,ids)=>{const c={tank:0,healer:0,controller:0,damage:0};for(const id of ids){const f=w.fighters[id];if(f)c[f.role]++;}return c;};
-function poolSize(formatSize,teams){return Math.ceil(teams*format(formatSize).rosterSize*POOL_FACTOR);}
-// Pool plan: the role and tier of every fighter to generate, fixed by the seed so the server can verify tiers.
-function poolPlan(formatSize,teams,seed){
- if(!LEAGUE_SIZES.includes(teams))throw new Error('Choose 8, 16 or 32 teams.');
- const f=format(formatSize),total=poolSize(formatSize,teams),weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};
- for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;
- return planSlots(counts,seed);
+function poolSize(formatSize,regionSize){return Math.ceil(regionSize*format(formatSize).rosterSize*POOL_FACTOR);}
+const mixCounts=(f,total)=>{const weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return counts;};
+// Pool plan: the role, tier and home region of every fighter to generate, fixed by the seed so the server can verify
+// tiers. Each region's founding pool follows its own talent odds.
+function poolPlan(formatSize,regionSize,seed){
+ if(!REGION_SIZES.includes(regionSize))throw new Error('Choose 6, 8 or 10 teams per region.');
+ const f=format(formatSize),per=poolSize(formatSize,regionSize);
+ return REGIONS.flatMap((r,i)=>planSlots(mixCounts(f,per),(seed^Math.imul(i+1,0x2f6b9a1d))>>>0,r));
 }
-function planSlots(counts,seed){const random=rng(seed^0x9e3779b9),slots=[];for(const [role,count]of Object.entries(counts))for(let i=0;i<count;i++){const roll=random();slots.push({role,tier:roll<.02?'SS':roll<.30?'S':'A'});}return shuffle(slots,seed^0x51ed270b);}
+const TIER_ORDER=['SS','S','A','B'];
+function planSlots(counts,seed,region){
+ const random=rng(seed^0x9e3779b9),slots=[];
+ for(const [role,count]of Object.entries(counts))for(let i=0;i<count;i++){let roll=random(),tier='B';for(const t of TIER_ORDER){if(roll<region.odds[t]){tier=t;break;}roll-=region.odds[t];}slots.push({role,tier,region:region.id});}
+ return shuffle(slots,seed^0x51ed270b);
+}
 // Overall rating (OVR, 40–99) from closed-form combat numbers, weighted by measured team-battle impact
 // (scripts/evaluate-team-values.mjs, validation/team-values.json).
 const RATING_MODEL=Object.freeze({"intercept":-2.386,"ehp":0.391,"dps":-0.047,"spell":0.151,"ability":0.046,"speed":0.259,"iq":0.158,"kits":{"mendingWave":-0.02,"chainHeal":-0.042,"resurrection":0.109,"cleanse":-0.027,"barrier":-0.02,"stunBolt":-0.049,"hamstring":-0.024,"disarmShot":0.062,"tauntShout":-0.064,"knockUp":0.022},"roles":{"tank":0,"healer":-0.003,"controller":-0.029,"damage":0.085}});
@@ -5507,35 +5697,28 @@ function prepareRoleRules(w){if(w&&!w.pendingSeries&&ROLE_RULE_UPGRADES[w.teamEn
 // Salaries (millions of crowns) rise steeply with OVR, so nobody can afford a roster of stars.
 function salaryFor(ovr){return round1(Math.max(.8,.8+13.2*Math.pow(Math.max(0,ovr-50)/49,2.3)));}
 function scoutFighter(character,mode=null){const {role,secondary,castRole}=teamRole(character),ovr=overall(character,role,mode);return {role,secondary,...(castRole?{castRole}:{}),ovr,salary:salaryFor(ovr)};}
-function structure(teams){
- const divisions=teams===32?4:teams===16?2:1,perDivision=teams/(2*divisions);
- return CONFERENCES.map((name,c)=>({name,divisions:DIVISIONS.slice(0,divisions).map((division,d)=>({name:division,slots:Array.from({length:perDivision},(_,i)=>c*divisions*perDivision+d*perDivision+i)}))}));
-}
-function teamIdentities(teams,seed){
+function teamIdentities(count,seed){
  const places=shuffle(PLACES,seed^0xa11ce),mascots=shuffle(MASCOTS,seed^0xb0b),firsts=shuffle(COACH_FIRST,seed^0xc0ac4),lasts=shuffle(COACH_LAST,seed^0xd00d),styles=shuffle(Object.keys(PERSONALITIES),seed^0xe1e1);
- return Array.from({length:teams},(_,i)=>({name:`${places[i%places.length]} ${mascots[i%mascots.length]}`,coach:{name:`${firsts[i%firsts.length]} ${lasts[(i*7)%lasts.length]}`,personality:styles[i%styles.length]}}));
+ return Array.from({length:count},(_,i)=>({name:`${places[i%places.length]} ${mascots[i%mascots.length]}`,coach:{name:`${firsts[i%firsts.length]} ${lasts[(i*7)%lasts.length]}`,personality:styles[i%styles.length]}}));
 }
 const FIGHTER_KEYS=['race','subrace','class','subclass','strength','speed','durability','iq','magic','weapon','mastery','power','power2','weakness'];
-function create({id,format:formatSize,teams,seed,fighters,battleMode='teamfight'}){
- const f=format(formatSize);if(!['teamfight','core'].includes(battleMode)||battleMode==='core'&&f.size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(!LEAGUE_SIZES.includes(teams))throw new Error('Choose 8, 16 or 32 teams.');
- const plan=poolPlan(formatSize,teams,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);if(!castFighters(fighters))throw new Error('Team leagues draw their fighters from the team cast.');
+function create({id,format:formatSize,regionSize,seed,fighters,battleMode='teamfight'}){
+ const f=format(formatSize);if(!['teamfight','core'].includes(battleMode)||battleMode==='core'&&f.size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(!REGION_SIZES.includes(regionSize))throw new Error('Choose 6, 8 or 10 teams per region.');
+ const plan=poolPlan(formatSize,regionSize,seed);if(!Array.isArray(fighters)||fighters.length!==plan.length)throw new Error(`The fighter pool must hold ${plan.length} fighters.`);if(!castFighters(fighters))throw new Error('Team leagues draw their fighters from the team cast.');
  const roster={},seen=new Set();
  fighters.forEach((c,i)=>{
   if(!c||typeof c.id!=='string'||!c.id||c.id.length>80||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||c.name.length>100)throw new Error('Invalid pool fighter.');seen.add(c.id);
   if(!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Pool fighters need all fourteen traits.');
   if(c.summary?.tier!==plan[i].tier)throw new Error('A pool fighter does not match its planned tier.');
-  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,battleMode),ratingVersion:CAST_RATING_VERSION,team:null,contract:null,careerStart:founderStart(seed,c.id)};roster[c.id].prefs=fighterPrefs(seed,roster[c.id]);
+  roster[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,battleMode),ratingVersion:CAST_RATING_VERSION,team:null,contract:null,careerStart:founderStart(seed,c.id),region:plan[i].region,locked:true};roster[c.id].prefs=fighterPrefs(seed,roster[c.id]);
  });
- const layout=structure(teams),identities=teamIdentities(teams,seed),list=[];
- identities.forEach((x,i)=>{x.coach.comp=coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0));});
- layout.forEach(conference=>conference.divisions.forEach(division=>division.slots.forEach(slot=>list.push({id:`t${slot+1}`,name:identities[slot].name,conference:conference.name,division:division.name,coach:identities[slot].coach,roster:[],lineup:[]}))));
- list.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
- // Cap: an average team can afford the average salary of the fighters who will be signed.
- const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,teams*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/teams);
- return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,contractsVersion:CONTRACTS_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'market',
-  supportRulesVersion:1,hallRulesVersion:HALL_RULES_VERSION,balance:{...neutralBalance(),enabled:false},settings:{teams,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
-  conferences:layout.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,teams:d.slots.map(s=>`t${s+1}`)}))})),
-  teams:list,fighters:roster,market:newMarket('founding')};
+ const count=REGIONS.length*regionSize,identities=teamIdentities(count,seed);
+ const list=identities.map((x,i)=>({id:`t${i+1}`,name:x.name,region:REGIONS[Math.floor(i/regionSize)].id,coach:{...x.coach,comp:coachComp(x.coach.personality,rng((seed^Math.imul(i+1,0x85ebca6b))>>>0))},roster:[],lineup:[]}));
+ // Market cap: an average team can afford the average salary of the fighters who will be signed (scaled per region).
+ const drafted=Object.values(roster).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,count*f.rosterSize),cap=round1(drafted.reduce((n,x)=>n+x.salary,0)/count);
+ return {version:TEAM_LEAGUE_VERSION,castVersion:CAST_LEAGUE,circuitVersion:CIRCUIT_VERSION,contractsVersion:CONTRACTS_VERSION,engine:TEAM_COMBAT_VERSION,format:f.size,id,seed:seed>>>0,season:1,phase:'market',
+  supportRulesVersion:1,hallRulesVersion:HALL_RULES_VERSION,balance:{...neutralBalance(),enabled:false},settings:{regionSize,teams:count,battleMode,rosterSize:f.rosterSize,salaryCap:cap,minSalary:Math.min(...Object.values(roster).map(x=>x.salary))},
+  regionRank:[...REGION_IDS],teams:list,fighters:roster,titles:[],awards:[],market:newMarket('founding')};
 }
 // Leagues rated before the cast model move every cast fighter onto it, keeping the career progress each one earned
 // (OVR above or below its old base rating). Contracts keep their price until the next offseason re-prices them.
@@ -5549,9 +5732,16 @@ function prepareCastRatings(w){
  return w;
 }
 const teamById=(w,id)=>w.teams.find(t=>t.id===id);
+const regionTeams=(w,region)=>w.teams.filter(t=>t.region===region);
+const regionOfTeam=(w,id)=>teamById(w,id)?.region??null;
+// Each region's cap is the market cap times its cap factor.
+const capOf=(w,team)=>round1(w.settings.salaryCap*(regionById(team.region)?.cap??1));
 const payroll=(w,team)=>round1(team.roster.reduce((n,id)=>n+wage(w.fighters[id]),0));
-const capSpace=(w,team)=>round1(w.settings.salaryCap-payroll(w,team));
+const capSpace=(w,team)=>round1(capOf(w,team)-payroll(w,team));
 const available=w=>Object.values(w.fighters).filter(f=>!f.team);
+// Rookies and the founding pool sign only in their home region until their first contract ends.
+const canSign=(team,f)=>!f.locked||f.region===team.region;
+const signable=(w,team)=>available(w).filter(f=>canSign(team,f));
 function roleCounts(w,team){const counts={tank:0,healer:0,controller:0,damage:0};for(const id of team.roster)counts[w.fighters[id].role]++;return counts;}
 // ---------- Contracts and the free-agent market (replacing the draft) ----------
 // Every signed fighter has a contract: a salary fixed for its length and the last season it covers. Market value
@@ -5560,7 +5750,7 @@ function roleCounts(w,team){const counts={tank:0,healer:0,controller:0,damage:0}
 // signs the offer he likes best (money, a contender, a starting spot, a team that plays his style, loyalty, length).
 // Leagues open with the same auction instead of a draft.
 const CONTRACTS_VERSION=1;
-const CONTRACT=Object.freeze({maxYears:4,fit:.04,rounds:8,floor:1,floorDrop:.07,lowestFloor:.6});
+const CONTRACT=Object.freeze({maxYears:3,fit:.04,rounds:8,floor:1,floorDrop:.07,lowestFloor:.6});
 const wage=f=>f.contract?.salary??f.salary;
 // The season a signing made now starts in: next season during the offseason, otherwise this one.
 const startSeasonOf=w=>w.phase==='offseason'||w.phase==='complete'?w.season+1:w.season;
@@ -5582,7 +5772,7 @@ const STYLE_LEAN=Object.freeze({tank:'defensive',healer:'protect-carry',controll
 const OPPOSITE_STYLE=Object.freeze({aggressive:'defensive',defensive:'aggressive','protect-carry':'focus-healer','focus-healer':'protect-carry'});
 function fighterPrefs(seed,f){
  const r=rng(idSeed(seed,'prefs:'+f.id)),roll=r(),style=roll<.55?STYLE_LEAN[f.role]??'balanced':TACTICS[Math.floor(r()*TACTICS.length)];
- return {style,money:round2(.6+r()*.8),winning:round2(.6+r()*.8),role:round2(.6+r()*.8),loyalty:round2(.2+r()*.8)};
+ return {style,money:round2(.6+r()*.8),winning:round2(.6+r()*.8),role:round2(.6+r()*.8),loyalty:round2(.2+r()*.8),home:round2(.3+r()*.7)};
 }
 const round2=n=>Math.round(n*100)/100;
 // Fit with a team's style: +1 when it plays his style, −1 when it plays the opposite, otherwise 0 (a balanced team or
@@ -5590,37 +5780,38 @@ const round2=n=>Math.round(n*100)/100;
 // magic by ±CONTRACT.fit.
 function fit(w,f,team){const style=f?.prefs?.style,tactic=team?teamTactic(w,team):null;if(!style||!tactic||style==='balanced'||tactic==='balanced')return 0;return style===tactic?1:OPPOSITE_STYLE[style]===tactic?-1:0;}
 const fitStats=(stats,f)=>!f?stats:stats.map((v,i)=>CAREER.stats.includes(i)?Math.round(v*(1+CONTRACT.fit*f)):v);
-// How strong a team looks to a free agent (0..1): last season's record and the current starters' rating, by rank.
+// How strong a team looks to a free agent (0..1): this season's regular-season record (last season's during the
+// offseason) and the current starters' rating, ranked across every region, so the strongest regions draw imports.
 function contenders(w){
- const last=w.history?.at(-1),pctOf=new Map((last?.standings??[]).map(r=>[r.id,r.wins/((r.wins+r.losses)||1)])),all=Object.values(w.fighters),avg=all.reduce((n,f)=>n+f.ovr,0)/(all.length||1);
+ const now=seasonRecords(w),last=w.history?.at(-1),pctOf=new Map(now.size?[...now].map(([id,r])=>[id,r.wins/((r.wins+r.losses)||1)]):(last?.standings??[]).map(r=>[r.id,r.wins/((r.wins+r.losses)||1)])),all=Object.values(w.fighters),avg=all.reduce((n,f)=>n+f.ovr,0)/(all.length||1);
  const strength=t=>{const ids=bestLineup(w,t),size=FORMATS[w.format].size;return (ids.reduce((n,id)=>n+w.fighters[id].ovr,0)+(size-ids.length)*avg)/size;};
  const ranked=w.teams.map(t=>({id:t.id,s:strength(t)})).sort((a,b)=>a.s-b.s||(a.id<b.id?-1:1)),n=Math.max(1,w.teams.length-1),out=new Map();
- ranked.forEach((x,i)=>out.set(x.id,last?.5*(pctOf.get(x.id)??.5)+.5*(i/n):i/n));return out;
+ ranked.forEach((x,i)=>out.set(x.id,pctOf.size?.5*(pctOf.get(x.id)??.5)+.5*(i/n):i/n));return out;
 }
 const wouldStart=(w,team,f)=>bestLineup(w,{...team,roster:[...team.roster.filter(id=>id!==f.id),f.id],lineup:[]}).includes(f.id);
-// Stars without a title chase one: the wish to win grows with every titleless season after their third.
-function winningWish(w,f){const base=f.prefs?.winning??1,titles=f.career?.titles??0,chase=f.ovr>=78&&!titles?Math.max(0,careerSeason(w,f)-3)*.15:0;return Math.min(2.2,base+chase);}
+// Stars without a Worlds or MSI title chase one: the wish to win grows with every titleless season after their third.
+function winningWish(w,f){const base=f.prefs?.winning??1,titles=(f.career?.trophies?.worlds??f.career?.titles??0)+(f.career?.trophies?.msi??0),chase=f.ovr>=78&&!titles?Math.max(0,careerSeason(w,f)-3)*.15:0;return Math.min(2.2,base+chase);}
 // The length a fighter wants: long for young players, short near the end of a career.
 function wantedYears(w,f){const age=careerSeason(w,f)+(startSeasonOf(w)>w.season?1:0);return age<=3?3:age<=6?2:1;}
 // How much a fighter likes an offer (higher is better). Money and a starting spot can beat a contender: that is what
-// lets rebuilding teams with cap room sign stars.
-const APPEAL=Object.freeze({money:2.5,winning:.8,start:.6,bench:-.5,fit:.35,loyalty:.4,years:.12,room:.1});
+// lets rebuilding teams with cap room sign stars. Most fighters like staying in their home region.
+const APPEAL=Object.freeze({money:2.5,winning:.8,start:.6,bench:-.5,fit:.35,loyalty:.4,years:.12,room:.1,home:.8});
 function offerAppeal(w,f,offer,ctx={}){
  const team=teamById(w,offer.team),strength=(ctx.contenders??contenders(w)).get(offer.team)??.5,p=f.prefs??fighterPrefs(w.seed,f),ask=Math.max(.8,f.salary);
- return p.money*(offer.salary/ask-1)*APPEAL.money+winningWish(w,f)*(strength-.5)*APPEAL.winning+p.role*(wouldStart(w,team,f)?APPEAL.start:APPEAL.bench)+APPEAL.fit*fit(w,f,team)+(f.lastTeam===offer.team?p.loyalty*APPEAL.loyalty:0)-APPEAL.years*Math.abs(offer.years-wantedYears(w,f));
+ return p.money*(offer.salary/ask-1)*APPEAL.money+winningWish(w,f)*(strength-.5)*APPEAL.winning+p.role*(wouldStart(w,team,f)?APPEAL.start:APPEAL.bench)+APPEAL.fit*fit(w,f,team)+(f.lastTeam===offer.team?p.loyalty*APPEAL.loyalty:0)+(team.region===f.region?(p.home??.6)*APPEAL.home:0)-APPEAL.years*Math.abs(offer.years-wantedYears(w,f));
 }
 // The lowest share of his market value a free agent takes this round; it drops as the market drags on.
 const askFloor=round=>Math.max(CONTRACT.lowestFloor,CONTRACT.floor-CONTRACT.floorDrop*round);
 // Coaches budget a margin because rivals may sign the cheap fighters they were counting on.
 const RESERVE_MARGIN=1.15;
 // Room to keep for `spots` more signings: the cheapest free agents (not in `skip`) at the lowest price they take.
-function reserveRoom(w,spots,skip=new Set()){
- if(spots<=0)return 0;const cheapest=available(w).filter(x=>!skip.has(x.id)).map(x=>x.salary).sort((a,b)=>a-b).slice(0,spots);
+function reserveRoom(w,team,spots,skip=new Set()){
+ if(spots<=0)return 0;const cheapest=signable(w,team).filter(x=>!skip.has(x.id)).map(x=>x.salary).sort((a,b)=>a-b).slice(0,spots);
  return cheapest.length<spots?Infinity:cheapest.reduce((n,v)=>n+v,0)*askFloor(CONTRACT.rounds)*RESERVE_MARGIN;
 }
 // Who a team can afford now: after reserving room to fill its other open spots with the cheapest free agents.
 function eligible(w,team,committed=0,openLeft=w.settings.rosterSize-team.roster.length,skip=new Set()){
- const space=capSpace(w,team)-committed,pool=available(w).filter(x=>!skip.has(x.id));
+ const space=capSpace(w,team)-committed,pool=signable(w,team).filter(x=>!skip.has(x.id));
  // No role is mandatory: "unmet" is only the coach's own plan, used to value fighters, never to restrict signings.
  const counts=roleCounts(w,team),plan=rosterTargets(w,team),unmet=Object.fromEntries(ROLE_KEYS.map(r=>[r,Math.max(0,plan[r]-counts[r])]));
  // Room for the other open spots: the cheapest `openLeft-1` free agents other than x (one extra in case x is one).
@@ -5628,10 +5819,13 @@ function eligible(w,team,committed=0,openLeft=w.settings.rosterSize-team.roster.
  const reserveFor=x=>{if(spots<=0)return 0;const others=cheapest.filter(y=>y.id!==x.id).slice(0,spots);return others.length<spots?Infinity:others.reduce((n,y)=>n+y.salary,0)*scale;};
  return {candidates:pool.filter(x=>x.salary*askFloor(w.market?.round??0)+reserveFor(x)<=space+1e-9),counts,unmet,reserveFor,space};
 }
+// Coaches would rather sign at home: an import has to be clearly better, so teams import stars, not depth.
+const IMPORT=Object.freeze({cost:10,starFrom:86,span:16});
+const importCost=(team,x)=>x.region&&x.region!==team.region?IMPORT.cost*Math.max(0,Math.min(1,(IMPORT.starFrom-x.ovr)/IMPORT.span)):0;
 function coachValue(w,team,x,counts,unmet,noise=()=>.5){
- const style=PERSONALITIES[team.coach.personality],average=w.settings.salaryCap/w.settings.rosterSize,plan=rosterTargets(w,team);
+ const style=PERSONALITIES[team.coach.personality],average=capOf(w,team)/w.settings.rosterSize,plan=rosterTargets(w,team);
  const need=unmet[x.role]>0?1+.35*style.need:counts[x.role]>=plan[x.role]+1?.7:.9;
- return Math.pow(x.ovr/70,1+style.star)*70*style.rating*(style.roles[x.role]??1)*need-style.cost*(x.salary/average)*9+(noise()-.5)*2;
+ return Math.pow(x.ovr/70,1+style.star)*70*style.rating*(style.roles[x.role]??1)*need-style.cost*(x.salary/average)*9-importCost(team,x)+(noise()-.5)*2;
 }
 // Contract length an AI coach offers: star chasers lock stars up long, bargain hunters keep deals short.
 function offerYears(w,team,f){const want=wantedYears(w,f),style=team.coach.personality;return Math.max(1,Math.min(CONTRACT.maxYears,style==='star'&&f.ovr>=80?want+1:style==='bargain'?Math.min(want,2):want));}
@@ -5645,7 +5839,7 @@ function aiOffers(w,team,round,ctx){
   const {candidates,counts,unmet,reserveFor,space}=eligible(w,team,committed,open-k,taken);if(!candidates.length)break;
   let best=null,score=-Infinity;for(const x of candidates.slice().sort((a,b)=>a.id<b.id?-1:1)){const v=coachValue(w,team,x,counts,unmet,noise)-(ctx.claimed.get(x.id)??0)*3;if(v>score){score=v;best=x;}}
   // Teams with room to spare per open spot bid more: rebuilding teams can outbid contenders.
-  const room=(space-committed)/Math.max(1,open-k)/(w.settings.salaryCap/w.settings.rosterSize),premium=1+.04*round+Math.max(0,Math.min(.3,(room-1)*APPEAL.room))+(best.ovr>=82?.12*style.star:0)-(style.cost>1.5?.05:0),cap=space-reserveFor(best);
+  const room=(space-committed)/Math.max(1,open-k)/(capOf(w,team)/w.settings.rosterSize),premium=1+.04*round+Math.max(0,Math.min(.3,(room-1)*APPEAL.room))+(best.ovr>=82?.12*style.star:0)-(style.cost>1.5?.05:0),cap=space-reserveFor(best);
   const salary=round1(Math.max(best.salary*askFloor(round),Math.min(best.salary*premium,cap)));
   if(salary>cap+1e-9)break;
   out.push({team:team.id,fighter:best.id,salary,years:offerYears(w,team,best)});committed+=salary;taken.add(best.id);ctx.claimed.set(best.id,(ctx.claimed.get(best.id)??0)+1);
@@ -5662,11 +5856,11 @@ const openSpots=(w,team)=>w.settings.rosterSize-team.roster.length;
 // The user's pending offers: one per fighter, at most one per open spot, all affordable together.
 function makeOffer(w,fighterId,salary,years){
  const team=userTeam(w);if(!marketOpen(w))throw new Error('Free agency is not open.');
- const f=w.fighters[fighterId];if(!f||f.team)throw new Error('That fighter is not a free agent.');
+ const f=w.fighters[fighterId];if(!f||f.team)throw new Error('That fighter is not a free agent.');if(!canSign(team,f))throw new Error(`${f.name} is a ${regionById(f.region).name} rookie: only teams there can sign him until his first contract ends.`);
  if(!Number.isFinite(salary)||salary<=0||salary>99)throw new Error('Offer a salary in millions.');if(!Number.isInteger(years)||years<1||years>CONTRACT.maxYears)throw new Error(`Offer 1 to ${CONTRACT.maxYears} seasons.`);
  const offers=[...(w.market.offers??[]).filter(o=>o.fighter!==fighterId),{fighter:fighterId,salary:round1(salary),years}];
  if(offers.length>openSpots(w,team))throw new Error('You have more offers than open roster spots. Withdraw one first.');
- const total=offers.reduce((n,o)=>n+o.salary,0),room=reserveRoom(w,openSpots(w,team)-offers.length,new Set(offers.map(o=>o.fighter)));
+ const total=offers.reduce((n,o)=>n+o.salary,0),room=reserveRoom(w,team,openSpots(w,team)-offers.length,new Set(offers.map(o=>o.fighter)));
  if(total+room>capSpace(w,team)+1e-9)throw new Error('Those offers would leave no room under the cap to fill your roster.');
  w.market.offers=offers;return w;
 }
@@ -5695,7 +5889,7 @@ function marketRound(w){
 }
 // Past the last round, open spots go to the cheapest free agents on one-season minimum deals (allowed past the cap).
 function fillByException(w){
- for(const team of w.teams)while(openSpots(w,team)>0){const f=available(w).sort((a,b)=>a.salary-b.salary||(a.id<b.id?-1:1))[0];if(!f)break;sign(w,f,team,f.salary,1,true);}
+ for(const team of w.teams)while(openSpots(w,team)>0){const f=signable(w,team).sort((a,b)=>a.salary-b.salary||(a.id<b.id?-1:1))[0];if(!f)break;sign(w,f,team,f.salary,1,true);}
  finishMarket(w);
 }
 function finishMarket(w){
@@ -5718,82 +5912,248 @@ function bestLineup(w,team){
 const teamOverall=(w,team)=>{const ids=team.lineup.length?team.lineup:bestLineup(w,team);return ids.length?Math.round(ids.reduce((n,id)=>n+w.fighters[id].ovr,0)/ids.length):0;};
 const starters=(w,team)=>(team.lineup.length?team.lineup:bestLineup(w,team)).map(id=>w.fighters[id]);
 
-// ---------- Season and playoffs (phase 3) ----------
+// ---------- The season: three splits in every region and three international events ----------
 const SEASON_CONDITIONS=Object.freeze({time:'random',weather:'random',ground:'random',map:'random'});
 // Results must come from the current team engine (combat-team.js TEAM_ENGINE_VERSION); recorded games are never re-checked.
 
-const PLAYOFF_SPOTS=Object.freeze({8:2,16:4,32:7});
-const ROUND_NAMES=Object.freeze({wildcard:'Wildcard round',divisional:'Divisional round',semifinal:'Conference semifinal',conference:'Conference final',final:'Forgefire Crown'});
-const DIVISION_ROUNDS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
-const DIVISION_PAIRINGS=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
-const grid=w=>w.conferences.map(c=>c.divisions.map(d=>d.teams));
-// Every round is a perfect matching (each team plays exactly once), so weeks have no byes.
-function buildSchedule(w){
- const C=grid(w),divisions=C[0].length,season=w.season,rounds=[],home=(a,b,flip)=>flip?[b,a]:[a,b];
- for(const leg of [0,1])for(const pairs of DIVISION_ROUNDS)rounds.push(C.flatMap(conf=>conf.flatMap(div=>pairs.map(([a,b])=>home(div[a],div[b],leg)))));
- const bipartite=(groups,offsetSame=false)=>{for(let k=0;k<(offsetSame?1:4);k++)rounds.push(groups.flatMap(([A,B])=>A.map((team,i)=>home(team,B[(i+k)%4],(k+i)%2))));};
- if(divisions===4){
-  const pairing=DIVISION_PAIRINGS[(season-1)%3];
-  bipartite(C.flatMap(conf=>pairing.map(([x,y])=>[conf[x],conf[y]])));
-  bipartite(C[0].map((div,d)=>[div,C[1][(d+season-1)%4]]));
-  const [[a,b],[c,d]]=pairing;for(const pairs of [[[a,c],[b,d]],[[a,d],[b,c]]])bipartite(C.flatMap(conf=>pairs.map(([x,y])=>[conf[x],conf[y]])),true);
-  bipartite(C[0].map((div,d)=>[div,C[1][(d+season+1)%4]]),true);
- }else if(divisions===2){bipartite(C.map(conf=>[conf[0],conf[1]]));bipartite(C[0].map((div,d)=>[div,C[1][(d+season-1)%2]]));}
- else bipartite([[C[0][0],C[1][0]]]);
- return shuffle(rounds.map((games,i)=>({games,i})),w.seed^Math.imul(season,0x632be5ab)).map(({games},week)=>({week:week+1,games:games.map(([homeTeam,away],n)=>({id:`s${season}:w${week+1}:${n}`,home:homeTeam,away}))}));
+// International events, from the least to the most prestigious. Names are placeholders.
+const EVENTS=Object.freeze({'first-stand':Object.freeze({name:'First Forging',prestige:1}),msi:Object.freeze({name:'Midseason Crucible',prestige:2}),worlds:Object.freeze({name:'Forgefire Worlds',prestige:3})});
+const SPLIT_PRESTIGE=Object.freeze({1:.5,2:.5,3:.75});
+// Championship points by final place (index 0 = champion) in each split and in the two earlier events; every other
+// event entrant gets EVENT_ENTRY_POINTS.
+const SPLIT_POINTS=Object.freeze({1:Object.freeze([40,30,20,20,10,10]),2:Object.freeze([60,45,30,30,15,15]),3:Object.freeze([90,70,50,50,30,30])});
+const EVENT_POINTS=Object.freeze({'first-stand':Object.freeze([20,10]),msi:Object.freeze([40,25,15,15])});
+const EVENT_ENTRY_POINTS=5;
+// The season, in order: each split's regular season and playoffs, First Stand (from season 2), MSI after split 2,
+// the regional qualifiers and Worlds.
+function buildCalendar(season){
+ const out=[];
+ for(const n of [1,2,3]){out.push({key:`split${n}`,kind:'split',split:n},{key:`split${n}-playoffs`,kind:'playoffs',split:n});if(n===1&&season>1)out.push({key:'first-stand',kind:'event',event:'first-stand'});if(n===2)out.push({key:'msi',kind:'event',event:'msi'});}
+ out.push({key:'qualifiers',kind:'qualifiers'},{key:'worlds',kind:'event',event:'worlds'});return out;
 }
+function stageName(stage){return !stage?'':stage.kind==='split'?`Split ${stage.split}`:stage.kind==='playoffs'?`Split ${stage.split} playoffs`:stage.kind==='qualifiers'?'Regional qualifiers':EVENTS[stage.event].name;}
+const currentStage=w=>w.phase==='season'&&w.calendar?w.calendar[w.stageIndex]:null;
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
-// Balance is set by hand for the team cast: leagues play the base rules and never
-// audit or patch themselves.
+const getter=w=>id=>w.year.matches[id];
+function addMatch(w,{stage,group,key,home,away,bestOf,round=0,label=''}){const id=`s${w.season}:${stage}:${group}:${key}`;w.year.matches[id]={id,stage,group,key,label,round,home,away,bestOf,games:[],winner:null};return id;}
+// Balance is set by hand for the team cast: leagues play the base rules and never audit or patch themselves.
 function startSeason(w){
  if(w.phase!=='ready')throw new Error('Fill every roster in free agency before the season.');
- w.balance??=neutralBalance();w.balance.enabled=false;delete w.balance.pendingAudit;w.balance.rulesVersion=3;
- w.teamEngine=engineForMode(w.settings.battleMode);w.balance??=neutralBalance();w.balance.samples=[];w.balance.seasonSamples=[];w.balance.sampleGames=w.balance.seasonSampleGames=0;delete w.pendingSeries;w.schedule=buildSchedule(w);w.results=[];w.stats={};w.playoffs=null;w.phase='season';for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);return w;
+ w.balance??=neutralBalance();w.balance.enabled=false;delete w.balance.pendingAudit;w.balance.rulesVersion=3;w.balance.samples=[];w.balance.seasonSamples=[];w.balance.sampleGames=w.balance.seasonSampleGames=0;
+ w.teamEngine=engineForMode(w.settings.battleMode);delete w.pendingSeries;delete w.awaiting;
+ w.calendar=buildCalendar(w.season);w.stageIndex=0;w.stats={};w.stageStats={};w.phase='season';
+ w.year={season:w.season,matches:{},splits:{},points:Object.fromEntries(w.teams.map(t=>[t.id,0])),qualifiers:{},worldsSeeds:{},events:{},msiChampion:null,msiBonus:null};
+ for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);
+ startStage(w);return w;
 }
-const record=(results,id)=>{let wins=0,losses=0;for(const r of results){if(r.home!==id&&r.away!==id)continue;if(r.winner===id)wins++;else losses++;}return [wins,losses];};
-const pct=([wins,losses])=>wins+losses?wins/(wins+losses):0;
-const tiebreak=(w,id)=>matchSeed(w,'tiebreak:'+id);
-function standings(w,ids=w.teams.map(t=>t.id)){
- const results=w.results??[],team=id=>teamById(w,id),rows=ids.map(id=>{const t=team(id),overall=record(results,id),div=record(results.filter(r=>team(r.home===id?r.away:r.home).division===t.division&&team(r.home===id?r.away:r.home).conference===t.conference),id),conf=record(results.filter(r=>team(r.home===id?r.away:r.home).conference===t.conference),id);let margin=0,streak='';for(const r of results){if(r.home!==id&&r.away!==id)continue;margin+=(r.home===id?1:-1)*(r.hp[0]-r.hp[1]);}
-  for(const r of results.filter(r=>r.home===id||r.away===id).reverse()){const won=r.winner===id;if(!streak)streak=(won?'W':'L')+'1';else if(streak[0]===(won?'W':'L'))streak=streak[0]+(Number(streak.slice(1))+1);else break;}
-  return {id,team:t.name,wins:overall[0],losses:overall[1],pct:pct(overall),division:div,conference:conf,margin,streak};});
- const compare=(a,b)=>b.pct-a.pct;rows.sort(compare);
- // Tied groups: head-to-head within the group, then division, conference, HP margin and a seeded coin.
- const out=[];for(let i=0;i<rows.length;){let j=i;while(j<rows.length&&rows[j].pct===rows[i].pct)j++;const group=rows.slice(i,j),members=new Set(group.map(r=>r.id)),h2h=Object.fromEntries(group.map(r=>[r.id,pct(record(results.filter(x=>members.has(x.home)&&members.has(x.away)),r.id))]));
-  group.sort((a,b)=>h2h[b.id]-h2h[a.id]||pct(b.division)-pct(a.division)||pct(b.conference)-pct(a.conference)||b.margin-a.margin||tiebreak(w,a.id)-tiebreak(w,b.id));out.push(...group);i=j;}
+// Moves past a finished stage (its summary was shown) and starts the next one.
+function advance(w){
+ if(w.phase!=='season'||!w.awaiting)throw new Error('The current stage is still being played.');
+ delete w.awaiting;w.stageIndex++;startStage(w);return w;
+}
+function startStage(w){
+ const st=w.calendar[w.stageIndex];
+ if(st.kind==='split')startSplit(w,st.split);
+ else if(st.kind==='playoffs')startSplitPlayoffs(w,st.split);
+ else if(st.kind==='qualifiers')startQualifiers(w);
+ else{w.stageStats={};({'first-stand':startFirstStand,msi:startMsi,worlds:startWorlds})[st.event](w);}
+ if(stageDone(w,st))finishStage(w,st);
+}
+// A region's split table from its regular-season games.
+function regionTable(w,region,split,year=w.year){
+ const s=year?.splits?.[split];if(!s?.regular?.[region])return [];
+ return table(regionTeams(w,region).map(t=>t.id),s.regular[region].flat().map(id=>year.matches[id]),matchSeed(w,`table:${split}`),`${split}:${region}`);
+}
+// Regular-season records over every split played so far this season.
+function seasonRecords(w){
+ const out=new Map();for(const m of Object.values(w.year?.matches??{})){if(!/^split\d$/.test(m.stage)||!m.winner)continue;for(const id of [m.home,m.away]){const r=out.get(id)??{wins:0,losses:0};if(m.winner===id)r.wins++;else r.losses++;out.set(id,r);}}
  return out;
 }
-function divisionStandings(w){return w.conferences.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:standings(w,d.teams)}))}));}
-function playoffSeeds(w){
- const spots=PLAYOFF_SPOTS[w.teams.length];
- return Object.fromEntries(w.conferences.map(c=>{const leaders=standings(w,c.divisions.map(d=>standings(w,d.teams)[0].id)),rest=standings(w,c.divisions.flatMap(d=>d.teams).filter(id=>!leaders.some(l=>l.id===id)));const seeded=c.divisions.length>1?[...leaders,...rest]:standings(w,c.divisions[0].teams);return [c.name,seeded.slice(0,spots).map(r=>r.id)];}));
+function startSplit(w,n){
+ const y=w.year;y.splits[n]={regular:{},playoffs:{},places:{}};w.stageStats={};
+ for(const r of REGION_IDS){const ids=seededOrder(regionTeams(w,r).map(t=>t.id),matchSeed(w,`order:${n}`),r);
+  y.splits[n].regular[r]=roundRobinRounds(ids,n===3?2:1).map((pairs,round)=>pairs.map(([home,away],i)=>addMatch(w,{stage:`split${n}`,group:r,key:`r${round+1}m${i}`,home,away,bestOf:1,round:round+1,label:`Week ${round+1}`})));}
 }
-const seriesFor=(w,round,pairs,bestOf)=>pairs.map(([a,b],n)=>({id:`s${w.season}:p:${round}:${n}`,round,home:a,away:b,bestOf,games:[],winner:null}));
-function openRound(w){
- const p=w.playoffs,spots=PLAYOFF_SPOTS[w.teams.length],done=p.rounds.at(-1),winners=done?done.series.map(s=>s.winner):null,seedOf=(conf,id)=>p.seeds[conf].indexOf(id);
- const confOf=id=>teamById(w,id).conference,next=[];
- if(!done){
-  const key=spots===7?'wildcard':spots===4?'semifinal':'conference';
-  for(const conf of w.conferences.map(c=>c.name)){const s=p.seeds[conf];next.push(...(spots===7?[[s[1],s[6]],[s[2],s[5]],[s[3],s[4]]]:spots===4?[[s[0],s[3]],[s[1],s[2]]]:[[s[0],s[1]]]));}
-  p.rounds.push({key,name:ROUND_NAMES[key],series:seriesFor(w,key,next,3)});return;
- }
- if(done.key==='conference'){const [a,b]=winners,order=standings(w,[a,b]);p.rounds.push({key:'final',name:ROUND_NAMES.final,series:seriesFor(w,'final',[[order[0].id,order[1].id]],5)});return;}
- const key=done.key==='wildcard'?'divisional':'conference';
- for(const conf of w.conferences.map(c=>c.name)){
-  const alive=[...(done.key==='wildcard'?[p.seeds[conf][0]]:[]),...winners.filter(id=>confOf(id)===conf)].sort((a,b)=>seedOf(conf,a)-seedOf(conf,b));
-  // Re-seed: the best remaining seed hosts the lowest.
-  next.push(...(alive.length===4?[[alive[0],alive[3]],[alive[1],alive[2]]]:[[alive[0],alive[1]]]));
- }
- p.rounds.push({key,name:ROUND_NAMES[key],series:seriesFor(w,key,next,3)});
+function openStageBracket(w,b){return openBracket(b,getter(w),(node,home,away)=>addMatch(w,{stage:b.stage,group:b.group,key:node.key,home,away,bestOf:node.bestOf,label:node.label}));}
+function newBracket(w,stage,group,template,seeds){const b={format:'bracket',stage,group,template,seeds,matches:{}};openStageBracket(w,b);return b;}
+// Split playoffs: the top four (top six in Split 3 for regions of eight or more) by the split table.
+function startSplitPlayoffs(w,n){
+ const s=w.year.splits[n];
+ for(const r of REGION_IDS){const rows=regionTable(w,r,n),template=n===3&&rows.length>=8?'top6':'top4';s.playoffs[r]=newBracket(w,`split${n}-playoffs`,r,template,rows.slice(0,template==='top6'?6:4).map(x=>x.id));}
 }
-function startPlayoffs(w){w.phase='playoffs';w.playoffs={seeds:playoffSeeds(w),rounds:[],champion:null};openRound(w);}
-// The next matches to simulate, in the order the server will accept them.
+// Teams by championship points; ties go to the better Split 3, 2 and 1 finish, then a seeded coin.
+function pointsOrder(w,region,year=w.year){
+ const placeOf=(n,id)=>{const p=year.splits[n]?.places?.[region];const i=p?p.indexOf(id):-1;return i<0?99:i;};
+ return regionTeams(w,region).map(t=>t.id).sort((a,b)=>(year.points[b]??0)-(year.points[a]??0)||placeOf(3,a)-placeOf(3,b)||placeOf(2,a)-placeOf(2,b)||placeOf(1,a)-placeOf(1,b)||coin(matchSeed(w,'points'),a)-coin(matchSeed(w,'points'),b));
+}
+// Worlds seeds per region: its base seeds, the MSI champion's own seat and the MSI bonus seed.
+function worldsSlots(w,region,year=w.year){const r=regionById(region),champ=year.msiChampion;return r.worlds+(champ&&regionOfTeam(w,champ)===region?1:0)+(year.msiBonus===region?1:0);}
+// Worlds qualification per region: the Split 3 champion, the MSI champion (if it reached the Split 3 playoffs; if not,
+// its seat goes to the region), then the points leader, then a gauntlet ladder of the next four teams by points for any
+// seeds left (its winner, then its finalist).
+function startQualifiers(w){
+ const y=w.year;
+ for(const r of REGIONS){
+  const need=worldsSlots(w,r.id),s3=y.splits[3],champ=s3.places[r.id][0],msi=y.msiChampion&&regionOfTeam(w,y.msiChampion)===r.id&&s3.playoffs[r.id].seeds.includes(y.msiChampion)?y.msiChampion:null;
+  const direct=[...new Set([champ,msi].filter(Boolean))],order=pointsOrder(w,r.id).filter(id=>!direct.includes(id));
+  if(direct.length<need)direct.push(order.shift());
+  const rest=need-direct.length,q={need,direct,bracket:null};
+  if(rest>0){const n=Math.min(4,order.length);if(n>=2)q.bracket=newBracket(w,'qualifiers',r.id,`ladder${n}`,order.slice(0,n));else q.direct.push(...order.slice(0,rest));}
+  y.qualifiers[r.id]=q;
+ }
+}
+// First Stand: the two major regions' Split 1 champions and runners-up and every other region's Split 1 champion, in
+// two GSL groups of four (Bo5) that keep each region's teams apart, then crossed Bo5 semifinals and a final.
+function startFirstStand(w){
+ const y=w.year,rank=w.regionRank,pick=r=>y.splits[1].places[r].slice(0,regionById(r).fs);
+ const [M0,M1]=rank.filter(r=>regionById(r).fs>=2).map(pick),[O0,O1,O2,O3]=rank.filter(r=>regionById(r).fs<2).map(r=>pick(r)[0]);
+ const A=[M0[0],M1[1],O0,O2],B=[M1[0],M0[1],O1,O3];
+ y.events['first-stand']={key:'first-stand',teams:[...A,...B],current:0,phases:[{key:'group-a',...newBracket(w,'first-stand','A','gsl5',A)},{key:'group-b',format:'bracket',stage:'first-stand',group:'B',template:'gsl5',seeds:B,matches:{}},
+  {key:'knockout',format:'bracket',stage:'first-stand',group:'knockout',template:'knockout4',seeds:null,matches:{}}]};
+}
+// Regions by their First Stand result (best-placed team), then the region ranking.
+function firstStandOrder(w,year=w.year){
+ const fs=year.events['first-stand'],rank=w.regionRank,best={};let k=0;
+ for(const g of fs?.places??[]){for(const id of g)best[regionOfTeam(w,id)]??=k;k+=g.length;}
+ return [...rank].sort((a,b)=>(best[a]??99)-(best[b]??99)||rank.indexOf(a)-rank.indexOf(b));
+}
+// MSI: each region's Split 2 champion (and runner-up where the region has two seats). The six champions and the First
+// Stand winning region's runner-up go straight to the bracket; the other runners-up play a four-team double-elimination
+// play-in for the last place. The bracket draw puts the regions in tiers by their First Stand result.
+function startMsi(w){
+ const y=w.year,order=firstStandOrder(w),pick=r=>y.splits[2].places[r].slice(0,regionById(r).msi),bye=order.find(r=>regionById(r).msi>=2);
+ const firsts=order.map(r=>pick(r)[0]),playin=order.filter(r=>r!==bye).map(r=>pick(r)[1]).filter(Boolean),direct=[...firsts,pick(bye)[1]];
+ y.events.msi={key:'msi',teams:[...direct,...playin],current:0,phases:[{key:'play-in',...newBracket(w,'msi','play-in','double4',playin)},{key:'bracket',format:'bracket',stage:'msi',group:'bracket',template:'double8',seeds:null,direct,matches:{}}]};
+}
+// Worlds: every region's seeds. The last seeds of the regions with play-in seats (and the MSI bonus seed) play a
+// four-team double-elimination play-in for one Swiss place. Swiss round 1 draws pool 1 (each region's first seed)
+// against pool 3 (the rest and the play-in winner), and pool 2 (the second seeds of the four best regions) within itself.
+function startWorlds(w){
+ const y=w.year,rank=w.regionRank,direct=[],playin=[];
+ for(const r of rank){const seeds=y.worldsSeeds[r]??[],n=regionById(r).playIn+(y.msiBonus===r?1:0);seeds.forEach((id,seed)=>(seed>=seeds.length-n?playin:direct).push({id,seed,rank:rank.indexOf(r)}));}
+ const ins=playin.sort((a,b)=>a.rank-b.rank||a.seed-b.seed).map(e=>e.id);
+ y.events.worlds={key:'worlds',teams:[...direct.map(e=>e.id),...ins],current:0,phases:[{key:'play-in',...newBracket(w,'worlds','play-in','double4',ins)},
+  {key:'swiss',format:'swiss',teams:null,pools:null,direct,rounds:[]},{key:'knockout',format:'bracket',stage:'worlds',group:'knockout',template:'knockout8',seeds:null,matches:{}}]};
+}
+function swissPools(w,direct,qualifier){
+ const rank=w.regionRank,byRank=list=>list.sort((a,b)=>a.rank-b.rank||a.seed-b.seed);
+ const p1=byRank(direct.filter(e=>e.seed===0)),p2=byRank(direct.filter(e=>e.seed===1&&e.rank<4)),used=new Set([...p1,...p2]);
+ const p3=[...byRank(direct.filter(e=>!used.has(e))).map(e=>e.id),qualifier];
+ return [p1.map(e=>e.id),p2.map(e=>e.id),p3];
+}
+function openSwissRound(w,s){
+ const get=getter(w),{rec}=swissRecords(s,get),round=s.rounds.length+1;
+ s.rounds.push(swissPairs(s,get,id=>regionOfTeam(w,id),matchSeed(w,'swiss')).map((p,i)=>addMatch(w,{stage:'worlds',group:'swiss',key:`r${round}m${i}`,home:p.home,away:p.away,bestOf:p.bestOf,round,label:`Swiss round ${round} · ${rec[p.home].join('–')}`})));
+}
+function groupTable(w,ev,g,year=w.year){const ph=ev.phases[0];return table(ph.groups[g],ph.rounds[g].flat().map(id=>year.matches[id]),matchSeed(w,'group:'+ev.key),g);}
+function phaseDone(w,ph){const get=getter(w);return ph.format==='groups'?Object.values(ph.rounds).flat(2).every(id=>get(id).winner):ph.format==='swiss'?swissDone(ph,get):!!ph.seeds&&bracketDone(ph,get);}
+// The next phase of an event takes its seeds from the ones before.
+function seedPhase(w,ev){
+ const get=getter(w),prev=ev.phases[ev.current-1],ph=ev.phases[ev.current],top2=b=>bracketPlaces(b,get).flat().slice(0,2),regionOf=id=>regionOfTeam(w,id);
+ if(ph.key==='group-b'){}
+ else if(ev.key==='first-stand'){const [A1,A2]=top2(ev.phases[0]),[B1,B2]=top2(ev.phases[1]);ph.seeds=[A1,B2,B1,A2];}
+ else if(ev.key==='msi'){const d=ph.direct;ph.seeds=tieredDouble8([[d[0],d[1]],[d[2],d[3]],[d[4],d[5]],[d[6],top2(prev)[0]]],regionOf,matchSeed(w,'msi:draw'));}
+ else if(ph.format==='swiss'){ph.pools=swissPools(w,ph.direct,top2(prev)[0]);ph.teams=ph.pools.flat();openSwissRound(w,ph);return;}
+ else ph.seeds=swissKnockoutSeeds(prev,get,regionOf,matchSeed(w,'knockout'));
+ openStageBracket(w,ph);
+}
+function stageDone(w,st){
+ const y=w.year,get=getter(w);
+ if(st.kind==='split')return Object.values(y.splits[st.split].regular).flat(2).every(id=>get(id).winner);
+ if(st.kind==='playoffs')return Object.values(y.splits[st.split].playoffs).every(b=>bracketDone(b,get));
+ if(st.kind==='qualifiers')return Object.values(y.qualifiers).every(q=>!q.bracket||bracketDone(q.bracket,get));
+ const ev=y.events[st.event];return ev.current===ev.phases.length-1&&phaseDone(w,ev.phases[ev.current]);
+}
+// After every recorded match: open whatever became playable, move events to their next phase, finish the stage.
+function progress(w){
+ const st=w.calendar[w.stageIndex],y=w.year,get=getter(w);
+ if(st.kind==='playoffs')for(const b of Object.values(y.splits[st.split].playoffs))openStageBracket(w,b);
+ if(st.kind==='qualifiers')for(const q of Object.values(y.qualifiers))if(q.bracket)openStageBracket(w,q.bracket);
+ if(st.kind==='event'){
+  const ev=y.events[st.event],ph=ev.phases[ev.current];
+  if(ph.format==='bracket')openStageBracket(w,ph);
+  if(ph.format==='swiss'&&swissRoundDone(ph,get)&&!swissDone(ph,get))openSwissRound(w,ph);
+  if(phaseDone(w,ph)&&ev.current<ev.phases.length-1){ev.current++;seedPhase(w,ev);}
+ }
+ if(stageDone(w,st))finishStage(w,st);
+}
+const stageMvp=(w,ok)=>{const best=Object.entries(w.stageStats??{}).filter(([id])=>w.fighters[id]&&ok(w.fighters[id])).sort((a,b)=>impact(b[1])-impact(a[1])||(a[0]<b[0]?-1:1))[0];return best?best[0]:null;};
+// A title: the champion's roster as it stands, the runner-up and the stage's most impactful fighter.
+function award(w,{event,split=null,region=null,champion,runnerUp,mvp}){
+ const team=teamById(w,champion),f=mvp&&w.fighters[mvp];
+ const roster=team.roster.map(id=>{const x=w.fighters[id];return {id,name:x.name,role:x.role,castRole:x.castRole,ovr:x.ovr,class:x.traits.class,subclass:x.traits.subclass,tier:x.summary.tier,starter:team.lineup.includes(id)};});
+ const title={season:w.season,event,...(split?{split}:{}),...(region?{region}:{}),champion,championName:team.name,runnerUp,mvp:mvp??null,mvpName:f?.name??null,mvpTeam:f?.team??null,roster};
+ w.titles=[...(w.titles??[]),title];return title;
+}
+function addPoints(w,groups,table,entry=0){
+ let k=0;for(const group of groups){const at=k;for(const id of group){w.year.points[id]=(w.year.points[id]??0)+(table[at]??entry);k++;}}
+}
+function finishStage(w,st){
+ const y=w.year,get=getter(w),summary={stage:st.key};
+ if(st.kind==='split')summary.leaders=Object.fromEntries(REGION_IDS.map(r=>[r,regionTable(w,r,st.split)[0]?.id??null]));
+ else if(st.kind==='playoffs'){
+  const s=y.splits[st.split];summary.champions={};
+  for(const r of REGION_IDS){
+   const groups=bracketPlaces(s.playoffs[r],get),inBracket=new Set(groups.flat()),rest=regionTable(w,r,st.split).map(x=>x.id).filter(id=>!inBracket.has(id));
+   s.places[r]=[...groups.flat(),...rest];addPoints(w,[...groups,...rest.map(id=>[id])],SPLIT_POINTS[st.split]);
+   const t=award(w,{event:'split',split:st.split,region:r,champion:groups[0][0],runnerUp:groups[1][0],mvp:stageMvp(w,f=>regionOfTeam(w,f.team)===r)});summary.champions[r]=t.champion;
+  }
+ }
+ else if(st.kind==='qualifiers'){
+  for(const [r,q]of Object.entries(y.qualifiers))y.worldsSeeds[r]=[...q.direct,...(q.bracket?bracketPlaces(q.bracket,get).flat():[])].slice(0,q.need);
+  summary.seeds=structuredClone(y.worldsSeeds);
+ }
+ else{
+  const ev=y.events[st.event],groups=eventPlaces(w,ev);ev.places=groups;
+  if(EVENT_POINTS[st.event])addPoints(w,ev.places,EVENT_POINTS[st.event],EVENT_ENTRY_POINTS);
+  const t=award(w,{event:st.event,champion:groups[0][0],runnerUp:groups[1][0],mvp:stageMvp(w,f=>!!f.team)});summary.champion=t.champion;
+  if(st.event==='msi'){y.msiChampion=t.champion;const home=regionOfTeam(w,t.champion);y.msiBonus=regionOfTeam(w,ev.places.flat().find(id=>regionOfTeam(w,id)!==home));summary.bonus=y.msiBonus;}
+  if(st.event==='worlds'){finishSeason(w);return;}
+ }
+ w.awaiting=summary;
+}
+// An event's final places: the last phase's places, then the teams each earlier phase knocked out (Swiss teams by
+// wins), best first.
+function eventPlaces(w,ev){
+ const get=getter(w),out=[],placed=new Set(),add=ids=>{const left=ids.filter(id=>id&&!placed.has(id));if(left.length){out.push(left);left.forEach(id=>placed.add(id));}};
+ for(const ph of [...ev.phases].reverse()){
+  if(ph.format==='swiss'){const {rec}=swissRecords(ph,get);for(let wins=SWISS_TARGET;wins>=0;wins--)add(ph.teams.filter(id=>rec[id][0]===wins));}
+  else if(ph.format==='groups')for(const g of Object.keys(ph.groups))add(groupTable(w,ev,g).map(r=>r.id));
+  else for(const g of bracketPlaces(ph,get))add(g);
+ }
+ add(ev.teams);return out;
+}
+// International results by region (Worlds counts three times, MSI twice, First Stand once): the region ranking that
+// orders seeds and groups follows this season and, at half weight, the season before.
+const PLACE_SCORE=[8,6,4,4,2,2,2,2];
+function finishSeason(w){
+ const y=w.year,best=Object.entries(w.stats??{}).filter(([id])=>w.fighters[id]).sort((a,b)=>impact(b[1])-impact(a[1])||(a[0]<b[0]?-1:1))[0],mvp=best?.[0]??null;
+ w.awards=[...(w.awards??[]),{season:w.season,mvp,mvpName:mvp&&w.fighters[mvp].name,mvpTeam:mvp&&w.fighters[mvp].team}];
+ const scores=Object.fromEntries(REGION_IDS.map(r=>[r,0]));
+ for(const [key,ev]of Object.entries(y.events)){let k=0;for(const group of ev.places??[])for(const id of group){scores[regionOfTeam(w,id)]+=EVENTS[key].prestige*(PLACE_SCORE[k]??1);k++;}}
+ const prev=w.regionScores?.at(-1)?.scores??{};w.regionScores=[...(w.regionScores??[]),{season:w.season,scores}].slice(-3);
+ w.regionRank=[...REGION_IDS].sort((a,b)=>(scores[b]+.5*(prev[b]??0))-(scores[a]+.5*(prev[a]??0))||REGION_IDS.indexOf(a)-REGION_IDS.indexOf(b));
+ w.phase='complete';
+}
+const worldsChampion=(w,year=w.year)=>year?.events?.worlds?.places?.[0]?.[0]??null;
+function readyMatches(w){
+ const st=w.calendar[w.stageIndex],y=w.year,get=getter(w),out=[],open=b=>Object.values(b.matches).map(get).filter(m=>!m.winner);
+ if(st.kind==='split'){for(const r of REGION_IDS){const round=y.splits[st.split].regular[r].find(ids=>ids.some(id=>!get(id).winner));if(round)out.push(...round.map(get).filter(m=>!m.winner));}}
+ else if(st.kind==='playoffs'){for(const r of REGION_IDS)out.push(...open(y.splits[st.split].playoffs[r]));}
+ else if(st.kind==='qualifiers'){for(const q of Object.values(y.qualifiers))if(q.bracket)out.push(...open(q.bracket));}
+ else{const ev=y.events[st.event],ph=ev.phases[ev.current];
+  if(ph.format==='groups')for(const rounds of Object.values(ph.rounds)){const round=rounds.find(ids=>ids.some(id=>!get(id).winner));if(round)out.push(...round.map(get).filter(m=>!m.winner));}
+  else if(ph.format==='swiss')out.push(...(ph.rounds.at(-1)??[]).map(get).filter(m=>!m.winner));
+  else out.push(...open(ph));}
+ return out;
+}
+// The matches that can be played now: the next round of every region's split, or every series whose teams are known.
 function upcoming(w,limit=Infinity){
- const out=[];if(w.phase==='season'){const played=w.results.length;let n=0;for(const week of w.schedule)for(const g of week.games){if(n++<played)continue;out.push({...g,kind:'regular',week:week.week,bestOf:1});}}
- else if(w.phase==='playoffs'){for(const s of w.playoffs.rounds.at(-1).series){if(s.winner)continue;out.push({...s,kind:'playoff'});}}
- if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));return out.slice(0,limit).map(m=>describe(w,m));
+ if(w.phase!=='season'||w.awaiting)return [];
+ const out=readyMatches(w);if(w.pendingSeries)out.sort((a,b)=>(b.id===w.pendingSeries.matchId)-(a.id===w.pendingSeries.matchId));
+ return out.slice(0,limit).map(m=>describe(w,m));
 }
-function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {...m,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,...(partial.gamePlans?{initialGamePlans:partial.gamePlans}:{}),completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)],...(GAME_PLAN_ENGINES.includes(w.teamEngine)?{gamePlans:[teamGamePlan(w,home),teamGamePlan(w,away)]}:{})};}
+function describe(w,m){const home=teamById(w,m.home),away=teamById(w,m.away);const partial=w.pendingSeries?.matchId===m.id?w.pendingSeries:null;return {id:m.id,stage:m.stage,group:m.group,label:m.label,round:m.round,home:m.home,away:m.away,bestOf:m.bestOf,kind:/^split\d$/.test(m.stage)?'regular':'series',week:m.round,engineVersion:w.teamEngine??'team-2',...(BALANCED_ENGINES.includes(w.teamEngine)?{balance:structuredClone(w.balance?.profile??neutralBalance().profile)}:{}),seriesRulesVersion:2,coachStyles:[home.coach.personality,away.coach.personality],userSide:[home.id,away.id].indexOf(w.settings.userTeam),...(partial?{initialLineups:partial.lineups,initialTactics:partial.tactics,...(partial.gamePlans?{initialGamePlans:partial.gamePlans}:{}),completedGames:partial.games}:{}),seed:matchSeed(w,m.id),conditions:SEASON_CONDITIONS,lineups:[home.lineup,away.lineup],tactics:[teamTactic(w,home),teamTactic(w,away)],...(GAME_PLAN_ENGINES.includes(w.teamEngine)?{gamePlans:[teamGamePlan(w,home),teamGamePlan(w,away)]}:{})};}
 // Match squads. With contracts, each fighter's fit with his team's style moves his strength, speed, durability and
 // magic (CONTRACT.fit) for the game.
 const squads=(w,match)=>seriesGameOptions(match,match.completedGames??[]).lineups.map((ids,side)=>{const team=w.contractsVersion?teamById(w,[match.home,match.away][side]):null;return ids.map(id=>{const f=w.fighters[id],shift=team?fit(w,f,team):0,summary=shift?{...f.summary,stats:fitStats(f.summary.stats,shift)}:f.summary;return {id:f.id,name:f.name,teamKit:['team-2.2','team-2.3','team-3-core','team-3'].includes(match.engineVersion)?f.teamKit??f.legacyTeamKit:null,traits:f.traits,summary};});});
@@ -5815,11 +6175,12 @@ function validGame(game,lineups,engineVersion){
  }
  return true;
 }
-function addStats(w,games,lineups){for(const game of games){const winners=new Set(lineups[game.winnerTeam]);for(const f of game.fighters){const s=w.stats[f.id]??={games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,ccSeconds:0};s.games++;if(winners.has(f.id))s.wins++;s.damage+=f.damage;s.healing+=f.healing;s.kills+=f.kills;s.deaths+=f.deaths;s.ccSeconds=Math.round((s.ccSeconds+f.ccSeconds)*10)/10;if(game.objective)for(const key of ['objectiveDamage','downSeconds','monsterLastHits'])s[key]=(s[key]??0)+(f[key]??0);}}}
-// Records one simulated match. Only the exact next match is accepted, with a complete, valid series.
+// Season stats (w.stats) and the current stage's (w.stageStats, which picks split and event MVPs).
+function addStats(w,games,lineups){w.stageStats??={};for(const game of games){const winners=new Set(lineups[game.winnerTeam]);for(const f of game.fighters)for(const book of [w.stats,w.stageStats]){const s=book[f.id]??={games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,ccSeconds:0};s.games++;if(winners.has(f.id))s.wins++;s.damage+=f.damage;s.healing+=f.healing;s.kills+=f.kills;s.deaths+=f.deaths;s.ccSeconds=Math.round((s.ccSeconds+f.ccSeconds)*10)/10;if(game.objective)for(const key of ['objectiveDamage','downSeconds','monsterLastHits'])s[key]=(s[key]??0)+(f[key]??0);}}}
+// Records one simulated match: any playable match, with a complete, valid series.
 function recordMatch(w,matchId,games){
- const [m]=upcoming(w,w.phase==='playoffs'?Infinity:1).filter(x=>w.phase==='season'||x.id===matchId);
- if(!m||m.id!==matchId)throw new Error('That is not the next team-league match.');
+ const m=upcoming(w).find(x=>x.id===matchId);
+ if(!m)throw new Error('That is not a playable team-league match.');
  const need=Math.ceil(m.bestOf/2);if(!Array.isArray(games)||!games.length||games.length>m.bestOf)throw new Error('Invalid team-league series.');
  const partial=w.pendingSeries?.matchId===matchId?w.pendingSeries:null;
  if(w.pendingSeries&&!partial)throw new Error('Finish the paused series first.');
@@ -5827,10 +6188,11 @@ function recordMatch(w,matchId,games){
  const score=[0,0],accepted=[];games.forEach((g,i)=>{if(score[0]>=need||score[1]>=need)throw new Error('The series was already decided.');const plan=validateSeriesGame(w,m,g,accepted);accepted.push({...g,...plan});score[g.winnerTeam]++;});
  if(Math.max(...score)!==need)throw new Error('The series is not complete.');
  const winner=score[0]>score[1]?m.home:m.away;if(m.balance){w.balance??=neutralBalance();w.balance.seasonSamples??=structuredClone(w.balance.samples);w.balance.sampleGames??=w.balance.samples.length;w.balance.seasonSampleGames??=w.balance.seasonSamples.length;for(const g of accepted){const observations=balanceObservations(g.lineups.map(ids=>lineupEvidence(w,ids)),g.winnerTeam);if(w.balance.rulesVersion>=2){addBalanceObservations(w.balance.samples,observations);addBalanceObservations(w.balance.seasonSamples,observations);}else{w.balance.samples.push(observations);w.balance.seasonSamples.push(structuredClone(observations));}w.balance.sampleGames++;w.balance.seasonSampleGames++;}}for(const g of accepted)addStats(w,[g],g.lineups);delete w.pendingSeries;
- const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),comps=countsFor(accepted[0].lineups);
- if(m.kind==='regular'){const g=games[0];w.results.push({id:m.id,week:m.week,home:m.home,away:m.away,winner,hp:g.objective?g.objective.coreHp.map(Math.round):g.hp,seconds:g.seconds,comps,objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,lineups:accepted[0].lineups});balanceCheckpoint(w,'halfway');if(w.results.length===w.schedule.reduce((n,x)=>n+x.games.length,0))startPlayoffs(w);}
- else{const s=w.playoffs.rounds.at(-1).series.find(x=>x.id===m.id);s.games=accepted.map(g=>({winnerTeam:g.winnerTeam,hp:g.hp,seconds:g.seconds,lineups:g.lineups,tactics:g.tactics,...(g.gamePlans?{gamePlans:g.gamePlans}:{}),objective:g.objective,engineVersion:m.engineVersion,balance:m.balance,comps:countsFor(g.lineups)}));s.comps=comps;s.winner=winner;
-  if(w.playoffs.rounds.at(-1).series.every(x=>x.winner)){if(s.round==='final'){w.playoffs.champion=winner;finishSeason(w,s);}else openRound(w);}}
+ const countsFor=lineups=>lineups.map(ids=>{const c=lineupCounts(w,ids);return ROLE_KEYS.map(r=>c[r]);}),match=w.year.matches[matchId];
+ // Each game is kept as [winning side, home HP, away HP, seconds] (the cores' health in Core siege), with both
+ // starting compositions for the meta and the balance log.
+ match.games=accepted.map(g=>[g.winnerTeam,...(g.objective?g.objective.coreHp:g.hp).map(Math.round),Math.round(g.seconds)]);match.comps=accepted.map(g=>countsFor(g.lineups));match.winner=winner;match.engineVersion=m.engineVersion;
+ progress(w);
  return {id:m.id,winner,score};
 }
 function validateSeriesGame(w,m,g,previous){
@@ -5846,20 +6208,15 @@ function validateSeriesGame(w,m,g,previous){
  return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege,...(p.camp?{camp:p.camp}:{})}))}:{})};
 }
 function recordSeriesGame(w,matchId,game){
- const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
+ const m=upcoming(w).find(x=>x.id===matchId);if(!m)throw new Error('That is not a playable team-league match.');
  if(w.pendingSeries&&w.pendingSeries.matchId!==matchId)throw new Error('Finish the paused series first.');
  const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],...(m.gamePlans?{gamePlans:structuredClone(m.gamePlans)}:{}),games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
  if(Math.max(...score)===Math.ceil(m.bestOf/2)){recordMatch(w,matchId,games);return {complete:true,score};}
  w.pendingSeries={...partial,games};return {complete:false,score};
 }
 function impact(s){return s.damage+s.healing*1.1+s.kills*120+s.ccSeconds*30+(s.objectiveDamage??0)*.4+(s.monsterLastHits??0)*300;}
-function finishSeason(w,final){
- const runnerUp=final.home===final.winner?final.away:final.home,best=Object.entries(w.stats).sort((a,b)=>impact(b[1])-impact(a[1])||(a[0]<b[0]?-1:1))[0];
- const champion=teamById(w,final.winner),last=final.games?.at(-1),side=last?.winnerTeam,starters=last?.lineups?.[side]??champion.lineup;
- const roster=champion.roster.map(id=>({...structuredClone(w.fighters[id]),starter:starters.includes(id),seasonStats:structuredClone(w.stats[id]??null)}));
- const mvp=best?.[0]??null;w.titles=[...(w.titles??[]),{season:w.season,champion:final.winner,championName:champion.name,roster,runnerUp,mvp,mvpName:mvp&&w.fighters[mvp].name,mvpTeam:mvp&&w.fighters[mvp].team}];w.phase='complete';
-}
-function leaders(w,key,limit=5){return Object.entries(w.stats??{}).map(([id,s])=>({fighter:w.fighters[id],value:key==='impact'?Math.round(impact(s)):s[key],stats:s})).sort((a,b)=>b.value-a.value||(a.fighter.id<b.fighter.id?-1:1)).slice(0,limit);}
+// Season leaders, optionally one region's (by the fighter's current team).
+function leaders(w,key,limit=5,region=null){return Object.entries(w.stats??{}).filter(([id])=>w.fighters[id]&&(!region||regionOfTeam(w,w.fighters[id].team)===region)).map(([id,s])=>({fighter:w.fighters[id],value:key==='impact'?Math.round(impact(s)):s[key],stats:s})).sort((a,b)=>b.value-a.value||(a.fighter.id<b.fighter.id?-1:1)).slice(0,limit);}
 
 // ---------- Coach mode and the offseason (phase 4) ----------
 const TACTICS=Object.freeze(['balanced','protect-carry','focus-healer','aggressive','defensive']);
@@ -5875,29 +6232,34 @@ const careerSeason=(w,f)=>w.season-(f.careerStart??w.season)+1;
 // A veteran past their 10th season stays one more season if they were this season's MVP, or in top form: impact
 // per game at least one standard deviation above their role, over at least half the busiest fighter's games.
 function earnedExtension(w,f,form=seasonPerformance(w)){
- if(careerSeason(w,f)<CAREER.retireAfter)return null;const title=w.titles?.at(-1);
- if(title?.season===w.season&&title.mvp===f.id)return 'mvp';
+ if(careerSeason(w,f)<CAREER.retireAfter)return null;const award=(w.awards??[]).find(a=>a.season===w.season);
+ if(award?.mvp===f.id)return 'mvp';
  const p=form.get(f.id);return p&&p.z>=CAREER.extendForm&&p.share>=CAREER.extendShare?'form':null;
 }
 const retiringVeterans=w=>{const form=seasonPerformance(w);return Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter&&!earnedExtension(w,f,form));};
 // ---------- Lifetime stats and the Hall of Fame ----------
-const newCareer=()=>({seasons:0,games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,cc:0,titles:0,mvps:0,teams:[],best:null});
+// Trophies count every title by event (Worlds, MSI, First Stand, split titles); `titles` is Worlds titles and `mvps`
+// season MVP awards.
+const newTrophies=()=>({worlds:0,msi:0,'first-stand':0,split:0});
+const newCareer=()=>({seasons:0,games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,cc:0,titles:0,mvps:0,trophies:newTrophies(),teams:[],best:null});
 const lifetimeImpact=c=>c.damage+c.healing*1.1+c.kills*120+c.cc*30;
 function addSeason(c,s,season,team){
  if(!s?.games)return;const r={cc:Math.round(s.cc??s.ccSeconds??0)};for(const k of ['games','wins','damage','healing','kills','deaths'])r[k]=Math.round(s[k]??0);
  c.seasons++;for(const k in r)c[k]+=r[k];if(team&&!c.teams.includes(team))c.teams.push(team);
  const per=Math.round(lifetimeImpact(r)/r.games);if(!c.best||per>c.best.impact)c.best={season,impact:per};
 }
-function addTitle(c,title,id){if(title.roster?.some(r=>r.id===id))c.titles++;if(title.mvp===id)c.mvps++;}
+function addTitle(c,title,id){if(!title.roster?.some(r=>r.id===id))return;const event=title.event??'worlds';c.trophies??=newTrophies();c.trophies[event]=(c.trophies[event]??0)+1;if(event==='worlds')c.titles++;}
+function addAward(c,award,id){if(award.mvp===id)c.mvps++;}
 // Each offseason adds the season to every fighter's lifetime totals, before the stats reset.
 function recordCareers(w){
- const title=w.titles?.at(-1)?.season===w.season?w.titles.at(-1):null;
- for(const f of Object.values(w.fighters)){f.career??=newCareer();addSeason(f.career,w.stats?.[f.id],w.season,f.team);if(title)addTitle(f.career,title,f.id);}
+ const titles=(w.titles??[]).filter(t=>t.season===w.season),awards=(w.awards??[]).filter(a=>a.season===w.season);
+ for(const f of Object.values(w.fighters)){f.career??=newCareer();addSeason(f.career,w.stats?.[f.id],w.season,f.team);for(const t of titles)addTitle(f.career,t,f.id);for(const a of awards)addAward(f.career,a,f.id);}
 }
 // Old saves rebuild lifetime totals from the season log and the title history.
 function backfillCareer(w,f){
  const c=newCareer();for(const entry of w.seasonLog??[]){const s=entry.fighters?.find(x=>x.id===f.id);if(s)addSeason(c,s,entry.season,s.team);}
  for(const title of w.titles??[])if(title.season<w.season||w.phase==='offseason')addTitle(c,title,f.id);
+ for(const award of w.awards??[])if(award.season<w.season||w.phase==='offseason')addAward(c,award,f.id);
  return c;
 }
 const HALL_STATS=Object.freeze([['damage','Damage'],['healing','Healing'],['kills','KOs'],['cc','Control seconds'],['impact','Impact']]);
@@ -5916,8 +6278,9 @@ function careerPeers(w){const peers={};for(const f of Object.values(w.fighters))
 function hallEntry(w,f,peers=careerPeers(w)){
  const c=f.career;if(!c?.games)return null;const role=careerRole(f),group=peers[role]??[];
  const excelled=group.length>=3?HALL_STATS.filter(([key])=>roleStat(role,key)).map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
- const reason=c.mvps>0?'mvp':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
- return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,best:c.best,
+ // Season MVPs and Worlds champions with a full career are in; anyone else needs the standout bar.
+ const reason=c.mvps>0?'mvp':c.trophies?.worlds>0&&c.games>=HALL_MIN_GAMES?'champion':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
+ return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,trophies:{...newTrophies(),...c.trophies},region:f.region??null,best:c.best,
   stats:{games:c.games,wins:c.wins,damage:c.damage,healing:c.healing,kills:c.kills,deaths:c.deaths,cc:Math.round(c.cc)},excelled,reason};
 }
 function induct(w,retirees,peers){const entries=retirees.map(f=>hallEntry(w,f,peers)).filter(Boolean);if(entries.length)w.hallOfFame=[...entries,...(w.hallOfFame??[])].slice(0,HALL_OF_FAME_LIMIT);return entries;}
@@ -5964,7 +6327,7 @@ function claimTeam(w,teamId){
  w.settings.userTeam=teamId;return w;
 }
 function setLineup(w,ids){
- const team=userTeam(w),size=FORMATS[w.format].size;if(!['ready','season','playoffs'].includes(w.phase))throw new Error('Set lineups once the roster is full.');
+ const team=userTeam(w),size=FORMATS[w.format].size;if(!['ready','season'].includes(w.phase))throw new Error('Set lineups once the roster is full.');
  if(!Array.isArray(ids)||ids.length!==size||new Set(ids).size!==size||ids.some(id=>!team.roster.includes(id)))throw new Error(`Choose ${size} different fighters from your roster.`);
  team.lineup=[...ids];return w;
 }
@@ -5972,8 +6335,12 @@ function setLineup(w,ids){
 function teamGamePlan(w,team){return team.gamePlan?{...team.gamePlan}:personalityGamePlan(team.coach.personality);}
 function setGamePlan(w,plan){const team=userTeam(w);if(!validGamePlan(plan))throw new Error('Choose a Titan priority, a style and a siege timing.');team.gamePlan={titan:plan.titan,style:plan.style,siege:plan.siege,...(plan.camp?{camp:plan.camp}:{})};return w;}
 function setTactic(w,tactic){const team=userTeam(w);if(!TACTICS.includes(tactic))throw new Error('Unknown tactic.');team.tactic=tactic;return w;}
-// The rookie class also replaces every veteran about to retire, so rosters can always be refilled.
-function rookiePlan(w){const f=FORMATS[w.format],total=w.teams.length*ROOKIES_PER_TEAM[w.format]+(w.phase==='complete'?retiringVeterans(w).length:0),weight=Object.values(f.mix).reduce((a,b)=>a+b,0),counts={};for(const role of ['tank','healer','controller'])counts[role]=Math.round(total*f.mix[role]/weight);counts.damage=total-counts.tank-counts.healer-counts.controller;return planSlots(counts,(w.seed^Math.imul(w.season+1,0x7feb352d))>>>0);}
+// Each region's rookie class: two or three per team (by format) plus one for every veteran from the region about to
+// retire, drawn with the region's talent odds.
+function rookiePlan(w){
+ const f=FORMATS[w.format],leaving=w.phase==='complete'?retiringVeterans(w):[];
+ return REGIONS.flatMap((r,i)=>{const total=regionTeams(w,r.id).length*ROOKIES_PER_TEAM[w.format]+leaving.filter(x=>x.region===r.id).length;return planSlots(mixCounts(f,total),(w.seed^Math.imul(w.season+1,0x7feb352d)^Math.imul(i+1,0x2f6b9a1d))>>>0,r);});
+}
 // Ratings move with performance: per-game impact compared with others in the same role, plus a small seeded drift.
 // Offseason value updates move a fighter at most ±RATING_CHANGE_CAP OVR.
 const RATING_CHANGE_CAP=5;
@@ -6002,7 +6369,7 @@ function updateRatings(w){
 }
 function scoreTeam(w,team,roster=team.roster){
  const f=FORMATS[w.format],members=roster.map(id=>w.fighters[id]),probe={...team,roster,lineup:[]},lineup=bestLineup(w,probe).map(id=>w.fighters[id]),counts={tank:0,healer:0,controller:0,damage:0};for(const m of members)counts[m.role]++;
- const pay=members.reduce((n,m)=>n+wage(m),0);return lineup.reduce((n,m)=>n+m.ovr,0)+Object.entries(rosterTargets(w,team)).reduce((n,[role,want])=>n+Math.min(counts[role],want)*6,0)+members.reduce((n,m)=>n+m.ovr*.15,0)-Math.max(0,pay-w.settings.salaryCap)*4;
+ const pay=members.reduce((n,m)=>n+wage(m),0);return lineup.reduce((n,m)=>n+m.ovr,0)+Object.entries(rosterTargets(w,team)).reduce((n,[role,want])=>n+Math.min(counts[role],want)*6,0)+members.reduce((n,m)=>n+m.ovr*.15,0)-Math.max(0,pay-capOf(w,team))*4;
 }
 // Share of a roster each personality is willing to turn over in one offseason.
 const ROSTER_CHURN=Object.freeze({bargain:.375,glass:.25,tactician:.25,balanced:.25,fortress:.125,star:.125});
@@ -6015,17 +6382,16 @@ function aiReleases(w,team,keep=new Set()){
  const ranked=team.roster.map(id=>w.fighters[id]).map(x=>({x,surplus:keepValue(x)-replacement(x)})).sort((a,b)=>a.surplus-b.surplus||(a.x.id<b.x.id?-1:1));
  const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5&&!keep.has(x.id)){released.push(x.id);counts[x.role]--;}}
  let pay=payroll(w,team)-released.reduce((n,id)=>n+wage(w.fighters[id]),0);
- for(const {x}of [...ranked.filter(r=>!keep.has(r.x.id)),...ranked.filter(r=>keep.has(r.x.id))]){if(pay<=w.settings.salaryCap+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
+ for(const {x}of [...ranked.filter(r=>!keep.has(r.x.id)),...ranked.filter(r=>keep.has(r.x.id))]){if(pay<=capOf(w,team)+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
  return released;
 }
-function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.lastTeam=team.id;f.team=null;f.contract=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
+function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.lastTeam=team.id;f.team=null;f.contract=null;f.locked=false;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
 // The season's meta: win rate by starting composition, and for each role whether fielding more of it than the
 // opponent won games. Coaches lean towards what worked, each at their own pace (META_ADAPTATION).
 // Every game of the season with both starting compositions (role counts, ROLE_KEYS order) and the winning side.
 function seasonGames(w){
  const games=[];
- for(const r of w.results??[])if(r.comps)games.push({comps:r.comps,winner:r.winner===r.home?0:1});
- for(const round of w.playoffs?.rounds??[])for(const s of round.series)if(s.comps)for(const g of s.games??[])games.push({comps:g.comps??s.comps,winner:g.winnerTeam});
+ for(const m of Object.values(w.year?.matches??{}))(m.comps??[]).forEach((comps,k)=>games.push({comps,winner:m.games[k][0]}));
  return games;
 }
 function seasonMeta(w){
@@ -6039,39 +6405,42 @@ function seasonMeta(w){
  const role=ROLE_KEYS.slice().sort((a,b)=>Math.abs(edge[b])-Math.abs(edge[a]))[0];
  return {games:games.length,top,edge,roleRates:ROLE_KEYS.filter(r=>more[r].games).map(r=>({key:'role:'+r,...more[r],rate:more[r].wins/more[r].games})),shift:edge[role]?{role,winPct:Math.round((edge[role]+.5)*1000)/10,games:more[role].games}:null};
 }
-// Season log: each finished season's teams with their rosters,
-// every fighter who played with their results, and every game's compositions. A season's stats and results reset
-// when the next one starts, so this is what balance checks across many seasons read (balanceReport).
-const SEASON_LOG_LIMIT=40;
+// Season log: each finished season's teams and rosters, every fighter who played with their results, every game's
+// compositions (what balance checks across many seasons read, balanceReport), and the full record of the season:
+// every region's split tables, playoffs, points and qualifier, and every international event game by game.
+const SEASON_LOG_LIMIT=20;
 const castLabel=f=>f?.traits?.subclass?`${f.traits.class} (${f.traits.subclass})`:f?.traits?.class??'?';
-function seasonLogEntry(w,history){
- const finish=new Map(),record=new Map(history.standings.map(r=>[r.id,r]));
- for(const round of w.playoffs?.rounds??[])for(const s of round.series)for(const id of [s.home,s.away])finish.set(id,round.key);
- return {season:w.season,format:w.format,battleMode:w.settings.battleMode,engine:w.teamEngine,
-  teams:w.teams.map(t=>({id:t.id,name:t.name,wins:record.get(t.id)?.wins??0,losses:record.get(t.id)?.losses??0,playoff:finish.get(t.id)??null,champion:t.id===history.champion,roster:t.roster.map(id=>`${castLabel(w.fighters[id])} ${w.fighters[id]?.summary?.tier??''}`.trim())})),
+const archiveMatch=m=>({home:m.home,away:m.away,bestOf:m.bestOf,winner:m.winner,games:m.games,label:m.label});
+function archiveBracket(y,b){return b?{template:b.template,seeds:b.seeds,matches:Object.fromEntries(Object.entries(b.matches).map(([k,id])=>[k,archiveMatch(y.matches[id])]))}:null;}
+function archivePhase(w,y,ev,ph){
+ if(ph.format==='groups')return {key:ph.key,format:'groups',groups:ph.groups,rounds:Object.fromEntries(Object.entries(ph.rounds).map(([g,rounds])=>[g,rounds.map(ids=>ids.map(id=>archiveMatch(y.matches[id])))])),tables:Object.fromEntries(Object.keys(ph.groups).map(g=>[g,groupTable(w,ev,g,y)]))};
+ if(ph.format==='swiss')return {key:ph.key,format:'swiss',teams:ph.teams,rounds:ph.rounds.map(ids=>ids.map(id=>archiveMatch(y.matches[id])))};
+ return {key:ph.key,format:'bracket',...archiveBracket(y,ph)};
+}
+// How far a team went this season: its Worlds, MSI and First Stand place (1-based) and its Split 3 place.
+function finishOf(w,id){
+ const y=w.year,placeIn=ev=>{if(!ev?.places)return null;let k=0;for(const g of ev.places){if(g.includes(id))return k+1;k+=g.length;}return null;};
+ return {worlds:placeIn(y.events.worlds),msi:placeIn(y.events.msi),firstStand:placeIn(y.events['first-stand']),split3:(y.splits[3]?.places?.[regionOfTeam(w,id)]?.indexOf(id)??-1)+1||null};
+}
+function seasonLogEntry(w){
+ const y=w.year,records=seasonRecords(w),champion=worldsChampion(w);
+ return {season:w.season,format:w.format,battleMode:w.settings.battleMode,engine:w.teamEngine,regionSize:w.settings.regionSize,regionRank:[...w.regionRank],
+  teams:w.teams.map(t=>({id:t.id,name:t.name,region:t.region,wins:records.get(t.id)?.wins??0,losses:records.get(t.id)?.losses??0,finish:finishOf(w,t.id),champion:t.id===champion,roster:t.roster.map(id=>`${castLabel(w.fighters[id])} ${w.fighters[id]?.summary?.tier??''}`.trim())})),
   fighters:Object.entries(w.stats??{}).filter(([,s])=>s.games).map(([id,s])=>{const f=w.fighters[id]??{};return {id,team:f.team??null,class:f.traits?.class??null,subclass:f.traits?.subclass??null,race:f.traits?.race??null,tier:f.summary?.tier??null,role:f.castRole??f.role??null,games:s.games,wins:s.wins,damage:Math.round(s.damage),healing:Math.round(s.healing),kills:s.kills,deaths:s.deaths,cc:Math.round(s.ccSeconds)};}),
   games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner]),
-  table:seasonTable(w),bracket:seasonBracket(w.playoffs)};
+  splits:Object.fromEntries(Object.entries(y.splits).map(([n,s])=>[n,Object.fromEntries(REGION_IDS.map(r=>[r,{table:regionTable(w,r,Number(n)),bracket:archiveBracket(y,s.playoffs[r]),places:s.places[r]??[]}]))])),
+  points:{...y.points},qualifiers:Object.fromEntries(Object.entries(y.qualifiers).map(([r,q])=>[r,{need:q.need,direct:q.direct,bracket:archiveBracket(y,q.bracket)}])),worldsSeeds:structuredClone(y.worldsSeeds),
+  events:Object.fromEntries(Object.entries(y.events).map(([k,ev])=>[k,{teams:ev.teams,places:ev.places??[],phases:ev.phases.map(ph=>archivePhase(w,y,ev,ph))}]))};
 }
-// The full table and bracket of a season, kept in its log entry so past seasons can be browsed after the next one
-// starts. Each playoff game is [winning side, home HP, away HP, seconds]; in Core siege the HP is the cores'.
-function seasonTable(w){return divisionStandings(w).map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.rows.map(r=>({id:r.id,wins:r.wins,losses:r.losses,division:r.division,conference:r.conference,margin:r.margin,streak:r.streak}))}))}));}
-function seasonBracket(p){
- if(!p)return null;
- return {seeds:structuredClone(p.seeds),rounds:p.rounds.map(r=>({key:r.key,name:r.name,series:r.series.map(s=>({home:s.home,away:s.away,bestOf:s.bestOf,winner:s.winner,games:s.games.map(g=>[g.winnerTeam,...(g.objective?.coreHp??g.hp??[0,0]).map(Math.round),Math.round(g.seconds??0)])}))}))};
-}
-// One past season for the archive: its table, bracket and title. Seasons logged before tables were kept rebuild a
-// table from each team's record and playoff finish, grouped by the league's conferences and divisions.
+// One past season for the archive: its log entry (read live for a season just crowned, which the offseason logs),
+// its titles and season MVP, and team names. Seasons past the log keep only their titles.
 function pastSeason(w,season){
- // A season just crowned is not logged until the offseason starts, so it is read live.
- const live=season===w.season&&w.phase==='complete'?{season,battleMode:w.settings.battleMode,teams:[],table:seasonTable(w),bracket:seasonBracket(w.playoffs)}:null;
- const entry=live??(w.seasonLog??[]).find(e=>e.season===season)??null,title=(w.titles??[]).find(t=>t.season===season)??null;
- if(!entry&&!title)return null;
+ const live=season===w.season&&w.phase==='complete'&&w.year?seasonLogEntry(w):null;
+ const entry=live??(w.seasonLog??[]).find(e=>e.season===season)??null,titles=(w.titles??[]).filter(t=>t.season===season),award=(w.awards??[]).find(a=>a.season===season)??null;
+ if(!entry&&!titles.length)return null;
  const names=Object.fromEntries(w.teams.map(t=>[t.id,t.name]));for(const t of entry?.teams??[])names[t.id]=t.name;
- let table=entry?.table??null;
- if(!table&&entry){const byId=new Map(entry.teams.map(t=>[t.id,t]));table=w.conferences.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.teams.map(id=>byId.get(id)).filter(Boolean).sort((a,b)=>b.wins-a.wins||a.losses-b.losses||(a.name<b.name?-1:1)).map(t=>({id:t.id,wins:t.wins,losses:t.losses,playoff:t.playoff}))}))}));}
- const finish=Object.fromEntries((entry?.teams??[]).map(t=>[t.id,t.playoff]));
- return {season,battleMode:entry?.battleMode??null,names,table,bracket:entry?.bracket??null,finish,title};
+ const regions=Object.fromEntries(w.teams.map(t=>[t.id,t.region]));for(const t of entry?.teams??[])regions[t.id]=t.region;
+ return {season,entry,titles,award,names,regions};
 }
 // Every season that can be browsed, newest first.
 function pastSeasons(w){return [...new Set([...(w.seasonLog??[]).map(e=>e.season),...(w.titles??[]).map(t=>t.season)])].filter(n=>n<w.season||n===w.season&&['complete','offseason'].includes(w.phase)).sort((a,b)=>b-a);}
@@ -6086,8 +6455,9 @@ function balanceReport(w){
   for(const [a,b,winner]of season.games){add(comp,compKey(Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,a[i]]))),winner===0);add(comp,compKey(Object.fromEntries(ROLE_KEYS.map((r,i)=>[r,b[i]]))),winner===1);}
  }
  const rows=(m,min=1)=>[...m.values()].filter(e=>e.games>=min).map(e=>({...e,pct:Math.round(e.wins/e.games*1000)/10,ci:wilson(e.wins,e.games)})).sort((a,b)=>b.pct-a.pct||b.games-a.games||(a.key<b.key?-1:1));
+ const worldsPlace=t=>t.finish?.worlds??99;
  return {format:w.format,seasons:log.map(s=>s.season),games:log.reduce((n,s)=>n+s.games.length,0),subclass:rows(subclass),class:rows(cls),role:rows(role),comp:rows(comp,10),
-  history:log.map(s=>({season:s.season,battleMode:s.battleMode,teams:[...s.teams].sort((a,b)=>Number(b.champion)-Number(a.champion)||b.wins-a.wins||(a.name<b.name?-1:1))}))};
+  history:log.map(s=>({season:s.season,battleMode:s.battleMode,teams:[...s.teams].sort((a,b)=>worldsPlace(a)-worldsPlace(b)||b.wins-a.wins||(a.name<b.name?-1:1))}))};
 }
 // The report as plain text, compact enough to paste into a chat.
 function balanceReportText(w){
@@ -6096,7 +6466,7 @@ function balanceReportText(w){
  const modes=[...new Set(r.history.map(h=>h.battleMode))].join('/');
  return [`Fateforge balance report · ${r.format}v${r.format} · ${modes||'—'} · ${span} · ${r.games} games`,
   table('Subclasses (fighter games, win %, 95% interval)',r.subclass),table('Classes',r.class),table('Roles',r.role),table('Compositions (team games, at least 10)',r.comp),
-  'Seasons (W-L, playoff finish, roster; * champion)',...r.history.map(h=>`S${h.season} ${h.battleMode}: `+h.teams.map(t=>`${t.champion?'*':''}${t.name} ${t.wins}-${t.losses}${t.playoff?' '+t.playoff:''} [${t.roster.join(', ')}]`).join('; '))].join('\n\n');
+  'Seasons (region, W-L over the splits, Worlds place, roster; * Worlds champion)',...r.history.map(h=>`S${h.season} ${h.battleMode}: `+h.teams.map(t=>`${t.champion?'*':''}${t.name} (${regionById(t.region)?.short??t.region}) ${t.wins}-${t.losses}${t.finish?.worlds?' W'+t.finish.worlds:''} [${t.roster.join(', ')}]`).join('; '))].join('\n\n');
 }
 function adaptCoaches(w,meta){
  const changed=[];
@@ -6109,23 +6479,26 @@ function startOffseason(w,rookies){
  if(w.phase!=='complete')throw new Error('Finish the season before the offseason.');
  const plan=rookiePlan(w);if(!Array.isArray(rookies)||rookies.length!==plan.length)throw new Error(`The rookie class must hold ${plan.length} fighters.`);if(!castFighters(rookies))throw new Error('Rookies come from the team cast.');
  const seen=new Set();rookies.forEach((c,i)=>{if(!c||typeof c.id!=='string'||w.fighters[c.id]||seen.has(c.id)||typeof c.name!=='string'||!c.name.trim()||!c.traits||FIGHTER_KEYS.some(k=>typeof c.traits[k]!=='string'))throw new Error('Invalid rookie.');if(c.summary?.tier!==plan[i].tier)throw new Error('A rookie does not match its planned tier.');seen.add(c.id);});
- balanceCheckpoint(w,'offseason');const history={season:w.season,champion:w.playoffs.champion,standings:standings(w).map(r=>({id:r.id,wins:r.wins,losses:r.losses}))};
- w.seasonLog=[...(w.seasonLog??[]),seasonLogEntry(w,history)].slice(-SEASON_LOG_LIMIT);
+ const records=seasonRecords(w),history={season:w.season,champion:worldsChampion(w),standings:w.teams.map(t=>({id:t.id,wins:records.get(t.id)?.wins??0,losses:records.get(t.id)?.losses??0}))};
+ w.seasonLog=[...(w.seasonLog??[]),seasonLogEntry(w)].slice(-SEASON_LOG_LIMIT);
  const meta=seasonMeta(w);meta.changed=adaptCoaches(w,meta);
- recordCareers(w);const peers=careerPeers(w);
- const changes=updateRatings(w),protectedIds=new Set((w.titles??[]).map(t=>t.mvp));
+ recordCareers(w);
+ // Titles older than the log keep their roster only for Worlds; the rest keep champion, runner-up and MVP.
+ w.titles=(w.titles??[]).map(t=>t.roster&&t.event!=='worlds'&&t.season<=w.season-SEASON_LOG_LIMIT?(({roster,...rest})=>rest)(t):t);const peers=careerPeers(w);
+ const changes=updateRatings(w),protectedIds=new Set((w.awards??[]).map(a=>a.mvp));
  const aging=ageFighters(w,peers);
  for(const f of Object.values(w.fighters)){if(f.team)continue;f.freeAgentSince??=w.season;}
  const retired=Object.values(w.fighters).filter(f=>!f.team&&f.freeAgentSince<=w.season-FREE_AGENT_SEASONS+1&&f.freeAgentSince<w.season&&!protectedIds.has(f.id)).map(f=>f.id);
  const inducted=[...aging.inducted,...induct(w,retired.map(id=>w.fighters[id]),peers)];
  for(const id of retired)delete w.fighters[id];
- for(const c of rookies)w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,w.settings.battleMode),ratingVersion:CAST_RATING_VERSION,team:null,contract:null,rookie:w.season+1,careerStart:w.season+1,freeAgentSince:w.season};for(const c of rookies)w.fighters[c.id].prefs=fighterPrefs(w.seed,w.fighters[c.id]);
- // The cap follows the market: the average salary of the best roster-worth of fighters.
+ // Rookies belong to the region that drafted them and sign only there until their first contract ends.
+ rookies.forEach((c,i)=>{w.fighters[c.id]={id:c.id,name:c.name.trim(),traits:{...c.traits},summary:{stats:[...c.summary.stats],total:c.summary.total,tier:c.summary.tier,generationVersion:c.summary.generationVersion??3},...scoutFighter(c,w.settings.battleMode),ratingVersion:CAST_RATING_VERSION,team:null,contract:null,rookie:w.season+1,careerStart:w.season+1,freeAgentSince:w.season,region:plan[i].region,locked:true};w.fighters[c.id].prefs=fighterPrefs(w.seed,w.fighters[c.id]);});
+ // The market cap follows the market: the average salary of the best roster-worth of fighters (scaled per region).
  const top=Object.values(w.fighters).sort((a,b)=>b.ovr-a.ovr||a.salary-b.salary).slice(0,w.teams.length*w.settings.rosterSize);w.settings.salaryCap=round1(top.reduce((n,x)=>n+x.salary,0)/w.teams.length);
  // Coaches with dismal seasons are replaced (never the user's team).
- const fired=[],records=new Map(history.standings.map(r=>[r.id,r]));
+ const fired=[];
  for(const team of w.teams){const r=records.get(team.id);if(isUser(w,team.id)||!r||r.wins/(r.wins+r.losses||1)>.25)continue;const random=rng(matchSeed(w,'coach:'+team.id)),style=Object.keys(PERSONALITIES)[Math.floor(random()*6)],coach={name:`${COACH_FIRST[Math.floor(random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(random()*COACH_LAST.length)]}`,personality:style,hired:w.season+1,comp:coachComp(style,random,meta.edge)};fired.push({team:team.id,from:team.coach.name,to:coach.name});team.coach=coach;delete team.tactic;}
- w.history=[...(w.history??[]),history];w.phase='offseason';
+ w.history=[...(w.history??[]),history].slice(-SEASON_LOG_LIMIT);w.phase='offseason';
  // Contracts that ended this season: AI teams re-sign the fighters they want back who want to stay; everyone else
  // tests free agency. The coached team's expiring fighters wait for the coach.
  const {resigned,departed,expiring}=expireContracts(w);
@@ -6149,13 +6522,14 @@ function wantsBack(w,team,f){
  const keep=coachValue(w,team,f,counts,unmet),best=Math.max(-Infinity,...available(w).filter(y=>y.role===f.role&&y.salary<=f.salary).map(y=>coachValue(w,team,y,counts,unmet)));
  return keep-best>=0;
 }
-function leave(w,team,f){f.lastTeam=team.id;f.team=null;f.contract=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(id=>id!==f.id);team.lineup=team.lineup.filter(id=>id!==f.id);}
+function leave(w,team,f){f.lastTeam=team.id;f.team=null;f.contract=null;f.locked=false;f.freeAgentSince=w.season;team.roster=team.roster.filter(id=>id!==f.id);team.lineup=team.lineup.filter(id=>id!==f.id);}
 function renew(w,f,salary,years){const start=w.season+1;f.contract={salary:round1(salary),years,signed:start,until:start+years-1};}
 function expireContracts(w){
  const ctx={contenders:contenders(w)},resigned=[],departed=[],expiring=[];
  const ending=Object.values(w.fighters).filter(f=>f.team&&f.contract&&f.contract.until<=w.season).sort((a,b)=>b.ovr-a.ovr||(a.id<b.id?-1:1));
  for(const f of ending){
-  const team=teamById(w,f.team),mind=stance(w,f,team,ctx);
+  // A first contract ending frees a rookie to sign anywhere later.
+  f.locked=false;const team=teamById(w,f.team),mind=stance(w,f,team,ctx);
   if(isUser(w,team.id)){expiring.push({id:f.id,stance:mind,ask:{salary:f.salary,years:wantedYears(w,f)}});continue;}
   if(mind==='stay'&&wantsBack(w,team,f)){const years=offerYears(w,team,f);renew(w,f,f.salary,years);resigned.push({id:f.id,team:team.id,salary:f.contract.salary,years});}
   else{departed.push({id:f.id,team:team.id,reason:mind==='stay'?'released':'market'});leave(w,team,f);}
@@ -6169,28 +6543,29 @@ function startFreeAgency(w){w.offseason.step='freeAgency';w.market=newMarket('of
 function decideOffseason(w,{resign=[],release:ids=[]}={}){
  const team=userTeam(w);if(w.phase!=='offseason'||w.offseason.step!=='resign')throw new Error('Re-signing decisions are not open.');
  const expiring=new Map((w.offseason.expiring??[]).map(e=>[e.id,e]));
- if(!Array.isArray(resign)||resign.some(o=>!o||!expiring.has(o.fighter)||!Number.isFinite(o.salary)||o.salary<=0||o.salary>99||!Number.isInteger(o.years)||o.years<1||o.years>CONTRACT.maxYears)||new Set(resign.map(o=>o.fighter)).size!==resign.length)throw new Error('Re-sign only your expiring fighters, for 1 to 4 seasons.');
+ if(!Array.isArray(resign)||resign.some(o=>!o||!expiring.has(o.fighter)||!Number.isFinite(o.salary)||o.salary<=0||o.salary>99||!Number.isInteger(o.years)||o.years<1||o.years>CONTRACT.maxYears)||new Set(resign.map(o=>o.fighter)).size!==resign.length)throw new Error(`Re-sign only your expiring fighters, for 1 to ${CONTRACT.maxYears} seasons.`);
  if(!Array.isArray(ids)||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id)||expiring.has(id)))throw new Error('Release only fighters under contract on your roster.');
  // Decide first and check the cap before anything changes, so a refused plan leaves the league as it was.
  const outcome=[...expiring.values()].map(e=>{const f=w.fighters[e.id],offer=resign.find(o=>o.fighter===e.id);
   return offer&&e.stance==='stay'&&round1(offer.salary)>=round1(f.salary*.95)?{id:f.id,signed:true,salary:round1(offer.salary),years:offer.years}:{id:f.id,signed:false,reason:!offer?'let go':e.stance!=='stay'?'market':'ask'};});
  const after=payroll(w,team)-[...expiring.keys(),...ids].reduce((n,id)=>n+wage(w.fighters[id]),0)+outcome.reduce((n,o)=>n+(o.signed?o.salary:0),0);
- if(after>w.settings.salaryCap+1e-9)throw new Error('Your payroll would still be over the cap. Release more fighters or re-sign fewer.');
+ if(after>capOf(w,team)+1e-9)throw new Error('Your payroll would still be over the cap. Release more fighters or re-sign fewer.');
  for(const o of outcome){const f=w.fighters[o.id];
   if(o.signed){renew(w,f,o.salary,o.years);w.offseason.resigned.push({id:f.id,team:team.id,salary:f.contract.salary,years:o.years});}
   else{w.offseason.departed.push({id:f.id,team:team.id,reason:o.reason==='market'?'market':'released'});leave(w,team,f);}}
  release(w,team,ids);if(ids.length)w.offseason.releases[team.id]=ids;w.offseason.resignResults=outcome;aiTrades(w);w.offseason.step='trades';return w;
 }
-const legalRoster=(w,roster)=>roster.reduce((n,id)=>n+wage(w.fighters[id]),0)<=w.settings.salaryCap+1e-9;
-// AI-to-AI trades: one-for-one swaps that improve both teams and keep both under the cap; each team trades once.
+const legalRoster=(w,team,roster)=>roster.reduce((n,id)=>n+wage(w.fighters[id]),0)<=capOf(w,team)+1e-9;
+// AI-to-AI trades within a region: one-for-one swaps that improve both teams and keep both under the cap; each team
+// trades once.
 function aiTrades(w){
  const ai=w.teams.filter(t=>!isUser(w,t.id)),traded=new Set(),limit=Math.floor(ai.length/2);
  for(let n=0;n<limit;n++){
   let best=null;
   // Only bench fighters or surplus roles are on the block, which keeps the search small and the trades sensible.
   const block=new Map(ai.map(t=>{const counts=roleCounts(w,t),starters=new Set(bestLineup(w,t));return [t.id,t.roster.filter(id=>!starters.has(id)||counts[w.fighters[id].role]>rosterTargets(w,t)[w.fighters[id].role])];}));
-  for(let i=0;i<ai.length;i++)for(let j=i+1;j<ai.length;j++){const A=ai[i],B=ai[j];if(traded.has(A.id)||traded.has(B.id))continue;const baseA=scoreTeam(w,A),baseB=scoreTeam(w,B);
-   for(const x of block.get(A.id))for(const y of block.get(B.id)){if(w.fighters[x].role===w.fighters[y].role)continue;const rA=A.roster.map(id=>id===x?y:id),rB=B.roster.map(id=>id===y?x:id);if(!legalRoster(w,rA)||!legalRoster(w,rB))continue;const gainA=scoreTeam(w,A,rA)-baseA,gainB=scoreTeam(w,B,rB)-baseB,gain=Math.min(gainA,gainB);if(gain>=2&&(!best||gain>best.gain||gain===best.gain&&`${A.id}${x}`<`${best.A.id}${best.x}`))best={A,B,x,y,gain};}}
+  for(let i=0;i<ai.length;i++)for(let j=i+1;j<ai.length;j++){const A=ai[i],B=ai[j];if(A.region!==B.region||traded.has(A.id)||traded.has(B.id))continue;const baseA=scoreTeam(w,A),baseB=scoreTeam(w,B);
+   for(const x of block.get(A.id))for(const y of block.get(B.id)){if(w.fighters[x].role===w.fighters[y].role)continue;const rA=A.roster.map(id=>id===x?y:id),rB=B.roster.map(id=>id===y?x:id);if(!legalRoster(w,A,rA)||!legalRoster(w,B,rB))continue;const gainA=scoreTeam(w,A,rA)-baseA,gainB=scoreTeam(w,B,rB)-baseB,gain=Math.min(gainA,gainB);if(gain>=2&&(!best||gain>best.gain||gain===best.gain&&`${A.id}${x}`<`${best.A.id}${best.x}`))best={A,B,x,y,gain};}}
   if(!best)break;swap(w,best.A,best.B,[best.x],[best.y]);traded.add(best.A.id);traded.add(best.B.id);w.offseason.trades.push({teams:[best.A.id,best.B.id],sent:[[best.x],[best.y]]});
  }
 }
@@ -6198,28 +6573,27 @@ function swap(w,A,B,give,get){A.roster=[...A.roster.filter(id=>!give.includes(id
 // The user proposes; the AI coach accepts only if its team gets better and both payrolls stay legal.
 function proposeTrade(w,partnerId,give,get){
  const team=userTeam(w),partner=teamById(w,partnerId);if(w.phase!=='offseason'||w.offseason.step!=='trades')throw new Error('The trade window is closed.');
- if(!partner||partner.id===team.id)throw new Error('Choose another team.');
+ if(!partner||partner.id===team.id)throw new Error('Choose another team.');if(partner.region!==team.region)throw new Error('Trades stay within your region.');
  if(!Array.isArray(give)||!Array.isArray(get)||!give.length||give.length!==get.length||give.length>2||give.some(id=>!team.roster.includes(id))||get.some(id=>!partner.roster.includes(id))||new Set([...give,...get]).size!==give.length*2)throw new Error('Trade the same number of fighters (one or two) from each roster.');
  const mine=[...team.roster.filter(id=>!give.includes(id)),...get],theirs=[...partner.roster.filter(id=>!get.includes(id)),...give];
- if(!legalRoster(w,mine))throw new Error('That trade would put your payroll over the cap.');
- if(!legalRoster(w,theirs))throw new Error(`${partner.coach.name} turns it down: it would break their cap.`);
+ if(!legalRoster(w,team,mine))throw new Error('That trade would put your payroll over the cap.');
+ if(!legalRoster(w,partner,theirs))throw new Error(`${partner.coach.name} turns it down: it would break their cap.`);
  const gain=scoreTeam(w,partner,theirs)-scoreTeam(w,partner),style=PERSONALITIES[partner.coach.personality],threshold=style.cost>1.5?2:style.star>.5?0:1;
  if(gain<threshold)throw new Error(`${partner.coach.name} turns it down: it doesn't make the ${partner.name} better.`);
  swap(w,team,partner,give,get);w.offseason.trades.push({teams:[team.id,partner.id],sent:[give,get],user:true});return w;
 }
 function closeTrades(w){if(w.phase!=='offseason'||w.offseason.step!=='trades')throw new Error('The trade window is not open.');userTeam(w);startFreeAgency(w);return w;}
 function newSeason(w){
- const size=FORMATS[w.format].size;w.lastOffseason=w.offseason;w.offseason=null;w.season++;w.phase='ready';w.schedule=null;w.results=[];w.stats={};w.playoffs=null;
+ const size=FORMATS[w.format].size;w.lastOffseason=w.offseason;w.offseason=null;w.season++;w.phase='ready';w.year=null;w.calendar=null;w.stageIndex=null;delete w.awaiting;w.stats={};w.stageStats={};
  for(const t of w.teams){const keep=isUser(w,t.id)&&t.lineup.length===size&&t.lineup.every(id=>t.roster.includes(id));if(!keep)t.lineup=bestLineup(w,t);}
 }
 
 // Battle rules change only between seasons; startSeason picks the engine from settings.battleMode.
-function setBattleMode(w,mode){if(!['teamfight','core'].includes(mode))throw new Error('Choose Core siege or classic teamfight.');if(mode==='core'&&FORMATS[w.format].size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(['season','playoffs'].includes(w.phase)||w.pendingSeries)throw new Error('Battle rules change between seasons.');w.settings.battleMode=mode;return w;}
-function balanceCheckpoint(w,phase){if(!w.balance||!BALANCED_ENGINES.includes(w.teamEngine))return;const halfway=Math.ceil(w.schedule.length/2),week=w.schedule[halfway-1],key=phase==='halfway'?'halfwaySeason':'offseasonSeason';if(w.balance[key]===w.season)return;if(phase==='halfway'&&w.results.filter(r=>r.week===halfway).length!==week.games.length)return;if(w.balance.rulesVersion>=2){if(phase==='offseason'){w.balance.previousSamples=structuredClone(w.balance.seasonSamples??w.balance.samples);w.balance.previousRoleRates=seasonMeta(w).roleRates;w.balance.previousSampleGames=w.balance.seasonSampleGames;w.balance.offseasonSeason=w.season;}else if(w.balance.enabled)w.balance.pendingAudit='halfway';return;}w.balance[key]=w.season;applyBalanceCheckpoint(w.balance,{season:w.season,phase});}
+function setBattleMode(w,mode){if(!['teamfight','core'].includes(mode))throw new Error('Choose Core siege or classic teamfight.');if(mode==='core'&&FORMATS[w.format].size===2)throw new Error('Core siege requires 3v3 or 5v5.');if(w.phase==='season'||w.pendingSeries)throw new Error('Battle rules change between seasons.');w.settings.battleMode=mode;return w;}
 
 function lineupEvidence(w,ids){return lineupGroups(ids.map(id=>w.fighters[id]));}
 
-return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,LEAGUE_SIZES,FORMATS,POOL_FACTOR,CONFERENCES,DIVISIONS,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,SOLO_ROLES,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,CAST_RATING_MODEL,CAST_RATING_VERSION,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,structure,create,prepareCastRatings,teamById,payroll,capSpace,available,roleCounts,CONTRACTS_VERSION,CONTRACT,wage,startSeasonOf,prepareContracts,OPPOSITE_STYLE,fighterPrefs,fit,fitStats,winningWish,wantedYears,APPEAL,offerAppeal,askFloor,RESERVE_MARGIN,reserveRoom,eligible,coachValue,marketOpen,makeOffer,withdrawOffer,marketRound,marketRounds,bestLineup,teamOverall,starters,SEASON_CONDITIONS,PLAYOFF_SPOTS,ROUND_NAMES,buildSchedule,startSeason,standings,divisionStandings,playoffSeeds,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,CAREER,careerSeason,earnedExtension,retiringVeterans,lifetimeImpact,HALL_ROLE_STATS,HALL_OF_FAME_LIMIT,hallEntry,prepareHallOfFame,prepareCareers,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,seasonPerformance,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,seasonTable,seasonBracket,pastSeason,pastSeasons,balanceReport,balanceReportText,adaptCoaches,startOffseason,stance,decideOffseason,proposeTrade,closeTrades,setBattleMode});})();
+return Object.freeze({TEAM_KITS,KIT_WEIGHTS,teamKit,rollTeamKit,SUPPORT_ABILITIES,supportAbility,BALANCE_LIMITS,neutralBalance,lineupGroups,balanceObservations,balanceRates,addBalanceObservations,balanceLever,balanceEvidence,balanceLabel,proposeBalance,applyBalanceCheckpoint,patchFactor,validateBalanceProfile,CAST_ROLES,CAST_ROLE_LABELS,TEAM_CLASSES,CAST_VERSION,castSubclass,CAST_BODY,CAST_KIT,CAST_BONUS,castSummary,TEAM_ROLES,ROLE_LABELS,combatNumbers,teamRole,TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,isObjectiveEngine,engineForMode,GAME_PLAN_ENGINES,GAME_PLAN_OPTIONS,GAME_PLAN_LABELS,validGamePlan,PERSONALITY_PLANS,defaultGamePlan,PERSONALITY_CAMP,personalityGamePlan,adaptGamePlan,gamePlanSummary,TEAM_FIELD,TEAM_MAPS,MAP_IDS,mapLabel,resolveMap,mapTerrain,SERIES_TACTICS,seriesScore,seriesTactics,seriesGamePlans,seriesGameOptions,coin,seededOrder,loserOf,seriesWins,roundRobinRounds,table,TEMPLATES,finalKey,openBracket,bracketDone,tieredDouble8,bracketPlaces,SWISS_TARGET,swissRecords,swissPairs,swissRoundDone,swissDone,swissKnockoutSeeds,TEAM_LEAGUE_VERSION,CAST_LEAGUE,oldFormat,CIRCUIT_VERSION,REGION_SIZES,REGIONS,REGION_IDS,regionById,FORMATS,POOL_FACTOR,PERSONALITIES,rng,shuffle,format,ROLE_KEYS,COMP_TEMPLATES,META_ADAPTATION,coachComp,compTargets,rosterTargets,SOLO_ROLES,starterTargets,compKey,compLabel,poolSize,poolPlan,RATING_MODEL,ratingFeatures,CAST_RATING_MODEL,CAST_RATING_VERSION,rawRating,overall,prepareSupportRules,prepareRoleRules,salaryFor,scoutFighter,create,prepareCastRatings,teamById,regionTeams,regionOfTeam,capOf,payroll,capSpace,available,canSign,signable,roleCounts,CONTRACTS_VERSION,CONTRACT,wage,startSeasonOf,prepareContracts,OPPOSITE_STYLE,fighterPrefs,fit,fitStats,winningWish,wantedYears,APPEAL,offerAppeal,askFloor,RESERVE_MARGIN,reserveRoom,eligible,IMPORT,importCost,coachValue,marketOpen,makeOffer,withdrawOffer,marketRound,marketRounds,bestLineup,teamOverall,starters,SEASON_CONDITIONS,EVENTS,SPLIT_PRESTIGE,SPLIT_POINTS,EVENT_POINTS,EVENT_ENTRY_POINTS,buildCalendar,stageName,currentStage,startSeason,advance,regionTable,seasonRecords,pointsOrder,worldsSlots,firstStandOrder,groupTable,worldsChampion,upcoming,squads,recordMatch,recordSeriesGame,impact,leaders,TACTICS,COACH_TACTICS,ROOKIES_PER_TEAM,FREE_AGENT_SEASONS,CAREER,careerSeason,earnedExtension,retiringVeterans,lifetimeImpact,HALL_ROLE_STATS,HALL_OF_FAME_LIMIT,hallEntry,prepareHallOfFame,prepareCareers,teamTactic,claimTeam,setLineup,teamGamePlan,setGamePlan,setTactic,rookiePlan,RATING_CHANGE_CAP,seasonPerformance,ROSTER_CHURN,seasonMeta,SEASON_LOG_LIMIT,seasonLogEntry,pastSeason,pastSeasons,balanceReport,balanceReportText,adaptCoaches,startOffseason,stance,decideOffseason,proposeTrade,closeTrades,setBattleMode});})();
 // Team leagues (2v2 / 3v3 / 5v5). The API accepts commands, never client-supplied ratings, salaries or picks.
 // Only the generated fighter pool comes from the client, and every fighter is re-validated against the
 // canonical wheel pools here; TEAM_LEAGUE then computes ratings, salaries, coaches and every signing.
@@ -6233,29 +6607,30 @@ async function teamApi(request,env,url){
  const origin=request.headers.get('origin');if(origin&&origin!==url.origin&&origin!==SITE_ORIGIN)fail('Request origin is not allowed.',403);
  if(!request.headers.get('content-type')?.includes('application/json'))fail('Send a team league command as JSON.',415);
  const text=await request.text();if(text.length>8000000)fail('Team league command too large.',413);let input;try{input=JSON.parse(text);}catch{fail('Invalid JSON.');}
- if(!plain(input)||!UUID.test(input.operationId)||!['start','market','offer','withdraw','claim','lineup','tactic','startSeason','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeTrades','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
+ if(!plain(input)||!UUID.test(input.operationId)||!['start','market','offer','withdraw','claim','lineup','tactic','startSeason','advance','rules','gamePlan','seriesGame','record','offseason','decide','trade','closeTrades','reset'].includes(input.action)||!Number.isSafeInteger(input.revision)||input.revision<0)fail('Invalid team league command.');
  const format=formatOf(input.format),requestJson=JSON.stringify(input);
  const previous=await env.DB.prepare('SELECT request_json FROM team_operations WHERE owner_id = ? AND operation_id = ?').bind(owner,input.operationId).first();
  if(previous){if(!await sameReceipt(previous.request_json,requestJson))fail('This team league action was already saved differently.',409);return response(format);}
  const encodedRequest=await receiptOf(requestJson);
  const row=await get(format);if((row?.revision??0)!==input.revision)fail('This team league changed in another tab. Refresh before continuing.',409);
  let world=row?TEAM_LEAGUE.prepareContracts(TEAM_LEAGUE.prepareHallOfFame(TEAM_LEAGUE.prepareCareers(TEAM_LEAGUE.prepareCastRatings(TEAM_LEAGUE.prepareRoleRules(TEAM_LEAGUE.prepareSupportRules(await decodeTournament(row.state_json))))))):null;
- // Old-format leagues (before the team cast) can only be deleted.
- if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This team league uses the old format. Delete it to start a new league with the team cast.',409);
+ // Old-format leagues (before the team cast, or single leagues from before region circuits) can only be deleted.
+ if(world&&TEAM_LEAGUE.oldFormat(world)&&input.action!=='reset')fail('This league uses the single-league format. Delete it to start a region circuit.',409);
  if(input.action==='start'){
   if(world)fail('This team league already exists. Refresh to continue it.',409);
   if(!UUID.test(input.worldId)||!Number.isSafeInteger(input.seed)||input.seed<0||input.seed>0xffffffff)fail('Invalid team league setup.');
-  if(!Array.isArray(input.fighters)||input.fighters.length>400)fail('Invalid fighter pool.');
-  try{world=TEAM_LEAGUE.create({id:input.worldId,format,teams:input.teams,seed:input.seed,fighters:input.fighters.map(teamPoolFighter),battleMode:input.battleMode});}catch(e){fail(e.message);}
+  if(!Array.isArray(input.fighters)||input.fighters.length>1000)fail('Invalid fighter pool.');
+  try{world=TEAM_LEAGUE.create({id:input.worldId,format,regionSize:input.regionSize,seed:input.seed,fighters:input.fighters.map(teamPoolFighter),battleMode:input.battleMode});}catch(e){fail(e.message);}
  }else if(!world)fail('Create the team league first.',409);
  else if(input.action==='market'){
   // Free-agency rounds: every AI offer and every signing is computed here from the shared rules.
   if(!Number.isSafeInteger(input.count)||input.count<1||input.count>100)fail('Invalid number of free-agency rounds.');
   if(!TEAM_LEAGUE.marketOpen(world))fail('Free agency is not open.');TEAM_LEAGUE.marketRounds(world,input.count);
  }else if(input.action==='startSeason'){try{TEAM_LEAGUE.startSeason(world);}catch(e){fail(e.message);}}
+ else if(input.action==='advance'){try{TEAM_LEAGUE.advance(world);}catch(e){fail(e.message);}}
  else if(['offer','withdraw','claim','lineup','tactic','offseason','decide','trade','closeTrades'].includes(input.action)){
   // Coach-mode and offseason commands: the shared rules validate every choice.
-  if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>200))fail('Invalid rookie class.');
+  if(input.action==='offseason'&&(!Array.isArray(input.rookies)||input.rookies.length>400))fail('Invalid rookie class.');
   const rookies=input.action==='offseason'?input.rookies.map(teamPoolFighter):null;
   try{
    if(input.action==='offer'){if(typeof input.fighter!=='string')throw new Error('Choose a fighter.');TEAM_LEAGUE.makeOffer(world,input.fighter,input.salary,input.years);}

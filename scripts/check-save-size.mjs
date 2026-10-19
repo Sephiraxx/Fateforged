@@ -5,7 +5,8 @@ import {generation} from './team-fixtures.mjs';
 const {createStorage}=await import('../_site/sqlite-store.js'),{default:migrations}=await import('../_site/local-schema.js'),{default:worker}=await import('../_site/local-api.js');
 const SQL=await initSqlJs(),fresh=name=>createStorage({SQL,migrations,worker,indexedDB,databaseName:name+Math.random()});
 
-// A full 32-team 5v5 season and an 8-team 3v3 season, simulated week by week, stay small; receipts are hashes.
+// A full 60-team 5v5 circuit season and a 36-team 3v3 circuit season, simulated match day by match day, stay small;
+// receipts are hashes.
 const bytes=await heavySave(),sizes=tableSizes(bytes),rows=t=>sizes.tables.find(x=>x.table===t)?.rows??0;
 assert(sizes.file<1.5*1048576,`A full season of two team leagues stays under 1.5 MB (got ${(sizes.file/1048576).toFixed(2)} MB)`);
 const saved=new SQL.Database(bytes);assert.equal(saved.exec("SELECT COUNT(*) FROM team_operations WHERE request_json NOT LIKE 'sha256:%'")[0].values[0][0],0,'Receipts store hashes, not requests.');saved.close();
@@ -15,8 +16,8 @@ assert.equal(sizes.freeBytes,0,'Backups are vacuumed.');
 const storage=fresh('receipts');let revision=0;
 let lastBody;const post=async body=>{lastBody=body;const r=await storage.fetch('/api/teams',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const data=await r.json();if(r.ok)revision=data.revision;return {status:r.status,data};};
 const send=(body,operationId=crypto.randomUUID())=>post({format:3,revision,operationId,...body});
-const seed=77,plan=L.poolPlan(3,8,seed);
-assert.equal((await send({action:'start',worldId:crypto.randomUUID(),teams:8,seed,fighters:plan.map((s,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,s,i,seed,()=>'F'+i)).map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))})).status,200);
+const seed=77,plan=L.poolPlan(3,6,seed);
+assert.equal((await send({action:'start',worldId:crypto.randomUUID(),regionSize:6,seed,fighters:plan.map((s,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,s,i,seed,()=>'F'+i)).map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))})).status,200);
 assert.equal((await send({action:'market',count:100})).status,200);
 const team=(await send({action:'claim',team:null})).data.world.teams[0].id;let last;
 for(let i=0;i<230;i++)assert.equal((await send({action:'claim',team:i%2?null:team})).status,200);
@@ -34,4 +35,4 @@ assert.equal(importedBefore,legacyBytes.length);assert(after<legacyBytes.length/
 const restored=new SQL.Database(await target.exportBackup()),original=new SQL.Database(bytes);
 for(const {table}of sizes.tables.filter(t=>!t.table.endsWith('_operations'))){const dump=d=>JSON.stringify(d.exec(`SELECT * FROM ${table} ORDER BY 1,2`));assert.equal(dump(restored),dump(original),`${table} survives the import unchanged`);}
 for(const table of ['team_operations','league_operations'])assert.equal(restored.exec(`SELECT COUNT(*) FROM ${table} WHERE request_json NOT LIKE 'sha256:%'`)[0].values[0][0],0,'Stale full-request receipts are dropped on import.');
-console.log(`Save size passed: two full team-league seasons save in ${(sizes.file/1024).toFixed(0)} KB with hashed receipts, receipts capped at 200 with retries intact, and a ${(legacyBytes.length/1048576).toFixed(1)} MB receipt-heavy backup imports as ${(after/1024).toFixed(0)} KB with every record unchanged.`);
+console.log(`Save size passed: two full circuit seasons save in ${(sizes.file/1024).toFixed(0)} KB with hashed receipts, receipts capped at 200 with retries intact, and a ${(legacyBytes.length/1048576).toFixed(1)} MB receipt-heavy backup imports as ${(after/1024).toFixed(0)} KB with every record unchanged.`);
