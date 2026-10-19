@@ -25,8 +25,8 @@ for(let season=1;season<=12;season++){
  const veterans=L.retiringVeterans(w).map(f=>f.id),aging=Object.values(w.fighters).filter(f=>L.careerSeason(w,f)+1>=L.CAREER.declineFrom&&L.careerSeason(w,f)<L.CAREER.retireAfter),before=new Map(aging.map(f=>[f.id,{stats:[...f.summary.stats],ovr:f.ovr}]));
  const plan=L.rookiePlan(w);assert.equal(plan.length,w.teams.length*L.ROOKIES_PER_TEAM[w.format]+veterans.length,'Every retiring veteran is replaced in the rookie class.');
  L.startOffseason(w,roll(plan,season*977));
- assert.deepEqual(w.offseason.veterans.map(v=>v.id).sort(),[...veterans].sort());
- assert.deepEqual(w.offseason.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of w.offseason.extended){extendedIds.add(v.id);if(v.id===forcedMvp)assert.equal(v.reason,'mvp');else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=w.offseason.declined.length;
+ const o=w.offseason??w.lastOffseason;assert.deepEqual(o.veterans.map(v=>v.id).sort(),[...veterans].sort());
+ assert.deepEqual(o.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of o.extended){extendedIds.add(v.id);if(v.id===forcedMvp)assert.equal(v.reason,'mvp');else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=o.declined.length;
  for(const id of veterans){assert(!w.fighters[id],'Veterans leave the league.');assert(w.teams.every(t=>!t.roster.includes(id)&&!t.lineup.includes(id)));}
  for(const [id,b]of before){const f=w.fighters[id];if(!f)continue;checkedDecline=true;
   f.summary.stats.forEach((v,i)=>L.CAREER.stats.includes(i)?assert.equal(v,Math.round(b.stats[i]*(1-L.CAREER.decline))):assert.equal(v,b.stats[i]));
