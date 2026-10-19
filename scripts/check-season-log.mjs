@@ -7,10 +7,10 @@ import * as L from '../public/team-league.js';
 const roll=(plan,seed)=>plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`R${seed}-${i}`));
 const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],balanceId:m.balance?.id,combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map((id,i)=>({id,damage:(n>>>(i%8))%500,healing:(n>>>(i%5))%97,kills:(n>>>i%3)%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
-const finishDraft=w=>{let guard=0;while(!w.draft.complete){L.draftPicks(w,1e6);assert(++guard<1000);}};
+const finishDraft=w=>{let guard=0;while(L.marketOpen(w)){L.marketRounds(w,1e6);assert(++guard<1000);}};
 const gamesPlayed=w=>w.results.length+(w.playoffs?.rounds??[]).reduce((n,r)=>n+r.series.reduce((k,s)=>k+(s.games?.length??0),0),0);
 
-const w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:777,fighters:roll(L.poolPlan(3,8,777),777)});L.draftPicks(w,1e6);
+const w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:777,fighters:roll(L.poolPlan(3,8,777),777)});L.marketRounds(w,1e6);
 // A league without a log (any save from before it) reports nothing yet.
 assert.deepEqual(L.balanceReport(w).seasons,[]);assert.match(L.balanceReportText(w),/no seasons logged yet/);
 

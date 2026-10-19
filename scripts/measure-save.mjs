@@ -21,7 +21,7 @@ export async function heavySave(){
   let world=null,revision=0;const send=async body=>{const r=await storage.fetch('/api/teams',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({format,revision,operationId:crypto.randomUUID(),...body})});const data=await r.json();if(!r.ok)throw Error(data.error);({world,revision}=data);};
   const seed=900+format,plan=L.poolPlan(format,teams,seed);
   await send({action:'start',worldId:crypto.randomUUID(),teams,seed,fighters:plan.map((s,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,s,i,seed,()=>'F'+i)).map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))});
-  await send({action:'draft',count:1000});await send({action:'startSeason'});
+  await send({action:'market',count:100});await send({action:'startSeason'});
   // Week by week, like a player pressing "Sim week".
   while(world.phase!=='complete'){const next=L.upcoming(world,1)[0],batch=world.phase==='season'?L.upcoming(world).filter(m=>m.week===next.week):L.upcoming(world);await send({action:'record',results:batch.map(m=>({matchId:m.id,games:fake(m)}))});}
  }
