@@ -6007,14 +6007,15 @@ function scoreTeam(w,team,roster=team.roster){
 // Share of a roster each personality is willing to turn over in one offseason.
 const ROSTER_CHURN=Object.freeze({bargain:.375,glass:.25,tactician:.25,balanced:.25,fortress:.125,star:.125});
 // AI keep/release: let go of anyone a free agent of the same role could replace for less, and get back under the cap.
-function aiReleases(w,team){
+// Fighters just re-signed (keep) are never cut for churn, and only last when the payroll is over the cap.
+function aiReleases(w,team,keep=new Set()){
  const f=FORMATS[w.format],counts=roleCounts(w,team),free=available(w),released=[];
  const plan=rosterTargets(w,team),keepValue=x=>{const unmet=Object.fromEntries(ROLE_KEYS.map(r=>[r,0]));unmet[x.role]=Math.max(0,plan[x.role]-(counts[x.role]-1));return coachValue(w,team,x,counts,unmet);};
  const replacement=x=>Math.max(-Infinity,...free.filter(y=>y.role===x.role&&y.salary<=x.salary&&!released.includes(y.id)).map(y=>coachValue(w,team,y,counts,{[x.role]:Math.max(0,plan[x.role]-(counts[x.role]-1))})));
  const ranked=team.roster.map(id=>w.fighters[id]).map(x=>({x,surplus:keepValue(x)-replacement(x)})).sort((a,b)=>a.surplus-b.surplus||(a.x.id<b.x.id?-1:1));
- const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5){released.push(x.id);counts[x.role]--;}}
+ const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5&&!keep.has(x.id)){released.push(x.id);counts[x.role]--;}}
  let pay=payroll(w,team)-released.reduce((n,id)=>n+wage(w.fighters[id]),0);
- for(const {x}of ranked){if(pay<=w.settings.salaryCap+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
+ for(const {x}of [...ranked.filter(r=>!keep.has(r.x.id)),...ranked.filter(r=>keep.has(r.x.id))]){if(pay<=w.settings.salaryCap+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
  return released;
 }
 function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.lastTeam=team.id;f.team=null;f.contract=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
@@ -6128,7 +6129,9 @@ function startOffseason(w,rookies){
  // Contracts that ended this season: AI teams re-sign the fighters they want back who want to stay; everyone else
  // tests free agency. The coached team's expiring fighters wait for the coach.
  const {resigned,departed,expiring}=expireContracts(w);
- const releases={};for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
+ const releases={},fresh=new Set(resigned.map(r=>r.id));for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team,fresh);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
+ // A re-signing the cap undid counts as a release, not a re-signing.
+ for(const r of resigned.filter(r=>!w.fighters[r.id].team)){resigned.splice(resigned.indexOf(r),1);departed.push({id:r.id,team:r.team,reason:'released'});}
  w.offseason={season:w.season,meta,step:w.settings.userTeam?'resign':'trades',ratingChanges:changes,retired:retired.length,veterans:aging.retired,declined:aging.declined,extended:aging.extended,inducted:inducted.map(e=>({id:e.id,name:e.name,reason:e.reason})),rookies:rookies.map(c=>c.id),fired,releases,trades:[],resigned,departed,expiring};
  if(!w.settings.userTeam){aiTrades(w);startFreeAgency(w);}
  return w;

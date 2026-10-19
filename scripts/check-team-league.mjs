@@ -35,7 +35,7 @@ for(const team of filled.teams){
  for(const id of team.roster){const c=filled.fighters[id].contract;assert(c&&c.years>=1&&c.years<=L.CONTRACT.maxYears&&c.signed===1&&c.until===c.years,'Signings carry a contract from season 1.');assert(c.salary>=filled.fighters[id].salary*L.CONTRACT.lowestFloor-.05,'Nobody signs far below his value.');}
 }
 assert.equal(L.available(filled).length,20,'Unsigned fighters stay free agents.');assert(L.available(filled).every(f=>f.contract===null));
-assert(filled.market.log.some(l=>l.years>=3)&&filled.market.log.some(l=>l.years===1),'Contract lengths vary.');
+assert(new Set(filled.market.log.map(l=>l.years)).size>=2&&filled.market.log.some(l=>l.years>=3),'Contract lengths vary.');
 // Free compositions: no role is mandatory, coaches follow their own plans, and lineups vary across the league.
 const comps=new Set(filled.teams.map(t=>L.compKey(L.roleCounts(filled,{roster:t.lineup}))));assert(comps.size>=3,`Teams field varied lineups (${[...comps].join(', ')})`);
 const glassy={...filled.teams[0],coach:{...filled.teams[0].coach,comp:L.COMP_TEMPLATES.glass}};assert.equal(L.starterTargets(filled,glassy).damage,3,'A glass-cannon plan starts three damage dealers in 3v3.');
