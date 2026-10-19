@@ -664,8 +664,31 @@ export function seasonLogEntry(w,history){
  return {season:w.season,format:w.format,battleMode:w.settings.battleMode,engine:w.teamEngine,
   teams:w.teams.map(t=>({id:t.id,name:t.name,wins:record.get(t.id)?.wins??0,losses:record.get(t.id)?.losses??0,playoff:finish.get(t.id)??null,champion:t.id===history.champion,roster:t.roster.map(id=>`${castLabel(w.fighters[id])} ${w.fighters[id]?.summary?.tier??''}`.trim())})),
   fighters:Object.entries(w.stats??{}).filter(([,s])=>s.games).map(([id,s])=>{const f=w.fighters[id]??{};return {id,team:f.team??null,class:f.traits?.class??null,subclass:f.traits?.subclass??null,race:f.traits?.race??null,tier:f.summary?.tier??null,role:f.castRole??f.role??null,games:s.games,wins:s.wins,damage:Math.round(s.damage),healing:Math.round(s.healing),kills:s.kills,deaths:s.deaths,cc:Math.round(s.ccSeconds)};}),
-  games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner])};
+  games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner]),
+  table:seasonTable(w),bracket:seasonBracket(w.playoffs)};
 }
+// The full table and bracket of a season, kept in its log entry so past seasons can be browsed after the next one
+// starts. Each playoff game is [winning side, home HP, away HP, seconds]; in Core siege the HP is the cores'.
+export function seasonTable(w){return divisionStandings(w).map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.rows.map(r=>({id:r.id,wins:r.wins,losses:r.losses,division:r.division,conference:r.conference,margin:r.margin,streak:r.streak}))}))}));}
+export function seasonBracket(p){
+ if(!p)return null;
+ return {seeds:structuredClone(p.seeds),rounds:p.rounds.map(r=>({key:r.key,name:r.name,series:r.series.map(s=>({home:s.home,away:s.away,bestOf:s.bestOf,winner:s.winner,games:s.games.map(g=>[g.winnerTeam,...(g.objective?.coreHp??g.hp??[0,0]).map(Math.round),Math.round(g.seconds??0)])}))}))};
+}
+// One past season for the archive: its table, bracket and title. Seasons logged before tables were kept rebuild a
+// table from each team's record and playoff finish, grouped by the league's conferences and divisions.
+export function pastSeason(w,season){
+ // A season just crowned is not logged until the offseason starts, so it is read live.
+ const live=season===w.season&&w.phase==='complete'?{season,battleMode:w.settings.battleMode,teams:[],table:seasonTable(w),bracket:seasonBracket(w.playoffs)}:null;
+ const entry=live??(w.seasonLog??[]).find(e=>e.season===season)??null,title=(w.titles??[]).find(t=>t.season===season)??null;
+ if(!entry&&!title)return null;
+ const names=Object.fromEntries(w.teams.map(t=>[t.id,t.name]));for(const t of entry?.teams??[])names[t.id]=t.name;
+ let table=entry?.table??null;
+ if(!table&&entry){const byId=new Map(entry.teams.map(t=>[t.id,t]));table=w.conferences.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.teams.map(id=>byId.get(id)).filter(Boolean).sort((a,b)=>b.wins-a.wins||a.losses-b.losses||(a.name<b.name?-1:1)).map(t=>({id:t.id,wins:t.wins,losses:t.losses,playoff:t.playoff}))}))}));}
+ const finish=Object.fromEntries((entry?.teams??[]).map(t=>[t.id,t.playoff]));
+ return {season,battleMode:entry?.battleMode??null,names,table,bracket:entry?.bracket??null,finish,title};
+}
+// Every season that can be browsed, newest first.
+export function pastSeasons(w){return [...new Set([...(w.seasonLog??[]).map(e=>e.season),...(w.titles??[]).map(t=>t.season)])].filter(n=>n<w.season||n===w.season&&['complete','offseason'].includes(w.phase)).sort((a,b)=>b-a);}
 // Win rates over the logged seasons, with Wilson 95% intervals: per subclass, class and role (fighter games), per
 // starting composition (team games, at least 10), and each season's teams.
 function wilson(wins,n){if(!n)return [0,0];const z=1.96,p=wins/n,c=p+z*z/(2*n),m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n)),d=1+z*z/n;return [Math.round((c-m)/d*1000)/10,Math.round((c+m)/d*1000)/10];}
