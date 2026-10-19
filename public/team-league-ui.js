@@ -389,7 +389,7 @@ export function mountTeamLeague(host,hooks){
  function bracketView(b,resolve,nameOf,title){
   const t=TEMPLATES[b.template],wrap=el('section','','team-playoffs');wrap.append(el('h3',title));
   const seedOf=id=>{const i=b.seeds?.indexOf(id)??-1;return i>=0&&!b.template.startsWith('knockout')?i+1:'';};
-  const rows=b.template==='double8'?[['Upper bracket',t.nodes.filter(n=>!n.key.startsWith('l'))],['Lower bracket',t.nodes.filter(n=>n.key.startsWith('l'))]]:[[null,t.nodes]];
+  const rows=['double8','double4'].includes(b.template)?[['Upper bracket',t.nodes.filter(n=>!n.key.startsWith('l'))],['Lower bracket',t.nodes.filter(n=>n.key.startsWith('l'))]]:[[null,t.nodes]];
   for(const [label,nodes]of rows){if(label)wrap.append(el('h4',label,'bracket-row-label'));const grid=el('div','','playoff-rounds');
    for(const round of [...new Set(nodes.map(n=>n.label))]){const col=el('div','','playoff-round');col.append(el('h4',round));for(const n of nodes.filter(x=>x.label===round))col.append(seriesCard(b.matches[n.key]?resolve(b.matches[n.key]):null,nameOf,seedOf,n.bestOf));grid.append(col);}
    wrap.append(grid);}
@@ -408,14 +408,16 @@ export function mountTeamLeague(host,hooks){
   const grid=el('div','','playoff-rounds');ph.rounds.forEach((round,i)=>{const col=el('div','','playoff-round');col.append(el('h4',`Round ${i+1}`));for(const x of round){const m=resolve(x);const card=seriesCard(m,nameOf);card.prepend(el('small',m.label?.split('· ').pop()??'','swiss-record'));col.append(card);}grid.append(col);});
   wrap.append(table(['Team','Record','Status'],rows,'Standings'),grid);return wrap;
  }
- // An international event, live or archived: groups, Swiss stage and brackets in order.
+ const phaseTitle=ph=>({'group-a':'Group A (GSL, Bo5)','group-b':'Group B (GSL, Bo5)',bracket:'Bracket stage (double elimination)',knockout:'Knockout stage'})[ph.key]??(ph.key==='play-in'?(ph.template==='double4'?'Play-in (double elimination, one team advances)':'Play-in (GSL group)'):ph.key);
+ // An international event, live or archived: groups, play-ins, the Swiss stage and brackets in order.
  function eventView(key,ev,resolve,nameOf,groupRows){
   const wrap=el('div','','event-view');
   for(const ph of ev.phases){
    if(ph.format==='groups'){const grid=el('div','','draft-grid');for(const g of Object.keys(ph.groups)){const box=el('div');box.append(recordTable(groupRows(g),nameOf,`Group ${g}`,{games:true}));const list=el('div','','playoff-rounds');ph.rounds[g].forEach((round,i)=>{const col=el('div','','playoff-round');col.append(el('h4',`Round ${i+1}`));for(const x of round)col.append(seriesCard(resolve(x),nameOf));list.append(col);});box.append(list);grid.append(box);}wrap.append(el('h4','Group stage','bracket-row-label'),grid);}
+   else if(ph.format==='swiss'&&!ph.teams)wrap.append(el('p',`Swiss stage: waiting for the play-in.`,'muted'));
    else if(ph.format==='swiss')wrap.append(swissBoard(ph,resolve,nameOf));
-   else if(ph.seeds)wrap.append(bracketView(ph,resolve,nameOf,ph.key==='play-in'?'Play-in (GSL group)':ph.key==='bracket'?'Bracket stage (double elimination)':'Knockout stage'));
-   else wrap.append(el('p',`${ph.key==='bracket'?'Bracket stage':'Knockout stage'}: waiting for the ${ev.phases[0].format==='swiss'?'Swiss stage':ev.phases[0].key==='play-in'?'play-in':'group stage'}.`,'muted'));
+   else if(ph.seeds)wrap.append(bracketView(ph,resolve,nameOf,phaseTitle(ph)));
+   else{const before=ev.phases[ev.phases.indexOf(ph)-1];wrap.append(el('p',`${phaseTitle(ph)}: waiting for the ${before.format==='swiss'?'Swiss stage':phaseTitle(before).split(' (')[0].toLowerCase()}.`,'muted'));}
   }
   return wrap;
  }
@@ -423,7 +425,7 @@ export function mountTeamLeague(host,hooks){
  // Shown when a stage ends: its champions or qualifiers, with Continue to start the next one.
  function stageBanner(){
   const s=world.awaiting,st=world.calendar[world.stageIndex],banner=el('section','','champion-banner stage-banner');banner.append(el('p',`Season ${world.season} · ${LEAGUE.stageName(st)} complete`,'eyebrow'));
-  if(s.champion){banner.append(el('h3',`👑 ${teamTag(s.champion)}`),el('p',`${LEAGUE.EVENTS[s.stage].name} champions.`,'muted'));const t=world.titles.at(-1);if(t?.mvpName)banner.append(el('p',`MVP: ${t.mvpName}`,'mvp'));}
+  if(s.champion){banner.append(el('h3',`👑 ${teamTag(s.champion)}`),el('p',`${LEAGUE.EVENTS[s.stage].name} champions.`,'muted'));const t=world.titles.at(-1);if(t?.mvpName)banner.append(el('p',`MVP: ${t.mvpName}`,'mvp'));if(s.bonus)banner.append(el('p',`${name(s.champion)} qualify for ${LEAGUE.EVENTS.worlds.name}; ${LEAGUE.regionById(s.bonus).name} earns an extra Worlds seed.`,'muted'));}
   else if(s.champions||s.leaders){const map=s.champions??s.leaders,ul=el('ul','','offseason-notes');for(const r of LEAGUE.REGIONS)ul.append(el('li',`${r.name}: ${name(map[r.id])}`));banner.append(el('h3',s.champions?'Split champions':'Split leaders'),ul);}
   else if(s.seeds){const ul=el('ul','','offseason-notes');for(const r of LEAGUE.REGIONS)ul.append(el('li',`${r.name}: ${(s.seeds[r.id]??[]).map((id,i)=>`#${i+1} ${name(id)}`).join(' · ')}`));banner.append(el('h3','Worlds qualifiers'),ul);}
   const next=world.calendar[world.stageIndex+1];if(next)banner.append(el('p',`Next: ${LEAGUE.stageName(next)}.`,'muted'));return banner;

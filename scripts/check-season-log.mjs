@@ -44,7 +44,7 @@ for(let season=1;season<=2;season++){
  assert.deepEqual(Object.keys(entry.events).sort(),season===1?['msi','worlds']:['first-stand','msi','worlds']);
  for(const [key,ev]of Object.entries(entry.events)){assert(ev.places.flat().length===ev.teams.length,`${key}: every entrant is placed.`);assert.equal(titles.find(t=>t.event===key).champion,ev.places[0][0]);
   for(const ph of ev.phases){const ms=ph.format==='bracket'?Object.values(ph.matches):ph.format==='swiss'?ph.rounds.flat():Object.values(ph.rounds).flat(2);assert(ms.length&&ms.every(compactOk),`${key} ${ph.key}: compact games that add up.`);}}
- const worlds=entry.events.worlds;assert.deepEqual(worlds.phases.map(p=>p.format),['swiss','bracket']);assert.equal(worlds.phases[1].matches[finalKey('knockout8')].winner,champion);
+ const worlds=entry.events.worlds;assert.deepEqual(worlds.phases.map(p=>p.key),['play-in','swiss','knockout']);assert.equal(worlds.teams.length,19);assert.equal(worlds.phases[2].matches[finalKey('knockout8')].winner,champion);
  assert.equal(titles.length,3*L.REGION_IDS.length+(season===1?2:3),'Three split titles per region plus the season\'s international titles.');
  const past=L.pastSeason(w,season);assert.equal(past.entry,entry);assert.equal(past.titles.find(t=>t.event==='worlds').champion,champion);assert.equal(past.names[champion],L.teamById(w,champion).name);assert.equal(past.regions[champion],L.regionOfTeam(w,champion));
 }
@@ -53,7 +53,7 @@ assert.deepEqual(L.pastSeasons(w),[2,1],'Finished seasons are listed newest firs
 {const old=structuredClone(w);old.seasonLog=[];const p=L.pastSeason(old,1);assert.equal(p.entry,null);assert(p.titles.some(t=>t.event==='worlds'));assert.equal(L.pastSeason(old,9),null);}
 // A season just crowned is read live until the offseason logs it.
 {const live=structuredClone(w);L.startSeason(live);playOut(live);assert.equal(live.phase,'complete');assert.deepEqual(L.pastSeasons(live),[3,2,1]);const p=L.pastSeason(live,3);
- assert.equal(p.entry.events.worlds.phases[1].matches[finalKey('knockout8')].winner,L.worldsChampion(live));assert.equal(p.entry.teams.length,teams);}
+ assert.equal(p.entry.events.worlds.phases[2].matches[finalKey('knockout8')].winner,L.worldsChampion(live));assert.equal(p.entry.teams.length,teams);}
 assert.deepEqual(w.seasonLog.map(s=>s.season),[1,2]);assert.equal(w.season,3);assert.deepEqual(w.stats,{},'The season stats reset while the log keeps them.');
 
 // The report adds the logged seasons up.

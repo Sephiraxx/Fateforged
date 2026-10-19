@@ -41,7 +41,8 @@ for(const r of L.REGION_IDS){
 }
 // Season 1 skips First Stand: Split 2, its playoffs, then MSI.
 L.advance(w);assert.equal(L.currentStage(w).key,'split2');playStage(w);L.advance(w);playStage(w);L.advance(w);assert.equal(L.currentStage(w).key,'msi');
-playStage(w);const msiChampion=w.awaiting.champion;assert.equal(w.year.msiBonus,L.regionOfTeam(w,msiChampion));
+playStage(w);const msiChampion=w.awaiting.champion,msiHome=L.regionOfTeam(w,msiChampion);assert.equal(w.year.msiChampion,msiChampion);
+assert.equal(w.year.msiBonus,L.regionOfTeam(w,w.year.events.msi.places.flat().find(id=>L.regionOfTeam(w,id)!==msiHome)),'The best region besides the champion\'s earns the MSI bonus seed.');assert.equal(w.awaiting.bonus,w.year.msiBonus);
 // Split 3: a double round robin and top-six playoffs for eight-team regions.
 L.advance(w);playStage(w);for(const r of L.REGION_IDS)for(const row of L.regionTable(w,r,3))assert.equal(row.wins+row.losses,14,'Split 3 is a double round robin.');
 L.advance(w);for(const r of L.REGION_IDS){const b=w.year.splits[3].playoffs[r];assert.equal(b.template,'top6');}
@@ -49,13 +50,16 @@ assert.deepEqual(L.upcoming(w).map(m=>m.bestOf),Array(12).fill(3),'Two Bo3 quart
 playStage(w);for(const r of L.REGION_IDS){const b=w.year.splits[3].playoffs[r],sf=['sf1','sf2'].map(k=>w.year.matches[b.matches[k]]);
  assert.equal(sf[0].home,b.seeds[0]);assert.equal(sf[1].home,b.seeds[1]);const survivors=['qf1','qf2'].map(k=>w.year.matches[b.matches[k]].winner).sort((x,y)=>b.seeds.indexOf(x)-b.seeds.indexOf(y));
  assert.equal(sf[0].away,survivors[1],'The top seed meets the lowest surviving seed.');assert.equal(sf[1].away,survivors[0]);assert(sf.every(m=>m.bestOf===5));}
-// Regional qualifiers: the Split 3 champion, the points leader, then a Bo5 ladder for any seeds left.
+// Regional qualifiers: the Split 3 champion, the MSI champion (if it reached the Split 3 playoffs), the points leader,
+// then a Bo5 ladder for any seeds left. Base seeds 3 (2 for the smallest region), plus the MSI seats.
 L.advance(w);assert.equal(L.currentStage(w).key,'qualifiers');
-for(const r of L.REGIONS){const q=w.year.qualifiers[r.id],need=r.worlds+(w.year.msiBonus===r.id?1:0),order=L.pointsOrder(w,r.id),champ=w.year.splits[3].places[r.id][0];
- assert.equal(q.need,need);assert.equal(q.direct[0],champ);if(need>=2)assert.equal(q.direct[1],order.find(id=>id!==champ));
+for(const r of L.REGIONS){const q=w.year.qualifiers[r.id],need=r.worlds+(msiHome===r.id?1:0)+(w.year.msiBonus===r.id?1:0),order=L.pointsOrder(w,r.id),champ=w.year.splits[3].places[r.id][0];
+ assert.equal(q.need,need);assert.equal(L.worldsSlots(w,r.id),need);assert.equal(q.direct[0],champ);
+ const msiSeat=msiHome===r.id&&champ!==msiChampion&&w.year.splits[3].playoffs[r.id].seeds.includes(msiChampion);if(msiSeat)assert.equal(q.direct[1],msiChampion,'The MSI champion takes its own seat.');
+ const pinned=q.direct.slice(0,msiSeat?2:1);assert.equal(q.direct[pinned.length],order.find(id=>!pinned.includes(id)),'Then the points leader.');
  if(need>2){assert(q.bracket&&q.bracket.template.startsWith('ladder'));assert.deepEqual(q.bracket.seeds,order.filter(id=>!q.direct.includes(id)).slice(0,q.bracket.seeds.length));}else assert.equal(q.bracket,null);}
-playStage(w);const seeds=w.awaiting.seeds;assert.equal(Object.values(seeds).flat().length,16,'Sixteen teams qualify for Worlds.');
-for(const r of L.REGIONS)assert.equal(seeds[r.id].length,r.worlds+(w.year.msiBonus===r.id?1:0));
+playStage(w);const seeds=w.awaiting.seeds;assert.equal(Object.values(seeds).flat().length,19,'Nineteen teams qualify for Worlds.');
+for(const r of L.REGIONS)assert.equal(seeds[r.id].length,L.worldsSlots(w,r.id));
 L.advance(w);assert.equal(L.currentStage(w).key,'worlds');playStage(w);assert.equal(w.phase,'complete');assert.equal(w.awaiting,undefined);
 assert(L.worldsChampion(w));assert.equal(w.awards.at(-1).season,1);assert(w.fighters[w.awards.at(-1).mvp],'A season MVP is named.');
 assert.equal(w.titles.filter(t=>t.season===1).length,6*3+2,'Eighteen split titles, MSI and Worlds.');
@@ -89,4 +93,4 @@ while(world.phase!=='complete'){
 assert.equal(stages,8,'Season 1 has eight stage summaries before Worlds.');assert.equal(world.titles.filter(t=>t.event==='worlds').length,1);
 assert.equal((await call({action:'record',revision,results:[{matchId:week[0].id,games:[]}]})).status,400,'Nothing to record after Worlds.');
 assert.equal((await call({action:'advance',revision})).status,400,'Nothing to continue after Worlds.');
-console.log(`Team season passed: perfect round robins, the season calendar (First Stand from season 2), 48 teams through three splits with week-by-week rounds, split tables, top-four and top-six playoffs with re-seeding, championship points and split titles, MSI's bonus Worlds seed, regional qualifier ladders to sixteen Worlds teams, a real simulated series, result validation and server batches with stage summaries through Worlds.`);
+console.log(`Team season passed: perfect round robins, the season calendar (First Stand from season 2), 48 teams through three splits with week-by-week rounds, split tables, top-four and top-six playoffs with re-seeding, championship points and split titles, MSI's bonus Worlds seed, regional qualifier ladders to nineteen Worlds teams (MSI champion seat and bonus seed), a real simulated series, result validation and server batches with stage summaries through Worlds.`);

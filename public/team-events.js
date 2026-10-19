@@ -45,6 +45,9 @@ export function table(ids,matches,seed,key='table'){
 // {reseed: [keys], pick: 'low'|'high'}: the lowest or highest seed among the winners of those matches.
 // Side a is home. The bracket opens a match as soon as both its teams are known.
 const node=(key,label,bestOf,a,b)=>({key,label,bestOf,a,b});
+const gsl=bo=>({nodes:[node('o1','Opening match',bo,{seed:0},{seed:3}),node('o2','Opening match',bo,{seed:1},{seed:2}),node('wm','Winners\' match',bo,{winner:'o1'},{winner:'o2'}),
+  node('em','Elimination match',bo,{loser:'o1'},{loser:'o2'}),node('dm','Decider match',bo,{loser:'wm'},{winner:'em'})],
+  places:[[{winner:'wm'}],[{winner:'dm'}],[{loser:'dm'}],[{loser:'em'}]]});
 export const TEMPLATES=Object.freeze({
  // Split playoffs, top 4: semifinals Bo3 (1v4, 2v3), Bo5 final.
  top4:{nodes:[node('sf1','Semifinal',3,{seed:0},{seed:3}),node('sf2','Semifinal',3,{seed:1},{seed:2}),node('final','Final',5,{winner:'sf1'},{winner:'sf2'})],
@@ -59,10 +62,12 @@ export const TEMPLATES=Object.freeze({
  ladder3:{nodes:[node('g1','Qualifier round 1',5,{seed:2},{seed:1}),node('g2','Qualifier final',5,{seed:0},{winner:'g1'})],
   places:[[{winner:'g2'}],[{loser:'g2'}],[{loser:'g1'}]]},
  ladder2:{nodes:[node('g1','Qualifier final',5,{seed:0},{seed:1})],places:[[{winner:'g1'}],[{loser:'g1'}]]},
- // GSL group (four teams, double elimination, Bo3): two qualify.
- gsl:{nodes:[node('o1','Opening match',3,{seed:0},{seed:3}),node('o2','Opening match',3,{seed:1},{seed:2}),node('wm','Winners\' match',3,{winner:'o1'},{winner:'o2'}),
-  node('em','Elimination match',3,{loser:'o1'},{loser:'o2'}),node('dm','Decider match',3,{loser:'wm'},{winner:'em'})],
-  places:[[{winner:'wm'}],[{winner:'dm'}],[{loser:'dm'}],[{loser:'em'}]]},
+ // GSL group (four teams, double elimination): two qualify. Bo3 (older MSI play-ins) or Bo5 (First Stand groups).
+ gsl:gsl(3),gsl5:gsl(5),
+ // Four-team double elimination, Bo5, that qualifies one team (MSI and Worlds play-ins).
+ double4:{nodes:[node('u1','Upper semifinal',5,{seed:0},{seed:3}),node('u2','Upper semifinal',5,{seed:1},{seed:2}),node('uf','Upper final',5,{winner:'u1'},{winner:'u2'}),
+  node('l1','Lower semifinal',5,{loser:'u1'},{loser:'u2'}),node('lf','Lower final',5,{loser:'uf'},{winner:'l1'}),node('gf','Play-in final',5,{winner:'uf'},{winner:'lf'})],
+  places:[[{winner:'gf'}],[{loser:'gf'}],[{loser:'lf'}],[{loser:'l1'}]]},
  // Eight-team double elimination, Bo5: losers cross over so early rematches are avoided.
  double8:{nodes:[node('u1','Upper round 1',5,{seed:0},{seed:7}),node('u2','Upper round 1',5,{seed:3},{seed:4}),node('u3','Upper round 1',5,{seed:1},{seed:6}),node('u4','Upper round 1',5,{seed:2},{seed:5}),
   node('u5','Upper semifinal',5,{winner:'u1'},{winner:'u2'}),node('u6','Upper semifinal',5,{winner:'u3'},{winner:'u4'}),node('u7','Upper final',5,{winner:'u5'},{winner:'u6'}),
@@ -93,13 +98,21 @@ export function openBracket(b,get,create){
 }
 export const bracketDone=(b,get)=>TEMPLATES[b.template].nodes.every(n=>b.matches[n.key]&&get(b.matches[n.key])?.winner);
 // Final placings, best first: groups of tied places (e.g. both semifinal losers), each ordered by seed.
+// Seeds for double8 from four tiers of two: tier 1 meets tier 4 and tier 2 meets tier 3 in upper round 1, the two
+// tier-1 teams in opposite halves. The draw inside each tier is seeded and avoids same-region pairs where it can.
+const DOUBLE8_ROUND1=[[0,7],[3,4],[1,6],[2,5]];
+export function tieredDouble8(tiers,regionOf,seed){
+ const tries=[];for(let mask=0;mask<16;mask++){const t=tiers.map((pair,i)=>mask>>i&1?[pair[1],pair[0]]:pair),seeds=[t[0][0],t[0][1],t[1][0],t[1][1],t[2][0],t[2][1],t[3][1],t[3][0]];
+  tries.push({seeds,c:DOUBLE8_ROUND1.filter(([a,b])=>regionOf(seeds[a])===regionOf(seeds[b])).length,r:coin(seed,'draw:'+mask)});}
+ return tries.sort((a,b)=>a.c-b.c||a.r-b.r)[0].seeds;
+}
 export function bracketPlaces(b,get){
  return TEMPLATES[b.template].places.map(group=>group.map(src=>{const m=get(b.matches[src.winner??src.loser]);return src.winner?m?.winner:m&&loserOf(m);}).filter(Boolean).sort((x,y)=>b.seeds.indexOf(x)-b.seeds.indexOf(y)));
 }
 
 // ---------- Swiss stage ----------
-// Sixteen teams; three wins advance, three losses eliminate. Round 1 pairs the top half of the seeding with the
-// bottom half; later rounds pair equal records. Pairings avoid rematches always and the same region where they can.
+// Sixteen teams; three wins advance, three losses eliminate. Round 1 pairs pool 1 with pool 3 and pool 2 within itself
+// when the stage has `pools` (otherwise the top half of the seeding with the bottom half); later rounds pair equal records. Pairings avoid rematches always and the same region where they can.
 // Matches deciding advancement or elimination (either team on two wins or two losses) are Bo3, the rest Bo1.
 export const SWISS_TARGET=3;
 export function swissRecords(s,get){
@@ -119,11 +132,14 @@ export function swissPairs(s,get,regionOf,seed){
  if(!alive.length)return [];
  const rules=[(a,b)=>!met[a].includes(b)&&regionOf(a)!==regionOf(b),(a,b)=>!met[a].includes(b),()=>true];
  if(round===0){
-  const top=s.teams.slice(0,s.teams.length/2),bottom=seededOrder(s.teams.slice(s.teams.length/2),seed,'swiss:r1');
-  for(const ok of rules){const pairs=[],used=new Set();
+  const [top,middle,low]=s.pools??[s.teams.slice(0,s.teams.length/2),[],s.teams.slice(s.teams.length/2)],bottom=seededOrder(low,seed,'swiss:r1');
+  const cross=ok=>{const pairs=[],used=new Set();
    const pick=i=>{if(i===top.length)return true;for(const b of bottom){if(used.has(b)||!ok(top[i],b))continue;used.add(b);pairs.push([top[i],b]);if(pick(i+1))return true;pairs.pop();used.delete(b);}return false;};
-   if(pick(0))return pairs.map(([a,b])=>({home:a,away:b,bestOf:1}));}
-  return [];
+   return pick(0)?pairs:null;};
+  const within=ok=>middle.length?matchGroup(seededOrder(middle,seed,'swiss:r1:pool2'),ok):[];
+  let a=null,b=null;for(const ok of rules){a??=cross(ok);b??=within(ok);}
+  if(!a||!b)return [];
+  return [...a,...b.map(([x,y])=>s.teams.indexOf(x)<=s.teams.indexOf(y)?[x,y]:[y,x])].map(([home,away])=>({home,away,bestOf:1}));
  }
  const groups=new Map();for(const id of alive){const k=rec[id].join('-');(groups.get(k)??groups.set(k,[]).get(k)).push(id);}
  const out=[];

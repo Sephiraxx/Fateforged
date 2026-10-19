@@ -8,7 +8,7 @@ import {teamRole,combatNumbers} from './team-roles.js';
 import {MAP_IDS} from './team-maps.js';
 import {TEAM_COMBAT_VERSION,OBJECTIVE_COMBAT_VERSION,BALANCED_ENGINES,GAME_PLAN_ENGINES,engineForMode,isObjectiveEngine} from './team-engine-versions.js';
 import {validGamePlan,personalityGamePlan} from './team-game-plan.js';
-import {table,coin,seededOrder,roundRobinRounds,openBracket,bracketDone,bracketPlaces,swissPairs,swissRecords,swissRoundDone,swissDone,swissKnockoutSeeds} from './team-events.js';
+import {table,coin,seededOrder,roundRobinRounds,openBracket,bracketDone,bracketPlaces,swissPairs,swissRecords,swissRoundDone,swissDone,swissKnockoutSeeds,tieredDouble8,SWISS_TARGET} from './team-events.js';
 export const TEAM_LEAGUE_VERSION=1;
 // Leagues from the team cast (team-classes.js) carry castVersion 5 and region circuits circuitVersion 1. Older leagues,
 // and single leagues from before region circuits, are the old format: they can only be deleted.
@@ -19,18 +19,20 @@ const castFighters=list=>list.every(c=>c?.summary?.generationVersion===CAST_LEAG
 // A league is a circuit of six regions, each with the same number of teams (6, 8 or 10). Every region grows its own
 // talent: the odds of SS, S, A and B fighters in its founding pool and in every rookie class. Rookies (and the founding
 // pool) sign only in their home region until their first contract ends; after that any team may sign them. The cap
-// factor scales the market cap for the region's teams. `msi` is [bracket slots, play-in slots]; `worlds` the base
-// Worlds seeds (the MSI champion's region gets one more). Names are placeholders.
+// factor scales the market cap for the region's teams. Qualification follows the current professional system: `fs` First
+// Stand teams, `msi` MSI teams, `worlds` the base Worlds seeds and `playIn` how many of them (the last) start in the
+// Worlds play-in. The MSI champion qualifies for Worlds on top, and the next-best region at MSI earns one more seed,
+// which starts in the play-in. Names are placeholders.
 export const CIRCUIT_VERSION=1;
 export const REGION_SIZES=Object.freeze([6,8,10]);
 export const REGIONS=Object.freeze([
- {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,msi:[2,0],worlds:4},
- {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,msi:[2,0],worlds:4},
- {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.31,A:.67,B:0},cap:1.05,msi:[1,1],worlds:3},
- {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1,msi:[1,1],worlds:2},
- {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,msi:[0,1],worlds:1},
- {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,msi:[0,1],worlds:1}
-].map(r=>Object.freeze({...r,odds:Object.freeze(r.odds),msi:Object.freeze(r.msi)})));
+ {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.31,A:.67,B:0},cap:1.05,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:1,worlds:2,playIn:0}
+].map(r=>Object.freeze({...r,odds:Object.freeze(r.odds)})));
 export const REGION_IDS=Object.freeze(REGIONS.map(r=>r.id));
 export const regionById=id=>REGIONS.find(r=>r.id===id);
 // mix shapes the scouted pool so every composition is possible; teams are free to build any lineup.
@@ -389,7 +391,7 @@ export function startSeason(w){
  w.balance??=neutralBalance();w.balance.enabled=false;delete w.balance.pendingAudit;w.balance.rulesVersion=3;w.balance.samples=[];w.balance.seasonSamples=[];w.balance.sampleGames=w.balance.seasonSampleGames=0;
  w.teamEngine=engineForMode(w.settings.battleMode);delete w.pendingSeries;delete w.awaiting;
  w.calendar=buildCalendar(w.season);w.stageIndex=0;w.stats={};w.stageStats={};w.phase='season';
- w.year={season:w.season,matches:{},splits:{},points:Object.fromEntries(w.teams.map(t=>[t.id,0])),qualifiers:{},worldsSeeds:{},events:{},msiBonus:null};
+ w.year={season:w.season,matches:{},splits:{},points:Object.fromEntries(w.teams.map(t=>[t.id,0])),qualifiers:{},worldsSeeds:{},events:{},msiChampion:null,msiBonus:null};
  for(const t of w.teams)if(!t.lineup.length)t.lineup=bestLineup(w,t);
  startStage(w);return w;
 }
@@ -433,36 +435,60 @@ export function pointsOrder(w,region,year=w.year){
  const placeOf=(n,id)=>{const p=year.splits[n]?.places?.[region];const i=p?p.indexOf(id):-1;return i<0?99:i;};
  return regionTeams(w,region).map(t=>t.id).sort((a,b)=>(year.points[b]??0)-(year.points[a]??0)||placeOf(3,a)-placeOf(3,b)||placeOf(2,a)-placeOf(2,b)||placeOf(1,a)-placeOf(1,b)||coin(matchSeed(w,'points'),a)-coin(matchSeed(w,'points'),b));
 }
-// Worlds qualification per region: the Split 3 champion, then the points leader, then a gauntlet ladder of the next
-// four teams by points for any seeds left (its winner, then its finalist, then the next ladder loser).
+// Worlds seeds per region: its base seeds, the MSI champion's own seat and the MSI bonus seed.
+export function worldsSlots(w,region,year=w.year){const r=regionById(region),champ=year.msiChampion;return r.worlds+(champ&&regionOfTeam(w,champ)===region?1:0)+(year.msiBonus===region?1:0);}
+// Worlds qualification per region: the Split 3 champion, the MSI champion (if it reached the Split 3 playoffs; if not,
+// its seat goes to the region), then the points leader, then a gauntlet ladder of the next four teams by points for any
+// seeds left (its winner, then its finalist).
 function startQualifiers(w){
  const y=w.year;
  for(const r of REGIONS){
-  const need=r.worlds+(y.msiBonus===r.id?1:0),champ=y.splits[3].places[r.id][0],order=pointsOrder(w,r.id).filter(id=>id!==champ);
-  const direct=[champ,...order.slice(0,need>=2?1:0)],rest=need-direct.length,pool=order.slice(direct.length-1),q={need,direct,bracket:null};
-  if(rest>0){const n=Math.min(4,pool.length);if(n>=2)q.bracket=newBracket(w,'qualifiers',r.id,`ladder${n}`,pool.slice(0,n));else q.direct.push(...pool.slice(0,rest));}
+  const need=worldsSlots(w,r.id),s3=y.splits[3],champ=s3.places[r.id][0],msi=y.msiChampion&&regionOfTeam(w,y.msiChampion)===r.id&&s3.playoffs[r.id].seeds.includes(y.msiChampion)?y.msiChampion:null;
+  const direct=[...new Set([champ,msi].filter(Boolean))],order=pointsOrder(w,r.id).filter(id=>!direct.includes(id));
+  if(direct.length<need)direct.push(order.shift());
+  const rest=need-direct.length,q={need,direct,bracket:null};
+  if(rest>0){const n=Math.min(4,order.length);if(n>=2)q.bracket=newBracket(w,'qualifiers',r.id,`ladder${n}`,order.slice(0,n));else q.direct.push(...order.slice(0,rest));}
   y.qualifiers[r.id]=q;
  }
 }
+// First Stand: the two major regions' Split 1 champions and runners-up and every other region's Split 1 champion, in
+// two GSL groups of four (Bo5) that keep each region's teams apart, then crossed Bo5 semifinals and a final.
 function startFirstStand(w){
- const y=w.year,rank=w.regionRank,champ=r=>y.splits[1].places[r][0],groups={A:[0,2,4].map(i=>champ(rank[i])),B:[1,3,5].map(i=>champ(rank[i]))},rounds={};
- for(const [g,ids]of Object.entries(groups))rounds[g]=roundRobinRounds(ids,1).map((pairs,round)=>pairs.map(([home,away],i)=>addMatch(w,{stage:'first-stand',group:g,key:`r${round+1}m${i}`,home,away,bestOf:3,round:round+1,label:`Group ${g} · round ${round+1}`})));
- y.events['first-stand']={key:'first-stand',teams:[...groups.A,...groups.B],current:0,phases:[{key:'groups',format:'groups',groups,rounds},{key:'knockout',format:'bracket',stage:'first-stand',group:'knockout',template:'knockout4',seeds:null,matches:{}}]};
+ const y=w.year,rank=w.regionRank,pick=r=>y.splits[1].places[r].slice(0,regionById(r).fs);
+ const [M0,M1]=rank.filter(r=>regionById(r).fs>=2).map(pick),[O0,O1,O2,O3]=rank.filter(r=>regionById(r).fs<2).map(r=>pick(r)[0]);
+ const A=[M0[0],M1[1],O0,O2],B=[M1[0],M0[1],O1,O3];
+ y.events['first-stand']={key:'first-stand',teams:[...A,...B],current:0,phases:[{key:'group-a',...newBracket(w,'first-stand','A','gsl5',A)},{key:'group-b',format:'bracket',stage:'first-stand',group:'B',template:'gsl5',seeds:B,matches:{}},
+  {key:'knockout',format:'bracket',stage:'first-stand',group:'knockout',template:'knockout4',seeds:null,matches:{}}]};
 }
-// MSI: each region's Split 2 champion and runner-up. Regions with bracket slots send teams straight to the bracket;
-// the rest play a GSL play-in for the last two places.
+// Regions by their First Stand result (best-placed team), then the region ranking.
+export function firstStandOrder(w,year=w.year){
+ const fs=year.events['first-stand'],rank=w.regionRank,best={};let k=0;
+ for(const g of fs?.places??[]){for(const id of g)best[regionOfTeam(w,id)]??=k;k+=g.length;}
+ return [...rank].sort((a,b)=>(best[a]??99)-(best[b]??99)||rank.indexOf(a)-rank.indexOf(b));
+}
+// MSI: each region's Split 2 champion (and runner-up where the region has two seats). The six champions and the First
+// Stand winning region's runner-up go straight to the bracket; the other runners-up play a four-team double-elimination
+// play-in for the last place. The bracket draw puts the regions in tiers by their First Stand result.
 function startMsi(w){
- const y=w.year,rank=w.regionRank,firsts=[],seconds=[],playin=[];
- for(const r of rank){const [direct,via]=regionById(r).msi,picks=y.splits[2].places[r].slice(0,2);if(direct>=1)firsts.push(picks[0]);if(direct>=2)seconds.push(picks[1]);picks.slice(direct,direct+via).forEach((id,k)=>playin.push({id,rank:rank.indexOf(r),place:direct+k}));}
- const seeds=playin.sort((a,b)=>a.rank-b.rank||a.place-b.place).map(x=>x.id),direct=[...firsts,...seconds];
- y.events.msi={key:'msi',teams:[...direct,...seeds],current:0,phases:[newBracket(w,'msi','play-in','gsl',seeds),{format:'bracket',stage:'msi',group:'bracket',template:'double8',seeds:null,direct,matches:{}}].map((p,i)=>({key:i?'bracket':'play-in',...p}))};
+ const y=w.year,order=firstStandOrder(w),pick=r=>y.splits[2].places[r].slice(0,regionById(r).msi),bye=order.find(r=>regionById(r).msi>=2);
+ const firsts=order.map(r=>pick(r)[0]),playin=order.filter(r=>r!==bye).map(r=>pick(r)[1]).filter(Boolean),direct=[...firsts,pick(bye)[1]];
+ y.events.msi={key:'msi',teams:[...direct,...playin],current:0,phases:[{key:'play-in',...newBracket(w,'msi','play-in','double4',playin)},{key:'bracket',format:'bracket',stage:'msi',group:'bracket',template:'double8',seeds:null,direct,matches:{}}]};
 }
-// Worlds: every qualified seed, ordered by seed number and region rank; the top half meets the bottom half in round 1.
+// Worlds: every region's seeds. The last seeds of the regions with play-in seats (and the MSI bonus seed) play a
+// four-team double-elimination play-in for one Swiss place. Swiss round 1 draws pool 1 (each region's first seed)
+// against pool 3 (the rest and the play-in winner), and pool 2 (the second seeds of the four best regions) within itself.
 function startWorlds(w){
- const y=w.year,rank=w.regionRank,entries=[];for(const r of rank)(y.worldsSeeds[r]??[]).forEach((id,seed)=>entries.push({id,seed,rank:rank.indexOf(r)}));
- const teams=entries.sort((a,b)=>a.seed-b.seed||a.rank-b.rank).map(e=>e.id),swiss={key:'swiss',format:'swiss',teams,rounds:[]};
- y.events.worlds={key:'worlds',teams,current:0,phases:[swiss,{key:'knockout',format:'bracket',stage:'worlds',group:'knockout',template:'knockout8',seeds:null,matches:{}}]};
- openSwissRound(w,swiss);
+ const y=w.year,rank=w.regionRank,direct=[],playin=[];
+ for(const r of rank){const seeds=y.worldsSeeds[r]??[],n=regionById(r).playIn+(y.msiBonus===r?1:0);seeds.forEach((id,seed)=>(seed>=seeds.length-n?playin:direct).push({id,seed,rank:rank.indexOf(r)}));}
+ const ins=playin.sort((a,b)=>a.rank-b.rank||a.seed-b.seed).map(e=>e.id);
+ y.events.worlds={key:'worlds',teams:[...direct.map(e=>e.id),...ins],current:0,phases:[{key:'play-in',...newBracket(w,'worlds','play-in','double4',ins)},
+  {key:'swiss',format:'swiss',teams:null,pools:null,direct,rounds:[]},{key:'knockout',format:'bracket',stage:'worlds',group:'knockout',template:'knockout8',seeds:null,matches:{}}]};
+}
+function swissPools(w,direct,qualifier){
+ const rank=w.regionRank,byRank=list=>list.sort((a,b)=>a.rank-b.rank||a.seed-b.seed);
+ const p1=byRank(direct.filter(e=>e.seed===0)),p2=byRank(direct.filter(e=>e.seed===1&&e.rank<4)),used=new Set([...p1,...p2]);
+ const p3=[...byRank(direct.filter(e=>!used.has(e))).map(e=>e.id),qualifier];
+ return [p1.map(e=>e.id),p2.map(e=>e.id),p3];
 }
 function openSwissRound(w,s){
  const get=getter(w),{rec}=swissRecords(s,get),round=s.rounds.length+1;
@@ -470,12 +496,14 @@ function openSwissRound(w,s){
 }
 export function groupTable(w,ev,g,year=w.year){const ph=ev.phases[0];return table(ph.groups[g],ph.rounds[g].flat().map(id=>year.matches[id]),matchSeed(w,'group:'+ev.key),g);}
 function phaseDone(w,ph){const get=getter(w);return ph.format==='groups'?Object.values(ph.rounds).flat(2).every(id=>get(id).winner):ph.format==='swiss'?swissDone(ph,get):!!ph.seeds&&bracketDone(ph,get);}
-// The next phase of an event takes its seeds from the one before.
+// The next phase of an event takes its seeds from the ones before.
 function seedPhase(w,ev){
- const get=getter(w),prev=ev.phases[ev.current-1],ph=ev.phases[ev.current];
- if(ev.key==='first-stand'){const [A,B]=['A','B'].map(g=>groupTable(w,ev,g).map(r=>r.id));ph.seeds=[A[0],B[1],B[0],A[1]];}
- else if(ev.key==='msi')ph.seeds=[...ph.direct,...bracketPlaces(prev,get).flat().slice(0,2)];
- else ph.seeds=swissKnockoutSeeds(prev,get,id=>regionOfTeam(w,id),matchSeed(w,'knockout'));
+ const get=getter(w),prev=ev.phases[ev.current-1],ph=ev.phases[ev.current],top2=b=>bracketPlaces(b,get).flat().slice(0,2),regionOf=id=>regionOfTeam(w,id);
+ if(ph.key==='group-b'){}
+ else if(ev.key==='first-stand'){const [A1,A2]=top2(ev.phases[0]),[B1,B2]=top2(ev.phases[1]);ph.seeds=[A1,B2,B1,A2];}
+ else if(ev.key==='msi'){const d=ph.direct;ph.seeds=tieredDouble8([[d[0],d[1]],[d[2],d[3]],[d[4],d[5]],[d[6],top2(prev)[0]]],regionOf,matchSeed(w,'msi:draw'));}
+ else if(ph.format==='swiss'){ph.pools=swissPools(w,ph.direct,top2(prev)[0]);ph.teams=ph.pools.flat();openSwissRound(w,ph);return;}
+ else ph.seeds=swissKnockoutSeeds(prev,get,regionOf,matchSeed(w,'knockout'));
  openStageBracket(w,ph);
 }
 function stageDone(w,st){
@@ -525,14 +553,24 @@ function finishStage(w,st){
   summary.seeds=structuredClone(y.worldsSeeds);
  }
  else{
-  const ev=y.events[st.event],final=ev.phases.at(-1),groups=bracketPlaces(final,get),placed=new Set(groups.flat()),others=ev.teams.filter(id=>!placed.has(id));
-  ev.places=[...groups,...(others.length?[others]:[])];
+  const ev=y.events[st.event],groups=eventPlaces(w,ev);ev.places=groups;
   if(EVENT_POINTS[st.event])addPoints(w,ev.places,EVENT_POINTS[st.event],EVENT_ENTRY_POINTS);
   const t=award(w,{event:st.event,champion:groups[0][0],runnerUp:groups[1][0],mvp:stageMvp(w,f=>!!f.team)});summary.champion=t.champion;
-  if(st.event==='msi')y.msiBonus=regionOfTeam(w,t.champion);
+  if(st.event==='msi'){y.msiChampion=t.champion;const home=regionOfTeam(w,t.champion);y.msiBonus=regionOfTeam(w,ev.places.flat().find(id=>regionOfTeam(w,id)!==home));summary.bonus=y.msiBonus;}
   if(st.event==='worlds'){finishSeason(w);return;}
  }
  w.awaiting=summary;
+}
+// An event's final places: the last phase's places, then the teams each earlier phase knocked out (Swiss teams by
+// wins), best first.
+function eventPlaces(w,ev){
+ const get=getter(w),out=[],placed=new Set(),add=ids=>{const left=ids.filter(id=>id&&!placed.has(id));if(left.length){out.push(left);left.forEach(id=>placed.add(id));}};
+ for(const ph of [...ev.phases].reverse()){
+  if(ph.format==='swiss'){const {rec}=swissRecords(ph,get);for(let wins=SWISS_TARGET;wins>=0;wins--)add(ph.teams.filter(id=>rec[id][0]===wins));}
+  else if(ph.format==='groups')for(const g of Object.keys(ph.groups))add(groupTable(w,ev,g).map(r=>r.id));
+  else for(const g of bracketPlaces(ph,get))add(g);
+ }
+ add(ev.teams);return out;
 }
 // International results by region (Worlds counts three times, MSI twice, First Stand once): the region ranking that
 // orders seeds and groups follows this season and, at half weight, the season before.
