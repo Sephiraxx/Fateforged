@@ -26,12 +26,12 @@ const castFighters=list=>list.every(c=>c?.summary?.generationVersion===CAST_LEAG
 export const CIRCUIT_VERSION=1;
 export const REGION_SIZES=Object.freeze([6,8,10]);
 export const REGIONS=Object.freeze([
- {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
- {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.05,S:.46,A:.49,B:0},cap:1.2,fs:2,msi:2,worlds:3,playIn:0},
+ {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.05,S:.46,A:.49,B:0},cap:1.2,fs:2,msi:2,worlds:3,playIn:0},
  {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.31,A:.67,B:0},cap:1.05,fs:1,msi:2,worlds:3,playIn:1},
- {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1,fs:1,msi:2,worlds:3,playIn:1},
- {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:2,worlds:3,playIn:1},
- {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,fs:1,msi:1,worlds:2,playIn:0}
+ {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.01,S:.2,A:.67,B:.12},cap:.95,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.005,S:.12,A:.6,B:.275},cap:.8,fs:1,msi:2,worlds:3,playIn:1},
+ {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.005,S:.12,A:.6,B:.275},cap:.8,fs:1,msi:1,worlds:2,playIn:0}
 ].map(r=>Object.freeze({...r,odds:Object.freeze(r.odds)})));
 export const REGION_IDS=Object.freeze(REGIONS.map(r=>r.id));
 export const regionById=id=>REGIONS.find(r=>r.id===id);
