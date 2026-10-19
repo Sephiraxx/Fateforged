@@ -236,8 +236,8 @@ function contenders(w){
  ranked.forEach((x,i)=>out.set(x.id,pctOf.size?.5*(pctOf.get(x.id)??.5)+.5*(i/n):i/n));return out;
 }
 const wouldStart=(w,team,f)=>bestLineup(w,{...team,roster:[...team.roster.filter(id=>id!==f.id),f.id],lineup:[]}).includes(f.id);
-// Stars without a title chase one: the wish to win grows with every titleless season after their third.
-export function winningWish(w,f){const base=f.prefs?.winning??1,titles=f.career?.titles??0,chase=f.ovr>=78&&!titles?Math.max(0,careerSeason(w,f)-3)*.15:0;return Math.min(2.2,base+chase);}
+// Stars without a Worlds or MSI title chase one: the wish to win grows with every titleless season after their third.
+export function winningWish(w,f){const base=f.prefs?.winning??1,titles=(f.career?.trophies?.worlds??f.career?.titles??0)+(f.career?.trophies?.msi??0),chase=f.ovr>=78&&!titles?Math.max(0,careerSeason(w,f)-3)*.15:0;return Math.min(2.2,base+chase);}
 // The length a fighter wants: long for young players, short near the end of a career.
 export function wantedYears(w,f){const age=careerSeason(w,f)+(startSeasonOf(w)>w.season?1:0);return age<=3?3:age<=6?2:1;}
 // How much a fighter likes an offer (higher is better). Money and a starting spot can beat a contender: that is what
@@ -616,7 +616,7 @@ function validateSeriesGame(w,m,g,previous){
  return {lineups:lineups.map(ids=>[...ids]),tactics:[...tactics],...(gamePlans?{gamePlans:gamePlans.map(p=>({titan:p.titan,style:p.style,siege:p.siege,...(p.camp?{camp:p.camp}:{})}))}:{})};
 }
 export function recordSeriesGame(w,matchId,game){
- const m=upcoming(w,w.phase==='playoffs'?Infinity:1).find(x=>x.id===matchId);if(!m)throw new Error('That is not the next team-league match.');
+ const m=upcoming(w).find(x=>x.id===matchId);if(!m)throw new Error('That is not a playable team-league match.');
  if(w.pendingSeries&&w.pendingSeries.matchId!==matchId)throw new Error('Finish the paused series first.');
  const partial=w.pendingSeries??{matchId,lineups:structuredClone(m.lineups),tactics:[...m.tactics],...(m.gamePlans?{gamePlans:structuredClone(m.gamePlans)}:{}),games:[]},plan=validateSeriesGame(w,m,game,partial.games),games=[...partial.games,{...game,...plan}],score=seriesScore(games);
  if(Math.max(...score)===Math.ceil(m.bestOf/2)){recordMatch(w,matchId,games);return {complete:true,score};}
@@ -640,29 +640,34 @@ export const careerSeason=(w,f)=>w.season-(f.careerStart??w.season)+1;
 // A veteran past their 10th season stays one more season if they were this season's MVP, or in top form: impact
 // per game at least one standard deviation above their role, over at least half the busiest fighter's games.
 export function earnedExtension(w,f,form=seasonPerformance(w)){
- if(careerSeason(w,f)<CAREER.retireAfter)return null;const title=w.titles?.at(-1);
- if(title?.season===w.season&&title.mvp===f.id)return 'mvp';
+ if(careerSeason(w,f)<CAREER.retireAfter)return null;const award=(w.awards??[]).find(a=>a.season===w.season);
+ if(award?.mvp===f.id)return 'mvp';
  const p=form.get(f.id);return p&&p.z>=CAREER.extendForm&&p.share>=CAREER.extendShare?'form':null;
 }
 export const retiringVeterans=w=>{const form=seasonPerformance(w);return Object.values(w.fighters).filter(f=>careerSeason(w,f)>=CAREER.retireAfter&&!earnedExtension(w,f,form));};
 // ---------- Lifetime stats and the Hall of Fame ----------
-const newCareer=()=>({seasons:0,games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,cc:0,titles:0,mvps:0,teams:[],best:null});
+// Trophies count every title by event (Worlds, MSI, First Stand, split titles); `titles` is Worlds titles and `mvps`
+// season MVP awards.
+const newTrophies=()=>({worlds:0,msi:0,'first-stand':0,split:0});
+const newCareer=()=>({seasons:0,games:0,wins:0,damage:0,healing:0,kills:0,deaths:0,cc:0,titles:0,mvps:0,trophies:newTrophies(),teams:[],best:null});
 export const lifetimeImpact=c=>c.damage+c.healing*1.1+c.kills*120+c.cc*30;
 function addSeason(c,s,season,team){
  if(!s?.games)return;const r={cc:Math.round(s.cc??s.ccSeconds??0)};for(const k of ['games','wins','damage','healing','kills','deaths'])r[k]=Math.round(s[k]??0);
  c.seasons++;for(const k in r)c[k]+=r[k];if(team&&!c.teams.includes(team))c.teams.push(team);
  const per=Math.round(lifetimeImpact(r)/r.games);if(!c.best||per>c.best.impact)c.best={season,impact:per};
 }
-function addTitle(c,title,id){if(title.roster?.some(r=>r.id===id))c.titles++;if(title.mvp===id)c.mvps++;}
+function addTitle(c,title,id){if(!title.roster?.some(r=>r.id===id))return;const event=title.event??'worlds';c.trophies??=newTrophies();c.trophies[event]=(c.trophies[event]??0)+1;if(event==='worlds')c.titles++;}
+function addAward(c,award,id){if(award.mvp===id)c.mvps++;}
 // Each offseason adds the season to every fighter's lifetime totals, before the stats reset.
 function recordCareers(w){
- const title=w.titles?.at(-1)?.season===w.season?w.titles.at(-1):null;
- for(const f of Object.values(w.fighters)){f.career??=newCareer();addSeason(f.career,w.stats?.[f.id],w.season,f.team);if(title)addTitle(f.career,title,f.id);}
+ const titles=(w.titles??[]).filter(t=>t.season===w.season),awards=(w.awards??[]).filter(a=>a.season===w.season);
+ for(const f of Object.values(w.fighters)){f.career??=newCareer();addSeason(f.career,w.stats?.[f.id],w.season,f.team);for(const t of titles)addTitle(f.career,t,f.id);for(const a of awards)addAward(f.career,a,f.id);}
 }
 // Old saves rebuild lifetime totals from the season log and the title history.
 function backfillCareer(w,f){
  const c=newCareer();for(const entry of w.seasonLog??[]){const s=entry.fighters?.find(x=>x.id===f.id);if(s)addSeason(c,s,entry.season,s.team);}
  for(const title of w.titles??[])if(title.season<w.season||w.phase==='offseason')addTitle(c,title,f.id);
+ for(const award of w.awards??[])if(award.season<w.season||w.phase==='offseason')addAward(c,award,f.id);
  return c;
 }
 const HALL_STATS=Object.freeze([['damage','Damage'],['healing','Healing'],['kills','KOs'],['cc','Control seconds'],['impact','Impact']]);
@@ -681,8 +686,9 @@ function careerPeers(w){const peers={};for(const f of Object.values(w.fighters))
 export function hallEntry(w,f,peers=careerPeers(w)){
  const c=f.career;if(!c?.games)return null;const role=careerRole(f),group=peers[role]??[];
  const excelled=group.length>=3?HALL_STATS.filter(([key])=>roleStat(role,key)).map(([key,label])=>{const values=group.map(x=>perGame(x,key)),mean=values.reduce((a,b)=>a+b,0)/values.length,sd=Math.sqrt(values.reduce((n,x)=>n+(x-mean)**2,0)/values.length)||1,mine=perGame(c,key),z=(mine-mean)/sd,below=values.filter(v=>v<mine).length;return {stat:key,label,perGame:Math.round(mine*10)/10,z:Math.round(z*100)/100,top:Math.max(1,Math.round((1-below/values.length)*100))};}).filter(x=>x.z>=1).sort((a,b)=>b.z-a.z):[];
- const reason=c.mvps>0?'mvp':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
- return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,best:c.best,
+ // Season MVPs and Worlds champions with a full career are in; anyone else needs the standout bar.
+ const reason=c.mvps>0?'mvp':c.trophies?.worlds>0&&c.games>=HALL_MIN_GAMES?'champion':hallWorthy({games:c.games,wins:c.wins,excelled},role)?'great':null;if(!reason)return null;
+ return {id:f.id,name:f.name,class:f.traits.class,subclass:f.traits.subclass,role,tier:f.summary.tier,debut:f.careerStart??null,retired:w.season,careerSeasons:careerSeason(w,f),teams:c.teams.map(id=>teamById(w,id)?.name??id),titles:c.titles,mvps:c.mvps,trophies:{...newTrophies(),...c.trophies},region:f.region??null,best:c.best,
   stats:{games:c.games,wins:c.wins,damage:c.damage,healing:c.healing,kills:c.kills,deaths:c.deaths,cc:Math.round(c.cc)},excelled,reason};
 }
 function induct(w,retirees,peers){const entries=retirees.map(f=>hallEntry(w,f,peers)).filter(Boolean);if(entries.length)w.hallOfFame=[...entries,...(w.hallOfFame??[])].slice(0,HALL_OF_FAME_LIMIT);return entries;}
