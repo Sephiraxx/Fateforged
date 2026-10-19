@@ -4,7 +4,7 @@ import * as L from '../public/team-league.js';
 import {simulateTeamSeries} from '../public/team-sim-worker.js';
 import worker from '../dist/server/index.js';
 
-const league=(format,teams,seed)=>{const plan=L.poolPlan(format,teams,seed),w=L.create({id:crypto.randomUUID(),format,teams,seed,fighters:plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`))});L.draftPicks(w,1e6);return w;};
+const league=(format,teams,seed)=>{const plan=L.poolPlan(format,teams,seed),w=L.create({id:crypto.randomUUID(),format,teams,seed,fighters:plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`))});L.marketRounds(w,1e6);return w;};
 // Synthetic but valid series results (fast); one real simulated series is checked separately.
 const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],balanceId:m.balance?.id,combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map(id=>({id,damage:n%500,healing:n%97,kills:n%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
@@ -19,7 +19,7 @@ for(const [teams,weeks]of [[8,10],[16,14],[32,17]])for(const season of [1,2,3]){
 
 // A full 32-team season: standings, seven seeds per conference, re-seeded rounds, champion and MVP.
 const big=league(5,32,2026);assert.throws(()=>L.recordMatch(big,'x',[]),/next team-league match/);
-L.startSeason(big);assert.equal(big.phase,'season');assert.throws(()=>L.startSeason(big),/Finish the draft/);
+L.startSeason(big);assert.equal(big.phase,'season');assert.throws(()=>L.startSeason(big),/Fill every roster/);
 const first=L.upcoming(big,1)[0];assert.equal(first.kind,'regular');assert.equal(first.bestOf,1);assert.deepEqual(first.lineups[0],L.teamById(big,first.home).lineup);
 const bad=fake(first);
 for(const broken of [[{...bad[0],combatVersion:12}],[{...bad[0],winnerTeam:2}],[{...bad[0],seconds:500}],[{...bad[0],fighters:bad[0].fighters.slice(1)}],[{...bad[0],environment:{time:'noon',weather:'clear',ground:'stone'}}],[{...bad[0],environment:{...bad[0].environment,map:'lava pit'}}],[{...bad[0],environment:{time:'day',weather:'clear',ground:'stone'}}],[{...bad[0],combatVersion:'team-1'}],[...bad,...bad]])
@@ -52,8 +52,8 @@ const call=async body=>{const r=await worker.fetch(new Request('https://fateforg
 const ok=r=>{assert.equal(r.status,200,r.error);return r;};
 const seed=4321,plan=L.poolPlan(3,8,seed),pool=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`));
 let {world,revision}=ok(await call({action:'start',revision:0,worldId:crypto.randomUUID(),teams:8,seed,fighters:pool.map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))}));
-assert.equal((await call({action:'startSeason',revision})).status,400,'The season waits for the draft.');
-({world,revision}=ok(await call({action:'draft',revision,count:1000})));const startSeasonCommand={action:'startSeason',revision,operationId:crypto.randomUUID()};({world,revision}=ok(await call(startSeasonCommand)));assert.deepEqual(ok(await call(startSeasonCommand)).world,world);assert.equal(world.phase,'season');
+assert.equal((await call({action:'startSeason',revision})).status,400,'The season waits for free agency.');
+({world,revision}=ok(await call({action:'market',revision,count:100})));const startSeasonCommand={action:'startSeason',revision,operationId:crypto.randomUUID()};({world,revision}=ok(await call(startSeasonCommand)));assert.deepEqual(ok(await call(startSeasonCommand)).world,world);assert.equal(world.phase,'season');
 // Hand balance: leagues never audit or patch themselves.
 assert.equal(world.balance.enabled,false);assert.equal((await call({action:'balanceAudit',revision,phase:'preseason',audit:{}})).status,400);assert.equal((await call({action:'balance',revision,enabled:true})).status,400);
 const week=L.upcoming(world,4);assert.equal((await call({action:'record',revision,results:week.slice(1).map(m=>({matchId:m.id,games:fake(m)}))})).status,400,'Out-of-order results are rejected.');

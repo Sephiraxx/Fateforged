@@ -7,7 +7,7 @@ import {TeamBattle,TEAM_ENGINE_VERSION,teamEngine} from '../public/combat-team.j
 import {powerFor} from '../public/abilities-v12.js';
 
 const seed=1414,plan=L.poolPlan(3,8,seed),fighters=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`)),w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed,fighters});
-L.draftPicks(w,1000);L.claimTeam(w,w.teams[0].id);L.startSeason(w);
+L.marketRounds(w,1000);L.claimTeam(w,w.teams[0].id);L.startSeason(w);
 const game=(m,previous=[],winnerTeam=0,choice=null)=>{const p=seriesGameOptions(m,previous,choice);return {winnerTeam,seconds:30,hp:winnerTeam?[0,70]:[70,0],reason:'Team eliminated',balanceId:m.balance?.id,combatVersion:m.engineVersion,environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:p.lineups.flat().map(id=>({id,damage:100,healing:0,kills:0,deaths:0,ccSeconds:0})),...p};};
 while(w.phase==='season'){const m=L.upcoming(w,1)[0];L.recordMatch(w,m.id,[game(m,[],m.away===w.settings.userTeam?1:0)]);}
 const later=structuredClone(w),laterMatch=L.upcoming(later).at(-1);L.recordSeriesGame(later,laterMatch.id,game(laterMatch));assert.equal(L.upcoming(later,1)[0].id,laterMatch.id,'Apply a limit after prioritizing any paused series.');

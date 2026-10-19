@@ -8,9 +8,9 @@ import * as L from '../public/team-league.js';
 const roll=(plan,seed)=>plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`R${seed}-${i}`));
 const fake=(m,salt=0)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0];let n=m.seed^salt;while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=n%2;score[winnerTeam]++;games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],balanceId:m.balance?.id,combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map((id,i)=>({id,damage:(n>>>(i%8))%500,healing:(n>>>(i%5))%97,kills:(n>>>i%3)%3,deaths:n%2,ccSeconds:1.5}))});}return games;};
 const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(m));assert(++guard<2000);}};
-const finishDraft=w=>{let guard=0;while(!w.draft.complete){L.draftPicks(w,1e6);assert(++guard<1000);}};
+const finishDraft=w=>{let guard=0;while(L.marketOpen(w)){L.marketRounds(w,1e6);assert(++guard<1000);}};
 
-const w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:4242,fighters:roll(L.poolPlan(3,8,4242),4242)});L.draftPicks(w,1e6);
+const w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:4242,fighters:roll(L.poolPlan(3,8,4242),4242)});L.marketRounds(w,1e6);
 const founders=Object.values(w.fighters).map(f=>L.careerSeason(w,f));
 assert(founders.every(n=>n>=1&&n<=L.CAREER.founders),'Founders start in career seasons 1–6.');assert(new Set(founders).size>=5,'Founding ages are mixed.');
 
@@ -25,8 +25,8 @@ for(let season=1;season<=12;season++){
  const veterans=L.retiringVeterans(w).map(f=>f.id),aging=Object.values(w.fighters).filter(f=>L.careerSeason(w,f)+1>=L.CAREER.declineFrom&&L.careerSeason(w,f)<L.CAREER.retireAfter),before=new Map(aging.map(f=>[f.id,{stats:[...f.summary.stats],ovr:f.ovr}]));
  const plan=L.rookiePlan(w);assert.equal(plan.length,w.teams.length*L.ROOKIES_PER_TEAM[w.format]+veterans.length,'Every retiring veteran is replaced in the rookie class.');
  L.startOffseason(w,roll(plan,season*977));
- assert.deepEqual(w.offseason.veterans.map(v=>v.id).sort(),[...veterans].sort());
- assert.deepEqual(w.offseason.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of w.offseason.extended){extendedIds.add(v.id);if(v.id===forcedMvp)assert.equal(v.reason,'mvp');else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=w.offseason.declined.length;
+ const o=w.offseason??w.lastOffseason;assert.deepEqual(o.veterans.map(v=>v.id).sort(),[...veterans].sort());
+ assert.deepEqual(o.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of o.extended){extendedIds.add(v.id);if(v.id===forcedMvp)assert.equal(v.reason,'mvp');else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=o.declined.length;
  for(const id of veterans){assert(!w.fighters[id],'Veterans leave the league.');assert(w.teams.every(t=>!t.roster.includes(id)&&!t.lineup.includes(id)));}
  for(const [id,b]of before){const f=w.fighters[id];if(!f)continue;checkedDecline=true;
   f.summary.stats.forEach((v,i)=>L.CAREER.stats.includes(i)?assert.equal(v,Math.round(b.stats[i]*(1-L.CAREER.decline))):assert.equal(v,b.stats[i]));

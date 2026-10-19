@@ -18,30 +18,40 @@ assert.equal(L.salaryFor(50),.8);assert.equal(L.salaryFor(99),14);assert(L.salar
 for(let ovr=40;ovr<99;ovr++)assert(L.salaryFor(ovr+1)>=L.salaryFor(ovr));
 const buildPool=(format,teams,seed)=>L.poolPlan(format,teams,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`));
 const pool=buildPool(3,8,4242),poolAgain=buildPool(3,8,4242);assert.deepEqual(pool.map(f=>f.id),poolAgain.map(f=>f.id),'Pool generation is deterministic.');
-// World creation, structure and the AI draft.
+// World creation, structure and the opening auction.
 const world=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:4242,fighters:pool});
 assert.equal(world.teams.length,8);assert.deepEqual(world.conferences.map(c=>c.name),['Sunward','Shadeward']);assert.equal(world.conferences[0].divisions[0].teams.length,4);
 assert.equal(new Set(world.teams.map(t=>t.name)).size,8,'Team names are unique.');assert(new Set(world.teams.map(t=>t.coach.personality)).size>=5,'Coaches have varied personalities.');
-for(const f of Object.values(world.fighters)){assert(f.ovr>=40&&f.ovr<=99);assert.equal(f.salary,L.salaryFor(f.ovr));}
+assert.equal(world.phase,'market');assert.equal(world.market.kind,'founding');assert.equal(world.contractsVersion,L.CONTRACTS_VERSION);
+for(const f of Object.values(world.fighters)){assert(f.ovr>=40&&f.ovr<=99);assert.equal(f.salary,L.salaryFor(f.ovr));assert.equal(f.contract,null);assert(L.TACTICS.includes(f.prefs.style),'Every fighter prefers a team style.');}
+assert(new Set(Object.values(world.fighters).map(f=>f.prefs.style)).size>=4,'Preferred styles vary.');
 const ovrs=Object.values(world.fighters).map(f=>f.ovr);assert(Math.max(...ovrs)-Math.min(...ovrs)>=15,'Ratings spread the pool.');
-const drafted=structuredClone(world),again=structuredClone(world);L.draftPicks(drafted,1e6);L.draftPicks(again,1e6);assert.deepEqual(drafted,again,'The draft is deterministic.');
-assert(drafted.draft.complete);assert.equal(drafted.phase,'ready');assert.equal(drafted.draft.picks.length,40);
-for(const team of drafted.teams){
- assert.equal(team.roster.length,5);const exceptions=drafted.draft.picks.filter(p=>p.team===team.id&&p.exception).reduce((n,p)=>n+p.salary,0);assert(L.payroll(drafted,team)-exceptions<=drafted.settings.salaryCap+1e-9,`${team.name} stays under the cap (minimum-contract exceptions aside)`);
+const filled=structuredClone(world),again=structuredClone(world);L.marketRounds(filled,1e6);L.marketRounds(again,1e6);assert.deepEqual(filled,again,'The auction is deterministic.');
+assert(filled.market.done);assert.equal(filled.phase,'ready');assert(filled.market.round<=L.CONTRACT.rounds);assert.equal(filled.market.log.length,40);
+for(const team of filled.teams){
+ assert.equal(team.roster.length,5);const exceptions=filled.market.log.filter(l=>l.team===team.id&&l.exception).reduce((n,l)=>n+l.salary,0);assert(L.payroll(filled,team)-exceptions<=filled.settings.salaryCap+1e-9,`${team.name} stays under the cap (minimum-contract exceptions aside)`);
  assert(team.coach.comp&&L.ROLE_KEYS.every(r=>team.coach.comp[r]>0),'Every coach has a composition plan.');
  assert.equal(team.lineup.length,3);assert(team.lineup.every(id=>team.roster.includes(id)));
+ for(const id of team.roster){const c=filled.fighters[id].contract;assert(c&&c.years>=1&&c.years<=L.CONTRACT.maxYears&&c.signed===1&&c.until===c.years,'Signings carry a contract from season 1.');assert(c.salary>=filled.fighters[id].salary*L.CONTRACT.lowestFloor-.05,'Nobody signs far below his value.');}
 }
-assert.equal(L.available(drafted).length,20,'Undrafted fighters become free agents.');
+assert.equal(L.available(filled).length,20,'Unsigned fighters stay free agents.');assert(L.available(filled).every(f=>f.contract===null));
+assert(filled.market.log.some(l=>l.years>=3)&&filled.market.log.some(l=>l.years===1),'Contract lengths vary.');
 // Free compositions: no role is mandatory, coaches follow their own plans, and lineups vary across the league.
-const comps=new Set(drafted.teams.map(t=>L.compKey(L.roleCounts(drafted,{roster:t.lineup}))));assert(comps.size>=3,`Teams field varied lineups (${[...comps].join(', ')})`);
-const glassy={...drafted.teams[0],coach:{...drafted.teams[0].coach,comp:L.COMP_TEMPLATES.glass}};assert.equal(L.starterTargets(drafted,glassy).damage,3,'A glass-cannon plan starts three damage dealers in 3v3.');
+const comps=new Set(filled.teams.map(t=>L.compKey(L.roleCounts(filled,{roster:t.lineup}))));assert(comps.size>=3,`Teams field varied lineups (${[...comps].join(', ')})`);
+const glassy={...filled.teams[0],coach:{...filled.teams[0].coach,comp:L.COMP_TEMPLATES.glass}};assert.equal(L.starterTargets(filled,glassy).damage,3,'A glass-cannon plan starts three damage dealers in 3v3.');
 // 2v2: four-fighter rosters, two starters.
-const duo=L.create({id:'duo',format:2,teams:8,seed:31,fighters:buildPool(2,8,31)});L.draftPicks(duo,1e6);assert.equal(duo.phase,'ready');for(const t of duo.teams){assert.equal(t.roster.length,4);assert.equal(t.lineup.length,2);}
-// Snake order: round two reverses round one.
-assert.deepEqual(drafted.draft.picks.slice(8,16).map(p=>p.team),drafted.draft.picks.slice(0,8).map(p=>p.team).reverse());
-// Star chasers spend more on their top pick than bargain hunters, on average over several leagues.
+const duo=L.create({id:'duo',format:2,teams:8,seed:31,fighters:buildPool(2,8,31)});L.marketRounds(duo,1e6);assert.equal(duo.phase,'ready');for(const t of duo.teams){assert.equal(t.roster.length,4);assert.equal(t.lineup.length,2);}
+// What a free agent wants: more money, a starting spot, a team that plays his style; the floor he takes drops each round.
+{const probe=structuredClone(filled),f=L.available(probe).sort((a,b)=>b.ovr-a.ovr)[0],[a,b]=probe.teams,offer=(team,salary,years=L.wantedYears(probe,f))=>({team:team.id,salary,years});
+ assert(L.offerAppeal(probe,f,offer(a,f.salary*1.2))>L.offerAppeal(probe,f,offer(a,f.salary)),'More money appeals more.');
+ assert(L.offerAppeal(probe,f,offer(a,f.salary,L.wantedYears(probe,f)))>=L.offerAppeal(probe,f,offer(a,f.salary,L.CONTRACT.maxYears+1)),'He prefers the length he wants.');
+ const style=f.prefs.style==='balanced'?'aggressive':f.prefs.style;f.prefs.style=style;a.tactic=style;b.tactic=L.OPPOSITE_STYLE[style];
+ assert.equal(L.fit(probe,f,a),1);assert.equal(L.fit(probe,f,b),-1);delete b.tactic;b.tactic='balanced';assert.equal(L.fit(probe,f,b),0,'Balanced teams fit everyone neutrally.');
+ b.tactic=L.OPPOSITE_STYLE[style];const ctx={contenders:new Map(probe.teams.map(t=>[t.id,.5]))};assert(L.offerAppeal(probe,f,offer(a,f.salary),ctx)>L.offerAppeal(probe,f,offer(b,f.salary),ctx),'A team that plays his style appeals more.');
+ for(let r=1;r<L.CONTRACT.rounds;r++)assert(L.askFloor(r)<=L.askFloor(r-1));assert(L.askFloor(99)>=L.CONTRACT.lowestFloor);}
+// Star chasers spend more on their top signing than bargain hunters, on average over several leagues.
 const topSpend={star:[],bargain:[]};
-for(const [teams,seed]of [[8,4242],[8,4243],[16,4244],[16,4245]]){const w=L.create({id:'x',format:3,teams,seed,fighters:buildPool(3,teams,seed)});L.draftPicks(w,1e6);for(const t of w.teams)topSpend[t.coach.personality]?.push(Math.max(...w.draft.picks.filter(p=>p.team===t.id).map(p=>p.salary)));}
+for(const [teams,seed]of [[8,4242],[8,4243],[16,4244],[16,4245]]){const w=L.create({id:'x',format:3,teams,seed,fighters:buildPool(3,teams,seed)});L.marketRounds(w,1e6);for(const t of w.teams)topSpend[t.coach.personality]?.push(Math.max(...w.market.log.filter(l=>l.team===t.id).map(l=>l.salary)));}
 const mean=list=>list.reduce((a,b)=>a+b,0)/list.length;assert(mean(topSpend.star)>mean(topSpend.bargain),`star ${mean(topSpend.star)} vs bargain ${mean(topSpend.bargain)}`);
 assert.throws(()=>L.create({id:'x',format:3,teams:8,seed:4242,fighters:pool.slice(1)}),/must hold/);
 // Team cast leagues: pools must come from the cast, and leagues without castVersion 5 are the old format.
@@ -64,11 +74,12 @@ let response=await call(start);ok(response);assert.equal(response.revision,1);as
 for(const [id,f]of Object.entries(response.world.fighters))assert.deepEqual({ovr:f.ovr,salary:f.salary,role:f.role},{ovr:world.fighters[id].ovr,salary:world.fighters[id].salary,role:world.fighters[id].role},'Server ratings match the shared rules.');
 ok(await call(start));assert.equal((await call({...start,teams:16})).status,409,'A reused operation with a different body conflicts.');
 assert.equal((await call({...start,operationId:crypto.randomUUID(),revision:1})).status,409,'Only one league per format.');
-assert.equal((await call({action:'draft',format:3,revision:0,operationId:crypto.randomUUID(),count:1})).status,409,'Stale revisions are rejected.');
-response=await call({action:'draft',format:3,revision:1,operationId:crypto.randomUUID(),count:12});ok(response);assert.equal(response.world.draft.picks.length,12);
-assert.deepEqual(response.world.draft.picks,drafted.draft.picks.slice(0,12),'Server picks follow the shared AI exactly.');
-response=await call({action:'draft',format:3,revision:2,operationId:crypto.randomUUID(),count:1000});ok(response);assert(response.world.draft.complete);assert.deepEqual(response.world.teams,drafted.teams);
-assert.equal((await call({action:'draft',format:3,revision:3,operationId:crypto.randomUUID(),count:1})).status,400,'No picks after the draft.');
+assert.equal((await call({action:'market',format:3,revision:0,operationId:crypto.randomUUID(),count:1})).status,409,'Stale revisions are rejected.');
+response=await call({action:'market',format:3,revision:1,operationId:crypto.randomUUID(),count:1});ok(response);const oneRound=structuredClone(world);L.marketRounds(oneRound,1);
+assert.deepEqual(response.world.market.log,oneRound.market.log,'Server signings follow the shared AI exactly.');
+response=await call({action:'market',format:3,revision:2,operationId:crypto.randomUUID(),count:100});ok(response);assert(response.world.market.done);assert.deepEqual(response.world.teams,filled.teams);
+assert.equal((await call({action:'market',format:3,revision:3,operationId:crypto.randomUUID(),count:1})).status,400,'No rounds after free agency.');
+assert.equal((await call({action:'market',format:3,revision:3,operationId:crypto.randomUUID(),count:1000})).status,400,'Round counts are bounded.');
 assert.equal((await call(null,5)).world,null,'3v3 and 5v5 leagues are separate.');
 // Hand balance: the auto-balance switch is gone and leagues start with it off.
 assert.equal(response.world.balance.enabled,false);assert.equal((await call({action:'balance',format:3,revision:3,operationId:crypto.randomUUID(),enabled:true})).status,400);
@@ -78,15 +89,15 @@ assert.equal((await worker.fetch(new Request('https://fateforge.test/api/teams?f
 // Browser storage (GitHub Pages build) runs the same commands.
 const SQL=await initSqlJs(),storage=createStorage({SQL,migrations,worker:pagesWorker,indexedDB,databaseName:'team-league-pages'});
 const local=async body=>{const r=await storage.fetch('/api/teams'+(body?'':'?format=3'),{...(body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:{})});return {status:r.status,...await r.json()};};
-ok(await local({...start,operationId:crypto.randomUUID()}));response=await local({action:'draft',format:3,revision:1,operationId:crypto.randomUUID(),count:1000});ok(response);assert.deepEqual(response.world.teams,drafted.teams);
+ok(await local({...start,operationId:crypto.randomUUID()}));response=await local({action:'market',format:3,revision:1,operationId:crypto.randomUUID(),count:100});ok(response);assert.deepEqual(response.world.teams,filled.teams);
 const backup=new SQL.Database(await storage.exportBackup());assert.equal(backup.exec('SELECT COUNT(*) FROM team_worlds')[0].values[0][0],1);backup.close();
-console.log(`Team league passed: pool plans for 3v3/5v5 × 8/16/32, ratings and convex salaries, ${drafted.teams.length}-team deterministic snake draft under a ${drafted.settings.salaryCap}M cap with role needs met, server validation/revisions/retries, and browser storage.`);
+console.log(`Team league passed: pool plans for 3v3/5v5 × 8/16/32, ratings and convex salaries, ${filled.teams.length}-team deterministic opening auction (${filled.market.round} rounds) under a ${filled.settings.salaryCap}M cap with contracts for every signing, what free agents want (money, length, style fit), server validation/revisions/retries, and browser storage.`);
 
 // A preview league pins Core rules, validates objective results, and retains objective impact.
 const {simulateTeamSeries}=await import('../public/team-sim-worker.js');
 assert.throws(()=>L.create({id:'bad',format:2,teams:8,seed:31,fighters:[],battleMode:'core'}),/3v3/);
 let cr=await call({...start,revision:4,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),battleMode:'core'});ok(cr);
-cr=await call({action:'draft',format:3,revision:cr.revision,operationId:crypto.randomUUID(),count:1000});ok(cr);
+cr=await call({action:'market',format:3,revision:cr.revision,operationId:crypto.randomUUID(),count:100});ok(cr);
 // Battle rules switch between seasons through the API.
 cr=await call({action:'rules',mode:'teamfight',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'teamfight');cr=await call({action:'rules',mode:'core',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');
 cr=await call({action:'startSeason',format:3,revision:cr.revision,operationId:crypto.randomUUID()});ok(cr);assert.equal(cr.world.settings.battleMode,'core');assert.equal(cr.world.teamEngine,L.OBJECTIVE_COMBAT_VERSION);{const r=await call({action:'rules',mode:'teamfight',format:3,revision:cr.revision,operationId:crypto.randomUUID()});assert.equal(r.status,400);assert.match(r.error,/between seasons/);}

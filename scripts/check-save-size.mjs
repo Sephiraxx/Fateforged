@@ -17,7 +17,7 @@ let lastBody;const post=async body=>{lastBody=body;const r=await storage.fetch('
 const send=(body,operationId=crypto.randomUUID())=>post({format:3,revision,operationId,...body});
 const seed=77,plan=L.poolPlan(3,8,seed);
 assert.equal((await send({action:'start',worldId:crypto.randomUUID(),teams:8,seed,fighters:plan.map((s,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,s,i,seed,()=>'F'+i)).map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}))})).status,200);
-assert.equal((await send({action:'draft',count:1000})).status,200);
+assert.equal((await send({action:'market',count:100})).status,200);
 const team=(await send({action:'claim',team:null})).data.world.teams[0].id;let last;
 for(let i=0;i<230;i++)assert.equal((await send({action:'claim',team:i%2?null:team})).status,200);
 const sent=lastBody,before=revision;assert.equal((await post(sent)).status,200);assert.equal(revision,before,'A retried command is recognised and not applied twice.');
