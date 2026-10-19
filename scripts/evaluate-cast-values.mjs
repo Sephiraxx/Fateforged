@@ -50,7 +50,7 @@ if(!isMainThread){
   return {w,accuracy:Math.round(hits/X.length*1000)/10};
  }
  // Rescale to the old rating's spread over fresh league pools, so OVRs and salaries keep their range.
- const pool=[11,22,33,44].flatMap(seed=>L.poolPlan(3,32,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`P${seed}-${i}`)));
+ const pool=[11,22,33,44].flatMap(seed=>L.poolPlan(3,6,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`P${seed}-${i}`)));
  const stats=list=>{const mean=list.reduce((a,b)=>a+b,0)/list.length;return {mean,sd:Math.sqrt(list.reduce((a,b)=>a+(b-mean)**2,0)/list.length)};};
  const old=stats(pool.map(f=>L.rawRating(f)));
  const report={games:results.length,seconds:Math.round((performance.now()-started)/1000),modes:{},model:{}};

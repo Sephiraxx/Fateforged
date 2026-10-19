@@ -91,7 +91,7 @@ const {DatabaseSync}=await import('node:sqlite'),worker=(await import('../dist/s
 const db=new DatabaseSync(':memory:');for(const file of fs.readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync('drizzle/'+file,'utf8'));
 const env={DB:{prepare(sql){let args=[];return {bind(...a){args=a;return this;},first:async()=>db.prepare(sql).get(...args)||null,all:async()=>({results:db.prepare(sql).all(...args)}),run:async()=>({meta:{changes:Number(db.prepare(sql).run(...args).changes)}})};},async batch(statements){db.exec('BEGIN');try{const out=[];for(const s of statements)out.push(await s.run());db.exec('COMMIT');return out;}catch(e){db.exec('ROLLBACK');throw e;}}}};
 const call=async(path,method='GET',body)=>{const r=await worker.fetch(new Request('https://fateforge.test/api/'+path,{method,headers:{'oai-authenticated-user-id':'support-test','content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})}),env);return {status:r.status,...await r.json()};};
-const seed=128,plan=L.poolPlan(3,8,seed),pool=plan.map((slot,i)=>{const random=seededRandom(seed+i);return roleFighter(pools,luck,{role:slot.role,tier:slot.tier,random,id:crypto.randomUUID(),name:()=>`F${i}`});});
+const seed=128,plan=L.poolPlan(3,6,seed),pool=plan.map((slot,i)=>{const random=seededRandom(seed+i);return roleFighter(pools,luck,{role:slot.role,tier:slot.tier,random,id:crypto.randomUUID(),name:()=>`F${i}`});});
 const rolled=pool.find(f=>supportAbilityName(f.traits.power)||supportAbilityName(f.traits.power2));assert(rolled);
 const save={name:rolled.name,state:{version:1,generationVersion:4,wheelRarity:rolled.summary.wheelRarity,traits:rolled.traits,pools}};
 const saved=await call('characters/'+rolled.id,'PUT',save);assert.equal(saved.status,200,saved.error);assert.equal(saved.character.summary.generationVersion,4);
@@ -101,7 +101,7 @@ cup.engineVersion=12;
 assert.equal((await call('tournaments/'+crypto.randomUUID(),'PUT',{name:cup.name,state:cup})).status,400,'Old cups cannot accept new support abilities.');
 // Team leagues draw from the team cast (generation 5); the wheel pool above covers characters and cups.
 const castPool=plan.map((slot,i)=>poolFighter(pools,luck,slot,i,seed,()=>`F${i}`));
-const wire=castPool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:5,wheelRarity:f.summary.wheelRarity}})),start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed,fighters:wire};
+const wire=castPool.map(f=>({id:f.id,name:f.name,traits:f.traits,summary:{generationVersion:5,wheelRarity:f.summary.wheelRarity}})),start={action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),regionSize:6,seed,fighters:wire};
 const extra=structuredClone(start);extra.operationId=crypto.randomUUID();extra.fighters[0].teamKit='stunBolt';assert.equal((await call('teams','POST',extra)).status,400);
 let reply=await call('teams','POST',start);assert.equal(reply.status,200,reply.error);assert(Object.values(reply.world.fighters).every(f=>f.summary.generationVersion===5&&!Object.hasOwn(f,'teamKit')));
 const legacyWorld=structuredClone(reply.world);delete legacyWorld.supportRulesVersion;legacyWorld.engine='team-2.3';for(const f of Object.values(legacyWorld.fighters)){f.teamKit='stunBolt';f.ovr=99;delete f.ratingVersion;}const beforeTraits=Object.fromEntries(Object.entries(legacyWorld.fighters).map(([id,f])=>[id,f.traits]));

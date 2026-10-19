@@ -70,7 +70,7 @@ export function mountTeamLeague(host,hooks){
  const offer=(fighter,salary,years)=>command({action:'offer',fighter,salary,years}).then(()=>say(`Offer made to ${world.fighters[fighter].name}: ${money(salary)} × ${years} season${years>1?'s':''}. It goes out with the next round.`)).catch(e=>say(e.message,true));
  const withdraw=fighter=>command({action:'withdraw',fighter}).then(()=>say(`Offer to ${world.fighters[fighter].name} withdrawn.`)).catch(e=>say(e.message,true));
  const mine=()=>world?.settings.userTeam?LEAGUE.teamById(world,world.settings.userTeam):null;
- const claim=team=>command({action:'claim',team}).then(()=>say(team?`You are now head coach of the ${name(team)}.`:'The AI coach is back in charge.')).catch(e=>say(e.message,true));
+ const claim=team=>command({action:'claim',team}).then(()=>{view=defaultView();say(team?`You are now head coach of the ${name(team)}.`:'The AI coach is back in charge.');}).catch(e=>say(e.message,true));
  async function beginSeason(){
   if(busy||hooks.blocked())return;busy=true;hooks.busy(true);render();
   try{await command({action:'startSeason'},true);view=defaultView();say(`Season ${world.season} is underway: Split 1 in all six regions.`);}catch(e){say(e.message,true);}finally{busy=false;hooks.busy(false);render();}
@@ -590,7 +590,7 @@ export function mountTeamLeague(host,hooks){
   const panels=el('div','','league-panels');
   for(const [label,build]of [[`Past seasons${LEAGUE.pastSeasons(world).length?` (${LEAGUE.pastSeasons(world).length})`:''}`,seasonsPanel],['Trophy cabinet',trophyPanel],[`Hall of Fame${world.hallOfFame?.length?` (${world.hallOfFame.length})`:''}`,hallPanel],['Balance report',balancePanel]]){const b=button(label,'button secondary');b.onclick=()=>openPanel(label.replace(/ \(\d+\)$/,''),build());panels.append(b);}
   body.append(panels);
-  if(world.phase==='market'){renderFreeAgency();body.append(tabs());if(view==='world')view=LEAGUE.REGION_IDS[0];renderTeams(view);return;}
+  if(world.phase==='market'){renderFreeAgency();body.append(tabs());if(view==='world')view=defaultView()==='world'?LEAGUE.REGION_IDS[0]:defaultView();renderTeams(view);return;}
   if(world.phase==='offseason'){renderOffseason();body.append(tabs());if(view==='world')view=defaultView()==='world'?LEAGUE.REGION_IDS[0]:defaultView();renderTeams(view);return;}
   const season=el('section','','team-draft');season.append(calendarStrip(),seasonActions());
   if(world.awaiting)season.append(stageBanner());

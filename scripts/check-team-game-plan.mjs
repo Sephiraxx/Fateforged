@@ -51,7 +51,7 @@ const one=play(true);assert.deepEqual(one,play(true));assert.deepEqual(one,play(
  assert.equal(seriesGameOptions({lineups:[[],[]],tactics:['balanced','balanced']},[]).gamePlans,undefined,'older engines carry no plans');}
 
 // 5. League: describe carries plans, user choices validate, AI plans must follow the series plan.
-{const seed=515,pool=L.poolPlan(3,8,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`)),w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed,fighters:pool,battleMode:'core'});L.marketRounds(w,1e6);L.startSeason(w);
+{const seed=515,pool=L.poolPlan(3,6,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`)),w=L.create({id:crypto.randomUUID(),format:3,regionSize:6,seed,fighters:pool,battleMode:'core'});L.marketRounds(w,1e6);L.startSeason(w);
  assert.equal(w.teamEngine,'team-4.0');let m=L.upcoming(w,1)[0];w.settings.userTeam=m.home;const mine=plan('never','flank','late');L.setGamePlan(w,mine);assert.throws(()=>L.setGamePlan(w,{titan:'x'}),/Titan priority/);
  m=L.upcoming(w,1)[0];assert.equal(m.userSide,0);assert.deepEqual(m.gamePlans[0],mine);assert.deepEqual(m.gamePlans[1],L.teamGamePlan(w,L.teamById(w,m.away)));
  const options=seriesGameOptions(m,[]),r=simulateTeam(L.squads(w,m),m.seed,{conditions:m.conditions,tactics:options.tactics,gamePlans:options.gamePlans,engineVersion:m.engineVersion,balance:m.balance}),game={...compactTeamResult(r),...options};
@@ -63,8 +63,8 @@ const one=play(true);assert.deepEqual(one,play(true));assert.deepEqual(one,play(
 {const db=new DatabaseSync(':memory:');for(const f of fs.readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync('drizzle/'+f,'utf8'));
  const env={DB:{prepare(sql){let args=[];return {bind(...v){args=v;return this;},first:async()=>db.prepare(sql).get(...args)||null,all:async()=>({results:db.prepare(sql).all(...args)}),run:async()=>({meta:{changes:Number(db.prepare(sql).run(...args).changes)}})};},async batch(statements){db.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}}};
  const call=async body=>{const r=await worker.fetch(new Request('https://fateforge.test/api/teams',{method:'POST',headers:{'oai-authenticated-user-id':'planner','content-type':'application/json'},body:JSON.stringify(body)}),env);return {status:r.status,...await r.json()};},ok=r=>assert.equal(r.status,200,r.error);
- const seed=616,pool=L.poolPlan(3,8,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`)).map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}));
- let r=await call({action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),teams:8,seed,fighters:pool,battleMode:'core'});ok(r);
+ const seed=616,pool=L.poolPlan(3,6,seed).map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`Fighter ${i}`)).map(f=>({id:f.id,name:f.name,teamKit:f.teamKit,traits:f.traits,summary:{generationVersion:f.summary.generationVersion,wheelRarity:f.summary.wheelRarity}}));
+ let r=await call({action:'start',format:3,revision:0,operationId:crypto.randomUUID(),worldId:crypto.randomUUID(),regionSize:6,seed,fighters:pool,battleMode:'core'});ok(r);
  r=await call({action:'market',format:3,revision:r.revision,operationId:crypto.randomUUID(),count:100});ok(r);
  r=await call({action:'claim',format:3,revision:r.revision,operationId:crypto.randomUUID(),team:r.world.teams[0].id});ok(r);
  const chosen=plan('ahead','flank','forgefire');r=await call({action:'gamePlan',format:3,revision:r.revision,operationId:crypto.randomUUID(),plan:chosen});ok(r);assert.deepEqual(r.world.teams[0].gamePlan,chosen);

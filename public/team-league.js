@@ -26,10 +26,10 @@ export const REGION_SIZES=Object.freeze([6,8,10]);
 export const REGIONS=Object.freeze([
  {id:'r1',name:'Dragonspire',short:'DRG',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,msi:[2,0],worlds:4},
  {id:'r2',name:'Ironcrown',short:'IRC',tier:'major',odds:{SS:.04,S:.40,A:.56,B:0},cap:1.1,msi:[2,0],worlds:4},
- {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.30,A:.68,B:0},cap:1,msi:[1,1],worlds:3},
- {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1.05,msi:[1,1],worlds:2},
- {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.8,msi:[0,1],worlds:1},
- {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.8,msi:[0,1],worlds:1}
+ {id:'r3',name:'Emberwest',short:'EMW',tier:'strong',odds:{SS:.02,S:.31,A:.67,B:0},cap:1.05,msi:[1,1],worlds:3},
+ {id:'r4',name:'Stormreach',short:'STR',tier:'rising',odds:{SS:.012,S:.22,A:.66,B:.108},cap:1,msi:[1,1],worlds:2},
+ {id:'r5',name:'Tidewater Isles',short:'TWI',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,msi:[0,1],worlds:1},
+ {id:'r6',name:'Sunvale',short:'SUN',tier:'emerging',odds:{SS:.006,S:.14,A:.62,B:.234},cap:.85,msi:[0,1],worlds:1}
 ].map(r=>Object.freeze({...r,odds:Object.freeze(r.odds),msi:Object.freeze(r.msi)})));
 export const REGION_IDS=Object.freeze(REGIONS.map(r=>r.id));
 export const regionById=id=>REGIONS.find(r=>r.id===id);
@@ -242,7 +242,7 @@ export function winningWish(w,f){const base=f.prefs?.winning??1,titles=(f.career
 export function wantedYears(w,f){const age=careerSeason(w,f)+(startSeasonOf(w)>w.season?1:0);return age<=3?3:age<=6?2:1;}
 // How much a fighter likes an offer (higher is better). Money and a starting spot can beat a contender: that is what
 // lets rebuilding teams with cap room sign stars. Most fighters like staying in their home region.
-export const APPEAL=Object.freeze({money:2.5,winning:.8,start:.6,bench:-.5,fit:.35,loyalty:.4,years:.12,room:.1,home:.6});
+export const APPEAL=Object.freeze({money:2.5,winning:.8,start:.6,bench:-.5,fit:.35,loyalty:.4,years:.12,room:.1,home:.8});
 export function offerAppeal(w,f,offer,ctx={}){
  const team=teamById(w,offer.team),strength=(ctx.contenders??contenders(w)).get(offer.team)??.5,p=f.prefs??fighterPrefs(w.seed,f),ask=Math.max(.8,f.salary);
  return p.money*(offer.salary/ask-1)*APPEAL.money+winningWish(w,f)*(strength-.5)*APPEAL.winning+p.role*(wouldStart(w,team,f)?APPEAL.start:APPEAL.bench)+APPEAL.fit*fit(w,f,team)+(f.lastTeam===offer.team?p.loyalty*APPEAL.loyalty:0)+(team.region===f.region?(p.home??.6)*APPEAL.home:0)-APPEAL.years*Math.abs(offer.years-wantedYears(w,f));
@@ -266,10 +266,13 @@ export function eligible(w,team,committed=0,openLeft=w.settings.rosterSize-team.
  const reserveFor=x=>{if(spots<=0)return 0;const others=cheapest.filter(y=>y.id!==x.id).slice(0,spots);return others.length<spots?Infinity:others.reduce((n,y)=>n+y.salary,0)*scale;};
  return {candidates:pool.filter(x=>x.salary*askFloor(w.market?.round??0)+reserveFor(x)<=space+1e-9),counts,unmet,reserveFor,space};
 }
+// Coaches would rather sign at home: an import has to be clearly better, so teams import stars, not depth.
+export const IMPORT=Object.freeze({cost:10,starFrom:86,span:16});
+export const importCost=(team,x)=>x.region&&x.region!==team.region?IMPORT.cost*Math.max(0,Math.min(1,(IMPORT.starFrom-x.ovr)/IMPORT.span)):0;
 export function coachValue(w,team,x,counts,unmet,noise=()=>.5){
  const style=PERSONALITIES[team.coach.personality],average=capOf(w,team)/w.settings.rosterSize,plan=rosterTargets(w,team);
  const need=unmet[x.role]>0?1+.35*style.need:counts[x.role]>=plan[x.role]+1?.7:.9;
- return Math.pow(x.ovr/70,1+style.star)*70*style.rating*(style.roles[x.role]??1)*need-style.cost*(x.salary/average)*9+(noise()-.5)*2;
+ return Math.pow(x.ovr/70,1+style.star)*70*style.rating*(style.roles[x.role]??1)*need-style.cost*(x.salary/average)*9-importCost(team,x)+(noise()-.5)*2;
 }
 // Contract length an AI coach offers: star chasers lock stars up long, bargain hunters keep deals short.
 function offerYears(w,team,f){const want=wantedYears(w,f),style=team.coach.personality;return Math.max(1,Math.min(CONTRACT.maxYears,style==='star'&&f.ovr>=80?want+1:style==='bargain'?Math.min(want,2):want));}

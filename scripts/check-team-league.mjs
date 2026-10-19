@@ -52,6 +52,8 @@ const duo=L.create({id:'duo',format:2,regionSize:6,seed:31,fighters:circuitPool(
  assert(L.offerAppeal(probe,f,offer(a,f.salary,L.wantedYears(probe,f)))>=L.offerAppeal(probe,f,offer(a,f.salary,L.CONTRACT.maxYears+1)),'He prefers the length he wants.');
  const ctx={contenders:new Map(probe.teams.map(t=>[t.id,.5]))};a.tactic='balanced';away.tactic='balanced';
  assert(L.offerAppeal(probe,f,offer(a,f.salary),ctx)>L.offerAppeal(probe,f,offer(away,f.salary),ctx),'A team from his home region appeals more.');
+ // Coaches import only fighters clearly better than home talent: depth costs value, stars barely do.
+ const depth={...f,ovr:72},star={...f,ovr:L.IMPORT.starFrom};assert.equal(L.importCost(a,depth),0,'No import cost at home.');assert(L.importCost(away,depth)>0);assert.equal(L.importCost(away,star),0,'Stars import freely.');
  const style=f.prefs.style==='balanced'?'aggressive':f.prefs.style;f.prefs.style=style;a.tactic=style;b.tactic=L.OPPOSITE_STYLE[style];
  assert.equal(L.fit(probe,f,a),1);assert.equal(L.fit(probe,f,b),-1);b.tactic='balanced';assert.equal(L.fit(probe,f,b),0,'Balanced teams fit everyone neutrally.');
  b.tactic=L.OPPOSITE_STYLE[style];assert(L.offerAppeal(probe,f,offer(a,f.salary),ctx)>L.offerAppeal(probe,f,offer(b,f.salary),ctx),'A team that plays his style appeals more.');

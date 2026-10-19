@@ -1,24 +1,23 @@
 // Contracts and free agency in team leagues: contracts run out on time, fighters re-sign or move, stars chase titles,
 // team fit changes match stats, and leagues saved before contracts move onto them once.
 import assert from 'node:assert/strict';
-import {generation} from './team-fixtures.mjs';
 import * as L from '../public/team-league.js';
+import {circuit,roll,playSeason} from './circuit-fixtures.mjs';
 
-const roll=(plan,seed)=>plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`C${seed}-${i}`));
-const league=(format,teams,seed)=>L.create({id:crypto.randomUUID(),format,teams,seed,fighters:roll(L.poolPlan(format,teams,seed),seed)});
+const league=(format,regionSize,seed)=>circuit({format,regionSize,seed});
 // Results follow lineup strength with a little noise, so contenders mean something.
 const fake=(w,m)=>{const need=Math.ceil(m.bestOf/2),games=[],score=[0,0],str=m.lineups.map(ids=>ids.reduce((a,id)=>a+w.fighters[id].ovr,0)/ids.length);let n=m.seed;
  while(score[0]<need&&score[1]<need){n=Math.imul(n^n>>>15,2246822507)>>>0;const winnerTeam=(n%1000)/1000<1/(1+Math.exp(-(str[0]-str[1])/4))?0:1;score[winnerTeam]++;
   games.push({winnerTeam,seconds:30+n%60,reason:'Team eliminated',hp:winnerTeam?[0,10+n%80]:[10+n%80,0],balanceId:m.balance?.id,combatVersion:m.engineVersion??'team-2',environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:m.lineups.flat().map((id,i)=>({id,damage:Math.round(w.fighters[id].ovr*8+(n>>>(i%8))%200),healing:(n>>>(i%5))%97,kills:(n>>>i%3)%3,deaths:n%2,ccSeconds:1.5}))});}
  return games;};
-const playOut=w=>{let guard=0;while(w.phase==='season'||w.phase==='playoffs'){const [m]=L.upcoming(w,1);L.recordMatch(w,m.id,fake(w,m));assert(++guard<3000);}};
+const playOut=w=>playSeason(w,fake);
 
 // Several spectator seasons: every roster stays full and under contract, contracts end on time, players move.
-const w=league(3,8,4242);L.marketRounds(w,1e6);
+const w=league(3,6,4242);L.marketRounds(w,1e6);
 const champions=[],moved=new Set();let checkedExpiry=0;
 for(let season=1;season<=6;season++){
  const ending=new Set(Object.values(w.fighters).filter(f=>f.team&&f.contract.until===season).map(f=>f.id));
- L.startSeason(w);playOut(w);champions.push(w.playoffs.champion);
+ L.startSeason(w);playOut(w);champions.push(L.worldsChampion(w));
  const teamsBefore=new Map(Object.values(w.fighters).filter(f=>f.team).map(f=>[f.id,f.team]));
  L.startOffseason(w,roll(L.rookiePlan(w),season*977));const o=w.lastOffseason;
  for(const id of ending){const f=w.fighters[id];if(!f)continue;checkedExpiry++;assert(o.resigned.some(r=>r.id===id)||o.departed.some(d=>d.id===id)||o.veterans.some(v=>v.id===id),'Every ending contract is re-signed or ends.');}
@@ -31,9 +30,9 @@ const stars=Object.values(w.fighters).filter(f=>f.ovr>=80);assert(stars.some(f=>
 assert(w.lastOffseason.signings.some(l=>l.from),'Free agency moves fighters between teams.');
 
 // Ring chasers: a titleless star wants to win more each season, so a weak team struggles to keep him.
-{const probe=structuredClone(w),f=Object.values(probe.fighters).filter(x=>x.team).sort((a,b)=>b.ovr-a.ovr)[0];f.ovr=Math.max(f.ovr,85);f.career={...f.career,titles:0};
+{const probe=structuredClone(w),f=Object.values(probe.fighters).filter(x=>x.team).sort((a,b)=>b.ovr-a.ovr)[0];f.ovr=Math.max(f.ovr,85);f.career={...f.career,titles:0,trophies:{worlds:0,msi:0,'first-stand':0,split:3}};
  f.careerStart=probe.season;const fresh=L.winningWish(probe,f);f.careerStart=probe.season-6;const veteran=L.winningWish(probe,f);assert(veteran>fresh,`A titleless veteran star wants to win more (${fresh} → ${veteran}).`);
- f.career.titles=1;assert.equal(L.winningWish(probe,f),f.prefs.winning,'A champion is no longer chasing.');}
+ f.career.trophies.msi=1;assert.equal(L.winningWish(probe,f),f.prefs.winning,'An MSI champion is no longer chasing.');f.career.trophies={worlds:1,msi:0};f.career.titles=1;assert.equal(L.winningWish(probe,f),f.prefs.winning,'A world champion is no longer chasing.');}
 
 // Team fit in matches: his team playing his style lifts strength, speed, durability and magic by 4%; the opposite lowers them.
 {const probe=structuredClone(w);L.startSeason(probe);const m=L.upcoming(probe,1)[0],home=L.teamById(probe,m.home),f=probe.fighters[m.lineups[0][0]],base=f.summary.stats;
@@ -49,7 +48,7 @@ const strip=x=>{const old=structuredClone(x);delete old.contractsVersion;delete 
 {const old=strip(w);L.prepareContracts(old);assert.equal(old.contractsVersion,L.CONTRACTS_VERSION);
  for(const f of Object.values(old.fighters)){assert(L.TACTICS.includes(f.prefs.style));if(f.team){assert.equal(f.contract.salary,f.salary,'Migrated contracts keep the current salary.');assert(f.contract.years>=1&&f.contract.years<=3&&f.contract.until>=old.season);}else assert.equal(f.contract,null);}
  const again=structuredClone(old);L.prepareContracts(again);assert.deepEqual(again,old,'Loading twice changes nothing.');}
-{const founding=league(3,8,5150),old=strip(founding);old.phase='draft';old.draft={order:old.teams.map(t=>t.id),picks:[],complete:false};L.prepareContracts(old);
+{const founding=league(3,6,5150),old=strip(founding);old.phase='draft';old.draft={order:old.teams.map(t=>t.id),picks:[],complete:false};L.prepareContracts(old);
  assert.equal(old.phase,'market');assert.equal(old.market.kind,'founding');assert.equal(old.draft,undefined);L.marketRounds(old,1e6);assert.equal(old.phase,'ready','A migrated founding draft finishes as an auction.');}
 {const off=structuredClone(w);L.startSeason(off);playOut(off);L.claimTeam(off,off.teams[0].id);L.startOffseason(off,roll(L.rookiePlan(off),31337));
  for(const [from,to]of [['decisions','resign'],['market','trades'],['draft','freeAgency']]){const old=strip(off);old.offseason.step=from;delete old.offseason.expiring;L.prepareContracts(old);assert.equal(old.offseason.step,to);if(to==='freeAgency')assert(L.marketOpen(old));if(to==='resign')assert.deepEqual(old.offseason.expiring,[]);}}

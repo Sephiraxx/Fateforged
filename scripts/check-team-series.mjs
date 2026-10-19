@@ -1,21 +1,22 @@
 import assert from 'node:assert/strict';
-import {generation} from './team-fixtures.mjs';
 import * as L from '../public/team-league.js';
+import {circuit} from './circuit-fixtures.mjs';
 import {seriesGameOptions,seriesScore} from '../public/team-series.js';
 import {simulateTeamSeries} from '../public/team-sim-worker.js';
 import {TeamBattle,TEAM_ENGINE_VERSION,teamEngine} from '../public/combat-team.js';
 import {powerFor} from '../public/abilities-v12.js';
 
-const seed=1414,plan=L.poolPlan(3,8,seed),fighters=plan.map((slot,i)=>generation.poolFighter(WHEEL_DATA,WHEEL_LUCK,slot,i,seed,()=>`F${i}`)),w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed,fighters});
+const seed=1414,w=circuit({format:3,regionSize:6,seed});
 L.marketRounds(w,1000);L.claimTeam(w,w.teams[0].id);L.startSeason(w);
 const game=(m,previous=[],winnerTeam=0,choice=null)=>{const p=seriesGameOptions(m,previous,choice);return {winnerTeam,seconds:30,hp:winnerTeam?[0,70]:[70,0],reason:'Team eliminated',balanceId:m.balance?.id,combatVersion:m.engineVersion,environment:{time:'day',weather:'clear',ground:'stone',map:'open'},fighters:p.lineups.flat().map(id=>({id,damage:100,healing:0,kills:0,deaths:0,ccSeconds:0})),...p};};
-while(w.phase==='season'){const m=L.upcoming(w,1)[0];L.recordMatch(w,m.id,[game(m,[],m.away===w.settings.userTeam?1:0)]);}
+// Split 1 with the coached team winning every game, then on to the playoffs (Bo3 semifinals).
+while(L.currentStage(w).key!=='split1-playoffs'){if(w.awaiting){L.advance(w);continue;}for(const m of L.upcoming(w))L.recordMatch(w,m.id,[game(m,[],m.away===w.settings.userTeam?1:0)]);}
 const later=structuredClone(w),laterMatch=L.upcoming(later).at(-1);L.recordSeriesGame(later,laterMatch.id,game(laterMatch));assert.equal(L.upcoming(later,1)[0].id,laterMatch.id,'Apply a limit after prioritizing any paused series.');
-const m=L.upcoming(w).find(m=>[m.home,m.away].includes(w.settings.userTeam));assert(m);const first=game(m,[],0);L.recordSeriesGame(w,m.id,first);assert.equal(w.pendingSeries.games.length,1);assert.equal(w.stats[first.fighters[0].id].games,10,'Incomplete series do not award stats twice.');
+const m=L.upcoming(w).find(m=>[m.home,m.away].includes(w.settings.userTeam));assert(m);const first=game(m,[],0);L.recordSeriesGame(w,m.id,first);assert.equal(w.pendingSeries.games.length,1);assert.equal(w.stats[first.fighters[0].id].games,5,'Incomplete series do not award stats twice.');
 const next=L.upcoming(w,1)[0];assert.equal(next.id,m.id);assert.deepEqual(next.completedGames,[first]);const me=L.teamById(w,w.settings.userTeam),bench=me.roster.find(id=>!m.lineups[m.userSide].includes(id)),choice={lineup:[bench,...m.lineups[m.userSide].slice(0,2)],tactic:'aggressive'},second=game(next,next.completedGames,1,choice);
 const wrong=structuredClone(second);wrong.lineups[1-m.userSide]=L.teamById(w,m.home).roster.slice(0,3);assert.throws(()=>L.recordSeriesGame(structuredClone(w),m.id,wrong),/roster|result/);
-L.recordSeriesGame(w,m.id,second);assert.deepEqual(seriesScore(w.pendingSeries.games),[1,1]);const final=L.upcoming(w,1)[0],last=game(final,final.completedGames,0);L.recordSeriesGame(w,m.id,last);assert.equal(w.pendingSeries,undefined);const recorded=w.playoffs.rounds[0].series.find(s=>s.id===m.id);assert.equal(recorded.games.length,3);assert(recorded.games[1].lineups[m.userSide].includes(bench));assert.equal(recorded.games[1].tactics[m.userSide],'aggressive');
-assert.throws(()=>L.recordSeriesGame(w,m.id,last),/next/);
+const benchGames=w.stats[bench]?.games??0;L.recordSeriesGame(w,m.id,second);assert.deepEqual(seriesScore(w.pendingSeries.games),[1,1]);const final=L.upcoming(w,1)[0],last=game(final,final.completedGames,0);L.recordSeriesGame(w,m.id,last);assert.equal(w.pendingSeries,undefined);const recorded=w.year.matches[m.id];assert.equal(recorded.games.length,3);assert.equal(recorded.games[1][0],1);assert(w.stats[bench].games>benchGames,'The bench fighter the coach picked played game 2.');
+assert.throws(()=>L.recordSeriesGame(w,m.id,last),/next|playable/);
 // The identical adaptation/seed rules drive quick and individually watched games.
 const remaining=L.upcoming(w,1)[0],teams=L.squads(w,remaining),quick=simulateTeamSeries({match:remaining,teams}),watched=[],score=[0,0],all=new Map(teams.flat().map(c=>[c.id,c]));
 while(Math.max(...score)<Math.ceil(remaining.bestOf/2)){const p=seriesGameOptions(remaining,watched),Engine=teamEngine(remaining.engineVersion),b=new Engine(p.lineups.map(ids=>ids.map(id=>all.get(id))),(remaining.seed+watched.length*65537)>>>0,{conditions:remaining.conditions,tactics:p.tactics,balance:remaining.balance,headless:false});while(!b.done)b.step(1/60);const r=b.result();const {compactTeamResult}=await import('../public/team-sim-worker.js');watched.push({...compactTeamResult(r),...p});score[r.winnerTeam]++;}
