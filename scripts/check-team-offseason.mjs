@@ -75,7 +75,7 @@ for(const id of before.teams.find(t=>t.id===me).roster)if(w.fighters[id])assert.
 assert.throws(()=>L.decideOffseason(structuredClone(w),{release:[w.teams[0].roster[0]]}),/fighters under contract on your roster/);
 assert.throws(()=>L.decideOffseason(structuredClone(w),{resign:[{fighter:w.teams[0].roster[0],salary:5,years:2}]}),/your expiring fighters/);
 assert.throws(()=>L.decideOffseason(structuredClone(w),{resign:[{fighter:myExpiring[0].id,salary:5,years:7}]}),/1 to 4 seasons/);
-const tight=structuredClone(w);tight.settings.salaryCap=1;assert.throws(()=>L.decideOffseason(tight,{}),/over the cap/);
+const tight=structuredClone(w);tight.settings.salaryCap=1;const untouched=structuredClone(tight);assert.throws(()=>L.decideOffseason(tight,{}),/over the cap/);assert.deepEqual(tight,untouched,'A refused plan leaves the league untouched.');
 assert.throws(()=>L.proposeTrade(structuredClone(w),w.teams[0].id,[mine.roster[0]],[w.teams[0].roster[0]]),/trade window/);
 assert.throws(()=>L.claimTeam(structuredClone(w),null),/offseason decisions/);
 {const cheap=structuredClone(w),low=myExpiring[0];L.decideOffseason(cheap,{resign:[{fighter:low.id,salary:cheap.fighters[low.id].salary*.5,years:2}]});assert.equal(cheap.fighters[low.id].team,null,'An offer below his ask is turned down.');}
@@ -83,6 +83,7 @@ const keep=myExpiring[0],gone=myExpiring[1],cut=L.teamById(w,me).roster.filter(i
 L.decideOffseason(w,{resign:[{fighter:keep.id,salary:w.fighters[keep.id].salary,years:3},{fighter:gone.id,salary:w.fighters[gone.id].salary*2,years:2}],release:[cut]});
 assert.deepEqual([w.fighters[keep.id].team,w.fighters[keep.id].contract.until,w.fighters[keep.id].contract.years],[me,4,3],'A willing fighter re-signs at his ask.');
 assert.equal(w.fighters[gone.id].team,null,'A fighter who wants to test the market leaves, whatever the offer.');assert.equal(w.fighters[gone.id].lastTeam,me);
+assert(w.offseason.resigned.some(r=>r.id===keep.id&&r.team===me)&&w.offseason.departed.some(d=>d.id===gone.id&&d.team===me),'The coach\'s re-signings and departures count in the offseason report.');
 assert.equal(w.offseason.step,'trades');assert.equal(w.fighters[cut].team,null);assert.equal(w.fighters[cut].contract,null);assert.equal(w.fighters[cut].freeAgentSince,1);
 for(const t of w.offseason.trades){assert.equal(t.sent[0].length,1);for(const id of t.teams)assert(legal(w,L.teamById(w,id)),'AI trades stay cap-legal.');assert(!t.teams.includes(me));}
 // User trades: shape checks, AI coaches accept only deals that help them.

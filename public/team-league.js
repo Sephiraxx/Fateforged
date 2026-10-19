@@ -760,12 +760,14 @@ export function decideOffseason(w,{resign=[],release:ids=[]}={}){
  const expiring=new Map((w.offseason.expiring??[]).map(e=>[e.id,e]));
  if(!Array.isArray(resign)||resign.some(o=>!o||!expiring.has(o.fighter)||!Number.isFinite(o.salary)||o.salary<=0||o.salary>99||!Number.isInteger(o.years)||o.years<1||o.years>CONTRACT.maxYears)||new Set(resign.map(o=>o.fighter)).size!==resign.length)throw new Error('Re-sign only your expiring fighters, for 1 to 4 seasons.');
  if(!Array.isArray(ids)||new Set(ids).size!==ids.length||ids.some(id=>!team.roster.includes(id)||expiring.has(id)))throw new Error('Release only fighters under contract on your roster.');
- const outcome=[];
- for(const e of expiring.values()){const f=w.fighters[e.id],offer=resign.find(o=>o.fighter===e.id);
-  if(offer&&e.stance==='stay'&&round1(offer.salary)>=round1(f.salary*.95)){renew(w,f,offer.salary,offer.years);outcome.push({id:f.id,signed:true});}
-  else{outcome.push({id:f.id,signed:false,reason:!offer?'let go':e.stance!=='stay'?'market':'ask'});leave(w,team,f);}}
- const after=payroll(w,team)-ids.reduce((n,id)=>n+wage(w.fighters[id]),0);
+ // Decide first and check the cap before anything changes, so a refused plan leaves the league as it was.
+ const outcome=[...expiring.values()].map(e=>{const f=w.fighters[e.id],offer=resign.find(o=>o.fighter===e.id);
+  return offer&&e.stance==='stay'&&round1(offer.salary)>=round1(f.salary*.95)?{id:f.id,signed:true,salary:round1(offer.salary),years:offer.years}:{id:f.id,signed:false,reason:!offer?'let go':e.stance!=='stay'?'market':'ask'};});
+ const after=payroll(w,team)-[...expiring.keys(),...ids].reduce((n,id)=>n+wage(w.fighters[id]),0)+outcome.reduce((n,o)=>n+(o.signed?o.salary:0),0);
  if(after>w.settings.salaryCap+1e-9)throw new Error('Your payroll would still be over the cap. Release more fighters or re-sign fewer.');
+ for(const o of outcome){const f=w.fighters[o.id];
+  if(o.signed){renew(w,f,o.salary,o.years);w.offseason.resigned.push({id:f.id,team:team.id,salary:f.contract.salary,years:o.years});}
+  else{w.offseason.departed.push({id:f.id,team:team.id,reason:o.reason==='market'?'market':'released'});leave(w,team,f);}}
  release(w,team,ids);if(ids.length)w.offseason.releases[team.id]=ids;w.offseason.resignResults=outcome;aiTrades(w);w.offseason.step='trades';return w;
 }
 const legalRoster=(w,roster)=>roster.reduce((n,id)=>n+wage(w.fighters[id]),0)<=w.settings.salaryCap+1e-9;

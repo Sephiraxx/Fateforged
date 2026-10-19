@@ -217,6 +217,17 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 .pool-chip[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
 .pool-pager{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .pool-pager .quiet{min-width:44px;font-size:1.1rem}
+.offer-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.team-league-table tr:has(+ tr.offer-row) td{border-bottom-color:transparent}
+.team-league-table tr.offer-row td{padding-top:0;border-top:0}
+.team-league-table tr.offer-row td:first-child{padding-left:12px}
+.team-league-table tr.offer-row .offer-controls::before{content:'Offer';font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.team-league-table tr.offer-row.offered .offer-controls::before{content:'Your offer';color:var(--accent)}
+.offer-controls input[type=number]{width:4.5em;padding:4px 6px}
+.offer-controls select{padding:4px 28px 4px 6px;width:auto;flex:0 0 auto}
+.offer-controls input[type=number]{flex:0 0 auto}
+@media (max-width:640px){.team-league-table tr.offer-row .offer-controls::before{display:none}.team-league-table tr.offer-row td:first-child{padding-left:8px}}
+.fighter-style{margin-top:2px}
 /* Week browser */
 .week-nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 6px}
 .week-nav select{margin:0;flex:0 1 200px}
