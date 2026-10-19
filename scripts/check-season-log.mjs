@@ -27,7 +27,21 @@ for(let season=1;season<=2;season++){
  const fighterGames=entry.fighters.reduce((n,f)=>n+f.games,0),fighterWins=entry.fighters.reduce((n,f)=>n+f.wins,0);
  assert.equal(fighterGames,entry.games.length*2*size,'Every starter of every game is counted.');assert.equal(fighterWins,entry.games.length*size,'One side wins each game.');
  assert(entry.fighters.every(f=>f.subclass&&f.class&&f.tier&&f.role));
+ // The archive keeps the full table and bracket: every team once, the champion winning the last series.
+ const rows=entry.table.flatMap(c=>c.divisions.flatMap(d=>d.rows));assert.deepEqual(rows.map(r=>r.id).sort(),w.teams.map(t=>t.id).sort());
+ for(const r of rows){const t=entry.teams.find(x=>x.id===r.id);assert.deepEqual([r.wins,r.losses],[t.wins,t.losses]);assert(Array.isArray(r.division)&&Array.isArray(r.conference)&&typeof r.margin==='number');}
+ const final=entry.bracket.rounds.at(-1).series[0];assert.equal(final.winner,champion);assert.equal(entry.bracket.rounds.at(-1).key,'final');
+ assert.equal(entry.bracket.rounds.reduce((n,r)=>n+r.series.reduce((k,x)=>k+x.games.length,0),0),entry.games.length-w.history.at(-1).standings.reduce((n,r)=>n+r.wins+r.losses,0)/2,'Every playoff game is in the bracket.');
+ assert(entry.bracket.rounds.every(r=>r.series.every(x=>x.games.every(g=>(g[0]===0||g[0]===1)&&g.length===4)&&x.games.filter(g=>g[0]===(x.winner===x.home?0:1)).length===Math.ceil(x.bestOf/2))));
+ const past=L.pastSeason(w,season);assert.equal(past.title.champion,champion);assert.equal(past.names[champion],L.teamById(w,champion).name);assert.equal(past.table,entry.table);
 }
+assert.deepEqual(L.pastSeasons(w),[2,1],'Finished seasons are listed newest first.');
+// Seasons logged before tables were kept rebuild one from each team's record and playoff finish.
+{const old=structuredClone(w);delete old.seasonLog[0].table;delete old.seasonLog[0].bracket;const p=L.pastSeason(old,1),rows=p.table.flatMap(c=>c.divisions.flatMap(d=>d.rows));
+ assert.equal(rows.length,8);assert.equal(p.bracket,null);assert(rows.every(r=>r.division===undefined));assert.equal(p.finish[p.title.champion],'final');
+ old.seasonLog=[];assert.equal(L.pastSeason(old,1).table,null,'Beyond the log only the title is left.');assert.equal(L.pastSeason(old,9),null);}
+// A season just crowned is read live until the offseason logs it.
+{const live=structuredClone(w);L.startSeason(live);playOut(live);assert.equal(live.phase,'complete');assert.deepEqual(L.pastSeasons(live),[3,2,1]);const p=L.pastSeason(live,3);assert.equal(p.bracket.rounds.at(-1).series[0].winner,live.playoffs.champion);assert.equal(p.table.flatMap(c=>c.divisions.flatMap(d=>d.rows)).length,8);}
 assert.deepEqual(w.seasonLog.map(s=>s.season),[1,2]);assert.equal(w.season,3);assert.deepEqual(w.stats,{},'The season stats reset while the log keeps them.');
 
 // The report adds the logged seasons up.

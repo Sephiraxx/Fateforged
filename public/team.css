@@ -128,6 +128,12 @@ body[data-mode="team2"] .arena-status,body[data-mode="team3"] .arena-status,body
 .playoff-team .seed{font:600 .68rem/1 var(--display);color:var(--gold)}
 .playoff-team strong{font:700 .9rem/1 var(--display)}
 .playoff-series small{font:600 .6rem/1 var(--display);letter-spacing:.1em;color:var(--dim)}
+.series-games{margin:6px 0 0;padding:6px 0 0 18px;border-top:1px solid #26324d;font-size:.72rem;line-height:1.5;color:var(--muted)}
+.season-picker{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.season-picker select{flex:1 1 180px;min-width:0}
+.past-seasons .team-standings,.past-seasons .team-playoffs{margin-top:12px}
+.past-seasons .champion-banner{margin-top:0}
+@media (max-width:640px){.season-picker select{order:-1;flex-basis:100%}.season-picker button{flex:1}}
 .champion-banner{margin-bottom:12px;padding:16px;text-align:center;background:radial-gradient(120% 140% at 50% 0,#ffd23f26,transparent 60%),#0a0f1c;border:1px solid #ffd23f66}
 .champion-banner h3{font:700 1.6rem/1.2 var(--display);letter-spacing:.06em;color:var(--gold);text-shadow:0 0 18px #ffd23f66;margin:4px 0}
 .champion-banner .mvp{font:600 .9rem/1.4 var(--display);color:var(--text)}

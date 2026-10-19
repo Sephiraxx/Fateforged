@@ -14,19 +14,19 @@ const w=L.create({id:crypto.randomUUID(),format:3,teams:8,seed:4242,fighters:rol
 const founders=Object.values(w.fighters).map(f=>L.careerSeason(w,f));
 assert(founders.every(n=>n>=1&&n<=L.CAREER.founders),'Founders start in career seasons 1–6.');assert(new Set(founders).size>=5,'Founding ages are mixed.');
 
-const size=L.FORMATS[w.format].rosterSize,games=new Map(),extendedIds=new Set();let retiredTotal=0,declinedTotal=0,checkedDecline=false,forcedMvp=null,formKept=0;
+const size=L.FORMATS[w.format].rosterSize,games=new Map(),extendedIds=new Set();let retiredTotal=0,declinedTotal=0,checkedDecline=false,forcedMvp=null,forcedSeason=null,formKept=0;
 for(let season=1;season<=12;season++){
  L.startSeason(w);playOut(w);
  for(const [id,s]of Object.entries(w.stats))games.set(id,(games.get(id)??0)+s.games);
  // Once, make a veteran who would retire this season's MVP: they earn another season.
- if(!forcedMvp){const vet=L.retiringVeterans(w)[0];if(vet){w.titles.at(-1).mvp=vet.id;forcedMvp=vet.id;assert(!L.retiringVeterans(w).includes(vet));}}
+ if(!forcedMvp){const vet=L.retiringVeterans(w)[0];if(vet){w.titles.at(-1).mvp=vet.id;forcedMvp=vet.id;forcedSeason=season;assert(!L.retiringVeterans(w).includes(vet));}}
  const form=L.seasonPerformance(w),staying=Object.values(w.fighters).filter(f=>L.careerSeason(w,f)>=L.CAREER.retireAfter&&!L.retiringVeterans(w).includes(f));
  for(const f of staying){const p=form.get(f.id);assert(w.titles.at(-1).mvp===f.id||p.z>=L.CAREER.extendForm&&p.share>=L.CAREER.extendShare,'Only the MVP or a veteran in top form stays.');}
  const veterans=L.retiringVeterans(w).map(f=>f.id),aging=Object.values(w.fighters).filter(f=>L.careerSeason(w,f)+1>=L.CAREER.declineFrom&&L.careerSeason(w,f)<L.CAREER.retireAfter),before=new Map(aging.map(f=>[f.id,{stats:[...f.summary.stats],ovr:f.ovr}]));
  const plan=L.rookiePlan(w);assert.equal(plan.length,w.teams.length*L.ROOKIES_PER_TEAM[w.format]+veterans.length,'Every retiring veteran is replaced in the rookie class.');
  L.startOffseason(w,roll(plan,season*977));
  const o=w.offseason??w.lastOffseason;assert.deepEqual(o.veterans.map(v=>v.id).sort(),[...veterans].sort());
- assert.deepEqual(o.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of o.extended){extendedIds.add(v.id);if(v.id===forcedMvp)assert.equal(v.reason,'mvp');else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=o.declined.length;
+ assert.deepEqual(o.extended.map(v=>v.id).sort(),staying.map(f=>f.id).sort());for(const v of o.extended){extendedIds.add(v.id);if(v.id===forcedMvp&&season===forcedSeason||v.reason==='mvp'){assert.equal(v.reason,'mvp');assert.equal(w.titles.find(t=>t.season===season).mvp,v.id,'Only the season MVP stays as MVP.');}else{assert.equal(v.reason,'form');formKept++;}}retiredTotal+=veterans.length;declinedTotal+=o.declined.length;
  for(const id of veterans){assert(!w.fighters[id],'Veterans leave the league.');assert(w.teams.every(t=>!t.roster.includes(id)&&!t.lineup.includes(id)));}
  for(const [id,b]of before){const f=w.fighters[id];if(!f)continue;checkedDecline=true;
   f.summary.stats.forEach((v,i)=>L.CAREER.stats.includes(i)?assert.equal(v,Math.round(b.stats[i]*(1-L.CAREER.decline))):assert.equal(v,b.stats[i]));

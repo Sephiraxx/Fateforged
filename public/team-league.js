@@ -92,7 +92,7 @@ export function ratingFeatures(character){
 // OVR for the team cast, per battle mode (scripts/evaluate-cast-values.mjs, validation/cast-values.json): rating
 // features plus one value per subclass, fitted on lab games so a fighter's rating follows what it adds to a team's
 // chance to win, and scaled to the spread above. Leagues pass their battle mode; without one the model above applies.
-export const CAST_RATING_MODEL=Object.freeze({core:Object.freeze({"intercept":-3.62,"ehp":0.32,"dps":0.391,"spell":0.259,"ability":0.033,"speed":0.228,"iq":0.071,"subclass":{"Cleric (Light)":0.014,"Cleric (Mercy)":0.012,"Cleric (Ward)":0.052,"Druid (Grove)":0.001,"Druid (Forest)":0.048,"Druid (Moon)":0.196,"Warrior (Vanguard)":-0.186,"Warrior (Berserker)":-0.231,"Warrior (Duelist)":-0.242,"Guardian (Stoneguard)":-0.067,"Guardian (Warden)":-0.177,"Guardian (Aegis)":0.103,"Mage (Fire)":0.167,"Mage (Blood)":0.234,"Mage (Frost)":0.242,"Mage (Chrono)":0.122,"Ranger (Marksman)":0.099,"Ranger (Trapper)":-0.162,"Ranger (Beastmaster)":0.195,"Assassin (Shadowblade)":-0.214,"Assassin (Riftwalker)":-0.039,"Assassin (Executioner)":0.008,"Assassin (Venomblade)":-0.231,"Bard (Skald)":-0.188,"Bard (Maestro)":-0.067,"Bard (Siren)":0.168,"Paladin (Crusader)":-0.104,"Paladin (Justiciar)":-0.212,"Paladin (Oathbreaker)":-0.016,"Warlock (Hexer)":0.091,"Warlock (Soulbinder)":0.151,"Warlock (Voidcaller)":0.233}}),teamfight:Object.freeze({"intercept":-3.436,"ehp":0.316,"dps":0.332,"spell":0.288,"ability":0.026,"speed":0.213,"iq":0.157,"subclass":{"Cleric (Light)":0.159,"Cleric (Mercy)":0.192,"Cleric (Ward)":0.173,"Druid (Grove)":0.006,"Druid (Forest)":-0.039,"Druid (Moon)":0.052,"Warrior (Vanguard)":-0.068,"Warrior (Berserker)":-0.196,"Warrior (Duelist)":-0.213,"Guardian (Stoneguard)":0.037,"Guardian (Warden)":-0.142,"Guardian (Aegis)":0.007,"Mage (Fire)":0.072,"Mage (Blood)":0.202,"Mage (Frost)":0.187,"Mage (Chrono)":0.125,"Ranger (Marksman)":0.065,"Ranger (Trapper)":-0.123,"Ranger (Beastmaster)":0.208,"Assassin (Shadowblade)":-0.161,"Assassin (Riftwalker)":-0.174,"Assassin (Executioner)":-0.035,"Assassin (Venomblade)":-0.17,"Bard (Skald)":-0.291,"Bard (Maestro)":-0.147,"Bard (Siren)":0.116,"Paladin (Crusader)":-0.138,"Paladin (Justiciar)":-0.136,"Paladin (Oathbreaker)":-0.035,"Warlock (Hexer)":0.03,"Warlock (Soulbinder)":0.139,"Warlock (Voidcaller)":0.268}})});
+export const CAST_RATING_MODEL=Object.freeze({core:Object.freeze({"intercept":-3.48,"ehp":0.302,"dps":0.351,"spell":0.244,"ability":0.051,"speed":0.267,"iq":0.13,"subclass":{"Cleric (Light)":0.078,"Cleric (Mercy)":0.083,"Cleric (Ward)":0.116,"Druid (Grove)":-0.047,"Druid (Forest)":0.134,"Druid (Moon)":0.183,"Warrior (Vanguard)":-0.048,"Warrior (Berserker)":-0.272,"Warrior (Duelist)":-0.245,"Guardian (Stoneguard)":-0.04,"Guardian (Warden)":-0.128,"Guardian (Aegis)":0.099,"Mage (Fire)":0.099,"Mage (Blood)":0.131,"Mage (Frost)":0.214,"Mage (Chrono)":0.193,"Ranger (Marksman)":0.077,"Ranger (Trapper)":-0.122,"Ranger (Beastmaster)":0.121,"Assassin (Shadowblade)":-0.25,"Assassin (Riftwalker)":-0.18,"Assassin (Executioner)":-0.018,"Assassin (Venomblade)":-0.276,"Bard (Skald)":-0.166,"Bard (Maestro)":-0.005,"Bard (Siren)":0.135,"Paladin (Crusader)":-0.187,"Paladin (Justiciar)":-0.195,"Paladin (Oathbreaker)":-0.069,"Warlock (Hexer)":0.105,"Warlock (Soulbinder)":0.126,"Warlock (Voidcaller)":0.256}}),teamfight:Object.freeze({"intercept":-3.352,"ehp":0.298,"dps":0.332,"spell":0.287,"ability":0.026,"speed":0.233,"iq":0.157,"subclass":{"Cleric (Light)":0.162,"Cleric (Mercy)":0.205,"Cleric (Ward)":0.157,"Druid (Grove)":0,"Druid (Forest)":-0.061,"Druid (Moon)":0.064,"Warrior (Vanguard)":-0.077,"Warrior (Berserker)":-0.192,"Warrior (Duelist)":-0.209,"Guardian (Stoneguard)":0.048,"Guardian (Warden)":-0.109,"Guardian (Aegis)":0.009,"Mage (Fire)":0.084,"Mage (Blood)":0.22,"Mage (Frost)":0.195,"Mage (Chrono)":0.111,"Ranger (Marksman)":0.079,"Ranger (Trapper)":-0.13,"Ranger (Beastmaster)":0.207,"Assassin (Shadowblade)":-0.151,"Assassin (Riftwalker)":-0.189,"Assassin (Executioner)":-0.056,"Assassin (Venomblade)":-0.174,"Bard (Skald)":-0.312,"Bard (Maestro)":-0.128,"Bard (Siren)":0.109,"Paladin (Crusader)":-0.146,"Paladin (Justiciar)":-0.139,"Paladin (Oathbreaker)":-0.03,"Warlock (Hexer)":0.037,"Warlock (Soulbinder)":0.127,"Warlock (Voidcaller)":0.271}})});
 export const CAST_RATING_VERSION=3;
 const castModel=(character,mode)=>mode&&(character.summary?.generationVersion??0)>=5?CAST_RATING_MODEL[mode==='core'?'core':'teamfight']??null:null;
 export function rawRating(character,role=teamRole(character).role,mode=null){const x=ratingFeatures(character),c=castModel(character,mode);if(c)return c.intercept+c.ehp*x.ehp+c.dps*x.dps+c.spell*x.spell+c.ability*x.ability+c.speed*x.speed+c.iq*x.iq+(c.subclass[`${character.traits?.class} (${character.traits?.subclass})`]??0);const m=RATING_MODEL;return m.intercept+m.ehp*x.ehp+m.dps*x.dps+m.spell*x.spell+m.ability*x.ability+m.speed*x.speed+m.iq*x.iq+(m.roles[role]??0);}
@@ -622,14 +622,15 @@ function scoreTeam(w,team,roster=team.roster){
 // Share of a roster each personality is willing to turn over in one offseason.
 export const ROSTER_CHURN=Object.freeze({bargain:.375,glass:.25,tactician:.25,balanced:.25,fortress:.125,star:.125});
 // AI keep/release: let go of anyone a free agent of the same role could replace for less, and get back under the cap.
-function aiReleases(w,team){
+// Fighters just re-signed (keep) are never cut for churn, and only last when the payroll is over the cap.
+function aiReleases(w,team,keep=new Set()){
  const f=FORMATS[w.format],counts=roleCounts(w,team),free=available(w),released=[];
  const plan=rosterTargets(w,team),keepValue=x=>{const unmet=Object.fromEntries(ROLE_KEYS.map(r=>[r,0]));unmet[x.role]=Math.max(0,plan[x.role]-(counts[x.role]-1));return coachValue(w,team,x,counts,unmet);};
  const replacement=x=>Math.max(-Infinity,...free.filter(y=>y.role===x.role&&y.salary<=x.salary&&!released.includes(y.id)).map(y=>coachValue(w,team,y,counts,{[x.role]:Math.max(0,plan[x.role]-(counts[x.role]-1))})));
  const ranked=team.roster.map(id=>w.fighters[id]).map(x=>({x,surplus:keepValue(x)-replacement(x)})).sort((a,b)=>a.surplus-b.surplus||(a.x.id<b.x.id?-1:1));
- const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5){released.push(x.id);counts[x.role]--;}}
+ const limit=Math.max(1,Math.round(f.rosterSize*(ROSTER_CHURN[team.coach.personality]??.25)));for(const {x,surplus}of ranked){if(released.length>=limit)break;if(surplus<1.5&&!keep.has(x.id)){released.push(x.id);counts[x.role]--;}}
  let pay=payroll(w,team)-released.reduce((n,id)=>n+wage(w.fighters[id]),0);
- for(const {x}of ranked){if(pay<=w.settings.salaryCap+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
+ for(const {x}of [...ranked.filter(r=>!keep.has(r.x.id)),...ranked.filter(r=>keep.has(r.x.id))]){if(pay<=w.settings.salaryCap+1e-9)break;if(released.includes(x.id))continue;released.push(x.id);pay-=wage(x);}
  return released;
 }
 function release(w,team,ids){for(const id of ids){const f=w.fighters[id];f.lastTeam=team.id;f.team=null;f.contract=null;f.freeAgentSince=w.season;team.roster=team.roster.filter(x=>x!==id);team.lineup=team.lineup.filter(x=>x!==id);}}
@@ -664,8 +665,31 @@ export function seasonLogEntry(w,history){
  return {season:w.season,format:w.format,battleMode:w.settings.battleMode,engine:w.teamEngine,
   teams:w.teams.map(t=>({id:t.id,name:t.name,wins:record.get(t.id)?.wins??0,losses:record.get(t.id)?.losses??0,playoff:finish.get(t.id)??null,champion:t.id===history.champion,roster:t.roster.map(id=>`${castLabel(w.fighters[id])} ${w.fighters[id]?.summary?.tier??''}`.trim())})),
   fighters:Object.entries(w.stats??{}).filter(([,s])=>s.games).map(([id,s])=>{const f=w.fighters[id]??{};return {id,team:f.team??null,class:f.traits?.class??null,subclass:f.traits?.subclass??null,race:f.traits?.race??null,tier:f.summary?.tier??null,role:f.castRole??f.role??null,games:s.games,wins:s.wins,damage:Math.round(s.damage),healing:Math.round(s.healing),kills:s.kills,deaths:s.deaths,cc:Math.round(s.ccSeconds)};}),
-  games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner])};
+  games:seasonGames(w).map(g=>[g.comps[0],g.comps[1],g.winner]),
+  table:seasonTable(w),bracket:seasonBracket(w.playoffs)};
 }
+// The full table and bracket of a season, kept in its log entry so past seasons can be browsed after the next one
+// starts. Each playoff game is [winning side, home HP, away HP, seconds]; in Core siege the HP is the cores'.
+export function seasonTable(w){return divisionStandings(w).map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.rows.map(r=>({id:r.id,wins:r.wins,losses:r.losses,division:r.division,conference:r.conference,margin:r.margin,streak:r.streak}))}))}));}
+export function seasonBracket(p){
+ if(!p)return null;
+ return {seeds:structuredClone(p.seeds),rounds:p.rounds.map(r=>({key:r.key,name:r.name,series:r.series.map(s=>({home:s.home,away:s.away,bestOf:s.bestOf,winner:s.winner,games:s.games.map(g=>[g.winnerTeam,...(g.objective?.coreHp??g.hp??[0,0]).map(Math.round),Math.round(g.seconds??0)])}))}))};
+}
+// One past season for the archive: its table, bracket and title. Seasons logged before tables were kept rebuild a
+// table from each team's record and playoff finish, grouped by the league's conferences and divisions.
+export function pastSeason(w,season){
+ // A season just crowned is not logged until the offseason starts, so it is read live.
+ const live=season===w.season&&w.phase==='complete'?{season,battleMode:w.settings.battleMode,teams:[],table:seasonTable(w),bracket:seasonBracket(w.playoffs)}:null;
+ const entry=live??(w.seasonLog??[]).find(e=>e.season===season)??null,title=(w.titles??[]).find(t=>t.season===season)??null;
+ if(!entry&&!title)return null;
+ const names=Object.fromEntries(w.teams.map(t=>[t.id,t.name]));for(const t of entry?.teams??[])names[t.id]=t.name;
+ let table=entry?.table??null;
+ if(!table&&entry){const byId=new Map(entry.teams.map(t=>[t.id,t]));table=w.conferences.map(c=>({name:c.name,divisions:c.divisions.map(d=>({name:d.name,rows:d.teams.map(id=>byId.get(id)).filter(Boolean).sort((a,b)=>b.wins-a.wins||a.losses-b.losses||(a.name<b.name?-1:1)).map(t=>({id:t.id,wins:t.wins,losses:t.losses,playoff:t.playoff}))}))}));}
+ const finish=Object.fromEntries((entry?.teams??[]).map(t=>[t.id,t.playoff]));
+ return {season,battleMode:entry?.battleMode??null,names,table,bracket:entry?.bracket??null,finish,title};
+}
+// Every season that can be browsed, newest first.
+export function pastSeasons(w){return [...new Set([...(w.seasonLog??[]).map(e=>e.season),...(w.titles??[]).map(t=>t.season)])].filter(n=>n<w.season||n===w.season&&['complete','offseason'].includes(w.phase)).sort((a,b)=>b-a);}
 // Win rates over the logged seasons, with Wilson 95% intervals: per subclass, class and role (fighter games), per
 // starting composition (team games, at least 10), and each season's teams.
 function wilson(wins,n){if(!n)return [0,0];const z=1.96,p=wins/n,c=p+z*z/(2*n),m=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n)),d=1+z*z/n;return [Math.round((c-m)/d*1000)/10,Math.round((c+m)/d*1000)/10];}
@@ -720,7 +744,9 @@ export function startOffseason(w,rookies){
  // Contracts that ended this season: AI teams re-sign the fighters they want back who want to stay; everyone else
  // tests free agency. The coached team's expiring fighters wait for the coach.
  const {resigned,departed,expiring}=expireContracts(w);
- const releases={};for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
+ const releases={},fresh=new Set(resigned.map(r=>r.id));for(const team of w.teams){if(isUser(w,team.id))continue;const ids=aiReleases(w,team,fresh);release(w,team,ids);if(ids.length)releases[team.id]=ids;}
+ // A re-signing the cap undid counts as a release, not a re-signing.
+ for(const r of resigned.filter(r=>!w.fighters[r.id].team)){resigned.splice(resigned.indexOf(r),1);departed.push({id:r.id,team:r.team,reason:'released'});}
  w.offseason={season:w.season,meta,step:w.settings.userTeam?'resign':'trades',ratingChanges:changes,retired:retired.length,veterans:aging.retired,declined:aging.declined,extended:aging.extended,inducted:inducted.map(e=>({id:e.id,name:e.name,reason:e.reason})),rookies:rookies.map(c=>c.id),fired,releases,trades:[],resigned,departed,expiring};
  if(!w.settings.userTeam){aiTrades(w);startFreeAgency(w);}
  return w;

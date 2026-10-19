@@ -2,7 +2,7 @@ import {seriesGameOptions,seriesScore} from './team-series.js';
 import {gamePlanFields} from './game-plan-ui.js';
 import {engineForMode} from './team-engine-versions.js';
 import {gamePlanSummary} from './team-game-plan.js';
-// Team league screen: found a 2v2 / 3v3 / 5v5 league, draft, play the season and run the offseason, as a spectator or a coach.
+// Team league screen: found a 2v2 / 3v3 / 5v5 league, run free agency, play the season and run the offseason, as a spectator or a coach.
 import * as LEAGUE from './team-league.js';
 import {poolFighter} from './team-generation.js';
 import {generator} from './team-ui.js';
@@ -24,7 +24,7 @@ export function mountTeamLeague(host,hooks){
  const button=(text,className='quiet')=>{const b=el('button',text,className);b.type='button';return b;};
  let loadRequest=0,size=3,world=null,revision=0,busy=false,selected=null,stopping=false,partner=null,weekView=null,poolRole='all',poolSort='ovr',poolPage=0,recapOpen=false,resultsOpen=false,unsavedGame=null;
  const pool=createSimulationPool(new URL('./team-sim-worker.js',import.meta.url));
- const championSeasonsOpen=new Set();
+ let archiveSeason=null;
  const status=el('p','','team-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const body=el('div','','team-league'),dialog=el('dialog','','fighter-dialog'),panel=el('dialog','','fighter-dialog league-panel');dialog.setAttribute('aria-label','Fighter details');panel.setAttribute('aria-label','League records');host.append(status,body,panel,dialog);
  panel.addEventListener('click',e=>{if(e.target===panel)panel.close();});
@@ -53,12 +53,20 @@ export function mountTeamLeague(host,hooks){
    for(let i=0;i<plan.length;i++){fighters.push(poolFighter(kit.pools,kit.luck,plan[i],i,seed,kit.name));if(i%6===5){say(`Scouting fighters… ${i+1} / ${plan.length}`);await new Promise(r=>setTimeout(r,0));}}
    say('Founding the league…');busy=false;
    await command({action:'start',worldId:crypto.randomUUID(),teams,seed,battleMode,fighters:fighters.map(wire)});
-   say(`${teams}-team ${size}v${size} league founded with ${plan.length} fighters. The coaches are ready to draft.`);
+   say(`${teams}-team ${size}v${size} league founded with ${plan.length} fighters, all free agents. The coaches are ready to bid.`);
   }catch(e){say(e.message,true);}finally{busy=false;hooks.busy(false);render();}
  }
- const afterDraft=()=>{if(!world)return;if(world.draft.complete||world.phase==='ready')say(world.season>1&&world.phase==='ready'?`The offseason is over. Season ${world.season} rosters are set.`:'Draft complete. Every roster is set and cap-legal.');else if(mine()&&LEAGUE.onTheClock(world)===mine().id)say('You are on the clock. Pick a fighter.');};
- const draft=count=>command({action:'draft',count}).then(afterDraft).catch(e=>say(e.message,true));
- const pick=fighter=>command({action:'pick',fighter}).then(()=>{say(`You drafted ${world.fighters[fighter].name}.`);afterDraft();}).catch(e=>say(e.message,true));
+ // After a free-agency round: who signed with you, who chose another team, and what's next.
+ const afterMarket=()=>{
+  if(!world)return;if(world.phase==='ready'){say(world.season>1?`Free agency is over. Season ${world.season} rosters are set.`:'The opening auction is over. Every roster is set.');return;}
+  const results=world.market?.results??[],signed=results.filter(r=>r.signed===mine()?.id),lost=results.filter(r=>r.signed!==mine()?.id);
+  const parts=[...signed.map(r=>`${world.fighters[r.fighter].name} signed with you`),...lost.map(r=>`${world.fighters[r.fighter].name} ${r.signed?`chose the ${name(r.signed)}`:'turned you down'}`)];
+  say(`Round ${world.market.round} done.${parts.length?' '+parts.join('; ')+'.':''}${mine()&&openSpots(mine())?` You have ${openSpots(mine())} open spot${openSpots(mine())>1?'s':''}: make your offers.`:''}`);
+ };
+ const openSpots=team=>world.settings.rosterSize-team.roster.length;
+ const marketSim=count=>command({action:'market',count}).then(afterMarket).catch(e=>say(e.message,true));
+ const offer=(fighter,salary,years)=>command({action:'offer',fighter,salary,years}).then(()=>say(`Offer made to ${world.fighters[fighter].name}: ${money(salary)} × ${years} season${years>1?'s':''}. It goes out with the next round.`)).catch(e=>say(e.message,true));
+ const withdraw=fighter=>command({action:'withdraw',fighter}).then(()=>say(`Offer to ${world.fighters[fighter].name} withdrawn.`)).catch(e=>say(e.message,true));
  const mine=()=>world?.settings.userTeam?LEAGUE.teamById(world,world.settings.userTeam):null;
  const claim=team=>command({action:'claim',team}).then(()=>say(team?`You are now head coach of the ${name(team)}.`:'The AI coach is back in charge.')).catch(e=>say(e.message,true));
  async function beginSeason(){
@@ -73,7 +81,7 @@ export function mountTeamLeague(host,hooks){
    for(let i=0;i<plan.length;i++){rookies.push(poolFighter(kit.pools,kit.luck,plan[i],i,seed,kit.name));if(i%6===5){say(`Scouting rookies… ${i+1} / ${plan.length}`);await new Promise(r=>setTimeout(r,0));}}
    say('Updating values and contracts…');busy=false;
    await command({action:'offseason',rookies:rookies.map(wire)});
-   say(world.phase==='offseason'&&world.offseason.step==='decisions'?'Values are updated. Decide who stays on your roster.':`The offseason is open: ${world.offseason?.trades.length??0} trades so far. The rookie draft is next.`);
+   const o=world.offseason??world.lastOffseason;say(world.phase==='offseason'&&world.offseason.step==='resign'?`Values are updated. ${world.offseason.expiring.length?`${world.offseason.expiring.length} of your contracts ended: re-sign or let go.`:'None of your contracts ended.'} Then the trade window and free agency.`:`The offseason played out: ${o.resigned.length} re-signed, ${o.departed.length} left their teams, ${(o.signings??[]).filter(l=>l.from).length} changed teams in free agency.`);
   }catch(e){say(e.message,true);}finally{busy=false;hooks.busy(false);render();}
  }
  const name=id=>LEAGUE.teamById(world,id).name;
@@ -117,7 +125,8 @@ export function mountTeamLeague(host,hooks){
  function showFighter(id,snapshot,title){
   const f=snapshot??world?.fighters[id];if(!f)return;const t=f.traits,stats=snapshot?f.seasonStats:world.stats?.[id],ability=x=>x&&!/^no (second )?(power|ability)$/i.test(x)?x:null;dialog.replaceChildren();
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>dialog.close();
-  const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${money(f.salary)} salary`,'muted'));
+  const info=el('div');info.append(el('p',`${roleText(f)} · ${f.summary.tier} tier${!title&&rookie(f)?' · rookie':''}`,'eyebrow'),el('h3',f.name),el('p',`${title?title.championName:f.team?name(f.team):'Free agent'} · OVR ${snapshot?f.ovr:delta(f)} · ${title?money(f.salary)+' salary':contractText(f,true)}`,'muted'));
+  if(!title&&f.prefs)info.append(el('p',styleText(f),'muted fighter-style'));
   if(!title&&f.careerStart!==undefined){const n=LEAGUE.careerSeason(world,f);info.append(el('p',`Career season ${n} of ${LEAGUE.CAREER.retireAfter}${n>LEAGUE.CAREER.retireAfter?' · earned another season':n===LEAGUE.CAREER.retireAfter?' · retires after this season unless MVP or in top form':n>=LEAGUE.CAREER.declineFrom?' · declining with age':''}`,'muted fighter-career'));}
   const sprite=mountSpritePreview(f),identity=el('div','','fighter-dialog-id');identity.append(...(sprite?[sprite]:[]),info);head.append(identity,close);
   const traits=el('dl','','fighter-traits');
@@ -133,7 +142,21 @@ export function mountTeamLeague(host,hooks){
   const breakdown=button('Full trait breakdown','button secondary');breakdown.onclick=()=>{dialog.close();openTraitDetails({id:f.id,name:f.name,role:f.role,traits:f.traits,summary:f.summary},'overview');};
   dialog.append(head,el('h4','Traits'),traits,el('h4','Stats'),bars,el('h4',`Season ${title?.season??world.season}`),season,...(c?[el('h4','Career'),career]:[]),breakdown);dialog.showModal();
  }
- function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',money(f.salary)),...extra.map(cell));return tr;}
+ function fighterRow(f,extra=[],ovrText=String(f.ovr)){const tr=el('tr','',`role-${f.role}`);tr.append(cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',f.summary.tier),el('td',ovrText,'ovr'),el('td',contractText(f)),...extra.map(cell));return tr;}
+ // Contracts: the salary a team pays and the last season it covers; free agents show what they ask.
+ function contractText(f,long=false){
+  if(!world.contractsVersion)return money(f.salary)+(long?' salary':'');
+  if(!f.contract)return long?`free agent · asks ${money(f.salary)} for ${LEAGUE.wantedYears(world,f)} season${LEAGUE.wantedYears(world,f)>1?'s':''}`:`asks ${money(f.salary)}`;
+  const c=f.contract,last=c.until===world.season&&['ready','season','playoffs','complete'].includes(world.phase);
+  return long?`${money(c.salary)} a season through season ${c.until}${last?' (final year)':''} · market value ${money(f.salary)}`:`${money(c.salary)} · to S${c.until}${last?' ⏳':''}`;
+ }
+ // A fighter's preferred style, and how he fits his team (±4% to strength, speed, durability and magic in games).
+ function styleText(f){
+  const style=f.prefs.style,label=style==='balanced'?'Adaptable: fits any style':`Prefers ${TACTIC_TEXT[style][0].toLowerCase()} teams`;if(!f.team)return label+'.';
+  const team=LEAGUE.teamById(world,f.team),fit=LEAGUE.fit(world,f,team);
+  return `${label} · ${fit>0?`fits how the ${team.name} play (+4% in games)`:fit<0?`clashes with how the ${team.name} play (−4% in games)`:`neutral fit with the ${team.name}`}.`;
+ }
+ const fitMark=(f,team)=>{const n=world.contractsVersion?LEAGUE.fit(world,f,team):0;return n>0?'▲ fits':n<0?'▼ clash':'·';};
  const delta=f=>f.lastOvr!==undefined&&f.lastOvr!==f.ovr?`${f.ovr} (${f.ovr>f.lastOvr?'+':''}${f.ovr-f.lastOvr})`:String(f.ovr);
  function check(label,checked=false){const box=el('input');box.type='checkbox';box.checked=checked;box.setAttribute('aria-label',label);return box;}
  function table(headers,rows,caption){const wrap=el('div','','table-scroll'),t=el('table','','team-league-table');if(caption)t.append(el('caption',caption));const head=el('thead'),hr=el('tr');for(const h of headers)hr.append(el('th',h));head.append(hr);const tb=el('tbody');tb.append(...rows);t.append(head,tb);wrap.append(t);return wrap;}
@@ -141,10 +164,30 @@ export function mountTeamLeague(host,hooks){
   const head=el('div','','fighter-dialog-head'),close=button('Close','quiet');close.onclick=()=>panel.close();head.append(el('h3',title),close);
   panel.replaceChildren(head,content);panel.showModal();panel.scrollTop=0;
  }
- function championsPanel(){
-  const box=el('div'),wins=[...(world.titles??[])].sort((a,b)=>b.season-a.season);if(!wins.length)box.append(el('p','No champions yet.','muted'));
-  for(const title of wins){const season=el('details','','champion-season');season.open=championSeasonsOpen.has(title.season);season.ontoggle=()=>{season.open?championSeasonsOpen.add(title.season):championSeasonsOpen.delete(title.season);};season.append(el('summary',`Season ${title.season} \u00b7 ${title.championName??name(title.champion)}${title.mvpName?` \u00b7 MVP ${title.mvpName}`:''}`));if(title.roster?.length){const rows=[...title.roster].sort((a,b)=>Number(b.starter)-Number(a.starter)||b.ovr-a.ovr).map(f=>{const row=el('tr');row.append(cell(fighterLink(f,title)),el('td',ROLE_LABELS[f.role]),el('td',String(f.ovr)),el('td',f.starter?'Final lineup':'Bench'));return row;});season.append(table(['Fighter','Role','OVR','Lineup'],rows,'Championship roster'));}else season.append(el('p','The winning roster was not recorded for this older season.','muted'));box.append(season);}
-  return box;
+ // Past seasons: pick any finished season to see its champion, full table and playoff bracket game by game.
+ function seasonsPanel(){
+  const box=el('div','','past-seasons'),list=LEAGUE.pastSeasons(world);
+  if(!list.length){box.append(el('p','No finished seasons yet.','muted'));return box;}
+  if(!list.includes(archiveSeason))archiveSeason=list[0];
+  const draw=()=>{
+   const n=archiveSeason,at=list.indexOf(n),p=LEAGUE.pastSeason(world,n),nameOf=id=>p.names[id]??id,title=p.title;
+   const picker=el('div','','season-picker'),older=button('‹ Older','quiet'),newer=button('Newer ›','quiet'),pick=el('select');
+   pick.setAttribute('aria-label','Season');for(const s of list){const o=el('option',`Season ${s}${(world.titles??[]).find(t=>t.season===s)?` · ${nameOf((world.titles.find(t=>t.season===s)).champion)}`:''}`);o.value=String(s);o.selected=s===n;pick.append(o);}
+   older.disabled=at>=list.length-1;newer.disabled=at<=0;older.onclick=()=>{archiveSeason=list[at+1];draw();};newer.onclick=()=>{archiveSeason=list[at-1];draw();};pick.onchange=()=>{archiveSeason=Number(pick.value);draw();};
+   picker.append(older,pick,newer);const parts=[picker];
+   if(title){const final=p.bracket?.rounds.at(-1)?.series[0],score=final?[0,1].map(i=>final.games.filter(g=>g[0]===i).length):null,won=final?.winner===final?.home?0:1;
+    const banner=el('section','','champion-banner');banner.append(el('p',`Season ${n} · Forgefire Crown${p.battleMode==='core'?' · Core siege':''}`,'eyebrow'),el('h3',`👑 ${title.championName??nameOf(title.champion)}`),el('p',`Defeated ${nameOf(title.runnerUp)} in the final${score?`, ${score[won]}–${score[1-won]}`:''}.`,'muted'));
+    if(title.mvpName)banner.append(el('p',`MVP: ${title.mvpName}${title.mvpTeam?` (${nameOf(title.mvpTeam)})`:''}`,'mvp'));parts.push(banner);}
+   if(p.table)parts.push(standingsView(p.table,p.bracket?.seeds,nameOf,p.bracket?null:{finish:p.finish,champion:title?.champion}));
+   if(p.bracket)parts.push(bracketView(p.bracket,nameOf));
+   else parts.push(el('p',p.table?'The full bracket was not recorded for this older season; the Playoffs column shows how far each team went.':'Only the champion was recorded for this season.','muted'));
+   if(title?.roster?.length){const rows=[...title.roster].sort((a,b)=>Number(b.starter)-Number(a.starter)||b.ovr-a.ovr).map(f=>{const row=el('tr');row.append(cell(fighterLink(f,title)),el('td',ROLE_LABELS[f.role]),el('td',String(f.ovr)),el('td',f.starter?'Final lineup':'Bench'));return row;});parts.push(table(['Fighter','Role','OVR','Lineup'],rows,'Championship roster'));}
+   // Every champion at a glance; a row opens that season.
+   const titles=[...(world.titles??[])].sort((a,b)=>b.season-a.season);
+   if(titles.length){const rows=titles.map(t=>{const tr=el('tr','',t.season===n?'seeded':''),open=button(`Season ${t.season}`,'quiet small');open.onclick=()=>{archiveSeason=t.season;draw();box.scrollIntoView?.({block:'start'});};tr.append(cell(open),el('td',t.championName??nameOf(t.champion)),el('td',nameOf(t.runnerUp)),el('td',t.mvpName??'—'));return tr;});parts.push(table(['Season','Champion','Runner-up','MVP'],rows,'All champions'));}
+   box.replaceChildren(...parts);
+  };
+  draw();return box;
  }
  // Hall of Fame: retired MVPs and role standouts with their lifetime numbers.
  function hallPanel(){
@@ -171,7 +214,7 @@ export function mountTeamLeague(host,hooks){
  }
  function renderSetup(){
   const card=el('section','','team-league-setup'),pick=el('div','','team-size-pick');
-  card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches draft from a fresh pool of team cast fighters (ten classes, every subclass equally likely), S and A tier (rare SS). Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters; every pick costs salary under a shared cap.`,'muted'));
+  card.append(el('h3',`Found a ${size}v${size} league`),el('p',`AI head coaches bid for a fresh pool of team cast fighters (ten classes, every subclass equally likely), S and A tier (rare SS), in an opening auction. Rosters hold ${LEAGUE.FORMATS[size].rosterSize} fighters on contracts of 1–4 seasons under a shared salary cap; fighters sign with the offer they like best.`,'muted'));
   const rules=el('select'),rulesLabel=el('label','Battle rules');rules.setAttribute('aria-label','League battle rules');for(const [value,text]of [...(size===2?[]:[['core','Core siege']]),['teamfight',size===2?'Team battle':'Classic teamfight']]){const o=el('option',text);o.value=value;rules.append(o);}rules.value=size===2?'teamfight':'core';rules.disabled=busy;rulesLabel.append(rules);card.append(rulesLabel);
   for(const teams of LEAGUE.LEAGUE_SIZES){const b=button(`${teams} teams`,'button secondary');b.disabled=busy;b.onclick=()=>found(teams,rules.value);const label=el('span',`${LEAGUE.poolSize(size,teams)} fighters · ${teams===32?'2 conferences × 4 divisions':teams===16?'2 conferences × 2 divisions':'2 conferences'}`,'muted');const option=el('div','','team-size-option');option.append(b,label);pick.append(option);}
   card.append(pick);body.append(card);
@@ -195,8 +238,8 @@ export function mountTeamLeague(host,hooks){
   const tactic=LEAGUE.teamTactic(world,team),plays=LEAGUE.compLabel(LEAGUE.roleCounts(world,{roster:[...starters]})),plan=LEAGUE.compLabel(LEAGUE.starterTargets(world,team));
   section.append(el('h3',team.name+(coached?' · your team':'')),el('p',`${coached?'You are head coach':'Head coach '+team.coach.name+' · '+LEAGUE.PERSONALITIES[team.coach.personality].label} · ${team.conference} ${team.division} · cap space ${money(LEAGUE.capSpace(world,team))} · tactic: ${TACTIC_TEXT[tactic][0]}`,'muted'),el('p',`Plays: ${plays||'—'}${plays!==plan?` · coach's plan: ${plan}`:''}`,'team-comp'));if(world.settings.battleMode==='core')section.append(el('p',`Game plan: ${gamePlanSummary(LEAGUE.teamGamePlan(world,team))}`,'team-comp'));
   const editing=coached&&['ready','season','playoffs'].includes(world.phase),size=LEAGUE.FORMATS[world.format].size,boxes=[];
-  const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>starters.has(b.id)-starters.has(a.id)||b.ovr-a.ovr).map(f=>{if(!editing)return fighterRow(f,[starters.has(f.id)?'Starter':'Bench']);const box=check(`Start ${f.name}`,starters.has(f.id));box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[box]);});
-  section.append(table(['Fighter','Role','Tier','OVR','Salary',editing?'Start':'Lineup'],rows,`Roster · team OVR ${LEAGUE.teamOverall(world,team)}`));
+  const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>starters.has(b.id)-starters.has(a.id)||b.ovr-a.ovr).map(f=>{if(!editing)return fighterRow(f,[fitMark(f,team),starters.has(f.id)?'Starter':'Bench']);const box=check(`Start ${f.name}`,starters.has(f.id));box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[fitMark(f,team),box]);});
+  section.append(table(['Fighter','Role','Tier','OVR','Contract','Style fit',editing?'Start':'Lineup'],rows,`Roster · team OVR ${LEAGUE.teamOverall(world,team)}`));
   if(coached){
    const row=el('div','','coach-tools');
    if(editing){
@@ -213,7 +256,7 @@ export function mountTeamLeague(host,hooks){
    row.append(pickTactic);section.append(el('h4','Coaching'),row);
    if(world.settings.battleMode==='core'){const fields=gamePlanFields(LEAGUE.teamGamePlan(world,team),{disabled:busy,onchange:plan=>command({action:'gamePlan',plan}).then(()=>say(`Game plan set: ${gamePlanSummary(plan)}.`)).catch(e=>say(e.message,true))});section.append(el('h4','Core siege game plan'),fields.element);}
   }
-  if(world.draft.complete&&team.roster.length>=size){
+  if(world.phase!=='market'&&team.roster.length>=size){
    const opponents=world.teams.filter(t=>t.id!==team.id),choice=el('select');choice.setAttribute('aria-label','Scrimmage opponent');for(const t of opponents){const o=el('option',`${t.name} · OVR ${LEAGUE.teamOverall(world,t)}`);o.value=t.id;choice.append(o);}
    const watch=button('Watch scrimmage','button primary');watch.disabled=busy||hooks.blocked();
    watch.onclick=async()=>{try{const rival=LEAGUE.teamById(world,choice.value),squads=[team,rival].map(t=>LEAGUE.starters(world,t)),result=await hooks.watch(squads,crypto.getRandomValues(new Uint32Array(1))[0],{conditions:{time:'random',weather:'random',ground:'random',map:'random'},tactics:[LEAGUE.teamTactic(world,team),LEAGUE.teamTactic(world,rival)],engineVersion:engineForMode(world.settings.battleMode),...(world.settings.battleMode==='core'?{gamePlans:[LEAGUE.teamGamePlan(world,team),LEAGUE.teamGamePlan(world,rival)]}:{}),caption:`Scrimmage · ${team.name} vs ${rival.name}`});say(`${result.winnerTeam?rival.name:team.name} win the scrimmage (${result.reason}).`);}catch(e){say(e.message,true);}};
@@ -221,35 +264,40 @@ export function mountTeamLeague(host,hooks){
   }
   return section;
  }
- function renderDraft(top=null){
-  const d=world.draft,total=LEAGUE.totalPicks(world),made=d.picks.length,panel=el('section','','team-draft'),coach=mine();let myTurn=false,eligibleIds=new Set();
-  if(world.phase==='offseason')panel.append(el('h3',`Season ${world.season+1} draft · rookies and free agents`,'offseason-title'));
-  if(!d.complete){
-   const slot=LEAGUE.draftSlot(world),team=LEAGUE.teamById(world,slot.team),clock=el('div','','draft-clock');myTurn=coach?.id===team.id;
-   clock.append(el('span',`Round ${slot.round} · pick ${slot.pick} · ${made+1} of ${total}`,'eyebrow'),el('strong',myTurn?`You are on the clock: ${team.name}`:`On the clock: ${team.name}`),el('span',myTurn?`Coach plan still wants ${Object.entries(LEAGUE.eligible(world,team).unmet).filter(([,n])=>n).map(([r,n])=>`${n} ${ROLE_LABELS[r].toLowerCase()}`).join(', ')||'filled'} · ${team.roster.length}/${world.settings.rosterSize} signed · cap space ${money(LEAGUE.capSpace(world,team))}`:`${team.coach.name} · ${LEAGUE.PERSONALITIES[team.coach.personality].label} · cap space ${money(LEAGUE.capSpace(world,team))}`,'muted'));
-   if(myTurn)clock.classList.add('mine');
-   const actions=el('div','','draft-actions');let roundLeft=0;for(let i=made;i<total&&LEAGUE.draftSlot(world,i).round===slot.round;i++)roundLeft++;
-   if(myTurn){
-    eligibleIds=new Set(LEAGUE.eligible(world,team).candidates.map(f=>f.id));
-    const auto=button('Let the scouts pick','button secondary');auto.disabled=busy||hooks.blocked();auto.onclick=()=>pick(LEAGUE.coachChoice(world,team).id);actions.append(auto);
-   }else{
-    const waiting=!!coach&&(d.slots?d.slots.slice(made).some(s=>s.team===coach.id):coach.roster.length<world.settings.rosterSize);
-    for(const [text,count,cls]of [['Sim next pick',1,'button primary'],['Sim round',roundLeft,'button secondary'],[waiting?'Sim to your pick':'Sim full draft',total-made,'quiet']]){const b=button(text,cls);b.disabled=busy||hooks.blocked();b.onclick=()=>draft(count);actions.append(b);}
-   }
+ // Free agency (the opening auction and every offseason): rounds of offers; each fighter signs the one he likes best.
+ function renderFreeAgency(top=null){
+  const m=world.market,live=LEAGUE.marketOpen(world),panel=el('section','','team-draft'),coach=mine(),bidding=live&&!!coach&&openSpots(coach)>0,offers=new Map((m?.offers??[]).map(o=>[o.fighter,o]));
+  if(live){
+   panel.append(el('h3',m.kind==='founding'?'Opening auction':`Season ${world.season+1} free agency`,'offseason-title'));
+   const clock=el('div','','draft-clock');clock.append(el('span',`Round ${m.round+1} of up to ${LEAGUE.CONTRACT.rounds} · ${world.teams.reduce((n,t)=>n+openSpots(t),0)} roster spots open`,'eyebrow'));
+   if(bidding){
+    const room=LEAGUE.capSpace(world,coach),committed=[...offers.values()].reduce((n,o)=>n+o.salary,0);clock.classList.add('mine');
+    clock.append(el('strong',`${coach.name}: ${openSpots(coach)} open spot${openSpots(coach)>1?'s':''} · ${offers.size} offer${offers.size===1?'':'s'} out`),el('span',`Cap space ${money(room)} · offered ${money(committed)} · free agents take less as the rounds go on (now ${Math.round(LEAGUE.askFloor(m.round)*100)}% of their ask). Unfilled spots after the last round get the cheapest free agents on one-season minimum deals.`,'muted'));
+   }else clock.append(el('strong',coach?`${coach.name}: roster full`:'Teams bid for every free agent'),el('span','Each fighter signs the offer he likes best: money, a contender, a starting spot, a team that plays his style, loyalty and the length he wants.','muted'));
+   const actions=el('div','','draft-actions');
+   if(bidding){const next=button(offers.size?'Send offers · next round':'Pass · next round','button primary');next.disabled=busy||hooks.blocked();next.onclick=()=>marketSim(1);actions.append(next);}
+   else for(const [text,count,cls]of [['Sim next round',1,'button primary'],['Sim to the end',100,'button secondary']]){const b=button(text,cls);b.disabled=busy||hooks.blocked();b.onclick=()=>marketSim(count);actions.append(b);}
    (top??panel).append(clock,actions);
+   if(offers.size){const rows=[...offers.values()].map(o=>{const f=world.fighters[o.fighter],b=button('Withdraw','quiet small');b.disabled=busy;b.onclick=()=>withdraw(o.fighter);return fighterRow(f,[`${money(o.salary)} × ${o.years}`,b]);});panel.append(table(['Fighter','Role','Tier','OVR','Asks','Your offer',''],rows,'Your offers this round'));}
   }
-  const recent=d.picks.slice(-10).reverse().map(p=>{const f=world.fighters[p.fighter],tr=el('tr','',`role-${f.role}`);tr.append(el('td',`${p.round}.${p.pick}${p.exception?' · min. exception':''}`),el('td',LEAGUE.teamById(world,p.team).name),cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',String(f.ovr),'ovr'),el('td',money(f.salary)));return tr;});
+  const log=m?.log??[],recent=log.slice(-12).reverse().map(l=>{const f=world.fighters[l.fighter];if(!f)return null;const tr=el('tr','',`role-${f.role}`);tr.append(el('td',`R${l.round}${l.exception?' · min. deal':''}`),el('td',name(l.team)),cell(fighterLink(f)),el('td',`${roleText(f)}`),el('td',String(f.ovr),'ovr'),el('td',`${money(l.salary)} × ${l.years}`),el('td',l.from&&world.teams.some(t=>t.id===l.from)?`from ${name(l.from)}`:''));return tr;}).filter(Boolean);
   // The whole pool, filterable by role and sortable, so every fighter can be scouted.
   const pool=LEAGUE.available(world),sorts={ovr:(a,b)=>b.ovr-a.ovr||a.salary-b.salary,value:(a,b)=>b.ovr/b.salary-a.ovr/a.salary||b.ovr-a.ovr,salary:(a,b)=>a.salary-b.salary||b.ovr-a.ovr,stats:(a,b)=>b.summary.total-a.summary.total};
   const filters=el('div','','pool-filters');
   for(const [key,label]of [['all','All'],['tank',`${ROLE_GLYPH.tank} Tanks`],['healer',`${ROLE_GLYPH.healer} Healers`],['controller',`${ROLE_GLYPH.controller} Controllers`],['damage',`${ROLE_GLYPH.damage} Damage`]]){const n=key==='all'?pool.length:pool.filter(f=>f.role===key).length,chip=button(`${label} ${n}`,'pool-chip');chip.setAttribute('aria-pressed',String(poolRole===key));chip.onclick=()=>{poolRole=key;poolPage=0;render();};filters.append(chip);}
   const order=el('select');order.setAttribute('aria-label','Sort fighters');for(const [key,label]of [['ovr','Best OVR'],['value','Best value (OVR per salary)'],['salary','Cheapest'],['stats','Highest total stats']]){const o=el('option',label);o.value=key;o.selected=poolSort===key;order.append(o);}order.onchange=()=>{poolSort=order.value;poolPage=0;render();};filters.append(order);
-  // Twelve fighters per page; the arrows page through the rest.
+  // Twelve fighters per page; the arrows page through the rest. A coach with open spots makes offers from here.
   const shown=pool.filter(f=>poolRole==='all'||f.role===poolRole).sort(sorts[poolSort]),pages=Math.max(1,Math.ceil(shown.length/12)),page=Math.min(poolPage,pages-1);
-  const best=shown.slice(page*12,page*12+12).map(f=>{if(!myTurn)return fighterRow(f);const b=button('Draft',eligibleIds.has(f.id)?'button primary small':'quiet small');b.disabled=busy||!eligibleIds.has(f.id);if(!eligibleIds.has(f.id))b.title='Over your cap reserve, or a required role is still open.';b.onclick=()=>pick(f.id);return fighterRow(f,[b]);});
+  const offerCell=f=>{const wrap=el('div','','offer-controls'),pay=el('input'),years=el('select'),send=button(offers.has(f.id)?'Update':'Offer','button primary small'),made=offers.get(f.id);
+   pay.type='number';pay.min='0.1';pay.step='0.1';pay.value=String(made?.salary??f.salary);pay.setAttribute('aria-label',`Salary offer for ${f.name} (millions)`);pay.disabled=busy;
+   years.setAttribute('aria-label',`Seasons for ${f.name}`);years.disabled=busy;for(let y=1;y<=LEAGUE.CONTRACT.maxYears;y++){const o=el('option',`${y} yr${y>1?'s':''}${y===LEAGUE.wantedYears(world,f)?' · wants':''}`);o.value=String(y);o.selected=y===(made?.years??LEAGUE.wantedYears(world,f));years.append(o);}
+   send.disabled=busy;send.onclick=()=>offer(f.id,Math.round(Number(pay.value)*10)/10,Number(years.value));wrap.append(pay,years,send);return wrap;};
+  // A coach's offer controls sit on their own row under each fighter, so the table stays narrow enough for the side panel.
+  const best=shown.slice(page*12,page*12+12).flatMap(f=>{const row=fighterRow(f,[f.prefs?(f.prefs.style==='balanced'?'Any':TACTIC_TEXT[f.prefs.style][0]):'—']);if(!bidding)return [row];
+   const tr=el('tr','',`role-${f.role} offer-row${offers.has(f.id)?' offered':''}`),td=el('td');td.colSpan=6;td.append(offerCell(f));tr.append(td);return [row,tr];});
   const grid=el('div','','draft-grid');
-  if(recent.length)grid.append(table(['Pick','Team','Fighter','Role','OVR','Salary'],recent,'Latest picks'));
-  const poolPanel=el('div','','pool-panel'),list=table(['Fighter','Role','Tier','OVR','Salary',...(myTurn?['']:[])],best,`${d.complete?'Free agents':'Available'} · ${shown.length} of ${pool.length}${myTurn?` · ${eligibleIds.size} you can afford`:''}`);
+  if(recent.length)grid.append(table(['Round','Team','Fighter','Role','OVR','Contract','Moved'],recent,live?'Latest signings':'Signings'));
+  const poolPanel=el('div','','pool-panel'),list=table(['Fighter','Role','Tier','OVR','Asks','Prefers'],best,`Free agents · ${shown.length} of ${pool.length}`);
   const pager=el('div','','pool-pager'),back=button('‹','quiet'),forward=button('›','quiet');back.setAttribute('aria-label','Previous 12 fighters');forward.setAttribute('aria-label','Next 12 fighters');back.disabled=page<=0;forward.disabled=page>=pages-1;back.onclick=()=>{poolPage=page-1;render();};forward.onclick=()=>{poolPage=page+1;render();};
   pager.append(back,el('span',shown.length?`${page*12+1}–${Math.min(shown.length,page*12+12)} of ${shown.length} · page ${page+1} / ${pages}`:'No fighters','muted'),forward);poolPanel.append(filters,list,pager);grid.append(poolPanel);
   panel.append(grid);body.append(panel);
@@ -270,20 +318,30 @@ export function mountTeamLeague(host,hooks){
   const rows=games.map(g=>{const r=results.get(g.id),tr=el('tr','',r?'played':'');tr.append(el('td',name(g.home),r?.winner===g.home?'won':''),el('td',r?`${r.hp[0]}%–${r.hp[1]}%`:'vs','score'),el('td',name(g.away),r?.winner===g.away?'won':''));return tr;});
   wrap.append(nav,table(['Home','Health','Away'],rows,`Week ${week} of ${total} · ${games.filter(g=>results.has(g.id)).length}/${games.length} played`));return wrap;
  }
- function renderStandings(){
-  const wrap=el('section','','team-standings'),seeds=world.playoffs?.seeds;
-  for(const conference of LEAGUE.divisionStandings(world)){const c=el('div','','team-conference');c.append(el('h3',conference.name+' conference'));
-   for(const division of conference.divisions){const rows=division.rows.map(r=>{const seed=seeds?.[conference.name]?.indexOf(r.id),tr=el('tr','',seed>=0?'seeded':'');tr.append(el('td',(seed>=0?`#${seed+1} `:'')+r.team),el('td',String(r.wins)),el('td',String(r.losses)),el('td',r.pct.toFixed(3).replace(/^0/,'')),el('td',r.division.join('–')),el('td',r.conference.join('–')),el('td',(r.margin>0?'+':'')+r.margin),el('td',r.streak||'—'));return tr;});
-    c.append(table(['Team','W','L','PCT','DIV','CONF','±HP','STRK'],rows,division.name));}
+ function renderStandings(){return standingsView(LEAGUE.divisionStandings(world),world.playoffs?.seeds,name);}
+ function renderPlayoffs(){return bracketView(LEAGUE.seasonBracket(world.playoffs),name);}
+ // A season's table by conference and division. Older archived seasons only know each team's record and how far it
+ // went in the playoffs, so they show that instead of the division and conference records.
+ function standingsView(conferences,seeds,nameOf,older=null){
+  const wrap=el('section','','team-standings');
+  for(const conference of conferences){const c=el('div','','team-conference');c.append(el('h3',conference.name+' conference'));
+   for(const division of conference.divisions){const rows=division.rows.map(r=>{const seed=seeds?.[conference.name]?.indexOf(r.id)??-1,tr=el('tr','',seed>=0?'seeded':''),pct=r.wins+r.losses?r.wins/(r.wins+r.losses):0;tr.append(el('td',(seed>=0?`#${seed+1} `:'')+nameOf(r.id)),el('td',String(r.wins)),el('td',String(r.losses)),el('td',pct.toFixed(3).replace(/^0/,'')));
+     if(older){const reached=older.finish[r.id];tr.append(el('td',older.champion===r.id?'Champion':reached?LEAGUE.ROUND_NAMES[reached]??reached:'—'));}
+     else tr.append(el('td',r.division.join('–')),el('td',r.conference.join('–')),el('td',(r.margin>0?'+':'')+r.margin),el('td',r.streak||'—'));return tr;});
+    c.append(table(older?['Team','W','L','PCT','Playoffs']:['Team','W','L','PCT','DIV','CONF','±HP','STRK'],rows,division.name));}
    wrap.append(c);}
   return wrap;
  }
- function renderPlayoffs(){
+ // The playoff bracket: every series with its score and each game's winner, health left (winner first) and length.
+ function bracketView(b,nameOf){
   const wrap=el('section','','team-playoffs');wrap.append(el('h3','Playoffs'));const grid=el('div','','playoff-rounds');
-  for(const round of world.playoffs.rounds){const col=el('div','','playoff-round');col.append(el('h4',round.name));
-   for(const s of round.series){const wins=[0,1].map(i=>s.games.filter(g=>g.winnerTeam===i).length),card=el('div','',`playoff-series${s.winner?' done':''}`),seedOf=id=>{const conf=LEAGUE.teamById(world,id).conference;return world.playoffs.seeds[conf].indexOf(id)+1;};
-    for(const [i,id]of [[0,s.home],[1,s.away]]){const row=el('div','',`playoff-team${s.winner===id?' winner':''}`);row.append(el('span',`#${seedOf(id)}`,'seed'),el('span',name(id)),el('strong',String(wins[i])));card.append(row);}
-    card.append(el('small',`Bo${s.bestOf}`));col.append(card);}
+  const seedOf=id=>{for(const ids of Object.values(b.seeds)){const i=ids.indexOf(id);if(i>=0)return i+1;}return '';},clock=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
+  for(const round of b.rounds){const col=el('div','','playoff-round');col.append(el('h4',round.name));
+   for(const s of round.series){const wins=[0,1].map(i=>s.games.filter(g=>g[0]===i).length),card=el('div','',`playoff-series${s.winner?' done':''}`);
+    for(const [i,id]of [[0,s.home],[1,s.away]]){const row=el('div','',`playoff-team${s.winner===id?' winner':''}`);row.append(el('span',`#${seedOf(id)}`,'seed'),el('span',nameOf(id)),el('strong',String(wins[i])));card.append(row);}
+    card.append(el('small',`Bo${s.bestOf}`));
+    if(s.games.length){const games=el('ol','','series-games');for(const g of s.games){const li=el('li',`${nameOf(g[0]?s.away:s.home)} won · ${g[1+g[0]]}%–${g[2-g[0]]}% · ${clock(g[3])}`);games.append(li);}card.append(games);}
+    col.append(card);}
    grid.append(col);}
   wrap.append(grid);return wrap;
  }
@@ -291,16 +349,16 @@ export function mountTeamLeague(host,hooks){
   const title=world.titles.at(-1),mvp=title.mvp&&world.fighters[title.mvp],stats=mvp&&world.stats[mvp.id],banner=el('section','','champion-banner');
   banner.append(el('p',`Season ${title.season} · Forgefire Crown`,'eyebrow'),el('h3',`👑 ${name(title.champion)}`),el('p',`Defeated ${name(title.runnerUp)} in the final.`,'muted'));
   if(mvp)banner.append(el('p',`MVP: ${mvp.name} (${name(mvp.team)}) · ${stats.damage} damage · ${stats.healing} healing · ${stats.kills} KOs · ${stats.ccSeconds}s control`,'mvp'));
-  banner.append(el('p','Next: the offseason. Values update from this season\'s stats, coaches keep or release, trade, and draft the rookie class.','muted'));return banner;
+  banner.append(el('p','Next: the offseason. Values update from this season\'s stats, contracts end and teams re-sign who they can, then the trade window and free agency.','muted'));return banner;
  }
  function renderLeaders(){
   const wrap=el('div','','draft-grid');for(const [key,label]of [['impact','Impact'],['damage','Damage'],['healing','Healing'],['kills','KOs']]){const rows=LEAGUE.leaders(world,key).map(x=>{const tr=el('tr','',`role-${x.fighter.role}`);tr.append(cell(fighterLink(x.fighter)),el('td',name(x.fighter.team)),el('td',String(x.value)));return tr;});if(rows.length)wrap.append(table(['Fighter','Team',label],rows,label+' leaders'));}
   return wrap;
  }
- // Coach mode: take over a team before the draft or between seasons, or hand it back to its AI coach.
+ // Coach mode: take over a team before the opening auction or between seasons, or hand it back to its AI coach.
  function coachControl(){
-  const wrap=el('div','','coach-control'),coach=mine(),open=world.phase==='draft'&&!world.draft.picks.length||['ready','complete'].includes(world.phase);
-  if(coach){wrap.append(el('span',`Coaching · ${coach.name}`,'coach-badge'));if(!(world.phase==='offseason'&&world.offseason.step!=='draft')){const b=button('Hand back','quiet');b.disabled=busy;b.onclick=()=>claim(null);wrap.append(b);}}
+  const wrap=el('div','','coach-control'),coach=mine(),open=world.phase==='market'&&world.market?.round===0||['ready','complete'].includes(world.phase);
+  if(coach){wrap.append(el('span',`Coaching · ${coach.name}`,'coach-badge'));if(!(world.phase==='offseason'&&world.offseason.step==='resign')){const b=button('Hand back','quiet');b.disabled=busy;b.onclick=()=>claim(null);wrap.append(b);}}
   if(open){
    const choice=el('select');choice.setAttribute('aria-label','Team to coach');choice.disabled=busy;
    for(const t of world.teams.slice().sort((a,b)=>a.name<b.name?-1:1)){if(t.id===coach?.id)continue;const o=el('option',`${t.name} · OVR ${LEAGUE.teamOverall(world,t)}`);o.value=t.id;o.selected=t.id===selected;choice.append(o);}
@@ -318,8 +376,12 @@ export function mountTeamLeague(host,hooks){
   const box=el('div','','offseason-report'),released=Object.values(o.releases).reduce((n,ids)=>n+ids.length,0);
   box.append(el('h4',`Season ${o.season} offseason report`));
   const facts=el('div','','offseason-facts');
-  for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],...(o.veterans?.length?[[o.veterans.length,'veterans retired']]:[]),[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
+  const moved=(o.signings??[]).filter(l=>l.from);
+  for(const [value,label]of [[o.ratingChanges.length,'ratings changed'],...(o.resigned?[[o.resigned.length,'re-signed'],[o.departed.length,'contracts ended'],[moved.length,'changed teams']]:[]),[released,'released'],[o.trades.length,'trades'],[o.fired.length,'coaches fired'],[o.retired,'retired'],...(o.veterans?.length?[[o.veterans.length,'veterans retired']]:[]),[o.rookies.length,'rookies']]){const f=el('div','','offseason-fact');f.append(el('strong',String(value)),el('span',label));facts.append(f);}
   box.append(facts);
+  // The biggest moves of free agency: stars who left their team, with their honours.
+  const headlines=moved.map(l=>({l,f:world.fighters[l.fighter]})).filter(x=>x.f&&world.teams.some(t=>t.id===x.l.from)).sort((a,b)=>b.f.ovr-a.f.ovr).slice(0,5);
+  if(headlines.length){const ul=el('ul','','offseason-notes');for(const {l,f}of headlines){const honours=[f.career?.mvps?`${f.career.mvps}× MVP`:'',f.career?.titles?`${f.career.titles} title${f.career.titles>1?'s':''}`:''].filter(Boolean).join(', ');ul.append(el('li',`${f.name} (OVR ${f.ovr}${honours?', '+honours:''}) leaves the ${name(l.from)} for the ${name(l.team)}: ${money(l.salary)} × ${l.years}.`));}box.append(el('h4','Free-agency moves'),ul);}
   if(o.veterans?.length)box.append(el('p',`Retired after ${LEAGUE.CAREER.retireAfter}+ seasons: ${o.veterans.map(v=>`${v.name}${v.team?` (${name(v.team)})`:''}`).join(', ')}.`,'muted'));
   if(o.extended?.length)box.append(el('p',`Earned another season: ${o.extended.map(v=>`${v.name} (${v.reason==='mvp'?'season MVP':'top form'})`).join(', ')}.`,'muted'));
   if(o.inducted?.length)box.append(el('p',`Into the Hall of Fame: ${o.inducted.map(v=>v.name).join(', ')}.`,'muted'));
@@ -344,40 +406,49 @@ export function mountTeamLeague(host,hooks){
   if(grid.childNodes.length)box.append(grid);
   return box;
  }
- function renderDecisions(top){
-  const team=mine(),wrap=el('div','','offseason-step'),boxes=[];
-  wrap.append(el('h4','Keep or release'),el('p','Kept fighters cost their new salary. Released fighters become free agents; open roster spots are filled in the draft.','muted'));
-  const rows=team.roster.map(id=>world.fighters[id]).sort((a,b)=>b.ovr-a.ovr).map(f=>{const box=check(`Release ${f.name}`);box.value=f.id;box.disabled=busy;boxes.push(box);return fighterRow(f,[box],delta(f));});
-  const payLine=el('p','','offseason-pay'),confirmButton=button('Confirm roster','button primary');
-  const update=()=>{const out=boxes.filter(b=>b.checked).map(b=>b.value),pay=LEAGUE.payroll(world,team)-out.reduce((n,id)=>n+world.fighters[id].salary,0),over=pay>world.settings.salaryCap+1e-9;payLine.textContent=`Payroll ${money(pay)} / ${money(world.settings.salaryCap)} cap · ${team.roster.length-out.length} kept, ${out.length} released${over?' · over the cap: release more':''}`;payLine.classList.toggle('over',over);confirmButton.disabled=busy||over;};
-  for(const b of boxes)b.onchange=update;update();
-  confirmButton.onclick=()=>{const release=boxes.filter(b=>b.checked).map(b=>b.value);command({action:'decide',release}).then(()=>say(`${release.length?`Released ${release.length}.`:'Everyone stays.'} The trade window is open.`)).catch(e=>say(e.message,true));};
+ // Re-signing: the coach's expiring contracts (each fighter's ask and whether he wants to stay), plus releases.
+ function renderResign(top){
+  const team=mine(),wrap=el('div','','offseason-step'),expiring=world.offseason.expiring??[],ending=new Set(expiring.map(e=>e.id)),keepers=[],releases=[];
+  wrap.append(el('h4','Re-sign or let go'),el('p','Contracts that ended this season. A fighter who wants to stay re-signs if you meet his ask; one testing free agency leaves whatever you offer, though you can still bid for him there. Fighters under contract can be released (the contract ends).','muted'));
+  const rows=expiring.map(e=>{const f=world.fighters[e.id],box=check(`Re-sign ${f.name}`,e.stance==='stay'),pay=el('input'),years=el('select');box.value=f.id;box.disabled=busy||e.stance!=='stay';
+   pay.type='number';pay.step='0.1';pay.min='0.1';pay.value=String(e.ask.salary);pay.disabled=busy||e.stance!=='stay';pay.setAttribute('aria-label',`Salary for ${f.name}`);years.disabled=busy||e.stance!=='stay';years.setAttribute('aria-label',`Seasons for ${f.name}`);
+   for(let y=1;y<=LEAGUE.CONTRACT.maxYears;y++){const o=el('option',`${y} season${y>1?'s':''}`);o.value=String(y);o.selected=y===e.ask.years;years.append(o);}
+   keepers.push({id:f.id,box,pay,years});const offerWrap=el('div','','offer-controls');offerWrap.append(pay,years);
+   return fighterRow(f,[e.stance==='stay'?'Wants to stay':'Testing free agency',`${money(e.ask.salary)} × ${e.ask.years}`,offerWrap,box],delta(f));});
+  const under=team.roster.filter(id=>!ending.has(id)).map(id=>world.fighters[id]).sort((a,b)=>b.ovr-a.ovr).map(f=>{const box=check(`Release ${f.name}`);box.value=f.id;box.disabled=busy;releases.push(box);return fighterRow(f,[box],delta(f));});
+  const payLine=el('p','','offseason-pay'),confirmButton=button('Confirm decisions','button primary');
+  const plan=()=>({resign:keepers.filter(k=>k.box.checked).map(k=>({fighter:k.id,salary:Math.round(Number(k.pay.value)*10)/10,years:Number(k.years.value)})),release:releases.filter(b=>b.checked).map(b=>b.value)});
+  const update=()=>{const {resign,release}=plan(),pay=team.roster.filter(id=>!ending.has(id)&&!release.includes(id)).reduce((n,id)=>n+LEAGUE.wage(world.fighters[id]),0)+resign.reduce((n,o)=>n+o.salary,0),over=pay>world.settings.salaryCap+1e-9;
+   payLine.textContent=`Payroll ${money(pay)} / ${money(world.settings.salaryCap)} cap · ${resign.length} re-signing, ${expiring.length-resign.length} leaving, ${release.length} released${over?' · over the cap: release more or re-sign fewer':''}`;payLine.classList.toggle('over',over);confirmButton.disabled=busy||over;};
+  for(const k of keepers){k.box.onchange=update;k.pay.oninput=update;}for(const b of releases)b.onchange=update;update();
+  confirmButton.onclick=()=>command({action:'decide',decisions:plan()}).then(()=>{const r=world.offseason?.resignResults??[],kept=r.filter(x=>x.signed).length,turned=r.filter(x=>!x.signed&&x.reason==='ask').length;say(`${kept} re-signed${turned?`, ${turned} turned down your offer`:''}. The trade window is open.`);}).catch(e=>say(e.message,true));
   const row=el('div','','draft-actions');row.append(confirmButton);top.append(payLine,row);
-  wrap.append(table(['Fighter','Role','Tier','OVR (Δ)','New salary','Release'],rows));return wrap;
+  if(rows.length)wrap.append(table(['Fighter','Role','Tier','OVR (Δ)','Old contract','Mood','Asks','Your offer','Re-sign'],rows,'Expiring contracts'));else wrap.append(el('p','None of your contracts ended this season.','muted'));
+  wrap.append(table(['Fighter','Role','Tier','OVR (Δ)','Contract','Release'],under,'Under contract'));return wrap;
  }
- function renderMarket(top){
+ function renderTrades(top){
   const team=mine(),wrap=el('div','','offseason-step'),others=world.teams.filter(t=>t.id!==team.id);if(!others.some(t=>t.id===partner))partner=others[0].id;
   const rival=LEAGUE.teamById(world,partner);
-  wrap.append(el('h4','Trade window'),el('p','Swap one or two fighters for the same number. AI coaches accept only deals that make their team better and keep both payrolls under the cap.','muted'));
+  wrap.append(el('h4','Trade window'),el('p','Swap one or two fighters for the same number; contracts move with them. AI coaches accept only deals that make their team better and keep both payrolls under the cap.','muted'));
   const choice=el('select');choice.setAttribute('aria-label','Trade partner');choice.disabled=busy;for(const t of others){const o=el('option',`${t.name} · ${t.coach.name} (${LEAGUE.PERSONALITIES[t.coach.personality].label}) · cap space ${money(LEAGUE.capSpace(world,t))}`);o.value=t.id;o.selected=t.id===partner;choice.append(o);}
   choice.onchange=()=>{partner=choice.value;render();};
   const give=[],get=[],side=(t,list,verb)=>t.roster.map(id=>world.fighters[id]).sort((a,b)=>b.ovr-a.ovr).map(f=>{const box=check(`${verb} ${f.name}`);box.value=f.id;box.disabled=busy;list.push(box);return fighterRow(f,[box],delta(f));});
-  const grid=el('div','','draft-grid trade-grid');grid.append(table(['Fighter','Role','Tier','OVR','Salary','Give'],side(team,give,'Give'),`${team.name} · payroll ${money(LEAGUE.payroll(world,team))}`),table(['Fighter','Role','Tier','OVR','Salary','Get'],side(rival,get,'Get'),`${rival.name} · payroll ${money(LEAGUE.payroll(world,rival))}`));
+  const grid=el('div','','draft-grid trade-grid');grid.append(table(['Fighter','Role','Tier','OVR','Contract','Give'],side(team,give,'Give'),`${team.name} · payroll ${money(LEAGUE.payroll(world,team))}`),table(['Fighter','Role','Tier','OVR','Contract','Get'],side(rival,get,'Get'),`${rival.name} · payroll ${money(LEAGUE.payroll(world,rival))}`));
   const propose=button('Propose trade','button primary'),summary=el('p','','offseason-pay');
-  const update=()=>{const a=give.filter(b=>b.checked).map(b=>b.value),b=get.filter(x=>x.checked).map(x=>x.value),pay=LEAGUE.payroll(world,team)-a.reduce((n,id)=>n+world.fighters[id].salary,0)+b.reduce((n,id)=>n+world.fighters[id].salary,0),over=pay>world.settings.salaryCap+1e-9;
+  const update=()=>{const a=give.filter(b=>b.checked).map(b=>b.value),b=get.filter(x=>x.checked).map(x=>x.value),pay=LEAGUE.payroll(world,team)-a.reduce((n,id)=>n+LEAGUE.wage(world.fighters[id]),0)+b.reduce((n,id)=>n+LEAGUE.wage(world.fighters[id]),0),over=pay>world.settings.salaryCap+1e-9;
    summary.textContent=a.length||b.length?`${a.length} for ${b.length} · your payroll after: ${money(pay)} / ${money(world.settings.salaryCap)}${over?' · over the cap':''}`:'Pick fighters from both rosters.';summary.classList.toggle('over',over);propose.disabled=busy||!a.length||a.length!==b.length||a.length>2||over;};
   for(const b of [...give,...get])b.onchange=update;update();
   propose.onclick=()=>{const a=give.filter(b=>b.checked).map(b=>b.value),b=get.filter(x=>x.checked).map(x=>x.value);command({action:'trade',partner,give:a,get:b}).then(()=>say(`Deal! ${b.map(id=>world.fighters[id].name).join(' & ')} join the ${team.name}.`)).catch(e=>say(e.message,true));};
-  const done=button('Close the trade window','quiet');done.disabled=busy;done.onclick=()=>command({action:'closeMarket'}).then(()=>{say(world.phase==='offseason'?'The draft is set: worst record picks first, the champion last.':`No open roster spots. Season ${world.season} rosters are set.`);afterDraft();}).catch(e=>say(e.message,true));
+  const done=button('Close the trade window','quiet');done.disabled=busy;done.onclick=()=>command({action:'closeTrades'}).then(()=>say(world.phase==='offseason'?`Free agency is open: ${LEAGUE.available(world).length} free agents, ${world.teams.reduce((n,t)=>n+openSpots(t),0)} open spots. Make your offers.`:`Season ${world.season} rosters are set.`)).catch(e=>say(e.message,true));
   const row=el('div','','draft-actions'),skip=el('div','','draft-actions');row.append(propose);skip.append(done);top.append(skip);wrap.append(choice,grid,summary,row);return wrap;
  }
  function renderOffseason(){
-  const o=world.offseason,panel=el('section','','team-draft offseason'),steps=el('ol','','offseason-steps'),order=['decisions','market','draft'];
-  for(const [key,label]of [['decisions','Keep or release'],['market','Trade window'],['draft','Draft']]){const li=el('li',label);li.classList.toggle('active',o.step===key);li.classList.toggle('done',order.indexOf(key)<order.indexOf(o.step));steps.append(li);}
-  // Each step's main actions (confirm, close the window, sim the draft) sit on top, above the steps.
+  const o=world.offseason,panel=el('section','','team-draft offseason'),steps=el('ol','','offseason-steps'),order=['resign','trades','freeAgency'];
+  for(const [key,label]of [['resign','Re-sign'],['trades','Trade window'],['freeAgency','Free agency']]){const li=el('li',label);li.classList.toggle('active',o.step===key);li.classList.toggle('done',order.indexOf(key)<order.indexOf(o.step));steps.append(li);}
+  // Each step's main actions (confirm, close the window, next round) sit on top, above the steps.
   const top=el('div','','offseason-actions');panel.append(top,steps,offseasonReport(o));
-  if(o.step==='decisions')panel.append(renderDecisions(top));else if(o.step==='market')panel.append(renderMarket(top));
-  body.append(panel);if(o.step==='draft')renderDraft(top);if(!top.childElementCount)top.remove?.();
+  if(o.step==='resign')panel.append(renderResign(top));else if(o.step==='trades')panel.append(renderTrades(top));
+  body.append(panel);if(o.step==='freeAgency')renderFreeAgency(top);if(!top.childElementCount)top.remove?.();
  }
  // Re-rendering rebuilds the panel; keep the reader's scroll position (page or scrolling panel).
  const scroller=()=>{if(typeof getComputedStyle!=='function')return null;for(let n=host.parentElement;n;n=n.parentElement){const y=getComputedStyle(n).overflowY;if((y==='auto'||y==='scroll')&&n.scrollHeight>n.clientHeight)return n;}return null;};
@@ -391,15 +462,15 @@ export function mountTeamLeague(host,hooks){
    reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
    card.append(info,reset);body.append(card);return;
   }
-  const phaseLabel={draft:'Draft day',ready:'Rosters set',season:'Regular season',playoffs:'Playoffs',complete:'Season complete',offseason:'Offseason'}[world.phase];
+  const phaseLabel={market:'Opening auction',ready:'Rosters set',season:'Regular season',playoffs:'Playoffs',complete:'Season complete',offseason:'Offseason'}[world.phase];
   const head=el('div','','team-league-head'),info=el('div');info.append(el('p',`Season ${world.season} · ${world.teams.length} teams`,'eyebrow'),el('h3',phaseLabel));
   const meta=el('p',`${world.settings.battleMode==='core'?'Core siege · ':''}Salary cap ${money(world.settings.salaryCap)} · ${world.settings.rosterSize}-fighter rosters · ${Object.keys(world.fighters).length} scouted fighters`,'muted');info.append(meta);
   const reset=button('Delete league','quiet danger');reset.disabled=busy;reset.onclick=()=>{if(confirm(`Delete this ${size}v${size} league and all its fighters?`))command({action:'reset'}).then(()=>say('League deleted.')).catch(e=>say(e.message,true));};
-  const side=el('div','','team-league-side');side.append(coachControl(),rulesControl(),reset);head.append(info,side);body.append(head);// Past champions, the Hall of Fame and the balance report open in their own window.
+  const side=el('div','','team-league-side');side.append(coachControl(),rulesControl(),reset);head.append(info,side);body.append(head);// Past seasons, the Hall of Fame and the balance report open in their own window.
   const panels=el('div','','league-panels');
-  for(const [label,build]of [[`Past champions${world.titles?.length?` (${world.titles.length})`:''}`,championsPanel],[`Hall of Fame${world.hallOfFame?.length?` (${world.hallOfFame.length})`:''}`,hallPanel],['Balance report',balancePanel]]){const b=button(label,'button secondary');b.onclick=()=>openPanel(label.replace(/ \(\d+\)$/,''),build());panels.append(b);}
+  for(const [label,build]of [[`Past seasons${LEAGUE.pastSeasons(world).length?` (${LEAGUE.pastSeasons(world).length})`:''}`,seasonsPanel],[`Hall of Fame${world.hallOfFame?.length?` (${world.hallOfFame.length})`:''}`,hallPanel],['Balance report',balancePanel]]){const b=button(label,'button secondary');b.onclick=()=>openPanel(label.replace(/ \(\d+\)$/,''),build());panels.append(b);}
   body.append(panels);
-  if(world.phase==='draft'){renderDraft();renderTeams();return;}
+  if(world.phase==='market'){renderFreeAgency();renderTeams();return;}
   if(world.phase==='offseason'){renderOffseason();renderTeams();return;}
   const season=el('section','','team-draft');season.append(seasonActions());
   if(world.phase==='complete')season.prepend(renderChampion());
@@ -410,7 +481,7 @@ export function mountTeamLeague(host,hooks){
   if(world.phase==='ready'&&world.lastOffseason)season.append(offseasonReport(world.lastOffseason));
   body.append(season);
   if(world.results?.length){body.append(renderStandings(),renderLeaders());}
-  const recap=el('details','','module draft-recap');recap.open=recapOpen;recap.ontoggle=()=>{recapOpen=recap.open;};recap.append(el('summary','Draft recap & free agents'));const holder=body;const before=body.childNodes.length;renderDraft();const draftPanel=body.lastChild;if(body.childNodes.length>before){recap.append(draftPanel);holder.append(recap);}
+  const recap=el('details','','module draft-recap');recap.open=recapOpen;recap.ontoggle=()=>{recapOpen=recap.open;};recap.append(el('summary','Signings & free agents'));const holder=body;const before=body.childNodes.length;renderFreeAgency();const draftPanel=body.lastChild;if(body.childNodes.length>before){recap.append(draftPanel);holder.append(recap);}
   renderTeams();
  }
  return {show(next){if(next!==size){size=next;world=null;selected=null;weekView=null;poolRole='all';if(panel.open)panel.close();say('');}load();}};
