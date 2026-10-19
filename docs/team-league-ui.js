@@ -146,7 +146,7 @@ export function mountTeamLeague(host,hooks){
   for(const title of wins){const season=el('details','','champion-season');season.open=championSeasonsOpen.has(title.season);season.ontoggle=()=>{season.open?championSeasonsOpen.add(title.season):championSeasonsOpen.delete(title.season);};season.append(el('summary',`Season ${title.season} \u00b7 ${title.championName??name(title.champion)}${title.mvpName?` \u00b7 MVP ${title.mvpName}`:''}`));if(title.roster?.length){const rows=[...title.roster].sort((a,b)=>Number(b.starter)-Number(a.starter)||b.ovr-a.ovr).map(f=>{const row=el('tr');row.append(cell(fighterLink(f,title)),el('td',ROLE_LABELS[f.role]),el('td',String(f.ovr)),el('td',f.starter?'Final lineup':'Bench'));return row;});season.append(table(['Fighter','Role','OVR','Lineup'],rows,'Championship roster'));}else season.append(el('p','The winning roster was not recorded for this older season.','muted'));box.append(season);}
   return box;
  }
- // Hall of Fame (TEAM-BATTLES.md, "Careers"): retired MVPs and role standouts with their lifetime numbers.
+ // Hall of Fame: retired MVPs and role standouts with their lifetime numbers.
  function hallPanel(){
   const box=el('div');if(!world.hallOfFame?.length)box.append(el('p','No legends yet. MVPs and standout veterans join when they retire.','muted'));
   for(const e of world.hallOfFame??[]){
@@ -158,7 +158,7 @@ export function mountTeamLeague(host,hooks){
   }
   return box;
  }
- // Balance report (TEAM-BATTLES.md, "Season log and balance report"): win rates over every logged season, and a
+ // Balance report: win rates over every logged season, and a
  // plain-text copy to share.
  function balancePanel(){
   const box=el('div'),report=LEAGUE.balanceReport(world);

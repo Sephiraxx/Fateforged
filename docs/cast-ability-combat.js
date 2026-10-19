@@ -1,4 +1,4 @@
-// Team abilities built from effect primitives (TEAM-BATTLES.md, "Ability primitives"; the abilities are data in
+// Team abilities built from effect primitives (the abilities are data in
 // team-abilities.js). They use the ordinary power slots, selection and resources: castPower picks and pays for them,
 // usePower starts a short cast ('castAbility'), and updateAttack resolves it after the windup, re-checking the targets
 // (an interrupted or lost cast is refunded, like support abilities).

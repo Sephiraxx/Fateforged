@@ -1,4 +1,4 @@
-// Levels and Ember Wisps in Core siege (TEAM-BATTLES.md, "Levels and Ember Wisps"): level thresholds and bonuses,
+// Levels and Ember Wisps in Core siege: level thresholds and bonuses,
 // every XP source, the wisps' spawn, pulse, reset and respawn, the coach dial, results and the status line.
 import assert from 'node:assert/strict';
 import {generation,engine} from './team-fixtures.mjs';

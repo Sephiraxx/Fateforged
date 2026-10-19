@@ -1,4 +1,4 @@
-// Full-game parity for the Rust engine (RUST-CORE.md, phases B3 and B4): plays seeded team-4.0 (Core siege) and
+// Full-game parity for the Rust engine: plays seeded team-4.0 (Core siege) and
 // team-2.9 (classic teamfight) games in JavaScript and
 // records the battle digest every 60 steps and at the end. The Rust binary `team-games` plays each game from the
 // same starting state and must reach the same digest at every checkpoint, end on the same step and report the same

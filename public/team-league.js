@@ -255,7 +255,7 @@ export function buildSchedule(w){
  return shuffle(rounds.map((games,i)=>({games,i})),w.seed^Math.imul(season,0x632be5ab)).map(({games},week)=>({week:week+1,games:games.map(([homeTeam,away],n)=>({id:`s${season}:w${week+1}:${n}`,home:homeTeam,away}))}));
 }
 const matchSeed=(w,id)=>{let h=w.seed^Math.imul(w.season,0x632be5ab);for(const ch of id)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
-// Balance is set by hand for the team cast (TEAM-BATTLES.md, "Hand balance"): leagues play the base rules and never
+// Balance is set by hand for the team cast: leagues play the base rules and never
 // audit or patch themselves.
 export function startSeason(w){
  if(w.phase!=='ready')throw new Error('Finish the draft before the season.');
@@ -548,7 +548,7 @@ export function seasonMeta(w){
  const role=ROLE_KEYS.slice().sort((a,b)=>Math.abs(edge[b])-Math.abs(edge[a]))[0];
  return {games:games.length,top,edge,roleRates:ROLE_KEYS.filter(r=>more[r].games).map(r=>({key:'role:'+r,...more[r],rate:more[r].wins/more[r].games})),shift:edge[role]?{role,winPct:Math.round((edge[role]+.5)*1000)/10,games:more[role].games}:null};
 }
-// Season log (TEAM-BATTLES.md, "Season log and balance report"): each finished season's teams with their rosters,
+// Season log: each finished season's teams with their rosters,
 // every fighter who played with their results, and every game's compositions. A season's stats and results reset
 // when the next one starts, so this is what balance checks across many seasons read (balanceReport).
 export const SEASON_LOG_LIMIT=40;

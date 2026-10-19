@@ -1,4 +1,4 @@
-// Rust core parity (RUST-CORE.md, phase B): plays seeded team-4.0 games in JavaScript, exports snapshots of their
+// Rust core parity: plays seeded team-4.0 games in JavaScript, exports snapshots of their
 // state and per-step helper results, and checks the Rust core against them.
 // node scripts/rust-parity.mjs [--quick] [--record] [--dir <dir>] [--keep]   (--record writes validation/rust-parity.json)
 //   team-state:   every snapshot loads into the Rust state model and digests to the JavaScript value.

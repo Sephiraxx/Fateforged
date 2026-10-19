@@ -1,4 +1,4 @@
-// The running state of a team battle as plain data, and a digest of it (RUST-CORE.md). Both follow the generated
+// The running state of a team battle as plain data, and a digest of it. Both follow the generated
 // schema (public/team-state-schema.js, from core/schema/team.json), which the Rust core's state model is also
 // generated from. The game exports a freshly built battle with exportState() and hands it to the WebAssembly core
 // (public/rust-core.js); the parity scripts also use the digest.

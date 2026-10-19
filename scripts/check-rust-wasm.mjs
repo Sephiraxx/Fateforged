@@ -1,4 +1,4 @@
-// The Rust core in the game (RUST-CORE.md, phases D and B4): public/fateforge-core.wasm, loaded by public/rust-core.js inside
+// The Rust core in the game: public/fateforge-core.wasm, loaded by public/rust-core.js inside
 // the simulation workers. Checks, in node:
 // - the committed public/fateforge-core.wasm was built from the current sources (validation/rust-wasm-source.json);
 //   with cargo and the wasm32 target installed, a fresh build plays the same games identically too;

@@ -1,4 +1,4 @@
-//! Classic teamfight (team-2.9, RUST-CORE.md B4): the team-4.0 chain without its Core siege layers. What differs
+//! Classic teamfight (team-2.9): the team-4.0 chain without its Core siege layers. What differs
 //! from Core siege is here: the base team layer's `step`, `teamHealth` and `result()` (d6, with d8, d9 and d12's
 //! changes to the result), which the Core siege layers replace.
 use super::consts::CC_IMMUNITY;

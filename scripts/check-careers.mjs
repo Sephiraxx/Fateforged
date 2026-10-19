@@ -1,4 +1,4 @@
-// League careers (TEAM-BATTLES.md, "Careers"): founding pools are mixed ages, fighters decline from their 7th
+// League careers: founding pools are mixed ages, fighters decline from their 7th
 // season (strength, speed, durability and magic, with the OVR) and retire after their 10th, and the rookie class
 // grows so every roster refills. Old saves get staggered ages on load.
 import assert from 'node:assert/strict';

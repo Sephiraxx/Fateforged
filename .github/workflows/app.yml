@@ -1,5 +1,5 @@
 # Builds the Fateforge app: a Windows installer (.exe, .msi) and an Android .apk. The app wraps the offline Pages
-# build (see DESKTOP-APP.md). Download the results from the workflow run's Artifacts.
+# build. Download the results from the workflow run's Artifacts.
 name: App builds
 
 on:
@@ -27,7 +27,7 @@ jobs:
             core
       - name: Install game dependencies
         run: npm ci
-      # The Rust simulation core must reproduce JavaScript math, state and engine methods bit for bit (RUST-CORE.md);
+      # The Rust simulation core must reproduce JavaScript math, state and engine methods bit for bit;
       # check it on Windows too.
       - name: Rust core parity
         run: |

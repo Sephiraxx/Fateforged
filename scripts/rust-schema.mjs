@@ -1,5 +1,5 @@
 // Builds core/schema/team.json: the typed shape of a running team battle (team-4.0 Core siege and team-2.9 classic), for the Rust core's state model
-// (RUST-CORE.md, phase B1). node scripts/rust-schema.mjs [--games-per-cell N]
+//. node scripts/rust-schema.mjs [--games-per-cell N]
 // Plays seeded games (every composition, both sizes, every map), samples the battle every 10 steps and records each
 // field's type per object kind. Fighters, Cores and the Titan share one kind, "entity"; links to them become entity
 // references. An object reached from two paths (for example a fighter's intent.slot and its team plan's slot) merges

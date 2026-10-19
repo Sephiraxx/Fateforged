@@ -1,4 +1,4 @@
-// Season log and balance report (TEAM-BATTLES.md, "Season log and balance report"): every finished season keeps its
+// Season log and balance report: every finished season keeps its
 // teams, rosters, fighter results and games after the next season resets the stats; the report adds them up.
 import assert from 'node:assert/strict';
 import {generation} from './team-fixtures.mjs';

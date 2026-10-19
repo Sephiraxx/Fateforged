@@ -1,4 +1,4 @@
-// The team cast (TEAM-BATTLES.md, "Team cast"): ten classes, each with subclasses that set the role, the weapon family
+// The team cast: ten classes, each with subclasses that set the role, the weapon family
 // and the two abilities. 2v2, 3v3 and 5v5 fighters come from this cast instead of the duel wheel: races keep their stat
 // modifiers, and nobody has a weakness. Every class is equally likely, then every subclass of that class.
 // Roles: the cast's roles (shown in the game) and the engine role each one plays (support → controller, bruiser →
@@ -35,7 +35,7 @@ export function castSubclass(className,subclassName){const c=TEAM_CLASSES.find(x
 // sum of those options plus the same kit allowance for every subclass, so they can be checked from the traits alone.
 export const CAST_BODY=Object.freeze(['race','subrace','class','strength','speed','durability','iq','magic','weapon','mastery']);
 export const CAST_KIT=Object.freeze([30,30,30,30,30]);
-// Hand balance (TEAM-BATTLES.md, "Hand balance"): extra stats per subclass on top of the kit allowance, tuned with
+// Hand balance: extra stats per subclass on top of the kit allowance, tuned with
 // scripts/balance-lab.mjs. They count in the fighter's stats but not in its tier, so a tier means the same body budget
 // for every subclass. Order: strength, speed, durability, IQ, magic.
 export const CAST_BONUS=Object.freeze({'Assassin (Executioner)':[-125,-65,-125,0,0],'Assassin (Riftwalker)':[185,90,185,0,0],'Assassin (Shadowblade)':[150,75,150,0,0],'Assassin (Venomblade)':[90,45,90,0,0],'Bard (Maestro)':[0,15,40,15,50],'Bard (Siren)':[0,-50,-90,-50,-125],'Bard (Skald)':[0,95,195,95,260],'Cleric (Light)':[0,-10,-25,-10,-30],'Cleric (Mercy)':[0,-30,-65,-30,-80],'Cleric (Ward)':[0,-25,-50,-20,-45],'Druid (Forest)':[0,15,30,15,35],'Druid (Grove)':[0,35,80,35,105],'Druid (Moon)':[0,-45,-85,-45,-115],'Guardian (Aegis)':[-100,-50,-100,0,0],'Guardian (Stoneguard)':[-95,-50,-95,0,0],'Guardian (Warden)':[185,90,185,0,0],'Mage (Blood)':[0,-65,-130,-65,-175],'Mage (Chrono)':[0,-65,-135,-65,-185],'Mage (Fire)':[0,-25,-50,-25,-65],'Mage (Frost)':[0,-50,-115,-50,-150],'Paladin (Crusader)':[-10,-5,-10,0,0],'Paladin (Justiciar)':[70,35,70,0,0],'Paladin (Oathbreaker)':[-105,-50,-105,0,0],'Ranger (Beastmaster)':[-115,-115,-95,0,0],'Ranger (Marksman)':[-40,-40,-35,0,0],'Ranger (Trapper)':[165,165,140,0,0],'Warlock (Hexer)':[0,-30,-60,-30,-75],'Warlock (Soulbinder)':[0,-50,-100,-50,-135],'Warlock (Voidcaller)':[0,-100,-195,-100,-260],'Warrior (Berserker)':[180,90,180,0,0],'Warrior (Duelist)':[235,115,235,0,0],'Warrior (Vanguard)':[170,75,170,0,0]});

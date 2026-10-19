@@ -1,5 +1,5 @@
 import './support-abilities.js';
-// Team abilities built from effect primitives (TEAM-BATTLES.md, "Ability primitives"). Each ability is data: what it
+// Team abilities built from effect primitives. Each ability is data: what it
 // targets and a list of effects; public/cast-ability-combat.js runs them. They join the generation-4 catalog, so a
 // fighter whose traits name one of them gets it as a power (powerFor), like any other ability.
 //

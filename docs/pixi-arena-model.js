@@ -73,3 +73,41 @@ export function newAbilityUses(seen,f){
 export function releaseDelay(f,id){const a=f.action;return a&&a.power?.id===id&&!a.released&&a.windup>0?Math.max(0,a.windup-(a.elapsed??0)):0;}
 // The frame an effect shows at `age` seconds, or null once it is over.
 export function fxFrame(age,frames=4,duration=FX_DURATION){return age<0||age>=duration?null:Math.min(frames-1,Math.floor(age/duration*frames));}
+// Core siege creatures and summons (sprite-art.js CREATURE_SHEETS): which row and frame a creature shows. `state` is
+// what the battle shows this frame: alive, x/y, hitFlash, `attack` (a mark that changes on every attack, from the
+// *State helpers below; a change while `armed` is false is not one), `windup` (0–1 through a telegraphed move, or
+// null) and `face` (a point to face). `memo` is the renderer's memory for that creature. Death plays once and holds
+// (`since` counts its seconds); returning plays it in reverse; a windup follows its telegraph and lands on its last
+// frame; attacks play over CREATURE_TIMES.attack; walking comes before flinching.
+export const CREATURE_TIMES=Object.freeze({attack:.45,impact:.35,hit:.2,hitEvery:.8,idle:6,walk:10,death:8});
+export function creatureFrame(sheet,state,memo,time){
+ const rows=Object.fromEntries(sheet.rows),play=sheet.play,frames=row=>rows[row]??1;
+ // Movement (for walking and facing) from the last position seen.
+ if(state.x!=null){const dt=time-(memo.t??time),dx=state.x-(memo.x??state.x),dy=state.y-(memo.y??state.y);if(dt>0){memo.moving=Math.hypot(dx,dy)/dt>8&&Math.hypot(dx,dy)<60;if(memo.moving)memo.dir=Math.atan2(dy,dx);}memo.x=state.x;memo.y=state.y;memo.t=time;}
+ if(state.face)memo.dir=Math.atan2(state.face.y-state.y,state.face.x-state.x);
+ const out=(row,frame,extra)=>({row,frame,dir:memo.dir??0,...extra});
+ // An attack is a change of its mark; the first look only records.
+ if(state.attack!==undefined){if('mark' in memo&&state.attack!==memo.mark&&state.armed!==false)memo.attackAt=time;memo.mark=state.attack;}
+ const windup=state.windup??null;if(windup==null&&memo.windup>=.75&&state.alive)memo.impactAt=time;memo.windup=windup;
+ if(!state.alive){memo.deadSince??=memo.seen?time:-Infinity;memo.seen=true;memo.attackAt=memo.impactAt=memo.riseAt=null;const since=time-memo.deadSince,n=frames(play.death);return out(play.death??'idle',play.death?Math.min(n-1,Math.floor(since*CREATURE_TIMES.death)):0,{since});}
+ if(memo.deadSince!=null){memo.deadSince=null;if(play.death)memo.riseAt=time;}memo.seen=true;
+ if(memo.riseAt!=null){const n=frames(play.death),k=Math.floor((time-memo.riseAt)*CREATURE_TIMES.death);if(k<n)return out(play.death,n-1-k,{rising:true});memo.riseAt=null;}
+ if(windup!=null&&play.windup){const n=frames(play.windup);return out(play.windup,Math.min(n-2,Math.floor(Math.max(0,Math.min(1,windup))*(n-1))));}
+ if(memo.impactAt!=null&&play.windup&&time-memo.impactAt<CREATURE_TIMES.impact)return out(play.windup,frames(play.windup)-1);
+ if(memo.attackAt!=null&&play.attack&&time-memo.attackAt<CREATURE_TIMES.attack){const n=frames(play.attack);return out(play.attack,Math.min(n-1,Math.floor((time-memo.attackAt)/CREATURE_TIMES.attack*n)));}
+ if(memo.moving&&play.walk)return out(play.walk,Math.floor(time*CREATURE_TIMES.walk)%frames(play.walk));
+ // A creature under fire flinches at most once per CREATURE_TIMES.hitEvery (the hit flash still tints every hit).
+ if(state.hitFlash>0&&play.hit&&!(time-memo.hitAt<CREATURE_TIMES.hitEvery))memo.hitAt=time;
+ if(play.hit&&time-memo.hitAt<CREATURE_TIMES.hit)return out(play.hit,Math.min(1,Math.floor((time-memo.hitAt)/CREATURE_TIMES.hit*2)));
+ return out('idle',Math.floor(time*CREATURE_TIMES.idle)%frames('idle'));
+}
+// What each creature's state is, read from the battle. The Titan punches when its next attack time moves, and its slam
+// windup follows the telegraph; a wisp zaps on a pulse when its last hitter is in reach and fought it lately
+// (level-combat.js CAMP_RULES); a summon attacks when its cooldown resets.
+export function titanState(b){const t=b.titan,target=t.target!=null?b.actorFor?.(t.target):null;
+ return {alive:t.hp>0,x:t.x,y:t.y,hitFlash:t.hitFlash,attack:b.nextTitanAttack,windup:b.slamAt==null?null:1-Math.max(0,(b.slamAt-b.time)/(b.titanRules?.telegraph??.8)),face:target?.hp>0?target:null};}
+export function campState(b,c,rules){const hitter=c.hitter>=0?b.combatants?.[c.hitter]:null,armed=!!hitter&&hitter.hp>0&&Math.hypot(hitter.x-c.x,hitter.y-c.y)<=rules.reach&&b.time-c.lastHitAt<=rules.memory;
+ return {alive:c.hp>0,hitFlash:c.hitFlash,attack:c.nextPulse,armed,face:armed?hitter:null,x:c.x,y:c.y};}
+export function summonState(b,s,memo){if(s.cooldown>(memo.cooldown??Infinity)+.01)memo.attacks=(memo.attacks??0)+1;memo.cooldown=s.cooldown;
+ const owner=b.fighters?.[s.owner],target=owner?(b.actorFor?.(owner.target)??b.fighters[owner.target]??(b.mode==='team'?null:b.fighters[1-s.owner])):null;
+ return {alive:true,x:s.x,y:s.y,attack:memo.attacks??0,face:target?.hp>0?target:null};}

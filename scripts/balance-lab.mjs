@@ -1,4 +1,4 @@
-// Balance lab for the team cast (TEAM-BATTLES.md, "Hand balance"): plays seeded games between random cast teams on
+// Balance lab for the team cast: plays seeded games between random cast teams on
 // the Rust core (WebAssembly; JavaScript when it is missing) and reports win rates with 95% intervals per subclass,
 // class and cast role, per-role output, game length and how often the level leader wins.
 // node scripts/balance-lab.mjs [--games N] [--mode core|teamfight|both] [--threads N] [--record] [--seed S]

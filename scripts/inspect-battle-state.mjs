@@ -1,4 +1,4 @@
-// Inventory of what a team battle holds while it runs, for the Rust core's state handoff (RUST-CORE.md).
+// Inventory of what a team battle holds while it runs, for the Rust core's state handoff.
 // node scripts/inspect-battle-state.mjs [engine ...]  → validation/rust-state-inventory.json
 // Plays seeded games on every map, samples the battle every second, and records each field's types per object kind
 // (battle, fighter, objective, projectile, ...), plus every function, closure, Set/Map and shared object reference.

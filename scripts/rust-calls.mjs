@@ -1,4 +1,4 @@
-// Call-by-call parity for the Rust engine (RUST-CORE.md, phase B): plays seeded team-4.0 games in JavaScript and, for
+// Call-by-call parity for the Rust engine: plays seeded team-4.0 games in JavaScript and, for
 // a sample of calls to each ported method, records the battle state before the call, the arguments, the return value
 // and the state digest after it. The Rust binary `team-calls` replays every recorded call from the same state and
 // must return the same value and leave the same state.

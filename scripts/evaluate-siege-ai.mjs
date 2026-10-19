@@ -1,4 +1,4 @@
-// How Core siege fighters react in a fight (TEAM-BATTLES.md, "Siege AI"): plays seeded 3v3 and 5v5 games and measures
+// How Core siege fighters react in a fight: plays seeded 3v3 and 5v5 games and measures
 // - retaliation: of the fighters hit by an enemy fighter (healers aside), the share that target that attacker within
 //   2 s;
 // - contested Core damage: the share of all Core damage taken while a living defender stood within 350 of the Core;
